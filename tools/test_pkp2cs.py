@@ -125,7 +125,9 @@ class w(BaseDriver):
         self.Send(commandstring)
 '''
     a = _analyse_src(src)
-    assert a.dialect == "sis_ethernet"
+    # No SIS handshake in this fixture, so it must NOT be classified sis_ethernet:
+    # "SIS" is Extron's own protocol, not a synonym for Ethernet.
+    assert a.dialect == "ethernet", a.dialect
     assert "__SetHelper" not in a.methods
     assert "__UpdateHelper" not in a.methods
     assert "__SetHelper" not in a.leftover_methods
@@ -919,6 +921,68 @@ def test_dangling_self_call_count_regression_samsung_ethernet():
     r = pkp2cs.translate_job(
         [j for j in pkp2cs.discover_jobs(SAMSUNG_PKP) if j.script_file_name == "smsg_10_6738_ethernet.py"][0])
     assert _dangling_names(r) == ["ReadMultiviewString"], _dangling_names(r)
+
+
+# --- regression: never emit a wire string absent from the source package ---
+
+def test_invented_wire_strings_are_detected():
+    """A generated module must not send bytes that appear nowhere in the .pkp it
+    came from. The SIS-dialect helper template was injecting Extron's own
+    'w0echo'/'w3cv' handshake into third-party Biamp and Clock Audio modules --
+    fabricated wire content aimed at devices that do not speak SIS."""
+    origin = "class D(BaseDriver):\n    def x(self):\n        self.Send('REAL\\r')\n"
+    generated = ("class DeviceClass:\n"
+                 "    def y(self):\n"
+                 "        self.Send('REAL\\r')\n"
+                 "        self.Send('w0echo\\r\\n')\n")
+    invented = pkp2cs.find_invented_wire_strings(generated, origin)
+    assert any("w0echo" in i for i in invented), invented
+    assert not any("REAL" in i for i in invented), invented
+
+
+def test_no_invented_strings_when_all_come_from_origin():
+    origin = "class D(BaseDriver):\n    def x(self):\n        self.Send('REAL\\r')\n"
+    generated = "class DeviceClass:\n    def y(self):\n        self.Send('REAL\\r')\n"
+    assert pkp2cs.find_invented_wire_strings(generated, origin) == []
+
+
+def test_biamp_and_clockaudio_do_not_receive_sis_handshake():
+    """Integration: the two third-party packages that exposed this."""
+    for folder, pkpname in [("Tesira", "biam_25_150_v1_20_0.pkp"),
+                            ("ClockAudio", "clau_25_1777_v1_3_0.pkp")]:
+        pkp = os.path.join(REPO_ROOT, "samples", folder, "pkp", pkpname)
+        if not os.path.exists(pkp):
+            continue
+        for r in pkp2cs.translate_pkp(pkp):
+            txt = r["source"] or ""
+            assert "w0echo" not in txt, "%s still emits the SIS handshake" % pkpname
+            assert "w3cv" not in txt, "%s still emits the SIS handshake" % pkpname
+
+
+def test_sis_dialect_requires_sis_evidence_in_the_package():
+    """The handshake template is only correct for devices that actually speak SIS.
+    Classifying every Ethernet device as SIS made the translator emit Extron's
+    'w0echo'/'w3cv' to third-party Biamp and Clock Audio hardware."""
+    head = ("from Extron2.BaseDriver import BaseDriver\n"
+            "class w(BaseDriver):\n"
+            "    def __init__(self, configs):\n"
+            "        super().__init__(configs)\n"
+            "        self.Commands = {}\n")
+    without = head + "    def ping(self):\n        self.Send('QUERY\\r')\n"
+    assert _analyse_src(without).dialect == "ethernet"
+
+    withsis = head + "    def ping(self):\n        self.Send('w0echo\\r\\n')\n"
+    assert _analyse_src(withsis).dialect == "sis_ethernet"
+
+
+def test_non_sis_ethernet_reports_untranslated_handshake():
+    """Omitting the handshake is correct; omitting it SILENTLY is not."""
+    pkp = os.path.join(REPO_ROOT, "samples", "Tesira", "pkp", "biam_25_150_v1_20_0.pkp")
+    if not os.path.exists(pkp):
+        return
+    r = pkp2cs.translate_pkp(pkp)[0]
+    reasons = {x["reason"] for x in r["residuals"]}
+    assert "connection-handshake-not-translated" in reasons, sorted(reasons)
 
 if __name__ == "__main__":
     tests = [(name, obj) for name, obj in sorted(globals().items())
