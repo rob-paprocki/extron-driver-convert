@@ -172,6 +172,31 @@ class w(BaseDriver):
     assert "DriverCmd" not in out_src
 
 
+def test_direct_cmd_prefixed_call_site_is_rewritten_like_drivercmd():
+    """A direct self._cmd_X(...) call (not routed through DriverCmd) must be
+    rewritten the same way the def itself is renamed (_cmd_ prefix stripped),
+    or the call site is left pointing at a name that no longer exists.
+    Evidenced by DTP3: _cmd_UpdateAllMatrixTie is called directly from
+    __MatchQik's body, not via self.DriverCmd(...)."""
+    src = '''
+from Extron2.BaseDriver import BaseDriver
+class w(BaseDriver):
+    def __init__(self, configs):
+        super().__init__(configs)
+        self.Commands = {}
+    def __MatchQik(self, match, tag):
+        self._cmd_UpdateAllMatrixTie(None, None)
+    def _cmd_UpdateAllMatrixTie(self, value, qualifier):
+        pass
+'''
+    a = _analyse_src(src)
+    assert "UpdateAllMatrixTie" in a.methods, a.methods.keys()
+    assert "_cmd_UpdateAllMatrixTie" not in a.methods
+    out_src = ast.unparse(a.methods["__MatchQik"])
+    assert "self.UpdateAllMatrixTie(None, None)" in out_src, out_src
+    assert "_cmd_" not in out_src, out_src
+
+
 def test_isinstance_rewritten_to_modelname_equality():
     models = [
         pkp2cs.ModelInfo("Base Model", "w.py", "w", "..EthernetProtocolAsset"),
@@ -256,6 +281,74 @@ class w(BaseDriver):
     assert "gc-dual-status-requiredtimer-dropped" in reasons
 
 
+def test_gc_onconnected_ondisconnected_never_carried_as_duplicate_defs():
+    """emit() always synthesizes its own OnConnected/OnDisconnected (see
+    onconnected-ondisconnected-synthesized). Before this fix, the GC-derived
+    originals were *also* carried through as ordinary leftover methods,
+    producing two `def OnConnected(self):` (and OnDisconnected) in the same
+    class -- Python keeps only the last, so the first (containing
+    self.__ResetLiveStatus(), a def that's correctly dropped elsewhere) was
+    silent dead code with a dangling call. analyse() must not emit them as
+    ordinary methods at all."""
+    src = '''
+from Extron2.BaseDriver import BaseDriver
+class w(BaseDriver):
+    def __init__(self, configs):
+        super().__init__(configs)
+        self.Commands = {}
+    def OnConnected(self):
+        """doc"""
+        pass
+    def OnDisconnected(self):
+        """doc"""
+        self.lastSend = 0
+        self.EchoDisabled = True
+        self.VerboseDisabled = True
+        self.__ResetLiveStatus()
+'''
+    a = _analyse_src(src)
+    assert "OnConnected" not in a.methods, a.methods.keys()
+    assert "OnDisconnected" not in a.methods, a.methods.keys()
+    assert "OnConnected" not in a.leftover_methods
+    assert "OnDisconnected" not in a.leftover_methods
+    reasons = {r["reason"] for r in a.residuals}
+    assert "gc-dual-status-no-target" in reasons, reasons
+
+
+def test_gc_ondisconnected_genuine_extra_state_reset_is_carried_through():
+    """Evidenced by shipped DTP3 (self.matrix_tie_status/self.matrix_io_names
+    resets survive in the shipped OnDisconnected) and shipped Automate VX
+    (self.Token/self.Authenticated resets, and OnConnected's
+    self.TokenRequest(None, None) kickoff, both survive in the shipped
+    module) -- genuine device-state resets in GC's OnConnected/OnDisconnected
+    are NOT GC-only dual-status boilerplate and must reach the emitted
+    module, not just the boilerplate-stripped fixed template."""
+    src = '''
+from Extron2.BaseDriver import BaseDriver
+class w(BaseDriver):
+    def __init__(self, configs):
+        super().__init__(configs)
+        self.Commands = {}
+    def OnConnected(self):
+        """doc"""
+        self.DriverCmd('TokenRequest', None, None)
+    def OnDisconnected(self):
+        """doc"""
+        self.Token = None
+        self.Authenticated = False
+        self.__ResetLiveStatus()
+    def _cmd_TokenRequest(self, value, qualifier):
+        pass
+'''
+    a = _analyse_src(src)
+    onconnected_srcs = [ast.unparse(s) for s in a.onconnected_extra_stmts]
+    ondisconnected_srcs = [ast.unparse(s) for s in a.ondisconnected_extra_stmts]
+    assert "self.TokenRequest(None, None)" in onconnected_srcs, onconnected_srcs
+    assert "self.Token = None" in ondisconnected_srcs, ondisconnected_srcs
+    assert "self.Authenticated = False" in ondisconnected_srcs, ondisconnected_srcs
+    assert not any("__ResetLiveStatus" in s for s in ondisconnected_srcs), ondisconnected_srcs
+
+
 def test_models_empty_when_single_scriptclassname():
     job = pkp2cs.TranslationJob("w.py", None, [
         pkp2cs.ModelInfo("A", "w.py", "w", None),
@@ -322,6 +415,42 @@ def test_full_translate_avx_is_http_dialect():
     assert r["dialect"] == "http"
     assert "class HTTPClass(DeviceClass):" in r["source"]
     assert "AddMatchString" not in r["source"]
+
+
+def test_avx_generated_onconnected_ondisconnected_match_shipped_extras():
+    """Integration: AVX's shipped OnConnected calls self.TokenRequest(None, None)
+    and its shipped OnDisconnected resets self.Token/self.Authenticated -- both
+    real device state, not GC dual-status boilerplate. The generated module
+    must reach them exactly once (no duplicate def, no dangling
+    __ResetLiveStatus call)."""
+    r = pkp2cs.translate_pkp(AVX_PKP)[0]
+    tree = ast.parse(r["source"])
+    cls = [n for n in tree.body if isinstance(n, ast.ClassDef)][0]
+    on_connected = [n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name == "OnConnected"]
+    on_disconnected = [n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name == "OnDisconnected"]
+    assert len(on_connected) == 1, "expected exactly one OnConnected def, found %d" % len(on_connected)
+    assert len(on_disconnected) == 1, "expected exactly one OnDisconnected def, found %d" % len(on_disconnected)
+    assert "self.TokenRequest(None, None)" in ast.unparse(on_connected[0])
+    ondisc_src = ast.unparse(on_disconnected[0])
+    assert "self.Token = None" in ondisc_src
+    assert "self.Authenticated = False" in ondisc_src
+    assert "__ResetLiveStatus" not in ondisc_src
+
+
+def test_dtp3_generated_ondisconnected_matches_shipped_matrix_state_reset():
+    """Integration: DTP3's shipped OnDisconnected resets matrix_tie_status /
+    matrix_io_names / matrix_io_names_received -- real device state carried
+    from the GC original, not GC-only bookkeeping."""
+    r = pkp2cs.translate_pkp(DTP3_PKP)[0]
+    tree = ast.parse(r["source"])
+    cls = [n for n in tree.body if isinstance(n, ast.ClassDef)][0]
+    on_disconnected = [n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name == "OnDisconnected"]
+    assert len(on_disconnected) == 1
+    src = ast.unparse(on_disconnected[0])
+    assert "self.matrix_tie_status = None" in src
+    assert "self.matrix_io_names = {}" in src
+    assert "self.matrix_io_names_received = False" in src
+    assert "__ResetLiveStatus" not in src
 
 
 # --------------------------------------------------------------------------

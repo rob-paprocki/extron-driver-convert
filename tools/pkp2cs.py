@@ -366,6 +366,23 @@ class GenericBodyRewriter(ast.NodeTransformer):
                                     attr=name, ctx=ast.Load()),
                 args=list(node.args[1:]), keywords=node.keywords)
 
+        # self._cmd_X(...) / self._cmd_SetX(...) / self._cmd_UpdateX(...) --
+        # a *direct* call-by-old-name to a def that gets the same "_cmd_"
+        # prefix stripped wherever it is defined (see the rename rules in
+        # `analyse()`). Only the DriverCmd('X', ...) call form was rewritten
+        # here before; a direct self._cmd_X(...) call site (evidenced by
+        # DTP3's __MatchQik -> self._cmd_UpdateAllMatrixTie(...)) was left
+        # pointing at a name that no longer exists once the def is renamed.
+        # Stripping the literal "_cmd_" prefix is equivalent to the rename
+        # table used for defs (same regex family), so this needs no lookup.
+        if (attr and attr.startswith("_cmd_") and isinstance(node.func.value, ast.Name)
+                and node.func.value.id == "self"):
+            new_attr = attr[len("_cmd_"):]
+            return ast.Call(
+                func=ast.Attribute(value=ast.Name(id="self", ctx=ast.Load()),
+                                    attr=new_attr, ctx=ast.Load()),
+                args=node.args, keywords=node.keywords)
+
         # self.Write<X>(value, qualifier, 'Live') -> self.WriteStatus('<X>', value, qualifier)
         if (attr and attr.startswith("Write") and attr not in ("WriteStatus", "WriteStatusHelper",
                                                                  "WriteDeviceResponseStatus")
@@ -498,6 +515,8 @@ class Analysis:
         self.method_order = []         # command-group ordering hint: list of (sort_key, final_name)
         self.leftover_methods = []     # final names of methods with no recognised command group
         self.residuals = Residuals()
+        self.onconnected_extra_stmts = []    # genuine device-state statements from GC's OnConnected
+        self.ondisconnected_extra_stmts = [] # genuine device-state statements from GC's OnDisconnected
         self.http_helper_sig = None    # ('url_kw', 'data_kw') detection aid, unused for now
 
 
