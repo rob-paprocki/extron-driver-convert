@@ -12,40 +12,69 @@ absence of evidence treated as evidence of absence. The URL pattern is plainly
 never tried. The unverified conclusion was then repeated in a finding, a commit
 message and three replies before the repo owner caught it.
 
-**Corrected measurement** — every one of the 32 endpoints Extron actually calls,
-probed directly:
+**Corrected measurement (second pass).** The first correction was *also* short,
+because it assumed a uniform `<Name>-API.htm` filename. Two more pages exist under
+different conventions, both found by the repo owner:
+
+- `StopAutoSwitch.htm` — **no `-API` suffix**
+- `ChangeRoomConfig-API.htm` — **filename shortened**, documents the
+  `ChangeRoomConfiguration` endpoint
+
+Final tally across all 32 endpoints Extron actually calls:
 
 | | count |
 |---|---|
-| documented | **27** |
-| not documented | **5** |
+| documented with a dedicated page | **29** |
+| no dedicated page | **3** |
 
-Not documented: `StopAutoSwitch`, `StartISORecord`, `StopISORecord`,
-`ISORecordStatus`, and `ChangeRoomConfiguration` (which appears only inside a
-cURL example on the Macro page).
+The three are `StartISORecord`, `StopISORecord` and `ISORecordStatus` — the entire
+ISO-record family, and nothing else. Probed under 11 name variants against both
+URL patterns: no page exists. `ISORecordStatus` does appear in `GetAllStatus`'s
+example body (`api_call_3`, with a real response shape), so it is documented by
+example but not by page.
+
+**That pattern reads as deprecation, not omission** — the owner's read, and the
+evidence supports it. Crestron demonstrably *does* remove retired calls and record
+it ("Removed support for depreciated CallPlugin API call"), so a whole feature
+family with no pages is more likely retired than overlooked. Extron's driver, whose
+own revision history spans 2019–2026, still implements it.
 
 **What this changes.**
-- The "five endpoints with no trace at all" list was wrong: `Wake` and
-  `StartAutoSwitch` are documented.
+- The "five endpoints with no trace at all" list was wrong: `Wake`,
+  `StartAutoSwitch`, `StopAutoSwitch` and `ChangeRoomConfiguration` are all
+  documented.
 - The "five sub-APIs visible only inside `GetAllStatus`'s example body" claim was
   wrong for four of the five — `AutoSwitchStatus`, `OutputStatus`, `RecordStatus`
   and `RoomConfigStatus` all have first-class pages. Only `ISORecordStatus` does not.
 - Doc-driven generation therefore looks **better** than reported below, not worse.
 
-**What survives.** A real delta remains — 5 of 32 — and the pattern it illustrates
+**What survives.** A much smaller delta — 3 of 32, all ISO-record, plausibly
+deprecated — and the pattern it illustrates
 is intact, because it never rested on this case. Samsung's shared undocumented
 firmware-bug workaround and the 1 Beyond cameras' undocumented `c2` command family
 were both established from driver bytes, not from failing to find a doc page.
 
-There is even a better instance of the exact asymmetry the original argument
-wanted: **`StartAutoSwitch` is documented and `StopAutoSwitch` is not.** The
-argument was sound; the evidence chosen for it was not.
+The replacement example I reached for — "`StartAutoSwitch` documented,
+`StopAutoSwitch` not" — **was also wrong**, for the same reason: I inferred a
+filename convention from a sample and treated it as exhaustive. Two corrections,
+two variants of the same mistake.
 
-**Methodological lesson, which is the durable part:** this project's standing rule
-is that a claim needs positive evidence. "I searched and found nothing" is not
-positive evidence about a document's contents — it is a statement about a search.
-Enumerating a doc site by keyword search is unsound; enumerate by URL pattern, or
-by an index the site itself publishes, and verify a negative before building on it.
+**Methodological lesson, which is the durable part:** a claim needs positive
+evidence, and *"I searched and found nothing" is a statement about a search, not
+about a document.*
+
+This was got wrong twice in a row, each time by a different flavour of the same
+error:
+1. keyword-search enumeration, with "two sweeps found nothing new" mistaken for
+   convergence;
+2. URL-pattern enumeration, with a convention inferred from a sample and assumed
+   exhaustive.
+
+The reliable method is an index the site itself publishes, or exhaustive
+verification of each negative before it becomes an argument. Where neither is
+available, a negative should be reported as *"not found by method X"*, never as
+*"does not exist"*. Every claim in this repo that rests on an absence should be
+read with that caveat.
 
 ---
 
