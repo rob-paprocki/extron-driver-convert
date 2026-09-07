@@ -30,7 +30,21 @@ Read this first — it says what is known, what is being built, and what is stil
 
 - `tools/pkp_dump.py` — Extron `.pkp` → JSON. Parses both original samples with every byte
   accounted for.
-- `tools/pkg_dump.py` — Crestron `.pkg` → JSON. **Being built this session**, test-first.
+- `tools/pkg_dump.py` — Crestron `.pkg` → JSON. Real ECMA-335 metadata parsing, no
+  hardcoded offsets. 23 tests.
+- `tools/wire_table.py` — the acceptance oracle. Extracts a normalised per-command
+  wire table from **both** Python dialects so they can be diffed. Unresolvable
+  expressions become *counted* opaque markers, never guesses. 34 tests.
+- `tools/pkp2cs.py` — the `.pkp` → ControlScript translator. 25 tests.
+
+**Translator scorecard** (validated independently, every difference traced to source):
+
+| pair | shipped | generated | matching | differing |
+|---|---|---|---|---|
+| DSC 12G-HD | 29 | 29 | 28 | 1 — Extron's own `LogoAssignment` bug |
+| DTP3 CP 42 | 31 | 29 | 27 | 1 + real version skew |
+| Samsung serial | 9 | 9 | **9** | **0** |
+| Automate VX | 18 | 18 | 17 | 1 — package omits `Scenario` params |
 
 ## Plan for this session
 
@@ -41,8 +55,10 @@ Read this first — it says what is known, what is being built, and what is stil
    The Automate VX macro is plain ASCII, so that ruling is now testable against a real file.
 3. **Automate VX three-way** *(running)* — Crestron-branded hardware with an Extron driver, the
    mirror of the Samsung case.
-4. **Build the `.pkp` → ControlScript translator** *(next)* — TDD, validated against all three
-   sample pairs on the wire-string table rather than on line similarity.
+4. **Build the `.pkp` → ControlScript translator** — **done**, see the scorecard above.
+5. **VISCA gap-reconstruction experiment** *(running)* — can vendor documentation close a
+   precisely-known compiled-code gap? Calibrated against the 27 *declared* transformations, whose
+   answers are visible in the driver JSON, before trusting it on the 6 that are IL-only.
 
 ## Open blockers, in order of how much they matter
 

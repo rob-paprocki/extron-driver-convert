@@ -18,9 +18,16 @@ with the shipped ControlScript module almost verbatim:
 - The last ~170 lines of both shipped modules are identical except whitespace —
   the runtime shell is a fixed template, copied rather than derived.
 
-The embedded Python even delimits the convertible region with literal markers:
-`### BEGIN AUTO GENERATION OF COMMAND DEF` … `### END`, covering 78% / 72% of
-each file.
+The embedded Python delimits the convertible region with literal markers
+(`### BEGIN AUTO GENERATION OF COMMAND DEF` … `### END`, covering 78% / 72% of
+each file).
+
+> **Correction (2026-09-07):** the markers are a useful signpost but the built
+> translator does *not* rely on them. It identifies the convertible region
+> structurally — via `self.Commands`, `AddMatchString`, and method-name patterns —
+> and produces byte-identical output on a script with the markers stripped. That
+> is the more robust behaviour, and it means marker-less packages are not
+> automatically out of scope.
 
 ## Architecture: hybrid, Python-primary
 

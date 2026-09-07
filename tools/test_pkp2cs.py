@@ -411,6 +411,50 @@ def test_residuals_are_reported_structurally_for_all_four_pairs():
                 assert "reason" in res and "detail" in res
 
 
+
+# --- regression: self.Commands must never silently degrade to an empty dict ---
+
+def _parse_cmds_from_src(src):
+    import ast as _ast
+    tree = _ast.parse(src)
+    cls = [n for n in tree.body if isinstance(n, _ast.ClassDef)][0]
+    init = [n for n in cls.body if isinstance(n, _ast.FunctionDef) and n.name == "__init__"][0]
+    return pkp2cs._parse_commands_dict(init)
+
+
+def test_commands_dict_literal_is_parsed():
+    src = ("class D(BaseDriver):\n"
+           "    def __init__(self):\n"
+           "        self.Commands = {'Power': {'Status': {}}}\n")
+    assert _parse_cmds_from_src(src) == {'Power': {'Status': {}}}
+
+
+def test_non_literal_commands_dict_raises_not_silently_empty():
+    """A dynamically-built Commands dict must fail loudly. Silently emitting a
+    driver with zero commands is the project's worst failure mode: the output
+    looks plausible and controls nothing."""
+    src = ("class D(BaseDriver):\n"
+           "    def __init__(self):\n"
+           "        self.Commands = dict(Power={'Status': {}})\n")
+    try:
+        _parse_cmds_from_src(src)
+    except pkp2cs.UntranslatableDriver as e:
+        assert "not a literal" in str(e).lower(), str(e)
+        return
+    raise AssertionError("expected UntranslatableDriver, got a silent result")
+
+
+def test_missing_commands_dict_raises():
+    src = ("class D(BaseDriver):\n"
+           "    def __init__(self):\n"
+           "        self.Unidirectional = 'False'\n")
+    try:
+        _parse_cmds_from_src(src)
+    except pkp2cs.UntranslatableDriver as e:
+        assert "no self.commands" in str(e).lower(), str(e)
+        return
+    raise AssertionError("expected UntranslatableDriver, got a silent result")
+
 if __name__ == "__main__":
     tests = [(name, obj) for name, obj in sorted(globals().items())
               if name.startswith("test_") and callable(obj)]

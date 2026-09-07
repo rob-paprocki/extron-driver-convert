@@ -520,13 +520,40 @@ def _find_subclasses(tree, base_name):
     return out
 
 
+class UntranslatableDriver(Exception):
+    """The embedded script is not in a shape this translator understands.
+
+    Raised instead of degrading, because a driver emitted with a partial or
+    empty command table looks plausible and controls nothing -- the worst
+    failure mode available to this tool.
+    """
+
+
 def _parse_commands_dict(init_func):
+    """Return the literal self.Commands dict, or raise UntranslatableDriver.
+
+    Never returns None: an absent or dynamically-built Commands dict is a
+    translation failure, not an empty driver.
+    """
+    found_assignment = False
     for stmt in ast.walk(init_func):
         if isinstance(stmt, ast.Assign) and len(stmt.targets) == 1 \
-                and _is_self_attr(stmt.targets[0], "Commands") and isinstance(stmt.value, ast.Dict):
-            raw = ast.literal_eval(stmt.value)
-            return raw
-    return None
+                and _is_self_attr(stmt.targets[0], "Commands"):
+            found_assignment = True
+            if isinstance(stmt.value, ast.Dict):
+                try:
+                    return ast.literal_eval(stmt.value)
+                except ValueError as exc:
+                    raise UntranslatableDriver(
+                        "self.Commands is a dict literal but contains "
+                        "non-literal entries: %s" % exc) from exc
+    if found_assignment:
+        raise UntranslatableDriver(
+            "self.Commands is assigned but is not a literal dict "
+            "(built dynamically?); the command table cannot be recovered "
+            "statically")
+    raise UntranslatableDriver(
+        "no self.Commands assignment found in the driver __init__")
 
 
 def _collect_addmatchstrings(init_func):
@@ -633,7 +660,7 @@ def analyse(source, models):
     if init_func is None:
         raise ValueError("driver class has no __init__")
 
-    raw_commands = _parse_commands_dict(init_func) or {}
+    raw_commands = _parse_commands_dict(init_func)
     for name, spec in raw_commands.items():
         if name in ALWAYS_DROPPED_COMMAND_NAMES:
             a.residuals.add("extron-editorial-omission",
