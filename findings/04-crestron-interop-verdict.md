@@ -127,17 +127,21 @@ None of them is Crestron. All build against the public DevKit. This moves
 "can an outsider produce a loadable `.pkg`" from unproven to demonstrated —
 though none of these is a resource-swapped shell, which is still untested.
 
-### There is a hardware-free test path
+### Testing without hardware — CORRECTED, it is gated
 
-**VC-4 offers a genuine $0, 90-day, software-only trial** via a downloadable
-installer. Combined with the documented SIMPL test path (upload `.pkg` via
-Toolbox/SFTP, reference it from the `Crestron Device Drivers` wrapper module,
-pulse `<LoadDriver>` with `<EnableLogging>` for byte-level traces), the decisive
-load test may not need a processor at all.
+An earlier pass reported VC-4 as a genuine $0, 90-day, software-only trial and
+therefore a free route to the decisive load test. **A later pass contradicted
+that and is more credible**: VC-4 trial requests require a PO/Sales Order or an
+existing dealer relationship, and **Crestron Toolbox itself is restricted to
+dealers, CSPs and Authorized Independent Programmers**. The trial exists; getting
+one does not appear to be self-service.
 
-A forum report also states: *"You can upload the pkg file or the dll itself
-containing the json"* — consistent with the shell being incidental. REPORTED,
-not spec.
+Treat the load test as gated behind the same partner relationship as everything
+else, not as a free download. This is the correction that matters most for
+planning.
+
+A forum report states *"You can upload the pkg file or the dll itself containing
+the json"* — consistent with the shell being incidental. REPORTED, not spec.
 
 ### The signature does not bite
 
