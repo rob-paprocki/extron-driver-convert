@@ -1,0 +1,60 @@
+zoom
+VISCA
+PTZ
+IV-CAM-I12
+IV-CAM-I20
+IV-CAM-P12
+IV-CAM-P20
+web interface
+REST API
+IP control
+network settings
+firmware
+presets
+auto-tracking
+presenter tracking
+group framing
+group tracking
+RS-232
+telnet
+SSH
+ONVIF
+RTSP
+focus
+exposure
+white balance
+tally
+GPIO
+Crestron Home
+XiO Cloud
+troubleshooting
+installation
+mounting
+compliance
+warranty
+dimensions
+connectors
+LED indicator
+factory reset
+DHCP
+static IP
+pairing
+authentication
+password
+cybersecurity
+optical zoom
+digital zoom
+field of view
+sensor
+resolution
+frame rate
+lens
+CCS-UC
+control system
+API commands
+serial
+Camera Controls
+Device Configuration
+Specifications
+Trademarks
+Resources
