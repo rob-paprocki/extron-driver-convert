@@ -8,7 +8,7 @@ marked otherwise.
 | question | answer |
 |---|---|
 | Extron `.pkp` → ControlScript `.py`? | **Yes — built and measured.** `tools/pkp2cs.py`. |
-| ControlScript `.py` → `.pkp`? | **Format: yes.** Byte-identical NRBF round-trip on all 4 packages. **Whether GC accepts a from-scratch package: untested.** |
+| ControlScript `.py` → `.pkp`? | **Format: yes.** Byte-identical NRBF round-trip on all 4 packages, and **GC ingests a package our writer produced — including a mutated one** (finding 12). A *synthesised* object graph is still untested. |
 | Crestron `.pkg` → Extron ControlScript? | **Yes — built and measured** against Extron's own driver for the same device. |
 | Extron → Crestron `.pkg`? | **Mechanically demonstrated** (resource-patched a real DLL). Gated by Crestron's dealer/partner licence, not by code. |
 | Generate a driver from API docs alone? | **Mostly.** ~84% of what a real driver calls. The danger is silent incompleteness, not missing methods. |
@@ -28,6 +28,8 @@ marked otherwise.
 | 08 | Docs vs implementation. **Carries two corrections — read its header.** |
 | 09 | VISCA: documentation closes **protocol** gaps, not **device** gaps. |
 | 10 | *(pending write-up)* the three-questions experiments — see `tools/out/verdicts/three_questions_synthesis.md`. |
+| 11 | A protocol **spec** refereed what two implementations could not; the wire oracle has its own false-positive rate. |
+| 12 | **GC ingests packages we generate.** The gate is an index, not the file. Locates the real 6,644-package driver library. |
 
 ## Tools — all tested, all standard library only
 
@@ -63,8 +65,9 @@ not a mechanical rewrite, so they are reported as residuals rather than guessed.
 
 1. **Does an outsider-built `.pkg` load on a processor?** Independent developers ship drivers
    built from the public NuGet DevKit, so the compile path is demonstrated; the resource-swap
-   shortcut is not. Needs Crestron Toolbox or VC-4 — both dealer-gated. *No amount of research
-   substitutes for this.*
+   shortcut is not. **Crestron Toolbox is installed on the Windows box** (see Environment in
+   `CLAUDE.md`), so the tool is no longer the gate — a processor or VC-4 instance is, plus the
+   licence question below. *No amount of research substitutes for this.*
 2. **Crestron's licence** restricts its tools to "Developing software for Crestron Devices",
    bars reverse engineering, and requires a Dealer/AIP/Partner agreement. Extron requires a
    free account with no field-of-use limit. A lawyer's question, cheaper to ask before building
@@ -73,9 +76,17 @@ not a mechanical rewrite, so they are reported as residuals rather than guessed.
    versus V2 Entity Model versus V1 RAD? Two data points so far: Samsung = LegacyWrappers JSON
    engine, 1 Beyond = V2 with a **bounded, named** IL residue. `drivers.crestron.io` is
    login-gated, so this can only be answered by sampling.
-4. **Only 4 oracle pairs, all Extron-authored.** The translator's rules were derived from and
-   validated against the same small set. More pairs — especially third-party devices and
-   transports not yet seen — is the cheapest way to find where it breaks.
+4. **Does a *synthesised* `.pkp` load?** Finding 12 showed GC ingests a package our NRBF
+   writer produced, and one we mutated — but every test descended from a real package's byte
+   stream. Assembling an object graph from scratch is the untested step. The container, the
+   index and the catalogue ingest are now known **not** to be the barrier.
+5. **Catalogue acceptance is not a working driver.** Finding 12 got a generated package listed
+   in Driver Manager. Placing it in a project, building, uploading, and controlling a device
+   are each unproven. This is the same "necessary but not sufficient" trap as the wire table.
+
+*Closed by finding 12: "only 4 oracle pairs, all Extron-authored."* The GC install carries
+**6,644 `.pkp` across hundreds of vendors** in `C:\Users\Public\Documents\extron\driver3`,
+96% of them third-party. The sampling problem is now a selection problem.
 
 ## Standing methodology notes
 
@@ -87,6 +98,11 @@ not a mechanical rewrite, so they are reported as residuals rather than guessed.
   package and its shipped module ranges 76%→38% while command tables stay near-identical.
 - **Wire correctness is necessary but not sufficient.** Add a runtime-resolvability check.
   26 dangling references hid behind a near-perfect scorecard.
+- **Ask what the software actually reads.** "Would GC accept our `.pkp`?" looked like a
+  file-format question. GC reads a 61 MB catalogue built from an index, so *discovery* and
+  *parsing* are separate gates that fail differently — and the library it reads is not the one
+  in `Program Files`. Separate the steps before designing the test, or a null result means
+  nothing.
 - **Samples beat documentation.** Doc-only research recommended point-to-point converters and
   claimed Crestron's declarative layer stopped at a whitelist. Real files reversed both.
 - **Calibrate before trusting a document.** Score it against facts you can already verify

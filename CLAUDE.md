@@ -15,10 +15,41 @@ moves.
 
 ## Environment
 
-**Everything here runs anywhere Python 3 does.** Standard library only, no
-`requirements.txt`, no compiled dependency, no PowerShell, no Windows. There is
-not a single `.ps1` in the repo. A cloud session is a first-class place to work
-on this — unlike `extron-gdl-toolkit`, nothing is gated on a local machine.
+**Every tool and test here runs anywhere Python 3 does.** Standard library only,
+no `requirements.txt`, no compiled dependency, no PowerShell. There is not a
+single `.ps1` in the repo. A cloud session is a first-class place to work on the
+code.
+
+**But not every *experiment* is portable.** Finding 12 drove Global Configurator
+directly, which needs the Windows box. Treat the code as cloud-first and the
+acceptance experiments as machine-bound.
+
+### The Windows box (measured 2026-09-07)
+
+A Parallels guest sharing the Mac home directory, reachable at
+`\\Mac\Home\github\rob-paprocki` (also `C:\mac\home\...`):
+
+| | |
+|---|---|
+| Extron **GCP** (Global Configurator Pro) | `3.33.0-b.38` — **licence expires ~2026-10-07** |
+| Extron GUI Designer, Toolbelt | installed (GUI Designer is `extron-gdl-toolkit`'s gate) |
+| **Crestron Toolbox**, Simpl, Cresdb | installed |
+| Python | 3.12.10 at `C:\Users\robp\AppData\Local\Programs\Python\Python312\` — **not on PATH**, call it by full path |
+| `Extron.Configuration.Drivers.dll` | `15.27.0.0`, x86/PE32, .NET Framework 4.8 |
+
+**GC's driver library is `C:\Users\Public\Documents\extron\driver3`** — 6,644
+`.pkp` + 1,745 `.eir`, user-writable, no elevation. That is what Driver Manager
+reads, *not* the 54 packages under `Program Files`. Read finding 12 before
+touching it, and back up `DataFile.dat` + `DriverLookup.dat` first — GC truncates
+the catalogue before rebuilding it, so an interrupted start leaves 0 bytes.
+
+Two gotchas that cost time here:
+
+- **`git fetch` hangs.** Git Credential Manager blocks on an invisible prompt.
+  The pinned `rob-paprocki` token is already in the environment as `$GH_TOKEN`;
+  authenticate with it per-command rather than writing it into config.
+- **Git refuses the share** with "dubious ownership" until the repo is added to
+  `safe.directory` (already done for this repo and `extron-gdl-toolkit`).
 
 Verified 2026-09-07 in a Claude Code cloud container, all passing:
 
@@ -39,13 +70,18 @@ The open items in `STATUS.md` are **not** blocked by where the code runs. Do not
 report them as "needs a local box" — the distinction matters, because a laptop
 does not unblock them either:
 
-- **Does an outsider-built `.pkg` load on a processor?** Needs Crestron Toolbox
-  or VC-4. Dealer-gated: an account and an agreement, not an install.
-- **Would GC accept a from-scratch `.pkp`?** Needs Windows *and* Global
-  Configurator. This is the one item a Windows box actually addresses.
+- **Does an outsider-built `.pkg` load on a processor?** Toolbox is now installed
+  on the Windows box, so the tool is no longer the gate — a processor or VC-4 is,
+  plus the dealer agreement.
+- **Does a *synthesised* `.pkp` load?** Needs Windows *and* Global Configurator.
+  Finding 12 took this most of the way: GC ingests a package our writer produced,
+  and one we mutated. What is left is a graph assembled from scratch rather than
+  round-tripped.
 - **Catalogue coverage.** `drivers.crestron.io` is login-gated. Reachable from a
   cloud container, but credentials are the gate, not the network.
-- **Only 4 oracle pairs.** Needs more sample files. Nothing else.
+- ~~**Only 4 oracle pairs.**~~ Closed by finding 12 — the GC install carries 6,644
+  packages across hundreds of vendors. Selection, not acquisition, is the problem
+  now.
 - **Crestron's licence position.** A lawyer's question.
 
 ### Network, from a cloud container
