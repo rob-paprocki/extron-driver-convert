@@ -3,16 +3,22 @@
 Research repo. **Question:** can an Extron `.pkp` driver (Global Configurator
 Plus/Pro) be converted to/from a ControlScript device module (`.py`)?
 
-Status: **investigating — no verdict yet.** Nothing here is a working converter.
+Status: **verdicts reached for all four directions — see `STATUS.md` first.**
+Not yet a working converter; the translator is being built.
 
 ## The question, split
 
 Two directions, researched separately because they are not symmetric:
 
-| Direction | What it would mean | Prior expectation |
-|---|---|---|
-| `.pkp` → `.py` | Migrate a legacy GC Plus/Pro driver onto an IP Link Pro / ControlScript system | Plausible for the command table; the GC logic layer has no direct target |
-| `.py` → `.pkp` | Take a ControlScript module back into GC Plus/Pro | Harder — arbitrary Python doesn't reduce to a declarative driver package |
+| Direction | Verdict |
+|---|---|
+| `.pkp` → `.py` | **Yes** — a Python-to-Python translation, not a format decode (finding 02) |
+| `.py` → `.pkp` | **No** — not a practical, repeatable capability (finding 02) |
+| Crestron `.pkg` → Extron | **Yes** for JSON-engine drivers (findings 03–05) |
+| Extron → Crestron `.pkg` | **Plausible**, gated by licence rather than by code (finding 06) |
+
+Scope widened beyond Extron once samples showed the same device encoded by both
+vendors to the same bytes.
 
 ## Working hypothesis (unverified)
 
