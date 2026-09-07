@@ -260,10 +260,11 @@ class GenericBodyRewriter(ast.NodeTransformer):
     marker region. See module docstring / findings for the evidence behind
     each rule."""
 
-    def __init__(self, model_class_to_name, current_method_name, residuals):
+    def __init__(self, model_class_to_name, current_method_name, residuals, commands=None):
         self.model_class_to_name = model_class_to_name
         self.current_method_name = current_method_name
         self.residuals = residuals
+        self.commands = commands or {}
 
     # -- statement-level rules (return None/[] to drop, a list to splice) --
 
@@ -281,19 +282,42 @@ class GenericBodyRewriter(ast.NodeTransformer):
                                     "left unrewritten (no oracle evidence for this shape)"
                                     % self.current_method_name)
                 return node
-            new_body = []
-            for stmt in node.body:
-                if (isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Call)
-                        and isinstance(stmt.value.func, ast.Attribute)
-                        and stmt.value.func.attr.startswith("Write")
-                        and stmt.value.args and _const_eq(stmt.value.args[-1], "Emulated")):
+            return self._strip_emulated_prewrites(node.body)
+
+        # if self.__SafeToSet('X') and <cond>: <body> [else: <body>] -- the
+        # BoolOp form of the same guard (e.g. Automate VX's
+        # 'if self.__SafeToSet(X) and value in ValueStateValues:'). __SafeToSet
+        # is a trivial `return True` stub (GC_ONLY_DROP_METHOD_NAMES), so its
+        # conjunct is always dropped; what happens to the *rest* of the test
+        # is decided by whether GC's own if/else already has an orelse --
+        # confirmed by diffing all 5 shipped Automate VX Set* methods that use
+        # this shape: SetAutoSwitch/SetISORecording (GC has NO else) drop the
+        # whole guard and call unconditionally; SetOutput/SetRecord/SetStream
+        # (GC already has 'else: self.Discard(...)') keep 'if <cond>: ...
+        # else: ...' with only the __SafeToSet(...) conjunct removed. This is
+        # a syntactic signal already present in the GC source, not a guess.
+        if (isinstance(node.test, ast.BoolOp) and isinstance(node.test.op, ast.And)
+                and any(_call_attr(v) == "__SafeToSet" for v in node.test.values)):
+            remaining = [v for v in node.test.values if _call_attr(v) != "__SafeToSet"]
+            new_body = self._strip_emulated_prewrites(node.body)
+            if not node.orelse:
+                if remaining:
                     self.residuals.add(
-                        "gc-dual-status-emulated-prewrite-dropped",
-                        "%s: dropped Emulated pre-write %s(...)" %
-                        (self.current_method_name, stmt.value.func.attr))
-                    continue
-                new_body.append(stmt)
-            return new_body
+                        "gc-safetoset-boolop-guard-dropped",
+                        "%s: 'if self.__SafeToSet(...) and %s:' had no else clause in GC's "
+                        "source, matching Automate VX's shipped SetAutoSwitch/SetISORecording "
+                        "shape -- the whole guard (not just __SafeToSet) is dropped, body "
+                        "called unconditionally" % (self.current_method_name, ast.unparse(node.test)))
+                return new_body
+            new_test = remaining[0] if len(remaining) == 1 else ast.BoolOp(op=ast.And(), values=remaining)
+            self.residuals.add(
+                "gc-safetoset-boolop-guard-simplified",
+                "%s: dropped the always-true self.__SafeToSet(...) conjunct from 'if ... and ...:', "
+                "keeping the remaining condition and GC's own else clause (matches Automate VX's "
+                "shipped SetOutput/SetRecord/SetStream shape)" % self.current_method_name)
+            new_if = ast.If(test=new_test, body=new_body, orelse=node.orelse)
+            ast.copy_location(new_if, node)
+            return new_if
 
         # if self.RequiredTimer: self.RequiredTimer.DeleteTimer()
         if (_is_self_attr(node.test, "RequiredTimer") and not node.orelse
@@ -318,6 +342,24 @@ class GenericBodyRewriter(ast.NodeTransformer):
     def _is_timer_cleanup(self, stmt):
         return (isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Call)
                 and _call_attr(stmt.value) == "DeleteTimer")
+
+    def _strip_emulated_prewrites(self, stmts):
+        """Drop 'self.Write<X>(value, qualifier, 'Emulated')' pre-write
+        statements from a __SafeToSet-guarded body (dual-status bookkeeping
+        with no ControlScript target); keep everything else, in order."""
+        new_body = []
+        for stmt in stmts:
+            if (isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Call)
+                    and isinstance(stmt.value.func, ast.Attribute)
+                    and stmt.value.func.attr.startswith("Write")
+                    and stmt.value.args and _const_eq(stmt.value.args[-1], "Emulated")):
+                self.residuals.add(
+                    "gc-dual-status-emulated-prewrite-dropped",
+                    "%s: dropped Emulated pre-write %s(...)" %
+                    (self.current_method_name, stmt.value.func.attr))
+                continue
+            new_body.append(stmt)
+        return new_body
 
     def visit_Assign(self, node):
         self.generic_visit(node)
@@ -347,6 +389,21 @@ class GenericBodyRewriter(ast.NodeTransformer):
                 self.residuals.add("gc-dual-status-no-target",
                                     "%s: dropped %s(...) call (no ControlScript equivalent)"
                                     % (self.current_method_name, attr))
+                return None
+            # self.StartQueryDelayTimer(...) -- GC BaseDriver's own
+            # query-throttle bookkeeping, no ControlScript equivalent no
+            # matter which method calls it. __SetHelper/__UpdateHelper get
+            # their own fixed-template replacement (see
+            # gc-sethelper-updatehelper-fixed-template) which already drops
+            # this; this rule catches the same call appearing anywhere else
+            # (evidenced by DTP3's _cmd_SetMatrixIONameStatus, an internal
+            # query-composition helper that isn't itself __SetHelper/
+            # __UpdateHelper).
+            if attr == "StartQueryDelayTimer":
+                self.residuals.add("gc-query-throttle-dropped",
+                                    "%s: dropped self.StartQueryDelayTimer(...) call (GC-only "
+                                    "query-throttle bookkeeping, no ControlScript target)"
+                                    % self.current_method_name)
                 return None
         return node
 
@@ -394,6 +451,30 @@ class GenericBodyRewriter(ast.NodeTransformer):
                 func=ast.Attribute(value=ast.Name(id="self", ctx=ast.Load()),
                                     attr="WriteStatus", ctx=ast.Load()),
                 args=[ast.Constant(value=x), value_arg, qualifier_arg], keywords=[])
+
+        # self.Read<X>(qualifier, 'Live') -> self.ReadStatus('<X>', qualifier)
+        # -- the read-side symmetric counterpart of the Write<X> rule above.
+        # Evidenced by shipped DTP3: self.ReadOutputTieStatus({...}, 'Live')
+        # (a cross-command call to a Read wrapper deleted as a pure
+        # status-accessor -- see _is_write_read_wrapper) becomes
+        # self.ReadStatus('OutputTieStatus', {...}). Gated on the literal
+        # 'Live' context (same shape the Write rule requires) AND on <X>
+        # still being a live command: this is deliberately NOT the same as
+        # "any Read<X> call", because MatrixIONameString/MatrixIONumberSelect
+        # are called with an 'Emulated' context and are themselves commands
+        # Extron folded/eliminated (Category B2, no ControlScript Set/Update
+        # survives for them) -- rewriting those would silently read an
+        # always-empty status instead of the honest AttributeError this
+        # tool's whole-module dangling-call check exists to surface.
+        if (attr and attr.startswith("Read") and attr not in ("ReadStatus", "ReadStatusHelper")
+                and len(node.args) == 2 and _const_eq(node.args[1], "Live")):
+            x = attr[len("Read"):]
+            if x in self.commands:
+                qualifier_arg = node.args[0]
+                return ast.Call(
+                    func=ast.Attribute(value=ast.Name(id="self", ctx=ast.Load()),
+                                        attr="ReadStatus", ctx=ast.Load()),
+                    args=[ast.Constant(value=x), qualifier_arg], keywords=[])
 
         # isinstance(self, <ScriptClassName>) -> self.ModelName == '<display name>'
         if (isinstance(node.func, ast.Name) and node.func.id == "isinstance"
@@ -456,13 +537,13 @@ def strip_docstring(func):
     return func
 
 
-def transform_method(func, model_class_to_name, residuals, new_name=None):
+def transform_method(func, model_class_to_name, residuals, new_name=None, commands=None):
     """Apply strip-docstring + GenericBodyRewriter to a copy of `func`,
     optionally renaming it. Returns the new FunctionDef."""
     func = copy.deepcopy(func)
     strip_docstring(func)
     name_for_messages = new_name or func.name
-    rewriter = GenericBodyRewriter(model_class_to_name, name_for_messages, residuals)
+    rewriter = GenericBodyRewriter(model_class_to_name, name_for_messages, residuals, commands=commands)
     new_body = []
     for s in func.body:
         result = rewriter.visit(s)
@@ -517,6 +598,7 @@ class Analysis:
         self.residuals = Residuals()
         self.onconnected_extra_stmts = []    # genuine device-state statements from GC's OnConnected
         self.ondisconnected_extra_stmts = [] # genuine device-state statements from GC's OnDisconnected
+        self.needs_fixed_set_update_helper = False  # __SetHelper/__UpdateHelper replaced by fixed template
         self.http_helper_sig = None    # ('url_kw', 'data_kw') detection aid, unused for now
 
 
@@ -691,6 +773,17 @@ def analyse(source, models):
             "set": bool(spec.get("Set", False)),
             "update": bool(spec.get("Update", False)),
             "parameters": spec.get("Parameters"),
+            # 'Live': False / 'Emulated': True together mark a GC command
+            # with no ControlScript dual-status "Live" store at all -- an
+            # Emulated-only scratch value. Evidenced identically across two
+            # independent packages/dialects (DTP3's MatrixIONameString/
+            # MatrixIONumberSelect, Samsung ethernet's MultiviewString) to
+            # be exactly the commands Extron's shipped modules restructure
+            # or drop entirely (see gc-emulated-only-command-wrapper-dropped
+            # below); default True/False respectively so an absent key
+            # (most commands) never matches this pattern.
+            "live": bool(spec.get("Live", True)),
+            "emulated": bool(spec.get("Emulated", False)),
         }
         a.command_order.append(name)
 
@@ -746,6 +839,86 @@ def analyse(source, models):
         _dropped_cmd_match = re.match(r"^(?:_cmd_Set|_cmd_Update|__Match|Write|Read)([A-Za-z0-9]+)$", name)
         if _dropped_cmd_match and _dropped_cmd_match.group(1) in ALWAYS_DROPPED_COMMAND_NAMES:
             continue  # residual already recorded once, above, for the command itself
+        if name in ("__SetHelper", "__UpdateHelper") and a.dialect in ("sis_ethernet", "serial"):
+            # GC's own __SetHelper/__UpdateHelper are dialect-fixed
+            # boilerplate, not a per-driver transform of the GC body: diffing
+            # shipped DSC and DTP3 (sis_ethernet) shows their __SetHelper/
+            # __UpdateHelper are byte-identical modulo blank lines, and
+            # Samsung's shipped serial module has its own (simpler, no
+            # Echo/Verbose branches) fixed body -- always fixed, never
+            # derived. Carrying the GC body through generically (as any
+            # other method) leaked GC BaseDriver runtime API
+            # (QueryDelayTimerIsRunning/StartQueryDelayTimer, and Samsung's
+            # GC-only ReadPower power-gate) that no shipped module defines or
+            # calls. Only sis_ethernet and serial are evidenced this way;
+            # the http dialect has no oracle for this shape (Automate VX's
+            # own __SetHelper/__UpdateHelper carry genuine per-driver HTTP
+            # logic that already survives translation with no dangling
+            # calls, and Samsung's HTTP/"ethernet" job has no shipped
+            # HTTP-dialect module to compare against) and is left untouched.
+            a.needs_fixed_set_update_helper = True
+            a.residuals.add(
+                "gc-sethelper-updatehelper-fixed-template",
+                "%s: replaced GC's body with the fixed, evidence-backed %s-dialect boilerplate "
+                "instead of transforming it, dropping GC BaseDriver runtime API "
+                "(QueryDelayTimerIsRunning/StartQueryDelayTimer/ReadPower-power-gate) with no "
+                "ControlScript equivalent" % (name, a.dialect))
+            continue
+        if name in ("OnConnected", "OnDisconnected"):
+            # emit() always supplies its own fixed-template OnConnected/
+            # OnDisconnected (see onconnected-ondisconnected-synthesized).
+            # GC's own definitions must never be carried through as ordinary
+            # methods: before this branch existed they landed in
+            # a.leftover_methods like any other method, so the class ended up
+            # with the same def twice; Python keeps only the last, so the
+            # first (GC-derived) copy -- the one containing
+            # self.__ResetLiveStatus(), a def dropped elsewhere as GC-only --
+            # was silent, unreachable dead code carrying a dangling call.
+            # Genuine device-state resets in the GC body (evidenced by
+            # shipped DTP3's matrix_tie_status/matrix_io_names resets and
+            # shipped Automate VX's Token/Authenticated resets + the
+            # OnConnected TokenRequest kickoff, all of which the shipped
+            # modules keep) are not GC-only boilerplate and are carried
+            # through into the synthesized template at emit() time instead.
+            transformed = transform_method(func, model_class_to_name, a.residuals, new_name=name,
+                                            commands=a.commands)
+            extra = []
+            for stmt in transformed.body:
+                if isinstance(stmt, ast.Pass):
+                    continue
+                if (isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Call)
+                        and _call_attr(stmt.value) == "__ResetLiveStatus"):
+                    a.residuals.add(
+                        "gc-dual-status-no-target",
+                        "%s: dropped self.__ResetLiveStatus() call (GC dual-status construct "
+                        "with no ControlScript target)" % name)
+                    continue
+                if (isinstance(stmt, ast.Assign) and len(stmt.targets) == 1
+                        and isinstance(stmt.targets[0], ast.Attribute)
+                        and stmt.targets[0].attr in ("EchoDisabled", "VerboseDisabled")):
+                    a.residuals.add(
+                        "gc-echo-verbose-toggle-superseded",
+                        "%s: dropped self.%s assignment; the synthesized OnDisconnected already "
+                        "sets both Echo/VerboseDisabled when has_verbose_echo is detected"
+                        % (name, stmt.targets[0].attr))
+                    continue
+                extra.append(stmt)
+            if name == "OnConnected":
+                a.onconnected_extra_stmts = extra
+            else:
+                a.ondisconnected_extra_stmts = extra
+            if extra:
+                a.residuals.add(
+                    "gc-onconnected-ondisconnected-extra-state-carried",
+                    "%s: carried %d genuine device-state statement(s) from GC's definition into "
+                    "the synthesized OnConnected/OnDisconnected template" % (name, len(extra)))
+            else:
+                a.residuals.add(
+                    "gc-onconnected-ondisconnected-superseded",
+                    "%s: GC's own definition contained only boilerplate already covered by the "
+                    "synthesized fixed template; dropped entirely (emit() always supplies its own "
+                    "OnConnected/OnDisconnected -- see onconnected-ondisconnected-synthesized)" % name)
+            continue
         if name in GC_ONLY_DROP_METHOD_NAMES:
             a.residuals.add("gc-dual-status-no-target",
                              "dropped %s (GC dual-status construct with no ControlScript target)" % name)
@@ -764,6 +937,33 @@ def analyse(source, models):
                              % name)
             continue
         if _is_write_read_wrapper(func, a.commands):
+            wrapped = name[len("Write"):] if name.startswith("Write") else name[len("Read"):]
+            spec = a.commands.get(wrapped, {})
+            if spec.get("live") is False and spec.get("emulated") is True:
+                # Evidenced identically across two independent packages/
+                # dialects (DTP3's MatrixIONameString/MatrixIONumberSelect,
+                # Samsung ethernet's MultiviewString): a command with
+                # Live=False/Emulated=True in the .pkp has no ControlScript
+                # dual-status "Live" store at all. Any OTHER command's body
+                # still calling this wrapper is therefore calling a
+                # deleted method with no safe automatic replacement -- the
+                # B1 Read<X>->ReadStatus rule deliberately does not fire
+                # here (it's gated on a literal 'Live' context; this
+                # wrapper is only ever called with 'Emulated'), so the call
+                # site surfaces as dangling-self-call. Confirmed in DTP3
+                # v1.2.0.0: Extron folded MatrixIONameString/
+                # MatrixIONumberSelect entirely into MatrixIONameCommand's
+                # Number/Name qualifiers rather than keeping a Read/Write
+                # pair -- verify the equivalent restructuring by hand for
+                # any caller flagged here rather than bridging to
+                # ReadStatus/WriteStatus, which would silently return/store
+                # an always-empty status instead.
+                a.residuals.add(
+                    "gc-emulated-only-command-wrapper-dropped",
+                    "dropped %s: command %r is Live=False/Emulated=True (no ControlScript "
+                    "dual-status store); if anything else in this module still calls %s(...), "
+                    "that call will surface as dangling-self-call below and needs a hand-verified "
+                    "restructuring, not an automatic ReadStatus/WriteStatus bridge" % (name, wrapped, name))
             continue  # silently deleted per rewrite rules (not a residual: expected deletion)
 
         if name == "__MatchVerboseMode":
@@ -810,7 +1010,8 @@ def analyse(source, models):
                 if m3:
                     new_name = m3.group(1)
 
-        transformed = transform_method(func, model_class_to_name, a.residuals, new_name=new_name)
+        transformed = transform_method(func, model_class_to_name, a.residuals, new_name=new_name,
+                                        commands=a.commands)
 
         if name == "__MatchError":
             transformed.body.insert(0, ast.parse("self.counter = 0").body[0])
@@ -939,6 +1140,81 @@ FIXED_TAIL = '''    ######################################################
         else:
             raise KeyError('Invalid command for ReadStatus: ' + command)
 '''
+
+# __SetHelper/__UpdateHelper -- fixed, dialect-keyed boilerplate (see the
+# gc-sethelper-updatehelper-fixed-template residual in analyse() for the
+# evidence). sis_ethernet: byte-identical (modulo blank lines) between
+# shipped DSC (extr_scaler_DSC_12G_HD_A_v1_0_0_0.py:995-1032) and shipped
+# DTP3 (extr_matrix_DTP3_CrossPoint_42_Series_v1_2_0_0.py:1074-1109).
+FIXED_SET_UPDATE_HELPER_SIS_ETHERNET = '''
+    def __SetHelper(self, command, commandstring, value, qualifier):
+        self.Debug = True
+        if self.EchoDisabled and 'Serial' not in self.ConnectionType:
+            @Wait(1)
+            def SendEcho():
+                self.Send('w0echo\\r\\n')
+        elif self.VerboseDisabled:
+            @Wait(1)
+            def SendVerbose():
+                self.Send('w3cv\\r\\n')
+                self.Send(commandstring)
+        else:
+            self.Send(commandstring)
+
+    def __UpdateHelper(self, command, commandstring, value, qualifier):
+        if self.initializationChk:
+            self.OnConnected()
+            self.initializationChk = False
+
+        self.counter = self.counter + 1
+        if self.counter > self.connectionCounter and self.connectionFlag:
+            self.OnDisconnected()
+
+        if self.Unidirectional == 'True':
+            self.Discard('Inappropriate Command ' + command)
+        elif self.EchoDisabled and 'Serial' not in self.ConnectionType:
+            @Wait(1)
+            def SendEcho():
+                self.Send('w0echo\\r\\n')
+        else:
+            if self.VerboseDisabled:
+                @Wait(1)
+                def SendVerbose():
+                    self.Send('w3cv\\r\\n')
+                    self.Send(commandstring)
+            else:
+                self.Send(commandstring)
+'''
+
+# serial: evidenced by shipped Samsung
+# (smsg_display_QNxxLS03DAFXZA_Series_v1_0_0_0.py:219-236) -- simpler, no
+# Echo/Verbose branches; only one oracle exists for this dialect (same
+# generalisation risk already flagged by serial-over-ethernet-mixin-
+# generalised for MIXIN_SERIAL).
+FIXED_SET_UPDATE_HELPER_SERIAL = '''
+    def __SetHelper(self, command, commandstring, value, qualifier):
+        self.Debug = True
+        self.Send(commandstring)
+
+    def __UpdateHelper(self, command, commandstring, value, qualifier):
+        if self.Unidirectional == 'True':
+            self.Discard('Inappropriate Command ' + command)
+        else:
+            if self.initializationChk:
+                self.OnConnected()
+                self.initializationChk = False
+
+            self.counter = self.counter + 1
+            if self.counter > self.connectionCounter and self.connectionFlag:
+                self.OnDisconnected()
+
+            self.Send(commandstring)
+'''
+
+FIXED_SET_UPDATE_HELPER = {
+    "sis_ethernet": FIXED_SET_UPDATE_HELPER_SIS_ETHERNET,
+    "serial": FIXED_SET_UPDATE_HELPER_SERIAL,
+}
 
 FIXED_STREAM_TAIL_EXTRA = '''
     def __ReceiveData(self, interface, data):
@@ -1218,24 +1494,43 @@ def emit(job, a):
         body.append(unparse_method(a.methods[name], indent=4))
         body.append("")
 
-    # OnConnected / OnDisconnected -- synthesized (no GC equivalent exists;
-    # this is the minimal, evidence-backed universal form).
+    if a.needs_fixed_set_update_helper:
+        body.append(FIXED_SET_UPDATE_HELPER[a.dialect].rstrip("\n"))
+        body.append("")
+
+    # OnConnected / OnDisconnected -- the fixed template, plus whatever
+    # genuine device-state statements survived from GC's own definitions
+    # (see the OnConnected/OnDisconnected branch in analyse(): boilerplate
+    # like self.__ResetLiveStatus() and the Echo/VerboseDisabled toggle
+    # below are GC-only or already covered here and were dropped there).
     body.append("    def OnConnected(self):")
     body.append("        self.connectionFlag = True")
     body.append("        self.WriteStatus('ConnectionStatus', 'Connected')")
     body.append("        self.counter = 0")
+    for stmt in a.onconnected_extra_stmts:
+        body.append(_reindent(ast.unparse(stmt), 8))
     body.append("")
     body.append("    def OnDisconnected(self):")
     body.append("        self.WriteStatus('ConnectionStatus', 'Disconnected')")
     body.append("        self.connectionFlag = False")
+    for stmt in a.ondisconnected_extra_stmts:
+        body.append(_reindent(ast.unparse(stmt), 8))
     if a.has_verbose_echo:
         body.append("")
         body.append("        self.EchoDisabled = True")
         body.append("        self.VerboseDisabled = True")
-    a.residuals.add("onconnected-ondisconnected-synthesized",
-                     "OnConnected/OnDisconnected are the minimal fixed template; any device-specific "
-                     "state reset a hand-authored shipped module might add there was not derived "
-                     "(not part of the wire-string acceptance surface)")
+    if a.onconnected_extra_stmts or a.ondisconnected_extra_stmts:
+        a.residuals.add("onconnected-ondisconnected-synthesized",
+                         "OnConnected/OnDisconnected are the fixed template with GC's own genuine "
+                         "device-state statements carried through (see "
+                         "gc-onconnected-ondisconnected-extra-state-carried); any *other* "
+                         "device-specific reset a hand-authored shipped module might add there was "
+                         "not derived (not part of the wire-string acceptance surface)")
+    else:
+        a.residuals.add("onconnected-ondisconnected-synthesized",
+                         "OnConnected/OnDisconnected are the minimal fixed template; any device-specific "
+                         "state reset a hand-authored shipped module might add there was not derived "
+                         "(not part of the wire-string acceptance surface)")
     body.append("")
 
     for stub_src in model_stub_srcs:

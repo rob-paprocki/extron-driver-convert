@@ -101,6 +101,102 @@ def _analyse_src(src, models=SIS_MODEL):
     return pkp2cs.analyse(src, models)
 
 
+def test_sethelper_updatehelper_replaced_with_fixed_sis_template():
+    """GC's own __SetHelper/__UpdateHelper bodies leak GC BaseDriver runtime
+    API (QueryDelayTimerIsRunning/StartQueryDelayTimer) that has no
+    ControlScript equivalent -- diffing DSC's and DTP3's shipped modules
+    shows __SetHelper/__UpdateHelper are byte-identical fixed, dialect-keyed
+    boilerplate, not a per-driver transform of the GC body. For the
+    sis_ethernet dialect (evidenced by both samples) the GC bodies must be
+    replaced entirely, not transformed."""
+    src = '''
+from Extron2.BaseDriver import BaseDriver
+class w(BaseDriver):
+    def __init__(self, configs):
+        super().__init__(configs)
+        self.Commands = {}
+    def __SetHelper(self, command, commandstring, value, qualifier):
+        self.Debug = True
+        self.Send(commandstring)
+    def __UpdateHelper(self, command, commandstring, value, qualifier):
+        if self.QueryDelayTimerIsRunning(command):
+            return
+        self.StartQueryDelayTimer(command)
+        self.Send(commandstring)
+'''
+    a = _analyse_src(src)
+    assert a.dialect == "sis_ethernet"
+    assert "__SetHelper" not in a.methods
+    assert "__UpdateHelper" not in a.methods
+    assert "__SetHelper" not in a.leftover_methods
+    assert "__UpdateHelper" not in a.leftover_methods
+    assert a.needs_fixed_set_update_helper is True
+    reasons = {r["reason"] for r in a.residuals}
+    assert "gc-sethelper-updatehelper-fixed-template" in reasons, reasons
+
+
+def test_full_translate_dsc_and_dtp3_have_no_query_delay_timer_dangling():
+    """Integration: after the fixed sis_ethernet __SetHelper/__UpdateHelper
+    template lands, QueryDelayTimerIsRunning/StartQueryDelayTimer must no
+    longer appear anywhere in the generated DSC/DTP3 modules, and the
+    fixed-template Send(commandstring) dispatch must still be reachable."""
+    for pkp in (DSC_PKP, DTP3_PKP):
+        r = pkp2cs.translate_pkp(pkp)[0]
+        assert "QueryDelayTimerIsRunning" not in r["source"], pkp
+        assert "StartQueryDelayTimer" not in r["source"], pkp
+        dangling = [x["detail"] for x in r["residuals"] if x["reason"] == "dangling-self-call"]
+        assert not any("QueryDelayTimerIsRunning" in d or "StartQueryDelayTimer" in d for d in dangling)
+        assert "def __SetHelper(self, command, commandstring, value, qualifier):" in r["source"]
+        assert "def __UpdateHelper(self, command, commandstring, value, qualifier):" in r["source"]
+
+
+def test_full_translate_samsung_serial_has_no_query_delay_timer_or_readpower_dangling():
+    """Integration: Samsung serial's own shipped __UpdateHelper drops the
+    GC power-gate branch (self.ReadPower-based) entirely, along with
+    QueryDelayTimerIsRunning/StartQueryDelayTimer. The remaining
+    self.ReadPower(None, 'Live') call inside the GC-only update_next
+    scheduler (Category A3 -- the scheduler itself has no shipped
+    counterpart and no safe generic removal rule, so it is deliberately left
+    in place) is caught by the same evidenced Read<X>(...,'Live') ->
+    ReadStatus('<X>', ...) rule as B1 (Power is a real, surviving command),
+    so it is no longer dangling either -- a side effect, not a special case."""
+    r = pkp2cs.translate_job(
+        [j for j in pkp2cs.discover_jobs(SAMSUNG_PKP) if j.script_file_name == "smsg_10_6738_serial.py"][0])
+    assert "QueryDelayTimerIsRunning" not in r["source"]
+    assert "StartQueryDelayTimer" not in r["source"]
+    dangling_names = [x["detail"].split("self.")[1].split("(")[0]
+                       for x in r["residuals"] if x["reason"] == "dangling-self-call"]
+    assert "ReadPower" not in dangling_names, dangling_names
+    assert "def __UpdateHelper(self, command, commandstring, value, qualifier):" in r["source"]
+    assert "def update_next" in r["source"]
+    assert "self.ReadStatus('Power', None)" in r["source"]
+
+
+def test_bare_startquerydelaytimer_call_dropped_outside_sethelper():
+    """Evidenced by DTP3's _cmd_SetMatrixIONameStatus: self.Send(query,
+    pacing=0.1); self.StartQueryDelayTimer(1) -- a bare call to GC's
+    query-throttle API outside __SetHelper/__UpdateHelper (which get their
+    own fixed-template replacement). StartQueryDelayTimer/
+    QueryDelayTimerIsRunning are GC BaseDriver runtime API with no
+    ControlScript equivalent no matter which method calls them."""
+    src = '''
+from Extron2.BaseDriver import BaseDriver
+class w(BaseDriver):
+    def __init__(self, configs):
+        super().__init__(configs)
+        self.Commands = {}
+    def _cmd_SetMatrixIONameStatus(self, query, qualifier):
+        self.Send(query, pacing=0.1)
+        self.StartQueryDelayTimer(1)
+'''
+    a = _analyse_src(src)
+    out_src = ast.unparse(a.methods["SetMatrixIONameStatus"])
+    assert "StartQueryDelayTimer" not in out_src, out_src
+    assert "self.Send(query, pacing=0.1)" in out_src, out_src
+    reasons = {r["reason"] for r in a.residuals}
+    assert "gc-query-throttle-dropped" in reasons, reasons
+
+
 def test_cmd_set_rename_and_safe_to_set_unwrap():
     src = '''
 from Extron2.BaseDriver import BaseDriver
@@ -133,6 +229,125 @@ class w(BaseDriver):
     assert "'Emulated'" not in out_src
     assert "self.__SetHelper('Foo', FooCmdString, value, qualifier)" in out_src
     assert "Invalid Command for SetFoo" in out_src
+
+
+def test_safe_to_set_boolop_and_no_orelse_drops_guard_entirely():
+    """Evidenced by Automate VX's shipped SetAutoSwitch/SetISORecording:
+    'if self.__SafeToSet(X) and <cond>:' with NO else clause in the GC
+    source is flattened to an unconditional call in the shipped module (the
+    whole guard is dropped, not just the __SafeToSet conjunct) -- the
+    presence/absence of node.orelse is the syntactic signal, already present
+    in the GC source, that distinguishes this from the SetOutput/SetRecord/
+    SetStream shape below."""
+    src = '''
+from Extron2.BaseDriver import BaseDriver
+class w(BaseDriver):
+    def __init__(self, configs):
+        super().__init__(configs)
+        self.Commands = {
+            'AutoSwitch': {'Set': True, 'Update': False, 'Status': {}},
+        }
+    def _cmd_SetAutoSwitch(self, value, qualifier):
+        ValueStateValues = {'On': 'api/StartAutoSwitch', 'Off': 'api/StopAutoSwitch'}
+        if self.__SafeToSet('AutoSwitch') and value in ValueStateValues:
+            self.WriteAutoSwitch(value, qualifier, 'Emulated')
+            self.__SetHelper('AutoSwitch', value, qualifier, ValueStateValues[value])
+    def WriteAutoSwitch(self, value, qualifier, context):
+        self.WriteStatusHelper('AutoSwitch', value, qualifier, context)
+'''
+    a = _analyse_src(src)
+    out_src = ast.unparse(a.methods["SetAutoSwitch"])
+    assert "__SafeToSet" not in out_src, out_src
+    assert "value in ValueStateValues" not in out_src, out_src
+    assert "'Emulated'" not in out_src, out_src
+    assert "self.__SetHelper('AutoSwitch', value, qualifier, ValueStateValues[value])" in out_src, out_src
+
+
+def test_safe_to_set_boolop_and_with_orelse_keeps_remaining_condition():
+    """Evidenced by Automate VX's shipped SetOutput/SetRecord/SetStream:
+    'if self.__SafeToSet(X) and value in ValueStateValues: ... else:
+    self.Discard(...)' keeps the 'value in ValueStateValues' guard and the
+    else clause, dropping only the always-true __SafeToSet(...) conjunct."""
+    src = '''
+from Extron2.BaseDriver import BaseDriver
+class w(BaseDriver):
+    def __init__(self, configs):
+        super().__init__(configs)
+        self.Commands = {
+            'Output': {'Set': True, 'Update': False, 'Status': {}},
+        }
+    def _cmd_SetOutput(self, value, qualifier):
+        ValueStateValues = {'On': 'api/StartOutput', 'Off': 'api/StopOutput'}
+        if self.__SafeToSet('Output') and value in ValueStateValues:
+            self.WriteOutput(value, qualifier, 'Emulated')
+            self.__SetHelper('Output', value, qualifier, ValueStateValues[value])
+        else:
+            self.Discard('Invalid Command')
+    def WriteOutput(self, value, qualifier, context):
+        self.WriteStatusHelper('Output', value, qualifier, context)
+'''
+    a = _analyse_src(src)
+    out_src = ast.unparse(a.methods["SetOutput"])
+    assert "__SafeToSet" not in out_src, out_src
+    assert "if value in ValueStateValues:" in out_src, out_src
+    assert "'Emulated'" not in out_src, out_src
+    assert "self.__SetHelper('Output', value, qualifier, ValueStateValues[value])" in out_src, out_src
+    assert "else:" in out_src, out_src
+    assert "Invalid Command for SetOutput" in out_src, out_src
+
+
+def test_read_x_live_rewritten_to_readstatus_symmetric_with_write_rule():
+    """Evidenced by shipped DTP3: self.ReadOutputTieStatus({...}, 'Live')
+    (a cross-command call to a Read wrapper that gets deleted as pure
+    status-accessor boilerplate) becomes self.ReadStatus('OutputTieStatus',
+    {...}) in the shipped module -- the read-side symmetric counterpart of
+    the existing Write<X>(...,'Live') -> WriteStatus(...) rule. Gated the
+    same way (literal 'Live' context) so it never fires for the Emulated-
+    context ReadMatrixIONameString/ReadMatrixIONumberSelect call sites
+    (Category B2, deliberately left alone -- see the DTP3 residual)."""
+    src = '''
+from Extron2.BaseDriver import BaseDriver
+class w(BaseDriver):
+    def __init__(self, configs):
+        super().__init__(configs)
+        self.Commands = {
+            'OutputTieStatus': {'Parameters': ['Output', 'Tie Type'], 'Status': {}},
+        }
+    def SetOutputTieStatusName(self, value, qualifier):
+        audioVal = self.ReadOutputTieStatus({'Output': qualifier['Output'], 'Tie Type': 'Audio'}, 'Live')
+    def ReadOutputTieStatus(self, qualifier, context):
+        return self.ReadStatusHelper('OutputTieStatus', qualifier, context)
+'''
+    a = _analyse_src(src)
+    assert "ReadOutputTieStatus" not in a.methods
+    out_src = ast.unparse(a.methods["SetOutputTieStatusName"])
+    assert "self.ReadStatus('OutputTieStatus', {'Output': qualifier['Output'], 'Tie Type': 'Audio'})" in out_src, out_src
+    assert "ReadOutputTieStatus" not in out_src, out_src
+
+
+def test_read_x_emulated_context_not_rewritten_to_readstatus():
+    """The B1 rule must not fire on Emulated-context calls: those are the B2
+    shape (a command Extron folded/eliminated, e.g. MatrixIONameString),
+    where the corresponding Set/Update no longer exists in ControlScript and
+    blindly rewriting to ReadStatus would silently read an always-empty
+    status instead of raising the honest AttributeError."""
+    src = '''
+from Extron2.BaseDriver import BaseDriver
+class w(BaseDriver):
+    def __init__(self, configs):
+        super().__init__(configs)
+        self.Commands = {
+            'MatrixIONameString': {'Set': True, 'Update': False, 'Status': {}},
+        }
+    def _cmd_SetRefreshMatrixIONames(self, value, qualifier):
+        name = self.ReadMatrixIONameString(None, 'Emulated')
+    def ReadMatrixIONameString(self, qualifier, context):
+        return self.ReadStatusHelper('MatrixIONameString', qualifier, context)
+'''
+    a = _analyse_src(src)
+    out_src = ast.unparse(a.methods["SetRefreshMatrixIONames"])
+    assert "self.ReadMatrixIONameString(None, 'Emulated')" in out_src, out_src
+    assert "ReadStatus(" not in out_src, out_src
 
 
 def test_match_handler_write_live_rewritten_to_writestatus():
@@ -238,6 +453,34 @@ class w(BaseDriver):
     assert "'ConnectionStatus': {'Status': {}}," in out.splitlines()[1]
     assert "'Set'" not in out and "'Update'" not in out and "'Live'" not in out and "'Emulated'" not in out
     assert "'Parameters': ['Output']" in out
+
+
+def test_emulated_only_command_wrapper_drop_reports_specific_actionable_residual():
+    """Category B2 (deliberately unfixed): a Live=False/Emulated=True command
+    is a genuine Extron editorial restructuring/omission (evidenced
+    identically in DTP3's MatrixIONameString/MatrixIONumberSelect and
+    Samsung ethernet's MultiviewString), not something this tool can safely
+    bridge to ReadStatus/WriteStatus. Dropping its Read/Write wrapper must
+    produce a specific, actionable residual naming the command and the
+    exact risk, not a silent deletion."""
+    src = '''
+from Extron2.BaseDriver import BaseDriver
+class w(BaseDriver):
+    def __init__(self, configs):
+        super().__init__(configs)
+        self.Commands = {
+            'Foo': {'Set': True, 'Update': False, 'Live': False, 'Emulated': True, 'Status': {}},
+        }
+    def ReadFoo(self, qualifier, context):
+        return self.ReadStatusHelper('Foo', qualifier, context)
+'''
+    a = _analyse_src(src)
+    assert "ReadFoo" not in a.methods
+    matches = [r for r in a.residuals if r["reason"] == "gc-emulated-only-command-wrapper-dropped"]
+    assert len(matches) == 1, a.residuals
+    assert "ReadFoo" in matches[0]["detail"]
+    assert "Foo" in matches[0]["detail"]
+    assert "Live=False/Emulated=True" in matches[0]["detail"]
 
 
 def test_gc_config_parsing_dropped_as_residual():
@@ -626,6 +869,56 @@ def test_samsung_ethernet_job_reports_dangling_reference_as_residual():
     assert "dangling-self-call" in reasons, reasons
     detail = " ".join(r["detail"] for r in result["residuals"] if r["reason"] == "dangling-self-call")
     assert "ReadMultiviewString" in detail, detail
+
+
+# --------------------------------------------------------------------------
+# regression: exact dangling-self-call count per generated module
+#
+# Started at 26 across the 5 modules (DSC 3, DTP3 10, Samsung serial 4,
+# Samsung ethernet 2, Automate VX 7). Categories A/A2/A3(partial)/B1/C and
+# the A/C SafeToSet-BoolOp hybrid closed 21 of them mechanically, evidenced
+# against the shipped modules (see the residual reasons asserted below and
+# the module docstring / commit history for the category write-up). The
+# remaining 5 (DTP3's MatrixIONameString/MatrixIONumberSelect Read+Write
+# pairs, Samsung ethernet's ReadMultiviewString) are Category B2: a genuine
+# Extron editorial restructuring/omission with no safe automatic fix --
+# each one now carries a specific gc-emulated-only-command-wrapper-dropped
+# residual (see the test above) rather than being silently deleted.
+# --------------------------------------------------------------------------
+
+def _dangling_names(result):
+    return sorted(r["detail"].split("self.")[1].split("(")[0]
+                  for r in result["residuals"] if r["reason"] == "dangling-self-call")
+
+
+def test_dangling_self_call_count_regression_dsc():
+    r = pkp2cs.translate_pkp(DSC_PKP)[0]
+    assert _dangling_names(r) == [], _dangling_names(r)
+
+
+def test_dangling_self_call_count_regression_dtp3():
+    r = pkp2cs.translate_pkp(DTP3_PKP)[0]
+    assert _dangling_names(r) == [
+        "ReadMatrixIONameString", "ReadMatrixIONumberSelect",
+        "WriteMatrixIONameString", "WriteMatrixIONumberSelect",
+    ], _dangling_names(r)
+
+
+def test_dangling_self_call_count_regression_avx():
+    r = pkp2cs.translate_pkp(AVX_PKP)[0]
+    assert _dangling_names(r) == [], _dangling_names(r)
+
+
+def test_dangling_self_call_count_regression_samsung_serial():
+    r = pkp2cs.translate_job(
+        [j for j in pkp2cs.discover_jobs(SAMSUNG_PKP) if j.script_file_name == "smsg_10_6738_serial.py"][0])
+    assert _dangling_names(r) == [], _dangling_names(r)
+
+
+def test_dangling_self_call_count_regression_samsung_ethernet():
+    r = pkp2cs.translate_job(
+        [j for j in pkp2cs.discover_jobs(SAMSUNG_PKP) if j.script_file_name == "smsg_10_6738_ethernet.py"][0])
+    assert _dangling_names(r) == ["ReadMultiviewString"], _dangling_names(r)
 
 if __name__ == "__main__":
     tests = [(name, obj) for name, obj in sorted(globals().items())
