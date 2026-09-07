@@ -298,6 +298,126 @@ class w(BaseDriver):
     assert "Invalid Command for SetOutput" in out_src, out_src
 
 
+def test_emulated_prewrite_dropped_when_guard_is_not_safetoset_shaped():
+    """The real invariant behind the Emulated-prewrite-drop rule is the CALL
+    shape (self.Write<X>(..., 'Emulated')), not the __SafeToSet guard it
+    happens to sit inside in every in-sample (DSC/DTP3/Samsung/Automate VX)
+    oracle. Biamp's Tesira generator never emits __SafeToSet at all -- it
+    gates Set bodies on plain parameter validation instead, evidenced
+    verbatim by the shipped .pkp's _cmd_SetAECEnable:
+        if 1 <= int(chnl) <= 24 and value in state:
+            ...
+            self.WriteAECEnable(value, qualifier, 'Emulated')
+            self.__SetHelper('AECEnable', cmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command')
+    The old rule only stripped the Emulated pre-write when node.test called
+    __SafeToSet, so this call site (and 47 like it) survived pointed at a
+    WriteAECEnable definition that gets deleted as pure wrapper boilerplate
+    -- a dangling AttributeError at runtime. This must be dropped on the
+    call shape alone, regardless of what the enclosing guard looks like."""
+    src = '''
+from Extron2.BaseDriver import BaseDriver
+class w(BaseDriver):
+    def __init__(self, configs):
+        super().__init__(configs)
+        self.Commands = {
+            'AECEnable': {'Set': True, 'Update': False, 'Live': True, 'Emulated': True,
+                          'Parameters': ['Instance Tag', 'Channel'], 'Status': {}},
+        }
+    def _cmd_SetAECEnable(self, value, qualifier):
+        state = {'On': 'true', 'Off': 'false'}
+        tag = qualifier['Instance Tag']
+        chnl = qualifier['Channel']
+        if 1 <= int(chnl) <= 24 and value in state:
+            cmdString = '{0} set aecEnable {1} {2}'.format(tag, chnl, state[value])
+            self.WriteAECEnable(value, qualifier, 'Emulated')
+            self.__SetHelper('AECEnable', cmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command')
+    def WriteAECEnable(self, value, qualifier, context):
+        self.WriteStatusHelper('AECEnable', value, qualifier, context)
+    def ReadAECEnable(self, qualifier, context):
+        return self.ReadStatusHelper('AECEnable', qualifier, context)
+'''
+    a = _analyse_src(src)
+    assert "WriteAECEnable" not in a.methods
+    assert "ReadAECEnable" not in a.methods
+    out_src = ast.unparse(a.methods["SetAECEnable"])
+    assert "'Emulated'" not in out_src, out_src
+    assert "WriteAECEnable" not in out_src, out_src
+    assert "1 <= int(chnl) <= 24 and value in state" in out_src, out_src
+    assert "self.__SetHelper('AECEnable', cmdString, value, qualifier)" in out_src, out_src
+    assert "self.Discard('Invalid Command for SetAECEnable')" in out_src, out_src
+
+
+def test_emulated_prewrite_dropped_in_dtp3_length_check_guard():
+    """DTP3's shipped SetMatrixIONameString/SetMatrixIONumberSelect (a B2,
+    Live=False/Emulated=True command with no ControlScript Write/Read
+    wrapper at all) has this exact shape verbatim in the .pkp:
+        if 0 <= len(value) <= 30:
+            self.WriteMatrixIONameString(value, qualifier, 'Emulated')
+        else:
+            self.Discard('Invalid Command')
+    This accounts for 4 of DTP3's in-sample dangling-self-call residuals
+    together with the symmetric MatrixIONumberSelect case. A correctly
+    generalised rule must drop this pre-write call too, even though there is
+    no real Set call left over afterwards (it is a length/range check with
+    only the Emulated bookkeeping call in its body)."""
+    src = '''
+from Extron2.BaseDriver import BaseDriver
+class w(BaseDriver):
+    def __init__(self, configs):
+        super().__init__(configs)
+        self.Commands = {
+            'MatrixIONameString': {'Set': True, 'Update': False, 'Live': False,
+                                    'Emulated': True, 'Status': {}},
+        }
+    def _cmd_SetMatrixIONameString(self, value, qualifier):
+        if 0 <= len(value) <= 30:
+            self.WriteMatrixIONameString(value, qualifier, 'Emulated')
+        else:
+            self.Discard('Invalid Command')
+    def WriteMatrixIONameString(self, value, qualifier, context):
+        self.WriteStatusHelper('MatrixIONameString', value, qualifier, context)
+    def ReadMatrixIONameString(self, qualifier, context):
+        return self.ReadStatusHelper('MatrixIONameString', qualifier, context)
+'''
+    a = _analyse_src(src)
+    out_src = ast.unparse(a.methods["SetMatrixIONameString"])
+    assert "'Emulated'" not in out_src, out_src
+    assert "WriteMatrixIONameString" not in out_src, out_src
+    assert "0 <= len(value) <= 30" in out_src, out_src
+    assert "pass" in out_src, out_src  # empty if-body after the drop needs a placeholder
+
+
+def test_emulated_prewrite_rule_does_not_touch_live_or_read_calls():
+    """Guardrails on the generalised rule: a Write<X>(..., 'Live') call (or
+    any call whose last arg isn't the literal 'Emulated') must be left for
+    the existing Live-rewrite rule, and a Read<X>(..., 'Emulated') call
+    (a different construct -- it reads GC-only scratch state and its return
+    value is consumed) must never be touched by this rule."""
+    src = '''
+from Extron2.BaseDriver import BaseDriver
+class w(BaseDriver):
+    def __init__(self, configs):
+        super().__init__(configs)
+        self.Commands = {
+            'Foo': {'Set': True, 'Update': False, 'Live': False, 'Emulated': True, 'Status': {}},
+        }
+    def _cmd_SetFooStatus(self, value, qualifier):
+        name = self.ReadFoo(None, 'Emulated')
+        self.WriteBar(value, qualifier, 'Live')
+        return name
+    def ReadFoo(self, qualifier, context):
+        return self.ReadStatusHelper('Foo', qualifier, context)
+'''
+    a = _analyse_src(src)
+    out_src = ast.unparse(a.methods["SetFooStatus"])
+    assert "self.ReadFoo(None, 'Emulated')" in out_src, out_src
+    assert "self.WriteStatus('Bar', value, qualifier)" in out_src, out_src
+
+
 def test_read_x_live_rewritten_to_readstatus_symmetric_with_write_rule():
     """Evidenced by shipped DTP3: self.ReadOutputTieStatus({...}, 'Live')
     (a cross-command call to a Read wrapper that gets deleted as pure
@@ -899,10 +1019,19 @@ def test_dangling_self_call_count_regression_dsc():
 
 
 def test_dangling_self_call_count_regression_dtp3():
+    """WriteMatrixIONameString/WriteMatrixIONumberSelect used to survive here
+    too (4 dangling total): DTP3's SetMatrixIONameString/SetMatrixIONumberSelect
+    gate their Emulated pre-write on a plain length/range check, not
+    __SafeToSet, so the old guard-shaped rule missed them. The generalised
+    call-shape rule (see test_emulated_prewrite_dropped_in_dtp3_length_check_guard)
+    now drops both, leaving only the genuinely unresolved B2 residual: the
+    two cross-command Read<X>(..., 'Emulated') calls in SetMatrixIONameStatus
+    that compose the NI/NO query string from GC-only scratch state Extron
+    hand-restructured away in the shipped module (see the
+    gc-emulated-only-command-wrapper-dropped residual for this command)."""
     r = pkp2cs.translate_pkp(DTP3_PKP)[0]
     assert _dangling_names(r) == [
         "ReadMatrixIONameString", "ReadMatrixIONumberSelect",
-        "WriteMatrixIONameString", "WriteMatrixIONumberSelect",
     ], _dangling_names(r)
 
 
@@ -983,6 +1112,26 @@ def test_non_sis_ethernet_reports_untranslated_handshake():
     r = pkp2cs.translate_pkp(pkp)[0]
     reasons = {x["reason"] for x in r["residuals"]}
     assert "connection-handshake-not-translated" in reasons, sorted(reasons)
+
+
+def test_emulated_prewrite_dropped_when_passed_as_keyword():
+    """Reviewer-found boundary: the rule keyed on 'Emulated' being the last
+    POSITIONAL argument, so a generator emitting context='Emulated' would leave
+    the call while its definition was still deleted -- the same dangling-reference
+    bug class. Not present in any of the six packages; closed before a seventh
+    device reintroduces it silently."""
+    src = ("from Extron2.BaseDriver import BaseDriver\n"
+           "class w(BaseDriver):\n"
+           "    def __init__(self, configs):\n"
+           "        super().__init__(configs)\n"
+           "        self.Commands = {}\n"
+           "    def _cmd_SetFoo(self, value, qualifier):\n"
+           "        if 0 <= len(value) <= 30:\n"
+           "            self.WriteFoo(value, qualifier, context='Emulated')\n"
+           "            self.__SetHelper('Foo', 'CMD', value, qualifier)\n")
+    a = _analyse_src(src)
+    body = ast.unparse(a.methods["SetFoo"]) if "SetFoo" in a.methods else ""
+    assert "WriteFoo" not in body, body
 
 if __name__ == "__main__":
     tests = [(name, obj) for name, obj in sorted(globals().items())

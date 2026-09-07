@@ -271,7 +271,11 @@ class GenericBodyRewriter(ast.NodeTransformer):
     def visit_If(self, node):
         self.generic_visit(node)
 
-        # if self.__SafeToSet('X'): <body incl. Emulated pre-write + real call>
+        # if self.__SafeToSet('X'): <body incl. real call> -- the Emulated
+        # pre-write that used to sit in this body is stripped generically by
+        # visit_Expr's call-shape rule (self.generic_visit(node) above has
+        # already run over node.body by this point), regardless of guard
+        # shape; nothing left to do here but unwrap the now-trivial guard.
         if _call_attr(node.test) == "__SafeToSet":
             if node.orelse:
                 # Not observed in any oracle (the else always binds to an
@@ -282,7 +286,7 @@ class GenericBodyRewriter(ast.NodeTransformer):
                                     "left unrewritten (no oracle evidence for this shape)"
                                     % self.current_method_name)
                 return node
-            return self._strip_emulated_prewrites(node.body)
+            return node.body
 
         # if self.__SafeToSet('X') and <cond>: <body> [else: <body>] -- the
         # BoolOp form of the same guard (e.g. Automate VX's
@@ -299,7 +303,7 @@ class GenericBodyRewriter(ast.NodeTransformer):
         if (isinstance(node.test, ast.BoolOp) and isinstance(node.test.op, ast.And)
                 and any(_call_attr(v) == "__SafeToSet" for v in node.test.values)):
             remaining = [v for v in node.test.values if _call_attr(v) != "__SafeToSet"]
-            new_body = self._strip_emulated_prewrites(node.body)
+            new_body = node.body  # Emulated pre-write already stripped by visit_Expr, if present
             if not node.orelse:
                 if remaining:
                     self.residuals.add(
@@ -343,24 +347,6 @@ class GenericBodyRewriter(ast.NodeTransformer):
         return (isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Call)
                 and _call_attr(stmt.value) == "DeleteTimer")
 
-    def _strip_emulated_prewrites(self, stmts):
-        """Drop 'self.Write<X>(value, qualifier, 'Emulated')' pre-write
-        statements from a __SafeToSet-guarded body (dual-status bookkeeping
-        with no ControlScript target); keep everything else, in order."""
-        new_body = []
-        for stmt in stmts:
-            if (isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Call)
-                    and isinstance(stmt.value.func, ast.Attribute)
-                    and stmt.value.func.attr.startswith("Write")
-                    and stmt.value.args and _const_eq(stmt.value.args[-1], "Emulated")):
-                self.residuals.add(
-                    "gc-dual-status-emulated-prewrite-dropped",
-                    "%s: dropped Emulated pre-write %s(...)" %
-                    (self.current_method_name, stmt.value.func.attr))
-                continue
-            new_body.append(stmt)
-        return new_body
-
     def visit_Assign(self, node):
         self.generic_visit(node)
         for tgt in node.targets:
@@ -389,6 +375,40 @@ class GenericBodyRewriter(ast.NodeTransformer):
                 self.residuals.add("gc-dual-status-no-target",
                                     "%s: dropped %s(...) call (no ControlScript equivalent)"
                                     % (self.current_method_name, attr))
+                return None
+            # self.Write<X>(<args>, 'Emulated') -- GC's dual-status pre-write
+            # bookkeeping call, wherever it appears in a method body. The
+            # invariant is the CALL SHAPE, not the guard it happens to sit
+            # inside: every shipped module (DSC/DTP3/Samsung/Automate
+            # VX/Clock Audio/Biamp -- confirmed by grepping all six for
+            # 'Emulated' and for any per-command def Write<X>/Read<X>, both
+            # zero hits) defines only the generic WriteStatus/ReadStatus, so
+            # a call to the per-command Write<X> wrapper (already deleted
+            # elsewhere as pure boilerplate -- see the wrapper-drop rules)
+            # is always dangling if it survives. The old rule only stripped
+            # this inside an 'if self.__SafeToSet(...):' body; Biamp's Tesira
+            # generator never emits __SafeToSet at all and gates the same
+            # bookkeeping call on plain parameter validation instead (e.g.
+            # 'if 1 <= int(chnl) <= 24 and value in state:'), and DTP3's own
+            # SetMatrixIONameString/SetMatrixIONumberSelect do the identical
+            # thing with a length check -- so gating this rule on the
+            # __SafeToSet guard shape was itself a second special case.
+            # Excludes WriteStatus/WriteStatusHelper/WriteDeviceResponseStatus
+            # (handled by their own rules above/elsewhere) and, by requiring
+            # the literal 'Emulated' last argument, never fires on a
+            # 'Live' (or contextless) Write<X> call -- that's the B1
+            # Write<X>(...,'Live') -> WriteStatus(...) rewrite rule's job --
+            # nor on a Read<X>(..., 'Emulated') call, which reads GC-only
+            # scratch state and has its return value consumed (a different
+            # construct entirely; left as a reported residual, never guessed
+            # at).
+            if (attr and attr.startswith("Write")
+                    and attr not in ("WriteStatus", "WriteStatusHelper", "WriteDeviceResponseStatus")
+                    and _has_emulated_context(node.value)):
+                self.residuals.add(
+                    "gc-dual-status-emulated-prewrite-dropped",
+                    "%s: dropped Emulated pre-write %s(...)" %
+                    (self.current_method_name, attr))
                 return None
             # self.StartQueryDelayTimer(...) -- GC BaseDriver's own
             # query-throttle bookkeeping, no ControlScript equivalent no
@@ -1699,6 +1719,21 @@ def _source_speaks_sis(src_text):
     """True when the embedded GC script itself uses the Extron SIS session
     handshake. Evidence-based: the strings must be present in the package."""
     return "w0echo" in (src_text or "") or "w3cv" in (src_text or "")
+
+
+def _has_emulated_context(call):
+    """True when a call passes the GC 'Emulated' status context, positionally or
+    by keyword.
+
+    Keying only on the last POSITIONAL argument was a real boundary: a generator
+    emitting context='Emulated' would leave the pre-write call in place while its
+    target definition was still deleted -- the same dangling-reference bug this
+    rule exists to prevent, reintroduced silently. No package among the six uses
+    the keyword form; this closes it before a seventh does.
+    """
+    if call.args and _const_eq(call.args[-1], "Emulated"):
+        return True
+    return any(_const_eq(kw.value, "Emulated") for kw in (call.keywords or []))
 
 
 def find_invented_wire_strings(module_source, origin_source):
