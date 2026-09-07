@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.DS_Store
+# scratch output from format probing
+tools/out/
