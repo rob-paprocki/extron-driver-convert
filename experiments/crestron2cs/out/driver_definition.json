@@ -1,0 +1,3395 @@
+{
+  "SchemaVersion": "1.0.0.0",
+  "GeneralInformation": {
+    "MinToolboxVersion": "0.0.0.0",
+    "MinCresDbVersion": "0.0.0.0",
+    "MinSdkVersion": "14.0000.0000",
+    "DeviceType": "Flat Panel Display",
+    "Manufacturer": "Samsung",
+    "DriverVersion": "1.0100.0006",
+    "BaseModel": "QN43LS03DAFXZA",
+    "Description": "LS Series",
+    "Guid": "cf861212-9781-48bd-8118-a2ce38c7f305",
+    "SupportedSeries": [
+      "LS Series"
+    ],
+    "OtherSupportedModels": [
+      "QN85LS03DAFXZA",
+      "QN75LS03DAFXZA",
+      "QN65LS03DAFXZA",
+      "QN55LS03DAFXZA",
+      "QN50LS03DAFXZA",
+      "QN43LS03DDFXZA",
+      "QN85LS03DDFXZA",
+      "QN75LS03DDFXZA",
+      "QN65LS03DDFXZA",
+      "QN55LS03DDFXZA",
+      "QN50LS03DDFXZA",
+      "QN43LS03DA",
+      "QN85LS03DA",
+      "QN75LS03DA",
+      "QN65LS03DA",
+      "QN55LS03DA",
+      "QN50LS03DA",
+      "QN43LS03DD",
+      "QN85LS03DD",
+      "QN75LS03DD",
+      "QN65LS03DD",
+      "QN55LS03DD",
+      "QN50LS03DD"
+    ],
+    "VersionDate": "2025-01-12 18:24:58.000"
+  },
+  "Configuration": {
+    "DriverInstanceIdentifier": "{_MacAddress_}"
+  },
+  "UserAttributes": [
+    {
+      "Type": "MessageBox",
+      "Name": "MediaServiceConfiguration",
+      "Label": "Media Service Configuration",
+      "Description": "Media services must be placed on the home screen favorites row to be launched. Go to Home > Apps > App Settings to customize which services are on the home screen by selecting 'Add to Home'"
+    },
+    {
+      "Type": "MessageBox",
+      "Name": "Model Notice",
+      "Label": "Model Information",
+      "Description": "This driver supports the artwork and ambient mode commands."
+    },
+    {
+      "Type": "MessageBox",
+      "Name": "Configuration Instructions",
+      "Label": "Warning Information",
+      "Description": "To configure for IP control, use TV remote and press Home button, navigate to Menu > Settings > All Settings > Connection > Network > Expert Settings, turn on \"Power On with Mobile\" and enable \"IP Remote\" settings. Then follow Enable Instructions"
+    },
+    {
+      "Type": "MessageBox",
+      "Name": "Configuration Instructions 2",
+      "Label": "Enable Instructions",
+      "Description": "To enable IP control, begin with TV powered on, then while driver is being loaded, look at TV for message to allow IP Remote control, use TV remote to select Allow, for control"
+    },
+    {
+      "Type": "MessageBox",
+      "Name": "Multiview Modes",
+      "Label": "Multiview Instructions",
+      "Description": "To be able to select saved Multiview modes via the driver's Custom Commands, the default names Samsung assigns to the Multiview modes must be kept. Do not rename the saved modes from the Samsung default names."
+    },
+    {
+      "Type": "Custom",
+      "Name": "MacAddress",
+      "Label": "Mac Address",
+      "Description": "Use TV remote and press Home button, go to Menu > Settings > All Settings > Support > About TV. Then scroll to the Wired MAC Address setting. This is required to turn the Display on. Provide as AA:BB:CC:DD:EE:FF",
+      "Info": {
+        "Persistent": true,
+        "RequiredForConnection": "Before"
+      }
+    },
+    {
+      "Type": "MessageBox",
+      "Name": "WOLNotice",
+      "Label": "WOL Notice",
+      "Description": "Since this device uses Wake On LAN to power it on, the driver can have an extended warmup time where control may not be available for several tens of seconds. Please note this for this driver."
+    },
+    {
+      "Type": "Custom",
+      "Name": "DefaultDigitalCableChannel",
+      "Label": "Default DCTV Channel",
+      "Description": "Required to set the channel when selecting Digital Cable TV as Media/TV source for the first time",
+      "Info": {
+        "Persistent": true,
+        "RequiredForConnection": "Before"
+      }
+    },
+    {
+      "Type": "Custom",
+      "Name": "DefaultAnalogCableChannel",
+      "Label": "Default ACTV Channel",
+      "Description": "Required to set the channel when selecting Analog Cable TV as Media/TV Source for the first time",
+      "Info": {
+        "Persistent": true,
+        "RequiredForConnection": "Before"
+      }
+    },
+    {
+      "Type": "Custom",
+      "Name": "DefaultDigitalAntennaChannel",
+      "Label": "Default DATV Channel",
+      "Description": "Required to set the channel when selecting Digital TV (Digital Antenna) as Media/TV Source for the first time",
+      "Info": {
+        "Persistent": true,
+        "RequiredForConnection": "Before"
+      }
+    },
+    {
+      "Type": "Custom",
+      "Name": "DefaultAnalogAntennaChannel",
+      "Label": "Default AATV Channel",
+      "Description": "Required to set the channel when selecting Analog TV (Analog Antenna) as Media/TV Source for the first time",
+      "Info": {
+        "Persistent": true,
+        "RequiredForConnection": "Before"
+      }
+    },
+    {
+      "Type": "Custom",
+      "Name": "DefaultTvPlusChannel",
+      "Label": "Default Samsung TV Plus Channel",
+      "Description": "Required to set the channel when selecting Samsung TV Plus as Media/TV source for the first time",
+      "Info": {
+        "Persistent": true,
+        "RequiredForConnection": "Before"
+      }
+    }
+  ],
+  "Transports": [
+    {
+      "Name": "HttpTransport",
+      "Type": "Http",
+      "ResponseProcessor": "RootProcessingNode",
+      "TimeBetweenCommands": 0,
+      "Info": {
+        "ContentType": "application/json",
+        "Url": "https://{_Host_}:{_Port_}",
+        "KeepAlive": true,
+        "RequestType": "Post",
+        "Secure": true,
+        "HostVerification": false,
+        "PeerVerification": false,
+        "Encoding": "UTF-8",
+        "Timeout": 8,
+        "TimeoutEnabled": true,
+        "Headers": {
+          "Accept": "application/json"
+        }
+      }
+    }
+  ],
+  "SupportedFeatures": [
+    {
+      "Type": "BasicInformation",
+      "Info": {
+        "SupportsFeedback": true
+      }
+    },
+    {
+      "Type": "FeedbackInformation",
+      "Info": {
+        "SupportsFeedback": true
+      }
+    },
+    {
+      "Type": "Connection",
+      "Info": {
+        "SupportsDisconnect": false,
+        "SupportsReconnect": false,
+        "HideDeviceDisconnect": true
+      }
+    },
+    {
+      "Type": "Tcp",
+      "Info": {
+        "Port": "1516"
+      }
+    },
+    {
+      "Type": "Power",
+      "Info": {
+        "SupportsPowerFeedback": true,
+        "SupportsDiscretePower": true,
+        "SupportsTogglePower": true,
+        "SupportsWarmUpTime": true,
+        "SupportsCoolDownTime": true
+      }
+    },
+    {
+      "Type": "Volume",
+      "Info": {
+        "SupportsVolumePercentFeedback": true,
+        "SupportsSetVolume": true,
+        "SupportsChangeVolume": true,
+        "SupportsMute": true,
+        "SupportsDiscreteMute": true,
+        "SupportsMuteFeedback": true
+      }
+    },
+    {
+      "Type": "Inputs",
+      "Comment": "The device doesn't tell us when a media service is active, so we have workarounds for that. Modify with care. Note that selecting media services via remote still can result in incorrect feedback since we can't know it happened.",
+      "Info": {
+        "SupportsInputFeedback": true,
+        "SupportsSetInputSource": true,
+        "SupportsVideoInputFeedback": true,
+        "SupportsSetVideoInputSource": true,
+        "SupportsAudioInputFeedback": true,
+        "SupportsSetAudioInputSource": true
+      }
+    },
+    {
+      "Type": "Outputs"
+    },
+    {
+      "Type": "MediaServiceProvider",
+      "Info": {
+        "SupportsMediaServices": true,
+        "SupportsActiveMediaServiceFeedback": false,
+        "SupportsActiveMediaServiceStateFeedback": false,
+        "SupportsMediaServiceSubscriptionStateFeedback": false
+      }
+    },
+    {
+      "Type": "Navigation",
+      "Info": {
+        "SupportsArrowKeys": true,
+        "SupportsClear": false,
+        "SupportsExit": true,
+        "SupportsHome": true,
+        "SupportsMenu": true,
+        "SupportsSearch": false,
+        "SupportsSelect": true
+      }
+    },
+    {
+      "Type": "Keypad",
+      "Info": {
+        "SupportsKeypadNumber": true,
+        "SupportsPeriod": false,
+        "SupportsDash": true,
+        "SupportsEnter": true
+      }
+    },
+    {
+      "Type": "ColorKeys",
+      "Info": {
+        "SupportsColorButtons": true,
+        "ColorButtonsSupported": [
+          "Blue",
+          "Green",
+          "Red",
+          "Yellow"
+        ]
+      }
+    },
+    {
+      "Type": "Channel",
+      "Info": {
+        "SupportsChangeChannel": true,
+        "SupportsChannelFeedback": true,
+        "SupportsGuide": false,
+        "SupportsPageChange": false,
+        "SupportsSetChannel": true,
+        "SupportsKeypadNumber": true
+      }
+    },
+    {
+      "Type": "MediaTransport",
+      "Info": {
+        "SupportsPlay": true,
+        "SupportsPause": true,
+        "SupportsStop": true,
+        "SupportsForwardScan": true,
+        "SupportsReverseScan": true,
+        "SupportsForwardSkip": false,
+        "SupportsReverseSkip": false,
+        "SupportsRepeat": false,
+        "SupportsReturn": true,
+        "SupportsBack": true,
+        "SupportsPlayPause": false
+      }
+    },
+    {
+      "Type": "VideoConfiguration",
+      "Info": {
+        "SupportsDisplayModes": true,
+        "VideoConfigurations": [
+          "Sixteen_Nine",
+          "Four_Three"
+        ]
+      }
+    },
+    {
+      "Type": "Artwork",
+      "Info": {
+        "SupportsArtworkMode": true,
+        "SupportsArtworkModeOnPowerOff": true
+      }
+    },
+    {
+      "Type": "CustomCommandCollection",
+      "Info": {
+        "SupportedCustomCommands": [
+          "AmbientOn",
+          "AmbientOff",
+          "SetPictureModeStandard",
+          "SetPictureModeDynamic",
+          "SetPictureModeMovie",
+          "SetPictureModeFilmmaker",
+          "SetSoundModeStandard",
+          "SetSoundModeAmplify",
+          "SetDisplayRotatorControlPortrait",
+          "SetDisplayRotatorControlLandscape",
+          "SetMultiViewMode1",
+          "SetMultiViewMode2",
+          "SetMultiViewMode3"
+        ]
+      }
+    }
+  ],
+  "CommandIds": [
+    {
+      "Type": "MonotonicIntegerId",
+      "Name": "CommandId",
+      "Info": {
+        "Min": 1,
+        "Max": 127,
+        "Step": 1
+      },
+      "Rollover": "None"
+    }
+  ],
+  "Commands": [
+    {
+      "Name": "RpcRequest",
+      "Type": "Text",
+      "Info": {
+        "Content": "{{\"method\":\"{method}\",\"params\":{\"AccessToken\": \"{AccessToken}\", {params}},\"id\":{_CommandId_},\"jsonrpc\":\"2.0\"}}"
+      }
+    },
+    {
+      "Name": "WakeOnLan",
+      "Type": "WakeOnLan",
+      "PostCommandDelay": 250,
+      "Info": {
+        "MacAddress": "{_MacAddress_}"
+      }
+    },
+    {
+      "Name": "RpcPollRequest",
+      "Type": "Text",
+      "Info": {
+        "Content": "{{\"jsonrpc\" : \"2.0\", \"method\" : \"{method}\", \"id\" : {_CommandId_},\"params\":{\"AccessToken\": \"{AccessToken}\"}}}"
+      }
+    },
+    {
+      "Name": "GetAccessToken",
+      "Type": "Text",
+      "Info": {
+        "Content": "{{\"method\":\"createAccessToken\",\"id\":\"{_CommandId_}\",\"jsonrpc\":\"2.0\"}}"
+      },
+      "TransportInfo": {
+        "Timeout": 32
+      }
+    },
+    {
+      "Name": "SetVolume",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"volume\":\"{Volume}\"",
+          "method": "directVolumeControl"
+        }
+      },
+      "Transformations": [
+        {
+          "Transformation": "FormatVolume",
+          "Input": "{Volume}",
+          "Output": "Volume"
+        }
+      ]
+    },
+    {
+      "Name": "GetVolume",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcPollRequest",
+        "Values": {
+          "method": "getTVStates"
+        }
+      }
+    },
+    {
+      "Name": "GetPower",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcPollRequest",
+        "Values": {
+          "method": "powerControl"
+        }
+      }
+    },
+    {
+      "Name": "GetPower2",
+      "Type": "Template",
+      "PostCommandDelay": 1000,
+      "Info": {
+        "CommandName": "RpcPollRequest",
+        "Values": {
+          "method": "powerControl"
+        }
+      }
+    },
+    {
+      "Name": "GetReportedVideoInput",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcPollRequest",
+        "Values": {
+          "method": "getTVStates"
+        }
+      }
+    },
+    {
+      "Name": "GetVideoConfiguration",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcPollRequest",
+        "Values": {
+          "method": "getTVStates"
+        }
+      }
+    },
+    {
+      "Name": "GetMute",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "GetVolume"
+      }
+    },
+    {
+      "Name": "SetPower",
+      "Type": "Template",
+      "PostCommandDelay": 250,
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"power\":\"{Power}\"",
+          "method": "powerControl"
+        }
+      },
+      "Transformations": [
+        {
+          "Transformation": "MapPowerCommands",
+          "Input": "{Power}",
+          "Output": "Power"
+        }
+      ]
+    },
+    {
+      "Name": "SetArtwork",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"artMode\":\"{Artwork}\"",
+          "method": "artModeControl"
+        }
+      },
+      "Transformations": [
+        {
+          "Transformation": "MapArtworkCommands",
+          "Input": "{Artwork}",
+          "Output": "Artwork"
+        }
+      ]
+    },
+    {
+      "Name": "GetArtwork",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcPollRequest",
+        "Values": {
+          "method": "artModeControl"
+        }
+      }
+    },
+    {
+      "Name": "SetMute",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"mute\":\"{ConvertedMute}\"",
+          "method": "muteControl"
+        }
+      },
+      "Transformations": [
+        {
+          "Transformation": "MapMuteToCommand",
+          "Input": "{Mute}",
+          "Output": "ConvertedMute"
+        }
+      ]
+    },
+    {
+      "Name": "SetTvInput",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"inputSource\":\"TV\"",
+          "method": "inputSourceControl"
+        }
+      }
+    },
+    {
+      "Name": "SetVideoInput",
+      "Type": "Template",
+      "StatesSet": [
+        "VideoInput"
+      ],
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"inputSource\":\"{ConvertedInput}\"",
+          "method": "inputSourceControl"
+        }
+      },
+      "Transformations": [
+        {
+          "Transformation": "MapInputsToCommandString",
+          "Input": "{VideoInput}",
+          "Output": "ConvertedInput"
+        }
+      ]
+    },
+    {
+      "Name": "SetMediaService",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"applicationName\":\"{AppName}\"",
+          "method": "directAccessControl"
+        }
+      },
+      "Transformations": [
+        {
+          "Transformation": "MapInputsToAppName",
+          "Input": "{VideoInput}",
+          "Output": "AppName"
+        }
+      ]
+    },
+    {
+      "Name": "SetFirstScreenApp",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"applicationName\":\"{AppName}\"",
+          "method": "firstScreenAppControl"
+        }
+      },
+      "Transformations": [
+        {
+          "Transformation": "MapInputsToAppName",
+          "Input": "{VideoInput}",
+          "Output": "AppName"
+        }
+      ]
+    },
+    {
+      "Name": "GetFirstScreenApp",
+      "Type": "Template",
+      "PostCommandDelay": 300,
+      "Info": {
+        "CommandName": "RpcPollRequest",
+        "Values": {
+          "method": "firstScreenAppControl"
+        }
+      }
+    },
+    {
+      "Name": "SetAntennaTemplate",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"atvDtv\":\"{ConvertedAntenna}\",\"airCable\":\"{ConvertedSource}\",\"channelNum\":\"{ChannelNum}\"",
+          "method": "directChannelControl"
+        }
+      },
+      "Transformations": [
+        {
+          "Transformation": "MapInputsToAntennaName",
+          "Input": "{VideoInput}",
+          "Output": "ConvertedAntenna"
+        },
+        {
+          "Transformation": "MapInputsToSourceName",
+          "Input": "{VideoInput}",
+          "Output": "ConvertedSource"
+        }
+      ]
+    },
+    {
+      "Name": "SetDigitalAirAntenna",
+      "Type": "Template",
+      "PostCommandDelay": 250,
+      "Info": {
+        "CommandName": "SetAntennaTemplate",
+        "Values": {
+          "ChannelNum": "{DAChannel}"
+        }
+      }
+    },
+    {
+      "Name": "SetAnalogAirAntenna",
+      "Type": "Template",
+      "PostCommandDelay": 250,
+      "Info": {
+        "CommandName": "SetAntennaTemplate",
+        "Values": {
+          "ChannelNum": "{AAChannel}"
+        }
+      }
+    },
+    {
+      "Name": "SetDigitalCableAntenna",
+      "Type": "Template",
+      "PostCommandDelay": 250,
+      "Info": {
+        "CommandName": "SetAntennaTemplate",
+        "Values": {
+          "ChannelNum": "{DCChannel}"
+        }
+      }
+    },
+    {
+      "Name": "SetAnalogCableAntenna",
+      "Type": "Template",
+      "PostCommandDelay": 250,
+      "Info": {
+        "CommandName": "SetAntennaTemplate",
+        "Values": {
+          "ChannelNum": "{ACChannel}"
+        }
+      }
+    },
+    {
+      "Name": "SetTvPlus",
+      "Type": "Template",
+      "PostCommandDelay": 250,
+      "Info": {
+        "CommandName": "SetAntennaTemplate",
+        "Values": {
+          "ChannelNum": "{TvPlusChannel}"
+        }
+      }
+    },
+    {
+      "Name": "SetVideoConfiguration",
+      "Type": "Template",
+      "StatesSet": [
+        "VideoConfiguration"
+      ],
+      "info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"pictureSize\":\"{ConvertedVideoConfiguration}\"",
+          "method": "pictureSizeControl"
+        }
+      },
+      "Transformations": [
+        {
+          "Transformation": "MapVideoConfigurationsToCommandString",
+          "Input": "{VideoConfiguration}",
+          "Output": "ConvertedVideoConfiguration"
+        }
+      ]
+    },
+    {
+      "Name": "SetChannel",
+      "Type": "Template",
+      "StatesSet": [
+        "Channel"
+      ],
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"atvDtv\":\"{ConvertedAntenna}\",\"airCable\":\"{ConvertedSource}\",\"channelNum\":\"{Channel}\"",
+          "method": "directChannelControl"
+        }
+      },
+      "Transformations": [
+        {
+          "Transformation": "MapInputsToAntennaName",
+          "Input": "{VideoInput}",
+          "Output": "ConvertedAntenna"
+        },
+        {
+          "Transformation": "MapInputsToSourceName",
+          "Input": "{VideoInput}",
+          "Output": "ConvertedSource"
+        }
+      ]
+    },
+    {
+      "Name": "GetChannel",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcPollRequest",
+        "Values": {
+          "method": "directChannelControl"
+        }
+      }
+    },
+    {
+      "Name": "RemoteKey",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"remoteKey\":\"{remoteKey}\"",
+          "method": "remoteKeyControl"
+        }
+      }
+    },
+    {
+      "Name": "Up",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "cursorUp"
+        }
+      }
+    },
+    {
+      "Name": "Down",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "cursorDn"
+        }
+      }
+    },
+    {
+      "Name": "Left",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "cursorLeft"
+        }
+      }
+    },
+    {
+      "Name": "Right",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "cursorRight"
+        }
+      }
+    },
+    {
+      "Name": "KeypressDash",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "dash"
+        }
+      }
+    },
+    {
+      "Name": "Keypress0",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "number0"
+        }
+      }
+    },
+    {
+      "Name": "Keypress1",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "number1"
+        }
+      }
+    },
+    {
+      "Name": "Keypress2",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "number2"
+        }
+      }
+    },
+    {
+      "Name": "Keypress3",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "number3"
+        }
+      }
+    },
+    {
+      "Name": "Keypress4",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "number4"
+        }
+      }
+    },
+    {
+      "Name": "Keypress5",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "number5"
+        }
+      }
+    },
+    {
+      "Name": "Keypress6",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "number6"
+        }
+      }
+    },
+    {
+      "Name": "Keypress7",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "number7"
+        }
+      }
+    },
+    {
+      "Name": "Keypress8",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "number8"
+        }
+      }
+    },
+    {
+      "Name": "Keypress9",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "number9"
+        }
+      }
+    },
+    {
+      "Name": "KeypressEnter",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "enter"
+        }
+      }
+    },
+    {
+      "Name": "Red",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "red"
+        }
+      }
+    },
+    {
+      "Name": "Green",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "green"
+        }
+      }
+    },
+    {
+      "Name": "Blue",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "blue"
+        }
+      }
+    },
+    {
+      "Name": "Yellow",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "yellow"
+        }
+      }
+    },
+    {
+      "Name": "ForwardScan",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "fastforward"
+        }
+      }
+    },
+    {
+      "Name": "ReverseScan",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "rewind"
+        }
+      }
+    },
+    {
+      "Name": "Play",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "play"
+        }
+      }
+    },
+    {
+      "Name": "Stop",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "stop"
+        }
+      }
+    },
+    {
+      "Name": "Pause",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "pause"
+        }
+      }
+    },
+    {
+      "Name": "Return",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "return"
+        }
+      }
+    },
+    {
+      "Name": "Back",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "return"
+        }
+      }
+    },
+    {
+      "Name": "Select",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "enter"
+        }
+      }
+    },
+    {
+      "Name": "Exit",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "exit"
+        }
+      }
+    },
+    {
+      "Name": "Menu",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "menu"
+        }
+      }
+    },
+    {
+      "Name": "Home",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "firstScreen"
+        }
+      }
+    },
+    {
+      "Name": "ChannelDown",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"control\":\"channelDn\"",
+          "method": "channelUpDnControl"
+        }
+      }
+    },
+    {
+      "Name": "ChannelUp",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"control\":\"channelUp\"",
+          "method": "channelUpDnControl"
+        }
+      }
+    },
+    {
+      "Name": "AmbientOn",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "ambient"
+        }
+      }
+    },
+    {
+      "Name": "AmbientOff",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RemoteKey",
+        "Values": {
+          "remoteKey": "firstScreen"
+        }
+      }
+    },
+    {
+      "Name": "SetPictureModeStandard",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"pictureMode\":\"Standard\"",
+          "method": "pictureModeControl"
+        }
+      }
+    },
+    {
+      "Name": "SetPictureModeDynamic",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"pictureMode\":\"Dynamic\"",
+          "method": "pictureModeControl"
+        }
+      }
+    },
+    {
+      "Name": "SetPictureModeMovie",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"pictureMode\":\"Movie\"",
+          "method": "pictureModeControl"
+        }
+      }
+    },
+    {
+      "Name": "SetPictureModeFilmmaker",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"pictureMode\":\"FilmmakerMode\"",
+          "method": "pictureModeControl"
+        }
+      }
+    },
+    {
+      "Name": "SetSoundModeStandard",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"soundMode\":\"Standard\"",
+          "method": "soundModeControl"
+        }
+      }
+    },
+    {
+      "Name": "SetSoundModeAmplify",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"soundMode\":\"Amplify\"",
+          "method": "soundModeControl"
+        }
+      }
+    },
+    {
+      "Name": "SetDisplayRotatorControlPortrait",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"orientation\":\"Portrait\"",
+          "method": "displayRotatorControl"
+        }
+      }
+    },
+    {
+      "Name": "SetDisplayRotatorControlLandscape",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"orientation\":\"Landscape\"",
+          "method": "displayRotatorControl"
+        }
+      }
+    },
+    {
+      "Name": "SetMultiViewMode1",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"multiviewMode\":\"My Multi View 1\"",
+          "method": "multiviewControl"
+        }
+      }
+    },
+    {
+      "Name": "SetMultiViewMode2",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"multiviewMode\":\"My Multi View 2\"",
+          "method": "multiviewControl"
+        }
+      }
+    },
+    {
+      "Name": "SetMultiViewMode3",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcRequest",
+        "Values": {
+          "params": "\"multiviewMode\":\"My Multi View 3\"",
+          "method": "multiviewControl"
+        }
+      }
+    },
+    {
+      "Name": "GetMultiViewModes",
+      "Type": "Template",
+      "Info": {
+        "CommandName": "RpcPollRequest",
+        "Values": {
+          "method": "multiviewControl"
+        }
+      }
+    }
+  ],
+  "Responses": [
+    {
+      "Name": "RootProcessingNode",
+      "Next": [
+        "CheckHttpResponseCode",
+        "JsonResponseErrorCheck",
+        "CommandResponseDecoder"
+      ]
+    },
+    {
+      "Name": "CommandResponseDecoder",
+      "Type": "CommandResponseDecoder",
+      "Processing": "Stop",
+      "Next": [
+        "AccessTokenDecoder",
+        "PowerPollCommandDecoder",
+        "ReportedInputPollCommandDecoder",
+        "GetChannelDecoder",
+        "ArtworkPollCommandDecoder",
+        "TVStatesCommandDecoder"
+      ]
+    },
+    {
+      "Name": "PowerPollCommandDecoder",
+      "Type": "CommandResponseNameMatch",
+      "Processing": "Stop",
+      "Match": "GetPower",
+      "Next": [
+        "GetFirstResultPower",
+        "UnauthorizedAccessCheck"
+      ]
+    },
+    {
+      "Name": "AccessTokenDecoder",
+      "Type": "CommandResponseNameMatch",
+      "Processing": "Stop",
+      "Match": "GetAccessToken",
+      "Next": [
+        "DecodeAccessToken",
+        "UnauthorizedAccessCheck"
+      ]
+    },
+    {
+      "Name": "DecodeAccessToken",
+      "Type": "Json",
+      "Select": {
+        "AccessToken": "result.AccessToken"
+      }
+    },
+    {
+      "Name": "GetFirstResultPower",
+      "Type": "Json",
+      "Select": {
+        "Power": "result.power"
+      },
+      "Transformations": [
+        {
+          "Transformation": "MapPowerFeedback",
+          "Input": "{Power}",
+          "Output": "Power"
+        }
+      ]
+    },
+    {
+      "Name": "ReportedInputPollCommandDecoder",
+      "Type": "CommandResponseNameMatch",
+      "Processing": "Stop",
+      "Match": "GetReportedVideoInput",
+      "Next": [
+        "GetReportedInputResponse",
+        "UnauthorizedAccessCheck"
+      ]
+    },
+    {
+      "Name": "GetReportedInputResponse",
+      "Type": "Json",
+      "Select": {
+        "ReportedVideoInput": "result.inputSource"
+      },
+      "Transformations": [
+        {
+          "Transformation": "MapFeedbackToInputs",
+          "Input": "{ReportedVideoInput}",
+          "Output": "ReportedVideoInput"
+        }
+      ]
+    },
+    {
+      "Name": "GetVideoConfigurationResponse",
+      "Type": "Json",
+      "Select": {
+        "VideoConfiguration": "pictureSize"
+      },
+      "Transformations": [
+        {
+          "Transformation": "MapFeedbackToVideoConfigurations",
+          "Input": "{VideoConfiguration}",
+          "Output": "VideoConfiguration"
+        }
+      ]
+    },
+    {
+      "Name": "GetChannelDecoder",
+      "Comment": "Only allow channel decoding for GetChannel responses. Responses to set commands like SetDigitalAirChannel always indicate that the command has succeeded yet a later GetChannel command will show it has not occurred yet. Hence the reason for those commands having PostCommandDelays",
+      "Type": "CommandResponseNameMatch",
+      "Processing": "Stop",
+      "Match": "GetChannel",
+      "Next": [
+        "GetChannelNum2",
+        "GetChannelNum",
+        "UnauthorizedAccessCheck"
+      ]
+    },
+    {
+      "Name": "GetChannelNum",
+      "Type": "Json",
+      "Select": {
+        "AntennaName": "result.atvDtv",
+        "AntennaSource": "result.airCable",
+        "Channel": "result.channelNum"
+      }
+    },
+    {
+      "Name": "GetChannelNum2",
+      "Type": "Json",
+      "Select": {
+        "AntennaName": "result.atvDtv",
+        "AntennaSource": "result.RFtype",
+        "Channel": "result.channelNum"
+      },
+      "Transformations": [
+        {
+          "Transformation": "MapAntennaName",
+          "Input": "{AntennaName}",
+          "Output": "AntennaName"
+        },
+        {
+          "Transformation": "MapAntennaSource",
+          "Input": "{AntennaSource}",
+          "Output": "AntennaSource"
+        }
+      ]
+    },
+    {
+      "Name": "TVStatesCommandDecoder",
+      "Type": "CommandResponseNameMatch",
+      "Match": "GetVolume|GetMute|GetVideoConfiguration",
+      "Next": [
+        "GetResult",
+        "UnauthorizedAccessCheck"
+      ]
+    },
+    {
+      "Name": "GetResult",
+      "Type": "Json",
+      "Match": "result",
+      "Next": [
+        "GetTvStates",
+        "GetVideoConfigurationResponse"
+      ]
+    },
+    {
+      "Name": "GetTvStates",
+      "Type": "Json",
+      "Select": {
+        "Volume": "volume",
+        "Mute": "mute"
+      },
+      "Processing": "Continue",
+      "Transformations": [
+        {
+          "Transformation": "MapMuteToFeedback",
+          "Input": "{Mute}",
+          "Output": "Mute"
+        }
+      ]
+    },
+    {
+      "Name": "CheckHttpResponseCode",
+      "Processing": "Continue",
+      "ConditionType": "Ack",
+      "Condition": "Http200"
+    },
+    {
+      "Name": "JsonResponseErrorCheck",
+      "Type": "Json",
+      "Match": "error",
+      "SelectType": "IfPresent",
+      "Select": {
+        "ErrorCode": "code",
+        "ErrorMessage": "message"
+      },
+      "Next": [
+        "Nak"
+      ]
+    },
+    {
+      "Name": "UnauthorizedAccessCheck",
+      "Type": "Json",
+      "Match": "code",
+      "Output": "ErrorCode",
+      "Condition": "Unauthorized",
+      "Next": [
+        "SetAccessTokenToNull"
+      ]
+    },
+    {
+      "Comment": "Setting access token to null so another GetAccessCommand is sent. This means the access token is stale and the Display no longer accepts it",
+      "Name": "SetAccessTokenToNull",
+      "Select": {
+        "AccessToken": "unknown"
+      }
+    },
+    {
+      "Name": "Nak",
+      "Select": {
+        "_Ack_": "false"
+      }
+    },
+    {
+      "Name": "ArtworkPollCommandDecoder",
+      "Type": "CommandResponseNameMatch",
+      "Processing": "Stop",
+      "Match": "GetArtwork",
+      "Next": [
+        "GetFirstResultArtwork"
+      ]
+    },
+    {
+      "Name": "GetFirstResultArtwork",
+      "Type": "Json",
+      "Select": {
+        "Artwork": "result.artMode"
+      },
+      "Transformations": [
+        {
+          "Transformation": "MapArtworkFeedback",
+          "Input": "{Artwork}",
+          "Output": "Artwork"
+        }
+      ]
+    }
+  ],
+  "Conditions": [
+    {
+      "Name": "NoAccessToken",
+      "Type": "Exists",
+      "Invert": "true",
+      "Info": {
+        "Values": [
+          "AccessToken"
+        ]
+      }
+    },
+    {
+      "Name": "SetChannelHoldOffIsActive",
+      "Type": "IsEqual",
+      "Info": {
+        "Values": {
+          "SetChannelHoldOff": true
+        }
+      }
+    },
+    {
+      "Name": "SourceIsAir",
+      "Type": "IsMatch",
+      "Info": {
+        "Values": {
+          "AntennaSource": "air"
+        }
+      }
+    },
+    {
+      "Name": "SourceIsCable",
+      "Type": "IsMatch",
+      "Info": {
+        "Values": {
+          "AntennaSource": "cable"
+        }
+      }
+    },
+    {
+      "Name": "SourceIsTvPlus",
+      "Type": "IsMatch",
+      "Info": {
+        "Values": {
+          "AntennaSource": "air|cable"
+        }
+      }
+    },
+    {
+      "Name": "AntennaIsDigital",
+      "Type": "IsMatch",
+      "Info": {
+        "Values": {
+          "AntennaName": "dtv"
+        }
+      }
+    },
+    {
+      "Name": "AntennaIsAnalog",
+      "Type": "IsMatch",
+      "Info": {
+        "Values": {
+          "AntennaName": "atv"
+        }
+      }
+    },
+    {
+      "Name": "AntennaIsTvPlus",
+      "Type": "IsMatch",
+      "Info": {
+        "Values": {
+          "AntennaName": "tvplus"
+        }
+      }
+    },
+    {
+      "Name": "ActiveTVIsDigitalAir",
+      "Type": "And",
+      "Info": {
+        "Conditions": [
+          "AntennaIsDigital",
+          "SourceIsAir"
+        ]
+      }
+    },
+    {
+      "Name": "ActiveTVIsAnalogAir",
+      "Type": "And",
+      "Info": {
+        "Conditions": [
+          "AntennaIsAnalog",
+          "SourceIsAir"
+        ]
+      }
+    },
+    {
+      "Name": "ActiveTVIsDigitalCable",
+      "Type": "And",
+      "Info": {
+        "Conditions": [
+          "AntennaIsDigital",
+          "SourceIsCable"
+        ]
+      }
+    },
+    {
+      "Name": "ActiveTVIsAnalogCable",
+      "Type": "And",
+      "Info": {
+        "Conditions": [
+          "AntennaIsAnalog",
+          "SourceIsCable"
+        ]
+      }
+    },
+    {
+      "Name": "ActiveTvIsTvPlus",
+      "Type": "And",
+      "Info": {
+        "Conditions": [
+          "AntennaIsTvPlus",
+          "SourceIsTvPlus"
+        ]
+      }
+    },
+    {
+      "Name": "RampHoldOffActive",
+      "Type": "IsEqual",
+      "Info": {
+        "Values": {
+          "VolumeRampHoldOff": true
+        }
+      }
+    },
+    {
+      "Name": "PowerNotKnownOn",
+      "Type": "IsEqual",
+      "Invert": "true",
+      "Info": {
+        "Values": {
+          "Power": "true"
+        }
+      }
+    },
+    {
+      "Name": "PowerIsOff",
+      "Type": "IsEqual",
+      "Info": {
+        "Values": {
+          "Power": "false"
+        }
+      }
+    },
+    {
+      "Name": "PowerIsOn",
+      "Type": "IsEqual",
+      "Info": {
+        "Values": {
+          "Power": "true"
+        }
+      }
+    },
+    {
+      "Name": "VideoInputIsUnknown",
+      "Type": "IsEqual",
+      "Info": {
+        "Values": {
+          "VideoInput": "unknownMediaService"
+        }
+      }
+    },
+    {
+      "Name": "MuteIsOn",
+      "Type": "IsEqual",
+      "Info": {
+        "Values": {
+          "Mute": "true"
+        }
+      }
+    },
+    {
+      "Name": "AccessTokenBlockerTimerInEffect",
+      "Type": "IsEqual",
+      "Info": {
+        "Values": {
+          "AccessTokenBlocker": "true"
+        }
+      }
+    },
+    {
+      "Name": "WarmingUp",
+      "Type": "IsEqual",
+      "Info": {
+        "Values": {
+          "WarmUp": "true"
+        }
+      }
+    },
+    {
+      "Name": "CoolingDown",
+      "Type": "IsEqual",
+      "Info": {
+        "Values": {
+          "CoolDown": "true"
+        }
+      }
+    },
+    {
+      "Name": "WarmingUpOrCoolingDown",
+      "Type": "Or",
+      "Info": {
+        "Conditions": [
+          "WarmingUp",
+          "CoolingDown"
+        ]
+      }
+    },
+    {
+      "Name": "NotWarmingAndNotCooling",
+      "Type": "And",
+      "Info": {
+        "Conditions": [
+          "NotWarmingUp",
+          "NotCoolingDown"
+        ]
+      }
+    },
+    {
+      "Name": "NotCoolingDown",
+      "Type": "IsEqual",
+      "Info": {
+        "Values": {
+          "CoolDown": "false"
+        }
+      }
+    },
+    {
+      "Name": "NotWarmingUp",
+      "Type": "IsEqual",
+      "Info": {
+        "Values": {
+          "WarmUp": "false"
+        }
+      }
+    },
+    {
+      "Name": "PowerIsOffAndNotWarmingAndNotCooling",
+      "Type": "And",
+      "Info": {
+        "Conditions": [
+          "PowerIsOff",
+          "NotWarmingAndNotCooling"
+        ]
+      }
+    },
+    {
+      "Name": "PowerIsOnAndNotWarmingAndNotCooling",
+      "Type": "And",
+      "Info": {
+        "Conditions": [
+          "PowerIsOn",
+          "NotWarmingAndNotCooling"
+        ]
+      }
+    },
+    {
+      "Name": "Http200",
+      "Type": "IsEqual",
+      "Info": {
+        "Values": {
+          "Http.StatusCode": "200"
+        }
+      }
+    },
+    {
+      "Name": "Unauthorized",
+      "Type": "IsMatch",
+      "Info": {
+        "Values": {
+          "ErrorCode": "-32010|-32700"
+        }
+      }
+    },
+    {
+      "Name": "IsMediaService",
+      "Type": "IsMatch",
+      "Info": {
+        "Values": {
+          "VideoInput": "^(youtube|netflix|hulu|vudu|pandora|amazon)$"
+        }
+      }
+    },
+    {
+      "Name": "IsFirstScreenApp",
+      "Type": "IsMatch",
+      "Info": {
+        "Values": {
+          "VideoInput": "^(appletv|disney[+]|max|slingtv|youtubetv|peacocktv|discovery[+]|paramount[+]|starz|spotify|siriusxm|iheartradio|applemusic|tbscast|tntcast|pbsvideo|amc|amc[+]|bloomberg|cbsnews|cnn|nbc|nflsundayticket|mlb|foodnetworkgo|foxsports|fubotv|hgtvgo|amazonmusic|deezer|nbcsports|peacock|plutotv|redbulltv|bixby|epix|amazonalexa|britbox|crackle|directtvstream|espn|internet|plex|dazn|freevee|tiktok|tubi|ufc|youtubetv|iTV|viki|crunchyroll|now|samsunghealth|abcnews)$"
+        }
+      }
+    },
+    {
+      "Name": "IsDigitalAir",
+      "Type": "IsMatch",
+      "Info": {
+        "Values": {
+          "VideoInput": "DigitalAntenna"
+        }
+      }
+    },
+    {
+      "Name": "IsAnalogAir",
+      "Type": "IsMatch",
+      "Info": {
+        "Values": {
+          "VideoInput": "AnalogAntenna"
+        }
+      }
+    },
+    {
+      "Name": "IsAnalogCable",
+      "Type": "IsMatch",
+      "Info": {
+        "Values": {
+          "VideoInput": "AnalogCable"
+        }
+      }
+    },
+    {
+      "Name": "IsDigitalCable",
+      "Type": "IsMatch",
+      "Info": {
+        "Values": {
+          "VideoInput": "DigitalCable"
+        }
+      }
+    },
+    {
+      "Name": "IsTvPlus",
+      "Type": "IsMatch",
+      "Info": {
+        "Values": {
+          "VideoInput": "TvPlus"
+        }
+      }
+    },
+    {
+      "Name": "InputIsSmartTv",
+      "Type": "IsEqual",
+      "Info": {
+        "Values": {
+          "VideoInput": "unknownMediaService"
+        }
+      }
+    }
+  ],
+  "Transformations": [
+    {
+      "Name": "FormatVolume",
+      "Type": "Format",
+      "Info": {
+        "FormatString": "{0:#0}",
+        "DataType": "double"
+      }
+    },
+    {
+      "Name": "MapInputsToAppName",
+      "Type": "Map",
+      "Info": {
+        "Map": {
+          "youtube": "youTube",
+          "netflix": "netflix",
+          "hulu": "hulu",
+          "vudu": "vudu",
+          "pandora": "pandora",
+          "abcnews": "ABC News",
+          "amazon": "amazon",
+          "amazonalexa": "Amazon Alexa",
+          "amazonmusic": "Amazon Music",
+          "amc": "AMC",
+          "amc+": "AMC+",
+          "applemusic": "Apple Music",
+          "appletv": "Apple TV",
+          "bixby": "Bixby",
+          "britbox": "BritBox by BBC",
+          "bloomberg": "Bloomberg",
+          "cbsnews": "CBS News: Live Breaking News",
+          "cnn": "CNN",
+          "crackle": "Crackle",
+          "crunchyroll": "Crunchyroll",
+          "dazn": "DAZN",
+          "espn": "ESPN",
+          "foodnetworkgo": "Food Network GO",
+          "freevee": "Freevee",
+          "deezer": "Deezer",
+          "directtvstream": "DIRECTV STREAM",
+          "discovery+": "discovery+ | Stream TV Shows, Originals and More",
+          "disney+": "Disney+",
+          "epix": "EPIXCast",
+          "foxsports": "FOX Sports",
+          "fubotv": "Fubo: Watch Live TV & Sports",
+          "hgtvgo": "HGTV GO - Stream Live TV",
+          "iheartradio": "iHeartRadio",
+          "max": "Max",
+          "mlb": "MLB",
+          "nbc": "NBC",
+          "nbcsports": "NBC Sports",
+          "now": "\u0627\u0644\u0634\u0631\u0642 NOW",
+          "paramount+": "Paramount+",
+          "pbsvideo": "PBS Video",
+          "peacocktv": "Peacock TV",
+          "plex": "Plex - Free Movies \uff06 TV",
+          "plutotv": "Pluto TV",
+          "redbulltv": "Red Bull TV",
+          "samsunghealth": "Samsung Health",
+          "siriusxm": "SiriusXM TV: Music, Podcasts, Sports, News",
+          "slingtv": "Sling TV: Live TV, Sports, News + Freestream ",
+          "spotify": "Spotify - Music and Podcasts",
+          "starz": "STARZ",
+          "tbscast": "TBS Cast",
+          "tntcast": "TNT Cast",
+          "tiktok": "TikTok",
+          "tubi": "Tubi - Free Movies \uff06 TV",
+          "ufc": "UFC",
+          "viki": "Viki: Asian Drama, Movies and More",
+          "youtubetv": "YouTube TV",
+          "itv": "iTV",
+          "internet": "Internet"
+        }
+      }
+    },
+    {
+      "Name": "MapInputsToCommandString",
+      "Type": "Map",
+      "Info": {
+        "Map": {
+          "Hdmi1": "HDMI1",
+          "Hdmi2": "HDMI2",
+          "Hdmi3": "HDMI3",
+          "Hdmi4": "HDMI4"
+        }
+      }
+    },
+    {
+      "Name": "MapFeedbackToInputs",
+      "Type": "Map",
+      "Info": {
+        "Map": {
+          "HDMI1": "Hdmi1",
+          "HDMI2": "Hdmi2",
+          "HDMI3": "Hdmi3",
+          "HDMI4": "Hdmi4"
+        }
+      }
+    },
+    {
+      "Name": "MapInputsToAntennaName",
+      "Type": "Map",
+      "Info": {
+        "Map": {
+          "AnalogAntenna": "atv",
+          "DigitalAntenna": "dtv",
+          "AnalogCable": "atv",
+          "DigitalCable": "dtv",
+          "TvPlus": "tvplus"
+        }
+      }
+    },
+    {
+      "Name": "MapInputsToSourceName",
+      "Type": "Map",
+      "Info": {
+        "Map": {
+          "AnalogAntenna": "air",
+          "DigitalAntenna": "air",
+          "AnalogCable": "cable",
+          "DigitalCable": "cable",
+          "TvPlus": "air"
+        }
+      }
+    },
+    {
+      "Name": "MapVideoConfigurationsToCommandString",
+      "Type": "Map",
+      "Info": {
+        "Map": {
+          "Sixteen_Nine": "16:9",
+          "Four_Three": "4:3"
+        }
+      }
+    },
+    {
+      "Name": "MapFeedbackToVideoConfigurations",
+      "Type": "Map",
+      "Info": {
+        "Map": {
+          "16:9": "Sixteen_Nine",
+          "4:3": "Four_Three"
+        }
+      }
+    },
+    {
+      "Name": "MapPowerCommands",
+      "Type": "Map",
+      "Info": {
+        "Map": {
+          "true": "powerOn",
+          "false": "powerOff"
+        }
+      }
+    },
+    {
+      "Name": "MapPowerFeedback",
+      "Type": "Map",
+      "Info": {
+        "Map": {
+          "powerOn": "true",
+          "powerOff": "false"
+        }
+      }
+    },
+    {
+      "Name": "MapAntennaName",
+      "Type": "Map",
+      "Info": {
+        "Map": {
+          "DTV": "dtv",
+          "ATV": "atv",
+          "TVPLUS": "tvplus"
+        }
+      }
+    },
+    {
+      "Name": "MapAntennaSource",
+      "Type": "Map",
+      "Info": {
+        "Map": {
+          "AIR": "air",
+          "CABLE": "cable"
+        }
+      }
+    },
+    {
+      "Name": "MapArtworkCommands",
+      "Type": "Map",
+      "Info": {
+        "Map": {
+          "true": "artModeOn",
+          "false": "artModeOff"
+        }
+      }
+    },
+    {
+      "Name": "MapArtworkFeedback",
+      "Type": "Map",
+      "Info": {
+        "Map": {
+          "artModeOn": "true",
+          "artModeOff": "false"
+        }
+      }
+    },
+    {
+      "Name": "MapMuteToCommand",
+      "Type": "Map",
+      "Info": {
+        "Map": {
+          "true": "muteOn",
+          "false": "muteOff"
+        }
+      }
+    },
+    {
+      "Name": "MapMuteToFeedback",
+      "Type": "Map",
+      "Info": {
+        "Map": {
+          "muteOn": "true",
+          "muteOff": "false"
+        }
+      }
+    }
+  ],
+  "Rules": [
+    {
+      "Name": "NeedsPowerOn",
+      "AppliesTo": ".*",
+      "Except": ".*Power.*|Connection|WarmUp|CoolDown|.*AccessToken.*",
+      "Condition": "PowerNotKnownOn",
+      "Type": "Block",
+      "Info": {
+        "OnSet": true,
+        "OnSend": true,
+        "OnFeedback": true
+      }
+    },
+    {
+      "Name": "RequireAccessToken",
+      "AppliesTo": ".*",
+      "Except": "GetAccessToken",
+      "Condition": "NoAccessToken",
+      "Type": "Block",
+      "Info": {
+        "OnSend": true
+      }
+    },
+    {
+      "Name": "BlockAccessTokenRequest",
+      "AppliesTo": "GetAccessToken",
+      "Condition": "AccessTokenBlockerTimerInEffect",
+      "Type": "Block",
+      "Info": {
+        "OnSend": true
+      }
+    },
+    {
+      "Name": "UpdateDisplayedVideoInputFeedback",
+      "AppliesTo": "ReportedVideoInput",
+      "Type": "SetOtherFeedback",
+      "Info": {
+        "States": {
+          "VideoInput": "{ReportedVideoInput}"
+        }
+      }
+    },
+    {
+      "Name": "SetActiveAppInstead",
+      "AppliesTo": "SetVideoInput",
+      "Condition": "IsMediaService",
+      "Type": "CommandSequence",
+      "Info": {
+        "Commands": [
+          "SetMediaService"
+        ]
+      }
+    },
+    {
+      "Name": "SetFirstScreenAppInstead",
+      "AppliesTo": "SetVideoInput",
+      "Condition": "IsFirstScreenApp",
+      "Type": "CommandSequence",
+      "Info": {
+        "Commands": [
+          "GetFirstScreenApp",
+          "SetFirstScreenApp"
+        ]
+      }
+    },
+    {
+      "Name": "SetDigitalAirAntennaInstead",
+      "AppliesTo": "SetVideoInput",
+      "Condition": "IsDigitalAir",
+      "Type": "CommandSequence",
+      "Info": {
+        "Commands": [
+          "SetTvInput",
+          "SetDigitalAirAntenna"
+        ]
+      }
+    },
+    {
+      "Name": "SetAntennaNameDtv",
+      "AppliesTo": "SetDigitalAirAntenna|SetDigitalCableAntenna",
+      "Type": "SetOtherOnSend",
+      "Info": {
+        "States": {
+          "AntennaName": "dtv"
+        }
+      }
+    },
+    {
+      "Name": "SetAntennaSourceAir",
+      "AppliesTo": "SetDigitalAirAntenna|SetAnalogAirAntenna|SetTvPlus",
+      "Type": "SetOtherOnSend",
+      "Info": {
+        "States": {
+          "AntennaSource": "air"
+        }
+      }
+    },
+    {
+      "Name": "SetAnalogAirAntennaInstead",
+      "AppliesTo": "SetVideoInput",
+      "Condition": "IsAnalogAir",
+      "Type": "CommandSequence",
+      "Info": {
+        "Commands": [
+          "SetTvInput",
+          "SetAnalogAirAntenna"
+        ]
+      }
+    },
+    {
+      "Name": "SetAntennaNameAtv",
+      "AppliesTo": "SetAnalogAirAntenna|SetAnalogCableAntenna",
+      "Type": "SetOtherOnSend",
+      "Info": {
+        "States": {
+          "AntennaName": "atv"
+        }
+      }
+    },
+    {
+      "Name": "SetDigitalCableAntennaInstead",
+      "AppliesTo": "SetVideoInput",
+      "Condition": "IsDigitalCable",
+      "Type": "CommandSequence",
+      "Info": {
+        "Commands": [
+          "SetTvInput",
+          "SetDigitalCableAntenna"
+        ]
+      }
+    },
+    {
+      "Name": "SetAntennaSourceCable",
+      "AppliesTo": "SetDigitalCableAntenna|SetAnalogCableAntenna",
+      "Type": "SetOtherOnSend",
+      "Info": {
+        "States": {
+          "AntennaSource": "cable"
+        }
+      }
+    },
+    {
+      "Name": "SetAnalogCableAntennaInstead",
+      "AppliesTo": "SetVideoInput",
+      "Condition": "IsAnalogCable",
+      "Type": "CommandSequence",
+      "Info": {
+        "Commands": [
+          "SetTvInput",
+          "SetAnalogCableAntenna"
+        ]
+      }
+    },
+    {
+      "Name": "SetTvPlusInstead",
+      "AppliesTo": "SetVideoInput",
+      "Condition": "IsTvPlus",
+      "Type": "CommandSequence",
+      "Info": {
+        "Commands": [
+          "SetTvInput",
+          "SetTvPlus"
+        ]
+      }
+    },
+    {
+      "Name": "SetAntennaNameTvPlus",
+      "AppliesTo": "SetTvPlus",
+      "Type": "SetOtherOnSend",
+      "Info": {
+        "States": {
+          "AntennaName": "tvplus"
+        }
+      }
+    },
+    {
+      "Name": "WarmUpBlockSend",
+      "AppliesTo": ".*",
+      "Except": "GetPower",
+      "Condition": "WarmingUp",
+      "Type": "Block",
+      "Info": {
+        "OnSend": true
+      }
+    },
+    {
+      "Name": "CoolDownBlockSend",
+      "AppliesTo": ".*",
+      "Condition": "CoolingDown",
+      "Type": "Block",
+      "Info": {
+        "OnSend": true
+      }
+    },
+    {
+      "Name": "StartWarmUpWithCommand",
+      "AppliesTo": "WakeOnLan|SetPower",
+      "Condition": "PowerIsOnAndNotWarmingAndNotCooling",
+      "Type": "SetOtherOnSend",
+      "Info": {
+        "States": {
+          "WarmUp": "true"
+        }
+      }
+    },
+    {
+      "Name": "StartCoolDownWithCommand",
+      "Comment": "This will fake feedback for cooldown and power feedback when turning the display off. After cooldown completes, the driver is not expecting any replies to Power.Get",
+      "AppliesTo": "SetPower",
+      "Condition": "PowerIsOffAndNotWarmingAndNotCooling",
+      "Type": "SetOtherOnSend",
+      "Info": {
+        "States": {
+          "CoolDown": "true"
+        }
+      }
+    },
+    {
+      "Name": "ChannelChangeSetCoordinator",
+      "AppliesTo": "ChannelUp|ChannelDown",
+      "Type": "SetOtherOnSend",
+      "Info": {
+        "States": {
+          "SetChannelHoldOff": true
+        }
+      }
+    },
+    {
+      "Name": "SetChannelBlockSend",
+      "AppliesTo": "SetChannel",
+      "Condition": "SetChannelHoldOffIsActive",
+      "Type": "Block",
+      "Info": {
+        "OnSend": true
+      }
+    },
+    {
+      "Name": "DelayPolling",
+      "AppliesTo": "SetVolume",
+      "Type": "SetOtherOnSend",
+      "Info": {
+        "States": {
+          "VolumeRampHoldOff": "true"
+        }
+      }
+    },
+    {
+      "Name": "BlockPollingWhileRamping",
+      "AppliesTo": "Get.*",
+      "Condition": "RampHoldOffActive",
+      "Type": "Block",
+      "Info": {
+        "OnSend": true
+      }
+    },
+    {
+      "Name": "UnmuteWhenVolChanged",
+      "AppliesTo": "Volume",
+      "Type": "SetOtherState",
+      "Info": {
+        "States": {
+          "Mute": "false"
+        }
+      }
+    },
+    {
+      "Name": "ApplyDefaultDigitalAirChannel",
+      "AppliesTo": "_DefaultDigitalAntennaChannel_",
+      "Type": "SetOtherState",
+      "Info": {
+        "States": {
+          "DAChannel": "{_DefaultDigitalAntennaChannel_}"
+        }
+      }
+    },
+    {
+      "Name": "ApplyDefaultAnalogAirChannel",
+      "AppliesTo": "_DefaultAnalogAntennaChannel_",
+      "Type": "SetOtherState",
+      "Info": {
+        "States": {
+          "AAChannel": "{_DefaultAnalogAntennaChannel_}"
+        }
+      }
+    },
+    {
+      "Name": "ApplyDefaultDigitalCableChannel",
+      "AppliesTo": "_DefaultDigitalCableChannel_",
+      "Type": "SetOtherState",
+      "Info": {
+        "States": {
+          "DCChannel": "{_DefaultDigitalCableChannel_}"
+        }
+      }
+    },
+    {
+      "Name": "ApplyDefaultAnalogCableChannel",
+      "AppliesTo": "_DefaultAnalogCableChannel_",
+      "Type": "SetOtherState",
+      "Info": {
+        "States": {
+          "ACChannel": "{_DefaultAnalogCableChannel_}"
+        }
+      }
+    },
+    {
+      "Name": "ApplyDefaultTvPlusChannel",
+      "AppliesTo": "_DefaultTvPlusChannel_",
+      "Type": "SetOtherState",
+      "Info": {
+        "States": {
+          "TvPlusChannel": "{_DefaultTvPlusChannel_}"
+        }
+      }
+    },
+    {
+      "Name": "SetDigitalAirChannel",
+      "AppliesTo": "Channel",
+      "Condition": "ActiveTVIsDigitalAir",
+      "Type": "SetOtherFeedback",
+      "Info": {
+        "States": {
+          "DAChannel": "{Channel}"
+        }
+      }
+    },
+    {
+      "Name": "SetDigitalCableChannel",
+      "AppliesTo": "Channel",
+      "Condition": "ActiveTVIsDigitalCable",
+      "Type": "SetOtherFeedback",
+      "Info": {
+        "States": {
+          "DCChannel": "{Channel}"
+        }
+      }
+    },
+    {
+      "Name": "SetAnalogAirChannel",
+      "AppliesTo": "Channel",
+      "Condition": "ActiveTVIsAnalogAir",
+      "Type": "SetOtherFeedback",
+      "Info": {
+        "States": {
+          "AAChannel": "{Channel}"
+        }
+      }
+    },
+    {
+      "Name": "SetAnalogCableChannel",
+      "AppliesTo": "Channel",
+      "Condition": "ActiveTVIsAnalogCable",
+      "Type": "SetOtherFeedback",
+      "Info": {
+        "States": {
+          "ACChannel": "{Channel}"
+        }
+      }
+    },
+    {
+      "Name": "SetTvPlusChannel",
+      "AppliesTo": "Channel",
+      "Condition": "ActiveTvIsTvPlus",
+      "Type": "SetOtherFeedback",
+      "Info": {
+        "States": {
+          "TvPlusChannel": "{Channel}"
+        }
+      }
+    },
+    {
+      "Name": "UseWOLForPowerOn",
+      "AppliesTo": "SetPower",
+      "Condition": "PowerIsOn",
+      "Type": "CommandSequence",
+      "Info": {
+        "Commands": [
+          "WakeOnLan",
+          "WakeOnLan",
+          "WakeOnLan",
+          "WakeOnLan",
+          "WakeOnLan",
+          "WakeOnLan",
+          "SetPower",
+          "GetPower2",
+          "GetPower"
+        ]
+      }
+    },
+    {
+      "Name": "SendHomeForSmartTv",
+      "AppliesTo": "SetVideoInput",
+      "Condition": "InputIsSmartTv",
+      "Type": "CommandSequence",
+      "Info": {
+        "Commands": [
+          "Home"
+        ]
+      }
+    },
+    {
+      "Comment": "When attempting to set the video input to unknown, send a harmless command that will be ack'ed",
+      "Name": "DontSendUnknownInput",
+      "AppliesTo": "SetVideoInput",
+      "Condition": "VideoInputIsUnknown",
+      "Type": "CommandSequence",
+      "Info": {
+        "Commands": [
+          "GetPower"
+        ]
+      }
+    },
+    {
+      "Name": "StartTimerWithAccessTokenCommand",
+      "AppliesTo": "GetAccessToken",
+      "Type": "SetOtherOnSend",
+      "Info": {
+        "States": {
+          "AccessTokenBlocker": "true"
+        }
+      }
+    },
+    {
+      "Name": "SendGetCmdWhenSendingSetMultiViewMode1",
+      "AppliesTo": "SetMultiViewMode1",
+      "Type": "CommandSequence",
+      "Info": {
+        "Commands": [
+          "GetMultiViewModes",
+          "SetMultiViewMode1"
+        ]
+      }
+    },
+    {
+      "Name": "SendGetCmdWhenSendingSetMultiViewMode2",
+      "AppliesTo": "SetMultiViewMode2",
+      "Type": "CommandSequence",
+      "Info": {
+        "Commands": [
+          "GetMultiViewModes",
+          "SetMultiViewMode2"
+        ]
+      }
+    },
+    {
+      "Name": "SendGetCmdWhenSendingSetMultiViewMode3",
+      "AppliesTo": "SetMultiViewMode3",
+      "Type": "CommandSequence",
+      "Info": {
+        "Commands": [
+          "GetMultiViewModes",
+          "SetMultiViewMode3"
+        ]
+      }
+    }
+  ],
+  "Controllers": [
+    {
+      "Name": "AccessToken",
+      "Type": "String",
+      "PollingInterval": 36000,
+      "PollingConfiguration": "IfUnknown",
+      "AllowFeedback": true,
+      "RequireAck": true,
+      "RequireFeedback": true,
+      "FeedbackHoldoffTime": 0,
+      "DeviceProcessingTime": 0,
+      "CommandRetryCount": 0,
+      "InvalidationFeedback": "unknown",
+      "Info": {
+        "Persistent": true
+      }
+    },
+    {
+      "Name": "Power",
+      "Type": "Boolean",
+      "PollingInterval": 4000,
+      "AckAsFeedback": true,
+      "AllowFeedback": true,
+      "RequireAck": false,
+      "RequireFeedback": true,
+      "FeedbackHoldoffTime": 200,
+      "DeviceProcessingTime": 7000,
+      "CommandRetryCount": 15
+    },
+    {
+      "Name": "Artwork",
+      "Type": "Boolean",
+      "PollingInterval": 4000,
+      "AckAsFeedback": true,
+      "AllowFeedback": true,
+      "RequireAck": true,
+      "RequireFeedback": true,
+      "FeedbackHoldoffTime": 5000,
+      "DeviceProcessingTime": 1000,
+      "CommandRetryCount": 3
+    },
+    {
+      "Name": "AccessTokenBlocker",
+      "Type": "TimedStatus",
+      "Info": {
+        "Timeout": 36000,
+        "MinTimeout": 0,
+        "SupportsChangeTimeout": false
+      }
+    },
+    {
+      "Name": "WarmUp",
+      "Type": "TimedStatus",
+      "Info": {
+        "Timeout": 6000,
+        "MinTimeout": 0,
+        "SupportsChangeTimeout": true
+      }
+    },
+    {
+      "Name": "CoolDown",
+      "Type": "TimedStatus",
+      "Info": {
+        "Timeout": 3000,
+        "MinTimeout": 0,
+        "SupportsChangeTimeout": true
+      }
+    },
+    {
+      "Name": "SetChannelHoldOff",
+      "Type": "TimedStatus",
+      "Info": {
+        "Timeout": 3000,
+        "MinTimeout": 0,
+        "SupportsChangeTimeout": false
+      }
+    },
+    {
+      "Name": "VolumeRampHoldOff",
+      "Type": "TimedStatus",
+      "Info": {
+        "Timeout": 300
+      }
+    },
+    {
+      "Comment": "Polling disabled since device still reports previous input while a media service is active",
+      "Name": "VideoInput",
+      "Type": "Enum",
+      "AckAsFeedback": true,
+      "AllowFeedback": true,
+      "RequireAck": true,
+      "RequireFeedback": true,
+      "DeviceProcessingTime": 1000,
+      "CommandRetryCount": 0,
+      "AlwaysSend": true
+    },
+    {
+      "Comment": "Polling for what the display says the current input is occurs here. The intention is to set InputVideo to this if this value changes and the new value does not match VideoInput.",
+      "Name": "ReportedVideoInput",
+      "Type": "Enum",
+      "PollingInterval": 4000,
+      "AckAsFeedback": true,
+      "AllowFeedback": true,
+      "RequireAck": true,
+      "RequireFeedback": true,
+      "DeviceProcessingTime": 1000,
+      "CommandRetryCount": 0
+    },
+    {
+      "Name": "AntennaName",
+      "Type": "String",
+      "AllowFeedback": true,
+      "RequireFeedback": true
+    },
+    {
+      "Name": "AntennaSource",
+      "Type": "String",
+      "AllowFeedback": true,
+      "RequireFeedback": true
+    },
+    {
+      "Name": "VideoConfiguration",
+      "Type": "Enum",
+      "PollingInterval": 4000,
+      "AckAsFeedback": true,
+      "AllowFeedback": true,
+      "RequireAck": true,
+      "RequireFeedback": true,
+      "FeedbackHoldoffTime": 5000,
+      "DeviceProcessingTime": 1000,
+      "CommandRetryCount": 3
+    },
+    {
+      "Name": "Volume",
+      "Type": "Numeric",
+      "PollingInterval": 4000,
+      "AckAsFeedback": true,
+      "AllowFeedback": true,
+      "RequireAck": true,
+      "RequireFeedback": true,
+      "FeedbackHoldoffTime": 500,
+      "DeviceProcessingTime": 400,
+      "CommandRetryCount": 3,
+      "Info": {
+        "Min": 0,
+        "Max": 100,
+        "Step": 1,
+        "RampingTimeSchedule": [
+          350,
+          250,
+          125
+        ]
+      }
+    },
+    {
+      "Name": "Mute",
+      "Type": "Boolean",
+      "PollingInterval": 4000,
+      "AckAsFeedback": true,
+      "AllowFeedback": true,
+      "RequireAck": true,
+      "RequireFeedback": true,
+      "FeedbackHoldoffTime": 500,
+      "DeviceProcessingTime": 400,
+      "CommandRetryCount": 3
+    },
+    {
+      "Name": "DAChannel",
+      "Type": "String",
+      "AllowFeedback": true,
+      "RequireFeedback": true
+    },
+    {
+      "Name": "DCChannel",
+      "Type": "String",
+      "AllowFeedback": true,
+      "RequireFeedback": true
+    },
+    {
+      "Name": "AAChannel",
+      "Type": "String",
+      "AllowFeedback": true,
+      "RequireFeedback": true
+    },
+    {
+      "Name": "ACChannel",
+      "Type": "String",
+      "AllowFeedback": true,
+      "RequireFeedback": true
+    },
+    {
+      "Name": "TvPlusChannel",
+      "Type": "String",
+      "AllowFeedback": true,
+      "RequireFeedback": true
+    },
+    {
+      "Name": "Channel",
+      "Type": "String",
+      "PollingInterval": 4000,
+      "AckAsFeedback": true,
+      "AllowFeedback": true,
+      "RequireAck": true,
+      "RequireFeedback": true,
+      "FeedbackHoldoffTime": 250,
+      "DeviceProcessingTime": 250,
+      "CommandRetryCount": 3
+    },
+    {
+      "Name": "ChannelCommands",
+      "Type": "Command",
+      "Info": {
+        "AppliesTo": "ChannelUp|ChannelDown",
+        "RepeatHoldOff": 500,
+        "RepeatDelay": 250
+      }
+    },
+    {
+      "Name": "Commands",
+      "Type": "Command",
+      "Info": {
+        "AppliesTo": ".*",
+        "Except": "ChannelUp|ChannelDown",
+        "RepeatHoldOff": 500,
+        "RepeatDelay": 100
+      }
+    }
+  ],
+  "InputOutput": [
+    {
+      "Name": "Hdmi1Input",
+      "Type": "PhysicalAvInput",
+      "FriendlyName": "HDMI 1",
+      "Info": {
+        "Audio": true,
+        "Video": true,
+        "Id": "Hdmi1",
+        "ConnectorType": "Hdmi"
+      }
+    },
+    {
+      "Name": "Hdmi2Input",
+      "Type": "PhysicalAvInput",
+      "FriendlyName": "HDMI 2",
+      "Info": {
+        "Audio": true,
+        "Video": true,
+        "Id": "Hdmi2",
+        "ConnectorType": "Hdmi"
+      }
+    },
+    {
+      "Name": "Hdmi3Input",
+      "Type": "PhysicalAvInput",
+      "FriendlyName": "HDMI 3",
+      "Info": {
+        "Audio": true,
+        "Video": true,
+        "Id": "Hdmi3",
+        "ConnectorType": "Hdmi"
+      }
+    },
+    {
+      "Name": "Hdmi4Input",
+      "Type": "PhysicalAvInput",
+      "FriendlyName": "HDMI 4",
+      "Info": {
+        "Audio": true,
+        "Video": true,
+        "Id": "Hdmi4",
+        "ConnectorType": "Hdmi"
+      }
+    },
+    {
+      "Name": "AnalogAudioOutput",
+      "Type": "PhysicalAvOutput",
+      "FriendlyName": "Audio out",
+      "Info": {
+        "Audio": true,
+        "Video": false,
+        "Id": "AnalogAudio1",
+        "ConnectorType": "Analog"
+      }
+    },
+    {
+      "Name": "OpticalAudioOutput",
+      "Type": "PhysicalAvOutput",
+      "FriendlyName": "Optical",
+      "Info": {
+        "Audio": true,
+        "Video": false,
+        "Id": "Optical1",
+        "ConnectorType": "Optical"
+      }
+    },
+    {
+      "Name": "MediaServiceDefaults",
+      "Type": "MediaServiceDefaults",
+      "Info": {
+        "Audio": true,
+        "Video": true,
+        "IsSelectable": true,
+        "SupportsForwardScan": true,
+        "SupportsReverseScan": true,
+        "SupportsPlay": true,
+        "SupportsPause": true,
+        "SupportsBack": true,
+        "SupportsArrowKeys": true,
+        "SupportsUpDown": true,
+        "SupportsLeftRight": true,
+        "SupportsSelect": true,
+        "SupportsExit": true,
+        "SupportsHome": false,
+        "SupportsColorButtons": true,
+        "SupportsKeypadNumber": true,
+        "SupportsEnter": true,
+        "SupportsDash": true
+      }
+    },
+    {
+      "Name": "ABCNews",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "ABC News",
+      "Info": {
+        "Id": "abcnews"
+      }
+    },
+    {
+      "Name": "AmazonAlexa",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Amazon Alexa",
+      "Info": {
+        "Id": "amazonalexa"
+      }
+    },
+    {
+      "Name": "AmazonFreevee",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Amazon FreeVee",
+      "Info": {
+        "Id": "freevee"
+      }
+    },
+    {
+      "Name": "AmazonMusic",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Amazon Music",
+      "Info": {
+        "Id": "amazonmusic"
+      }
+    },
+    {
+      "Name": "Amazon",
+      "Type": "MediaService",
+      "FriendlyName": "Amazon Prime",
+      "Info": {
+        "Id": "Amazon"
+      }
+    },
+    {
+      "Name": "AMC",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "AMC",
+      "Info": {
+        "Id": "amc"
+      }
+    },
+    {
+      "Name": "AMC+",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "AMC+",
+      "Info": {
+        "Id": "amc+"
+      }
+    },
+    {
+      "Name": "AnalogCable",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Analog Cable TV",
+      "Info": {
+        "Id": "AnalogCable",
+        "CustomSupportedFeatures": {
+          "SupportsChannelFeedback": true,
+          "SupportsChangeChannel": true,
+          "SupportsSetChannel": true,
+          "SupportsForwardScan": false,
+          "SupportsReverseScan": false,
+          "SupportsPlay": false,
+          "SupportsPause": false
+        }
+      }
+    },
+    {
+      "Name": "AnalogAntenna",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Analog TV",
+      "Info": {
+        "Id": "AnalogAntenna",
+        "CustomSupportedFeatures": {
+          "SupportsChannelFeedback": true,
+          "SupportsChangeChannel": true,
+          "SupportsSetChannel": true,
+          "SupportsForwardScan": false,
+          "SupportsReverseScan": false,
+          "SupportsPlay": false,
+          "SupportsPause": false
+        }
+      }
+    },
+    {
+      "Name": "AppleMusic",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Apple Music",
+      "Info": {
+        "Id": "applemusic"
+      }
+    },
+    {
+      "Name": "AppleTV",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Apple TV",
+      "Info": {
+        "Id": "appletv"
+      }
+    },
+    {
+      "Name": "Bixby",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Bixby",
+      "Info": {
+        "Id": "bixby"
+      }
+    },
+    {
+      "Name": "Bloomberg",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Bloomberg",
+      "Info": {
+        "Id": "bloomberg"
+      }
+    },
+    {
+      "Name": "BritBox",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "BritBox",
+      "Info": {
+        "Id": "britbox"
+      }
+    },
+    {
+      "Name": "CBS News",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "CBS News",
+      "Info": {
+        "Id": "cbsnews"
+      }
+    },
+    {
+      "Name": "CNN",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "CNN",
+      "Info": {
+        "Id": "cnn"
+      }
+    },
+    {
+      "Name": "Crackle",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Crackle",
+      "Info": {
+        "Id": "crackle"
+      }
+    },
+    {
+      "Name": "Crunchyroll",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Crunchyroll",
+      "Info": {
+        "Id": "crunchyroll"
+      }
+    },
+    {
+      "Name": "Dazn",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Dazn",
+      "Info": {
+        "Id": "dazn"
+      }
+    },
+    {
+      "Name": "Deezer",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Deezer",
+      "Info": {
+        "Id": "deezer"
+      }
+    },
+    {
+      "Name": "DigitalCable",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Digital Cable TV",
+      "Info": {
+        "Id": "DigitalCable",
+        "CustomSupportedFeatures": {
+          "SupportsChannelFeedback": true,
+          "SupportsChangeChannel": true,
+          "SupportsSetChannel": true,
+          "SupportsForwardScan": false,
+          "SupportsReverseScan": false,
+          "SupportsPlay": false,
+          "SupportsPause": false
+        }
+      }
+    },
+    {
+      "Name": "DigitalAntenna",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Digital TV",
+      "Info": {
+        "Id": "DigitalAntenna",
+        "CustomSupportedFeatures": {
+          "SupportsChannelFeedback": true,
+          "SupportsChangeChannel": true,
+          "SupportsSetChannel": true,
+          "SupportsForwardScan": false,
+          "SupportsReverseScan": false,
+          "SupportsPlay": false,
+          "SupportsPause": false
+        }
+      }
+    },
+    {
+      "Name": "DirectTvStream",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "DirectTv Stream",
+      "Info": {
+        "Id": "directtvstream"
+      }
+    },
+    {
+      "Name": "Discovery+",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Discovery+",
+      "Info": {
+        "Id": "discovery+"
+      }
+    },
+    {
+      "Name": "Disney+",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Disney+",
+      "Info": {
+        "Id": "disney+"
+      }
+    },
+    {
+      "Name": "Epix",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "epix",
+      "Info": {
+        "Id": "epix"
+      }
+    },
+    {
+      "Name": "ESPN",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "ESPN",
+      "Info": {
+        "Id": "espn"
+      }
+    },
+    {
+      "Name": "FoodNetworkGo",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Food Network GO",
+      "Info": {
+        "Id": "foodnetworkgo"
+      }
+    },
+    {
+      "Name": "FoxSports",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "FOX Sports",
+      "Info": {
+        "Id": "foxsports"
+      }
+    },
+    {
+      "Name": "fuboTV",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "fuboTV",
+      "Info": {
+        "Id": "fubotv"
+      }
+    },
+    {
+      "Name": "HGTVGO",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "HGTV GO",
+      "Info": {
+        "Id": "hgtvgo"
+      }
+    },
+    {
+      "Name": "Hulu",
+      "Type": "MediaService",
+      "FriendlyName": "Hulu",
+      "Info": {
+        "Id": "Hulu"
+      }
+    },
+    {
+      "Name": "iHeartRadio",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "iHeartRadio",
+      "Info": {
+        "Id": "iheartradio"
+      }
+    },
+    {
+      "Name": "Internet",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Internet",
+      "Info": {
+        "Id": "internet"
+      }
+    },
+    {
+      "Name": "ITV",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "ITV Player",
+      "Info": {
+        "Id": "itv"
+      }
+    },
+    {
+      "Name": "Max",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Max",
+      "Info": {
+        "Id": "max"
+      }
+    },
+    {
+      "Name": "MLB",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "MLB",
+      "Info": {
+        "Id": "mlb"
+      }
+    },
+    {
+      "Name": "NBC",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "NBC",
+      "Info": {
+        "Id": "nbc"
+      }
+    },
+    {
+      "Name": "NBCSports",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "NBC Sports",
+      "Info": {
+        "Id": "nbcsports"
+      }
+    },
+    {
+      "Name": "Netflix",
+      "Type": "MediaService",
+      "FriendlyName": "Netflix",
+      "Info": {
+        "Id": "Netflix"
+      }
+    },
+    {
+      "Name": "Now",
+      "Type": "CustomMediaService",
+      "FriendlyName": "NOW",
+      "Info": {
+        "Id": "now"
+      }
+    },
+    {
+      "Name": "Pandora",
+      "Type": "MediaService",
+      "FriendlyName": "Pandora",
+      "Info": {
+        "Id": "Pandora"
+      }
+    },
+    {
+      "Name": "Paramount+",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Paramount+",
+      "Info": {
+        "Id": "paramount+"
+      }
+    },
+    {
+      "Name": "PBSVideo",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "PBS",
+      "Info": {
+        "Id": "pbsvideo"
+      }
+    },
+    {
+      "Name": "PeacockTV",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Peacock",
+      "Info": {
+        "Id": "peacocktv"
+      }
+    },
+    {
+      "Name": "Plex",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Plex",
+      "Info": {
+        "Id": "plex"
+      }
+    },
+    {
+      "Name": "PlutoTV",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Pluto TV",
+      "Info": {
+        "Id": "plutotv"
+      }
+    },
+    {
+      "Name": "RedBullTV",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Red Bull TV",
+      "Info": {
+        "Id": "redbulltv"
+      }
+    },
+    {
+      "Name": "SamsungHealth",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Samsung Health",
+      "Info": {
+        "Id": "samsunghealth"
+      }
+    },
+    {
+      "Name": "TvPlus",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Samsung TV Plus",
+      "Info": {
+        "Id": "TvPlus",
+        "CustomSupportedFeatures": {
+          "SupportsChannelFeedback": true,
+          "SupportsChangeChannel": true,
+          "SupportsSetChannel": true,
+          "SupportsForwardScan": false,
+          "SupportsReverseScan": false,
+          "SupportsPlay": false,
+          "SupportsPause": false
+        }
+      }
+    },
+    {
+      "Name": "SiriusXM",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "SiriusXM",
+      "Info": {
+        "Id": "siriusxm"
+      }
+    },
+    {
+      "Name": "SlingTV",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Sling TV",
+      "Info": {
+        "Id": "slingtv"
+      }
+    },
+    {
+      "Name": "unknownMediaService",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Smart TV",
+      "IsSelectable": true,
+      "Info": {
+        "Id": "unknownMediaService",
+        "CustomSupportedFeatures": {
+          "SupportsHome": true,
+          "SupportsMenu": true
+        }
+      }
+    },
+    {
+      "Name": "Spotify",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Spotify",
+      "Info": {
+        "Id": "spotify"
+      }
+    },
+    {
+      "Name": "Starz",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Starz",
+      "Info": {
+        "Id": "starz"
+      }
+    },
+    {
+      "Name": "TBSCast",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "TBS",
+      "Info": {
+        "Id": "tbscast"
+      }
+    },
+    {
+      "Name": "TNTCast",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "TNT",
+      "Info": {
+        "Id": "tntcast"
+      }
+    },
+    {
+      "Name": "TikTok",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "TikTok",
+      "Info": {
+        "Id": "tiktok"
+      }
+    },
+    {
+      "Name": "Tubi",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "Tubi",
+      "Info": {
+        "Id": "tubi"
+      }
+    },
+    {
+      "Name": "UFC",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "UFC",
+      "Info": {
+        "Id": "ufc"
+      }
+    },
+    {
+      "Name": "Viki",
+      "Type": "CustomMediaService",
+      "FriendlyName": "Viki Rakuten",
+      "Info": {
+        "Id": "viki"
+      }
+    },
+    {
+      "Name": "Vudu",
+      "Type": "MediaService",
+      "FriendlyName": "FANDANGO AT HOME-VUDU",
+      "Info": {
+        "Id": "Vudu"
+      }
+    },
+    {
+      "Name": "YouTube",
+      "Type": "MediaService",
+      "FriendlyName": "YouTube",
+      "Info": {
+        "Id": "YouTube"
+      }
+    },
+    {
+      "Name": "YouTube TV",
+      "Type": "CustomMediaServiceId",
+      "FriendlyName": "YouTube TV",
+      "Info": {
+        "Id": "youtubetv"
+      }
+    }
+  ]
+}

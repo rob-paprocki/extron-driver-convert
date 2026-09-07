@@ -1,0 +1,706 @@
+{
+  "methods": {
+    "artModeControl": {
+      "crestron_derived": [
+        {
+          "command": "Artwork",
+          "direction": "set",
+          "canonical": "url={'method': artModeControl, 'params': {'AccessToken': {}, 'artMode': {}}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Artwork",
+          "direction": "update",
+          "canonical": "url={'jsonrpc': 2.0, 'method': artModeControl, 'id': {}, 'params': {'AccessToken': {}}}"
+        }
+      ],
+      "extron_shipped": []
+    },
+    "channelUpDnControl": {
+      "crestron_derived": [
+        {
+          "command": "ChannelDown",
+          "direction": "set",
+          "canonical": "url={'method': channelUpDnControl, 'params': {'AccessToken': {}, 'control': channelDn}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "ChannelUp",
+          "direction": "set",
+          "canonical": "url={'method': channelUpDnControl, 'params': {'AccessToken': {}, 'control': channelUp}, 'id': {}, 'jsonrpc': 2.0}"
+        }
+      ],
+      "extron_shipped": [
+        {
+          "command": "ChannelStep",
+          "direction": "set",
+          "canonical": "url={'jsonrpc': 2.0, 'method': channelUpDnControl, 'params': {'AccessToken': {}, 'control': {}}, 'id': 1}"
+        }
+      ]
+    },
+    "createAccessToken": {
+      "crestron_derived": [
+        {
+          "command": "GetAccessToken",
+          "direction": "set",
+          "canonical": "url={'method': createAccessToken, 'id': {}, 'jsonrpc': 2.0}"
+        }
+      ],
+      "extron_shipped": [
+        {
+          "command": "RefreshToken",
+          "direction": "set",
+          "canonical": "url={'jsonrpc': 2.0, 'method': createAccessToken, 'id': 1}"
+        }
+      ]
+    },
+    "directAccessControl": {
+      "crestron_derived": [
+        {
+          "command": "MediaService",
+          "direction": "set",
+          "canonical": "url={'method': directAccessControl, 'params': {'AccessToken': {}, 'applicationName': {}}, 'id': {}, 'jsonrpc': 2.0}"
+        }
+      ],
+      "extron_shipped": []
+    },
+    "directChannelControl": {
+      "crestron_derived": [
+        {
+          "command": "AnalogAirAntenna",
+          "direction": "set",
+          "canonical": "url={'method': directChannelControl, 'params': {'AccessToken': {}, 'atvDtv': {}, 'airCable': {}, 'channelNum': {}}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "AnalogCableAntenna",
+          "direction": "set",
+          "canonical": "url={'method': directChannelControl, 'params': {'AccessToken': {}, 'atvDtv': {}, 'airCable': {}, 'channelNum': {}}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Channel",
+          "direction": "set",
+          "canonical": "url={'method': directChannelControl, 'params': {'AccessToken': {}, 'atvDtv': {}, 'airCable': {}, 'channelNum': {}}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Channel",
+          "direction": "update",
+          "canonical": "url={'jsonrpc': 2.0, 'method': directChannelControl, 'id': {}, 'params': {'AccessToken': {}}}"
+        },
+        {
+          "command": "DigitalAirAntenna",
+          "direction": "set",
+          "canonical": "url={'method': directChannelControl, 'params': {'AccessToken': {}, 'atvDtv': {}, 'airCable': {}, 'channelNum': {}}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "DigitalCableAntenna",
+          "direction": "set",
+          "canonical": "url={'method': directChannelControl, 'params': {'AccessToken': {}, 'atvDtv': {}, 'airCable': {}, 'channelNum': {}}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "TvPlus",
+          "direction": "set",
+          "canonical": "url={'method': directChannelControl, 'params': {'AccessToken': {}, 'atvDtv': {}, 'airCable': {}, 'channelNum': {}}, 'id': {}, 'jsonrpc': 2.0}"
+        }
+      ],
+      "extron_shipped": []
+    },
+    "directVolumeControl": {
+      "crestron_derived": [
+        {
+          "command": "Volume",
+          "direction": "set",
+          "canonical": "url={'method': directVolumeControl, 'params': {'AccessToken': {}, 'volume': {}}, 'id': {}, 'jsonrpc': 2.0}"
+        }
+      ],
+      "extron_shipped": [
+        {
+          "command": "Volume",
+          "direction": "set",
+          "canonical": "url={'jsonrpc': 2.0, 'method': directVolumeControl, 'params': {'AccessToken': {}, 'volume': {}}, 'id': 1}"
+        },
+        {
+          "command": "Volume",
+          "direction": "update",
+          "canonical": "url={'jsonrpc': 2.0, 'method': directVolumeControl, 'params': {'AccessToken': {}}, 'id': 1}"
+        }
+      ]
+    },
+    "displayRotatorControl": {
+      "crestron_derived": [
+        {
+          "command": "DisplayRotatorControlLandscape",
+          "direction": "set",
+          "canonical": "url={'method': displayRotatorControl, 'params': {'AccessToken': {}, 'orientation': Landscape}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "DisplayRotatorControlPortrait",
+          "direction": "set",
+          "canonical": "url={'method': displayRotatorControl, 'params': {'AccessToken': {}, 'orientation': Portrait}, 'id': {}, 'jsonrpc': 2.0}"
+        }
+      ],
+      "extron_shipped": []
+    },
+    "firstScreenAppControl": {
+      "crestron_derived": [
+        {
+          "command": "FirstScreenApp",
+          "direction": "set",
+          "canonical": "url={'method': firstScreenAppControl, 'params': {'AccessToken': {}, 'applicationName': {}}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "FirstScreenApp",
+          "direction": "update",
+          "canonical": "url={'jsonrpc': 2.0, 'method': firstScreenAppControl, 'id': {}, 'params': {'AccessToken': {}}}"
+        }
+      ],
+      "extron_shipped": []
+    },
+    "getTVStates": {
+      "crestron_derived": [
+        {
+          "command": "Mute",
+          "direction": "update",
+          "canonical": "url={'jsonrpc': 2.0, 'method': getTVStates, 'id': {}, 'params': {'AccessToken': {}}}"
+        },
+        {
+          "command": "VideoInput",
+          "direction": "update",
+          "canonical": "url={'jsonrpc': 2.0, 'method': getTVStates, 'id': {}, 'params': {'AccessToken': {}}}"
+        },
+        {
+          "command": "Volume",
+          "direction": "update",
+          "canonical": "url={'jsonrpc': 2.0, 'method': getTVStates, 'id': {}, 'params': {'AccessToken': {}}}"
+        }
+      ],
+      "extron_shipped": []
+    },
+    "inputSourceControl": {
+      "crestron_derived": [
+        {
+          "command": "TvInput",
+          "direction": "set",
+          "canonical": "url={'method': inputSourceControl, 'params': {'AccessToken': {}, 'inputSource': TV}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "VideoInput",
+          "direction": "set",
+          "canonical": "url={'method': inputSourceControl, 'params': {'AccessToken': {}, 'inputSource': {}}, 'id': {}, 'jsonrpc': 2.0}"
+        }
+      ],
+      "extron_shipped": [
+        {
+          "command": "Input",
+          "direction": "set",
+          "canonical": "url={'jsonrpc': 2.0, 'method': inputSourceControl, 'params': {'AccessToken': {}, 'inputSource': {}}, 'id': 1}"
+        },
+        {
+          "command": "Input",
+          "direction": "update",
+          "canonical": "url={'jsonrpc': 2.0, 'method': inputSourceControl, 'params': {'AccessToken': {}}, 'id': 1}"
+        }
+      ]
+    },
+    "multiviewControl": {
+      "crestron_derived": [
+        {
+          "command": "GetMultiViewModes",
+          "direction": "set",
+          "canonical": "url={'jsonrpc': 2.0, 'method': multiviewControl, 'id': {}, 'params': {'AccessToken': {}}}"
+        },
+        {
+          "command": "MultiViewMode1",
+          "direction": "set",
+          "canonical": "url={'method': multiviewControl, 'params': {'AccessToken': {}, 'multiviewMode': My Multi View 1}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "MultiViewMode2",
+          "direction": "set",
+          "canonical": "url={'method': multiviewControl, 'params': {'AccessToken': {}, 'multiviewMode': My Multi View 2}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "MultiViewMode3",
+          "direction": "set",
+          "canonical": "url={'method': multiviewControl, 'params': {'AccessToken': {}, 'multiviewMode': My Multi View 3}, 'id': {}, 'jsonrpc': 2.0}"
+        }
+      ],
+      "extron_shipped": [
+        {
+          "command": "MultiviewCommand",
+          "direction": "set",
+          "canonical": "url={'jsonrpc': 2.0, 'method': multiviewControl, 'params': {'AccessToken': {}, 'multiviewMode': None}, 'id': 1}"
+        }
+      ]
+    },
+    "muteControl": {
+      "crestron_derived": [
+        {
+          "command": "Mute",
+          "direction": "set",
+          "canonical": "url={'method': muteControl, 'params': {'AccessToken': {}, 'mute': {}}, 'id': {}, 'jsonrpc': 2.0}"
+        }
+      ],
+      "extron_shipped": [
+        {
+          "command": "AudioMute",
+          "direction": "set",
+          "canonical": "url={'jsonrpc': 2.0, 'method': muteControl, 'params': {'AccessToken': {}, 'mute': {}}, 'id': 1}"
+        },
+        {
+          "command": "AudioMute",
+          "direction": "update",
+          "canonical": "url={'jsonrpc': 2.0, 'method': muteControl, 'params': {'AccessToken': {}}, 'id': 1}"
+        }
+      ]
+    },
+    "pictureModeControl": {
+      "crestron_derived": [
+        {
+          "command": "PictureModeDynamic",
+          "direction": "set",
+          "canonical": "url={'method': pictureModeControl, 'params': {'AccessToken': {}, 'pictureMode': Dynamic}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "PictureModeFilmmaker",
+          "direction": "set",
+          "canonical": "url={'method': pictureModeControl, 'params': {'AccessToken': {}, 'pictureMode': FilmmakerMode}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "PictureModeMovie",
+          "direction": "set",
+          "canonical": "url={'method': pictureModeControl, 'params': {'AccessToken': {}, 'pictureMode': Movie}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "PictureModeStandard",
+          "direction": "set",
+          "canonical": "url={'method': pictureModeControl, 'params': {'AccessToken': {}, 'pictureMode': Standard}, 'id': {}, 'jsonrpc': 2.0}"
+        }
+      ],
+      "extron_shipped": []
+    },
+    "pictureSizeControl": {
+      "crestron_derived": [],
+      "extron_shipped": [
+        {
+          "command": "AspectRatio",
+          "direction": "set",
+          "canonical": "url={'jsonrpc': 2.0, 'method': pictureSizeControl, 'params': {'AccessToken': {}, 'pictureSize': {}}, 'id': 1}"
+        },
+        {
+          "command": "AspectRatio",
+          "direction": "update",
+          "canonical": "url={'jsonrpc': 2.0, 'method': pictureSizeControl, 'params': {'AccessToken': {}}, 'id': 1}"
+        }
+      ]
+    },
+    "powerControl": {
+      "crestron_derived": [
+        {
+          "command": "Power",
+          "direction": "set",
+          "canonical": "url={'method': powerControl, 'params': {'AccessToken': {}, 'power': {}}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Power",
+          "direction": "update",
+          "canonical": "url={'jsonrpc': 2.0, 'method': powerControl, 'id': {}, 'params': {'AccessToken': {}}}"
+        }
+      ],
+      "extron_shipped": [
+        {
+          "command": "Power",
+          "direction": "set",
+          "canonical": "url={'jsonrpc': 2.0, 'method': powerControl, 'params': {'AccessToken': {}, 'power': {}}, 'id': 1}"
+        },
+        {
+          "command": "Power",
+          "direction": "update",
+          "canonical": "url={'jsonrpc': 2.0, 'method': powerControl, 'params': {'AccessToken': {}}, 'id': 1}"
+        }
+      ]
+    },
+    "remoteKeyControl": {
+      "crestron_derived": [
+        {
+          "command": "AmbientOff",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': firstScreen}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "AmbientOn",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': ambient}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Back",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': return}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Blue",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': blue}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Down",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': cursorDn}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Exit",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': exit}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "ForwardScan",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': fastforward}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Green",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': green}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Home",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': firstScreen}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Keypress0",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': number0}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Keypress1",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': number1}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Keypress2",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': number2}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Keypress3",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': number3}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Keypress4",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': number4}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Keypress5",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': number5}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Keypress6",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': number6}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Keypress7",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': number7}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Keypress8",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': number8}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Keypress9",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': number9}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "KeypressDash",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': dash}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "KeypressEnter",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': enter}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Left",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': cursorLeft}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Menu",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': menu}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Pause",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': pause}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Play",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': play}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Red",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': red}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Return",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': return}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "ReverseScan",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': rewind}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Right",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': cursorRight}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Select",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': enter}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Stop",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': stop}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Up",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': cursorUp}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "Yellow",
+          "direction": "set",
+          "canonical": "url={'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': yellow}, 'id': {}, 'jsonrpc': 2.0}"
+        }
+      ],
+      "extron_shipped": [
+        {
+          "command": "Keypad",
+          "direction": "set",
+          "canonical": "url={'jsonrpc': 2.0, 'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': {}}, 'id': 1}"
+        },
+        {
+          "command": "MenuNavigation",
+          "direction": "set",
+          "canonical": "url={'jsonrpc': 2.0, 'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': {}}, 'id': 1}"
+        }
+      ]
+    },
+    "soundModeControl": {
+      "crestron_derived": [
+        {
+          "command": "SoundModeAmplify",
+          "direction": "set",
+          "canonical": "url={'method': soundModeControl, 'params': {'AccessToken': {}, 'soundMode': Amplify}, 'id': {}, 'jsonrpc': 2.0}"
+        },
+        {
+          "command": "SoundModeStandard",
+          "direction": "set",
+          "canonical": "url={'method': soundModeControl, 'params': {'AccessToken': {}, 'soundMode': Standard}, 'id': {}, 'jsonrpc': 2.0}"
+        }
+      ],
+      "extron_shipped": []
+    }
+  },
+  "summary": {
+    "total_distinct_methods": 17,
+    "methods_only_in_crestron_derived": 8,
+    "methods_only_in_extron_shipped": 1,
+    "methods_in_both": 8,
+    "param_key_set_mismatches_among_shared": [
+      {
+        "method": "directVolumeControl",
+        "crestron_derived_params": [
+          [
+            "volume"
+          ]
+        ],
+        "extron_shipped_params": [
+          [],
+          [
+            "volume"
+          ]
+        ]
+      },
+      {
+        "method": "inputSourceControl",
+        "crestron_derived_params": [
+          [
+            "inputSource"
+          ]
+        ],
+        "extron_shipped_params": [
+          [],
+          [
+            "inputSource"
+          ]
+        ]
+      },
+      {
+        "method": "multiviewControl",
+        "crestron_derived_params": [
+          [],
+          [
+            "multiviewMode"
+          ]
+        ],
+        "extron_shipped_params": [
+          [
+            "multiviewMode"
+          ]
+        ]
+      },
+      {
+        "method": "muteControl",
+        "crestron_derived_params": [
+          [
+            "mute"
+          ]
+        ],
+        "extron_shipped_params": [
+          [],
+          [
+            "mute"
+          ]
+        ]
+      }
+    ],
+    "wire_value_domain_comparison_among_shared": [
+      {
+        "method": "channelUpDnControl",
+        "crestron_derived_wire_values": [
+          "channelDn",
+          "channelUp"
+        ],
+        "extron_shipped_wire_values": [
+          "channelDn",
+          "channelUp"
+        ],
+        "wire_values_match": true
+      },
+      {
+        "method": "inputSourceControl",
+        "crestron_derived_wire_values": [
+          "HDMI1",
+          "HDMI2",
+          "HDMI3",
+          "HDMI4",
+          "TV"
+        ],
+        "extron_shipped_wire_values": [
+          "HDMI1",
+          "HDMI2",
+          "HDMI3",
+          "HDMI4",
+          "TV"
+        ],
+        "wire_values_match": true
+      },
+      {
+        "method": "multiviewControl",
+        "crestron_derived_wire_values": [
+          "My Multi View 1",
+          "My Multi View 2",
+          "My Multi View 3"
+        ],
+        "extron_shipped_wire_values": [
+          "None"
+        ],
+        "wire_values_match": false
+      },
+      {
+        "method": "muteControl",
+        "crestron_derived_wire_values": [
+          "muteOff",
+          "muteOn"
+        ],
+        "extron_shipped_wire_values": [
+          "muteOff",
+          "muteOn"
+        ],
+        "wire_values_match": true
+      },
+      {
+        "method": "powerControl",
+        "crestron_derived_wire_values": [
+          "powerOff",
+          "powerOn"
+        ],
+        "extron_shipped_wire_values": [
+          "powerOff",
+          "powerOn"
+        ],
+        "wire_values_match": true
+      },
+      {
+        "method": "remoteKeyControl",
+        "crestron_derived_wire_values": [
+          "ambient",
+          "blue",
+          "cursorDn",
+          "cursorLeft",
+          "cursorRight",
+          "cursorUp",
+          "dash",
+          "enter",
+          "exit",
+          "fastforward",
+          "firstScreen",
+          "green",
+          "menu",
+          "number0",
+          "number1",
+          "number2",
+          "number3",
+          "number4",
+          "number5",
+          "number6",
+          "number7",
+          "number8",
+          "number9",
+          "pause",
+          "play",
+          "red",
+          "return",
+          "rewind",
+          "stop",
+          "yellow"
+        ],
+        "extron_shipped_wire_values": [
+          "cursorDn",
+          "cursorLeft",
+          "cursorRight",
+          "cursorUp",
+          "enter",
+          "exit",
+          "firstScreen",
+          "menu",
+          "number0",
+          "number1",
+          "number2",
+          "number3",
+          "number4",
+          "number5",
+          "number6",
+          "number7",
+          "number8",
+          "number9",
+          "return"
+        ],
+        "wire_values_match": false
+      }
+    ]
+  }
+}

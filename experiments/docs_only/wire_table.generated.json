@@ -1,0 +1,793 @@
+{
+  "commands": {
+    "CallCameraPreset": {
+      "name": "CallCameraPreset",
+      "parameters": [
+        "Camera"
+      ],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/CallCameraPreset body={'cam': {}, 'pre': {}}",
+          "source": "self.__SetHelper('CallCameraPreset', value, qualifier, url='api/CallCameraPreset', data=data)",
+          "value_maps": {},
+          "slots": [
+            "qualifier['Camera']",
+            "value"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "SaveCameraPreset": {
+      "name": "SaveCameraPreset",
+      "parameters": [
+        "Camera"
+      ],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/SaveCameraPreset body={'cam': {}, 'pre': {}}",
+          "source": "self.__SetHelper('SaveCameraPreset', value, qualifier, url='api/SaveCameraPreset', data=data)",
+          "value_maps": {},
+          "slots": [
+            "qualifier['Camera']",
+            "value"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "ChangeLayout": {
+      "name": "ChangeLayout",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/ChangeLayout body={'id': {}}",
+          "source": "self.__SetHelper('ChangeLayout', value, qualifier, url='api/ChangeLayout', data=data)",
+          "value_maps": {},
+          "slots": [
+            "value"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "ForceChangeRoomConfig": {
+      "name": "ForceChangeRoomConfig",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/ForceChangeRoomConfig body={'id': {}}",
+          "source": "self.__SetHelper('ForceChangeRoomConfig', value, qualifier, url='api/ForceChangeRoomConfig', data=data)",
+          "value_maps": {},
+          "slots": [
+            "value"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "GoHome": {
+      "name": "GoHome",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/GoHome",
+          "source": "self.__SetHelper('GoHome', value, qualifier, url='api/GoHome')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "GoToScenario": {
+      "name": "GoToScenario",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/GoToScenario body={'id': {}}",
+          "source": "self.__SetHelper('GoToScenario', value, qualifier, url='api/GoToScenario', data=data)",
+          "value_maps": {},
+          "slots": [
+            "value"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "ImportCameraPresets": {
+      "name": "ImportCameraPresets",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/ImportCameraPresets",
+          "source": "self.__SetHelper('ImportCameraPresets', value, qualifier, url='api/ImportCameraPresets')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "ManualSwitchCamera": {
+      "name": "ManualSwitchCamera",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/ManualSwitchCamera body={'address': {}}",
+          "source": "self.__SetHelper('ManualSwitchCamera', value, qualifier, url='api/ManualSwitchCamera', data=data)",
+          "value_maps": {},
+          "slots": [
+            "value"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "Restart": {
+      "name": "Restart",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/Restart",
+          "source": "self.__SetHelper('Restart', value, qualifier, url='api/Restart')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "Sleep": {
+      "name": "Sleep",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/Sleep",
+          "source": "self.__SetHelper('Sleep', value, qualifier, url='api/Sleep')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "CopyFiles": {
+      "name": "CopyFiles",
+      "parameters": [
+        "LogDestination",
+        "DeleteSource"
+      ],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/CopyFiles body={'logDestination': {}, 'deleteSource': {}, 'destination': {}}",
+          "source": "self.__SetHelper('CopyFiles', value, qualifier, url='api/CopyFiles', data=data)",
+          "value_maps": {},
+          "slots": [
+            "qualifier['LogDestination']",
+            "qualifier['DeleteSource']",
+            "value"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "Macro": {
+      "name": "Macro",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/Macro body={'requests': {}}",
+          "source": "self.__SetHelper('Macro', value, qualifier, url='api/Macro', data=data)",
+          "value_maps": {},
+          "slots": [
+            "value"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "Output": {
+      "name": "Output",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={}",
+          "source": "self.__SetHelper('Output', value, qualifier, url=ValueStateValues[value])",
+          "value_maps": {
+            "ValueStateValues": {
+              "On": "api/StartOutput",
+              "Off": "api/StopOutput"
+            }
+          },
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/OutputStatus",
+          "source": "self.__UpdateHelper('Output', value, qualifier, url='api/OutputStatus')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {
+        "On": "api/StartOutput",
+        "Off": "api/StopOutput"
+      },
+      "has_set_method": true,
+      "has_update_method": true
+    },
+    "Record": {
+      "name": "Record",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={}",
+          "source": "self.__SetHelper('Record', value, qualifier, url=ValueStateValues[value])",
+          "value_maps": {
+            "ValueStateValues": {
+              "On": "api/StartRecord",
+              "Off": "api/StopRecord"
+            }
+          },
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/RecordStatus",
+          "source": "self.__UpdateHelper('Record', value, qualifier, url='api/RecordStatus')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {
+        "On": "api/StartRecord",
+        "Off": "api/StopRecord"
+      },
+      "has_set_method": true,
+      "has_update_method": true
+    },
+    "Stream": {
+      "name": "Stream",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={}",
+          "source": "self.__SetHelper('Stream', value, qualifier, url=ValueStateValues[value])",
+          "value_maps": {
+            "ValueStateValues": {
+              "On": "api/StartStream",
+              "Off": "api/StopStream"
+            }
+          },
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/StreamStatus",
+          "source": "self.__UpdateHelper('Stream', value, qualifier, url='api/StreamStatus')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {
+        "On": "api/StartStream",
+        "Off": "api/StopStream"
+      },
+      "has_set_method": true,
+      "has_update_method": true
+    },
+    "PanTilt": {
+      "name": "PanTilt",
+      "parameters": [
+        "Camera"
+      ],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/StopPT body={'cam': {}}",
+          "source": "self.__SetHelper('PanTilt', value, qualifier, url='api/StopPT', data=data)",
+          "value_maps": {},
+          "slots": [
+            "qualifier['Camera']"
+          ],
+          "opaque": 0,
+          "notes": []
+        },
+        {
+          "kind": "http",
+          "canonical": "url=api/StartPT body={'cam': {}, 'ptDir': {}}",
+          "source": "self.__SetHelper('PanTilt', value, qualifier, url='api/StartPT', data=data)",
+          "value_maps": {
+            "DirectionValues": {
+              "Up": 0,
+              "UpRight": 1,
+              "Right": 2,
+              "DownRight": 3,
+              "Down": 4,
+              "DownLeft": 5,
+              "Left": 6,
+              "UpLeft": 7
+            }
+          },
+          "slots": [
+            "qualifier['Camera']"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "Zoom": {
+      "name": "Zoom",
+      "parameters": [
+        "Camera"
+      ],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/StopZ body={'cam': {}}",
+          "source": "self.__SetHelper('Zoom', value, qualifier, url='api/StopZ', data=data)",
+          "value_maps": {},
+          "slots": [
+            "qualifier['Camera']"
+          ],
+          "opaque": 0,
+          "notes": []
+        },
+        {
+          "kind": "http",
+          "canonical": "url=api/StartZ body={'cam': {}, 'zDir': {}}",
+          "source": "self.__SetHelper('Zoom', value, qualifier, url='api/StartZ', data=data)",
+          "value_maps": {
+            "DirectionValues": {
+              "In": 0,
+              "Out": 1
+            }
+          },
+          "slots": [
+            "qualifier['Camera']"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "CameraStatus": {
+      "name": "CameraStatus",
+      "parameters": [],
+      "set_templates": [],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/CameraStatus",
+          "source": "self.__UpdateHelper('CameraStatus', value, qualifier, url='api/CameraStatus')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": false,
+      "has_update_method": true
+    },
+    "GetActiveTalkers": {
+      "name": "GetActiveTalkers",
+      "parameters": [],
+      "set_templates": [],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/GetActiveTalkers",
+          "source": "self.__UpdateHelper('GetActiveTalkers', value, qualifier, url='api/GetActiveTalkers')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": false,
+      "has_update_method": true
+    },
+    "GetAllStatus": {
+      "name": "GetAllStatus",
+      "parameters": [],
+      "set_templates": [],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/GetAllStatus",
+          "source": "self.__UpdateHelper('GetAllStatus', value, qualifier, url='api/GetAllStatus')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": false,
+      "has_update_method": true
+    },
+    "GetCameras": {
+      "name": "GetCameras",
+      "parameters": [],
+      "set_templates": [],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/GetCameras",
+          "source": "self.__UpdateHelper('GetCameras', value, qualifier, url='api/GetCameras')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": false,
+      "has_update_method": true
+    },
+    "GetScenarios": {
+      "name": "GetScenarios",
+      "parameters": [],
+      "set_templates": [],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/GetScenarios",
+          "source": "self.__UpdateHelper('GetScenarios', value, qualifier, url='api/GetScenarios')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": false,
+      "has_update_method": true
+    },
+    "RecordingSpaceAvail": {
+      "name": "RecordingSpaceAvail",
+      "parameters": [],
+      "set_templates": [],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/RecordingSpaceAvail",
+          "source": "self.__UpdateHelper('RecordingSpaceAvail', value, qualifier, url='api/RecordingSpaceAvail')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": false,
+      "has_update_method": true
+    },
+    "ScenarioStatus": {
+      "name": "ScenarioStatus",
+      "parameters": [],
+      "set_templates": [],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/ScenarioStatus",
+          "source": "self.__UpdateHelper('ScenarioStatus', value, qualifier, url='api/ScenarioStatus')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": false,
+      "has_update_method": true
+    },
+    "ShotStatus": {
+      "name": "ShotStatus",
+      "parameters": [],
+      "set_templates": [],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/ShotStatus",
+          "source": "self.__UpdateHelper('ShotStatus', value, qualifier, url='api/ShotStatus')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": false,
+      "has_update_method": true
+    },
+    "AutoSwitchStatus": {
+      "name": "AutoSwitchStatus",
+      "parameters": [],
+      "set_templates": [],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/AutoSwitchStatus",
+          "source": "self.__UpdateHelper('AutoSwitchStatus', value, qualifier, url='api/AutoSwitchStatus')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": false,
+      "has_update_method": true
+    },
+    "ISORecordStatus": {
+      "name": "ISORecordStatus",
+      "parameters": [],
+      "set_templates": [],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/ISORecordStatus",
+          "source": "self.__UpdateHelper('ISORecordStatus', value, qualifier, url='api/ISORecordStatus')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": false,
+      "has_update_method": true
+    },
+    "CopyStatus": {
+      "name": "CopyStatus",
+      "parameters": [],
+      "set_templates": [],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/CopyStatus",
+          "source": "self.__UpdateHelper('CopyStatus', value, qualifier, url='api/CopyStatus')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": false,
+      "has_update_method": true
+    },
+    "GetLayouts": {
+      "name": "GetLayouts",
+      "parameters": [],
+      "set_templates": [],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/GetLayouts",
+          "source": "self.__UpdateHelper('GetLayouts', value, qualifier, url='api/GetLayouts')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": false,
+      "has_update_method": true
+    },
+    "LayoutStatus": {
+      "name": "LayoutStatus",
+      "parameters": [],
+      "set_templates": [],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/LayoutStatus",
+          "source": "self.__UpdateHelper('LayoutStatus', value, qualifier, url='api/LayoutStatus')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": false,
+      "has_update_method": true
+    },
+    "GetRoomConfigs": {
+      "name": "GetRoomConfigs",
+      "parameters": [],
+      "set_templates": [],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/GetRoomConfigs",
+          "source": "self.__UpdateHelper('GetRoomConfigs', value, qualifier, url='api/GetRoomConfigs')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": false,
+      "has_update_method": true
+    },
+    "RoomConfigStatus": {
+      "name": "RoomConfigStatus",
+      "parameters": [],
+      "set_templates": [],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/RoomConfigStatus",
+          "source": "self.__UpdateHelper('RoomConfigStatus', value, qualifier, url='api/RoomConfigStatus')",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": false,
+      "has_update_method": true
+    },
+    "ConnectionStatus": {
+      "name": "ConnectionStatus",
+      "parameters": [],
+      "set_templates": [],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": false,
+      "has_update_method": false
+    }
+  },
+  "stats": {
+    "commands_found": 33,
+    "commands_with_set_method": 17,
+    "commands_with_update_method": 18,
+    "set_templates_resolved": 19,
+    "update_templates_resolved": 18,
+    "match_strings_total": 0,
+    "match_strings_mapped": 0,
+    "match_strings_unmapped": 0,
+    "opaque_markers": 0
+  },
+  "unmapped_responses": []
+}

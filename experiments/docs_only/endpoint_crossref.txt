@@ -1,0 +1,135 @@
+=== generated module: endpoint URIs referenced ===
+  api/AutoSwitchStatus EXAMPLE_ONLY
+  api/CallCameraPreset OFFICIAL
+  api/CameraStatus OFFICIAL
+  api/ChangeLayout OFFICIAL
+  api/CopyFiles OFFICIAL
+  api/CopyStatus EXAMPLE_ONLY
+  api/ForceChangeRoomConfig OFFICIAL
+  api/GetActiveTalkers OFFICIAL
+  api/GetAllStatus OFFICIAL
+  api/GetCameras OFFICIAL
+  api/GetLayouts EXAMPLE_ONLY
+  api/GetRoomConfigs EXAMPLE_ONLY
+  api/GetScenarios OFFICIAL
+  api/GoHome OFFICIAL
+  api/GoToScenario OFFICIAL
+  api/ISORecordStatus EXAMPLE_ONLY
+  api/ImportCameraPresets OFFICIAL
+  api/LayoutStatus EXAMPLE_ONLY
+  api/Macro OFFICIAL
+  api/ManualSwitchCamera OFFICIAL
+  api/OutputStatus EXAMPLE_ONLY
+  api/RecordStatus EXAMPLE_ONLY
+  api/RecordingSpaceAvail OFFICIAL
+  api/Restart OFFICIAL
+  api/RoomConfigStatus EXAMPLE_ONLY
+  api/SaveCameraPreset OFFICIAL
+  api/ScenarioStatus OFFICIAL
+  api/ShotStatus OFFICIAL
+  api/Sleep OFFICIAL
+  api/StartOutput OFFICIAL
+  api/StartPT OFFICIAL
+  api/StartRecord OFFICIAL
+  api/StartStream OFFICIAL
+  api/StartZ OFFICIAL
+  api/StopOutput OFFICIAL
+  api/StopPT OFFICIAL
+  api/StopRecord OFFICIAL
+  api/StopStream OFFICIAL
+  api/StopZ OFFICIAL
+  api/StreamStatus OFFICIAL
+  get-token OFFICIAL
+count: 41
+
+=== Extron shipped module: endpoint URIs referenced ===
+  api/AutoSwitchStatus EXAMPLE_ONLY
+  api/CallCameraPreset OFFICIAL
+  api/CameraStatus OFFICIAL
+  api/ChangeLayout OFFICIAL
+  api/ChangeRoomConfiguration DOC_GAP
+  api/ForceChangeRoomConfig OFFICIAL
+  api/GoHome OFFICIAL
+  api/GoToScenario OFFICIAL
+  api/ISORecordStatus EXAMPLE_ONLY
+  api/ManualSwitchCamera OFFICIAL
+  api/OutputStatus EXAMPLE_ONLY
+  api/RecordStatus EXAMPLE_ONLY
+  api/RoomConfigStatus EXAMPLE_ONLY
+  api/SaveCameraPreset OFFICIAL
+  api/ScenarioStatus OFFICIAL
+  api/Sleep OFFICIAL
+  api/StartAutoSwitch DOC_GAP
+  api/StartISORecord DOC_GAP
+  api/StartOutput OFFICIAL
+  api/StartPT OFFICIAL
+  api/StartRecord OFFICIAL
+  api/StartStream OFFICIAL
+  api/StartZ OFFICIAL
+  api/StopAutoSwitch DOC_GAP
+  api/StopISORecord DOC_GAP
+  api/StopOutput OFFICIAL
+  api/StopPT OFFICIAL
+  api/StopRecord OFFICIAL
+  api/StopStream OFFICIAL
+  api/StopZ OFFICIAL
+  api/StreamStatus OFFICIAL
+  api/Wake DOC_GAP
+  get-token OFFICIAL
+count: 33
+
+=== classification of the diff ===
+-- in Extron shipped but NOT in generated (by URI) --
+  api/ChangeRoomConfiguration DOC_GAP
+  api/StartAutoSwitch DOC_GAP
+  api/StartISORecord DOC_GAP
+  api/StopAutoSwitch DOC_GAP
+  api/StopISORecord DOC_GAP
+  api/Wake DOC_GAP
+-- in generated but NOT in Extron shipped (by URI) --
+  api/CopyFiles OFFICIAL
+  api/CopyStatus EXAMPLE_ONLY
+  api/GetActiveTalkers OFFICIAL
+  api/GetAllStatus OFFICIAL
+  api/GetCameras OFFICIAL
+  api/GetLayouts EXAMPLE_ONLY
+  api/GetRoomConfigs EXAMPLE_ONLY
+  api/GetScenarios OFFICIAL
+  api/ImportCameraPresets OFFICIAL
+  api/LayoutStatus EXAMPLE_ONLY
+  api/Macro OFFICIAL
+  api/RecordingSpaceAvail OFFICIAL
+  api/Restart OFFICIAL
+  api/ShotStatus OFFICIAL
+-- in both (by URI) --
+  api/AutoSwitchStatus EXAMPLE_ONLY
+  api/CallCameraPreset OFFICIAL
+  api/CameraStatus OFFICIAL
+  api/ChangeLayout OFFICIAL
+  api/ForceChangeRoomConfig OFFICIAL
+  api/GoHome OFFICIAL
+  api/GoToScenario OFFICIAL
+  api/ISORecordStatus EXAMPLE_ONLY
+  api/ManualSwitchCamera OFFICIAL
+  api/OutputStatus EXAMPLE_ONLY
+  api/RecordStatus EXAMPLE_ONLY
+  api/RoomConfigStatus EXAMPLE_ONLY
+  api/SaveCameraPreset OFFICIAL
+  api/ScenarioStatus OFFICIAL
+  api/Sleep OFFICIAL
+  api/StartOutput OFFICIAL
+  api/StartPT OFFICIAL
+  api/StartRecord OFFICIAL
+  api/StartStream OFFICIAL
+  api/StartZ OFFICIAL
+  api/StopOutput OFFICIAL
+  api/StopPT OFFICIAL
+  api/StopRecord OFFICIAL
+  api/StopStream OFFICIAL
+  api/StopZ OFFICIAL
+  api/StreamStatus OFFICIAL
+  get-token OFFICIAL
+
+official endpoint coverage: both=22, extron-only=0, generated-only(unimplemented-by-extron)=10, total-official=32
+sub-api (example-only) coverage: both=5, generated-only=4, total-listed=9
+DOC GAP (Extron calls, appears nowhere in corpus): ['api/ChangeRoomConfiguration', 'api/StartAutoSwitch', 'api/StartISORecord', 'api/StopAutoSwitch', 'api/StopISORecord', 'api/Wake']

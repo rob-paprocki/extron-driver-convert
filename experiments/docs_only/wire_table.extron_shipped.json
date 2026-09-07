@@ -1,0 +1,518 @@
+{
+  "commands": {
+    "AutoSwitch": {
+      "name": "AutoSwitch",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={}",
+          "source": "self.__SetHelper('AutoSwitch', value, qualifier, ValueStateValues[value])",
+          "value_maps": {
+            "ValueStateValues": {
+              "On": "api/StartAutoSwitch",
+              "Off": "api/StopAutoSwitch"
+            }
+          },
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/AutoSwitchStatus",
+          "source": "self.__UpdateHelper('AutoSwitch', value, qualifier, AutoSwitchCmdString)",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {
+        "On": "api/StartAutoSwitch",
+        "Off": "api/StopAutoSwitch"
+      },
+      "has_set_method": true,
+      "has_update_method": true
+    },
+    "ConnectionStatus": {
+      "name": "ConnectionStatus",
+      "parameters": [],
+      "set_templates": [],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": false,
+      "has_update_method": false
+    },
+    "CameraPresetRecall": {
+      "name": "CameraPresetRecall",
+      "parameters": [
+        "Camera"
+      ],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/CallCameraPreset body={'cam': {}, 'pre': {}}",
+          "source": "self.__SetHelper('CameraPresetRecall', value, qualifier, CameraPresetRecallCmdString, data)",
+          "value_maps": {},
+          "slots": [
+            "qualifier['Camera']",
+            "value"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "CameraPresetSave": {
+      "name": "CameraPresetSave",
+      "parameters": [
+        "Camera"
+      ],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/SaveCameraPreset body={'cam': {}, 'pre': {}}",
+          "source": "self.__SetHelper('CameraPresetSave', value, qualifier, CameraPresetSaveCmdString, data)",
+          "value_maps": {},
+          "slots": [
+            "qualifier['Camera']",
+            "value"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "ForceRoomConfiguration": {
+      "name": "ForceRoomConfiguration",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/ForceChangeRoomConfig body={'id': {}}",
+          "source": "self.__SetHelper('ForceRoomConfiguration', value, qualifier, ForceRoomConfigurationCmdString, data)",
+          "value_maps": {},
+          "slots": [
+            "value"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "HomeShotPreset": {
+      "name": "HomeShotPreset",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/GoHome",
+          "source": "self.__SetHelper('HomeShotPreset', value, qualifier, url=HomeShotPresetCmdString)",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "ISORecording": {
+      "name": "ISORecording",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={}",
+          "source": "self.__SetHelper('ISORecording', value, qualifier, ValueStateValues[value])",
+          "value_maps": {
+            "ValueStateValues": {
+              "Start": "api/StartISORecord",
+              "Stop": "api/StopISORecord"
+            }
+          },
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/ISORecordStatus",
+          "source": "self.__UpdateHelper('ISORecording', value, qualifier, ISORecordingCmdString)",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {
+        "Start": "api/StartISORecord",
+        "Stop": "api/StopISORecord"
+      },
+      "has_set_method": true,
+      "has_update_method": true
+    },
+    "Layout": {
+      "name": "Layout",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/ChangeLayout body={'id': {}}",
+          "source": "self.__SetHelper('Layout', value, qualifier, LayoutCmdString, data)",
+          "value_maps": {},
+          "slots": [
+            "value"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "Output": {
+      "name": "Output",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={}",
+          "source": "self.__SetHelper('Output', value, qualifier, ValueStateValues[value])",
+          "value_maps": {
+            "ValueStateValues": {
+              "On": "api/StartOutput",
+              "Off": "api/StopOutput"
+            }
+          },
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/OutputStatus",
+          "source": "self.__UpdateHelper('Output', value, qualifier, OutputCmdString)",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {
+        "On": "api/StartOutput",
+        "Off": "api/StopOutput"
+      },
+      "has_set_method": true,
+      "has_update_method": true
+    },
+    "PanTilt": {
+      "name": "PanTilt",
+      "parameters": [
+        "Camera"
+      ],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={} body={}",
+          "source": "self.__SetHelper('PanTilt', value, qualifier, url=PanTiltCmdString, data=data)",
+          "value_maps": {},
+          "slots": [
+            "OPAQUE:PanTiltCmdString",
+            "OPAQUE:data"
+          ],
+          "opaque": 2,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "Record": {
+      "name": "Record",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={}",
+          "source": "self.__SetHelper('Record', value, qualifier, ValueStateValues[value])",
+          "value_maps": {
+            "ValueStateValues": {
+              "Start": "api/StartRecord",
+              "Stop": "api/StopRecord"
+            }
+          },
+          "slots": [],
+          "opaque": 2,
+          "notes": []
+        }
+      ],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/RecordStatus",
+          "source": "self.__UpdateHelper('Record', value, qualifier, RecordCmdString)",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 2,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {
+        "Start": "api/StartRecord",
+        "Stop": "api/StopRecord"
+      },
+      "has_set_method": true,
+      "has_update_method": true
+    },
+    "RoomConfiguration": {
+      "name": "RoomConfiguration",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/ChangeRoomConfiguration body={'id': {}}",
+          "source": "self.__SetHelper('RoomConfiguration', value, qualifier, RoomConfigurationCmdString, data)",
+          "value_maps": {},
+          "slots": [
+            "value"
+          ],
+          "opaque": 2,
+          "notes": []
+        }
+      ],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/RoomConfigStatus",
+          "source": "self.__UpdateHelper('RoomConfiguration', value, qualifier, url=RoomConfigurationCmdString)",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 2,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": true
+    },
+    "Scenario": {
+      "name": "Scenario",
+      "parameters": [
+        "ID"
+      ],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/GoToScenario body={'id': {}}",
+          "source": "self.__SetHelper('Scenario', value, qualifier, url=ScenarioCmdString, data=data)",
+          "value_maps": {},
+          "slots": [
+            "value"
+          ],
+          "opaque": 2,
+          "notes": []
+        }
+      ],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/ScenarioStatus",
+          "source": "self.__UpdateHelper('Scenario', value, qualifier, url=ScenarioCmdString)",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 2,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": true
+    },
+    "Sleep": {
+      "name": "Sleep",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/Sleep",
+          "source": "self.__SetHelper('Sleep', value, qualifier, url=SleepCmdString)",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 2,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "Stream": {
+      "name": "Stream",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={}",
+          "source": "self.__SetHelper('Stream', value, qualifier, ValueStateValues[value])",
+          "value_maps": {
+            "ValueStateValues": {
+              "Start": "api/StartStream",
+              "Stop": "api/StopStream"
+            }
+          },
+          "slots": [],
+          "opaque": 2,
+          "notes": []
+        }
+      ],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/StreamStatus",
+          "source": "self.__UpdateHelper('Stream', value, qualifier, StreamCmdString)",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 2,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {
+        "Start": "api/StartStream",
+        "Stop": "api/StopStream"
+      },
+      "has_set_method": true,
+      "has_update_method": true
+    },
+    "SwitchCamera": {
+      "name": "SwitchCamera",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/ManualSwitchCamera body={'address': {}}",
+          "source": "self.__SetHelper('SwitchCamera', value, qualifier, SwitchCameraCmdString, data)",
+          "value_maps": {},
+          "slots": [
+            "value"
+          ],
+          "opaque": 2,
+          "notes": []
+        }
+      ],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/CameraStatus",
+          "source": "self.__UpdateHelper('SwitchCamera', value, qualifier, url=SwitchCameraCmdString)",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 2,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": true
+    },
+    "Wake": {
+      "name": "Wake",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url=api/Wake",
+          "source": "self.__SetHelper('Wake', value, qualifier, url=WakeCmdString)",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 2,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "Zoom": {
+      "name": "Zoom",
+      "parameters": [
+        "Camera"
+      ],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={} body={}",
+          "source": "self.__SetHelper('Zoom', value, qualifier, url=ZoomCmdString, data=data)",
+          "value_maps": {},
+          "slots": [
+            "OPAQUE:ZoomCmdString",
+            "OPAQUE:data"
+          ],
+          "opaque": 4,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    }
+  },
+  "stats": {
+    "commands_found": 18,
+    "commands_with_set_method": 17,
+    "commands_with_update_method": 8,
+    "set_templates_resolved": 17,
+    "update_templates_resolved": 8,
+    "match_strings_total": 0,
+    "match_strings_mapped": 0,
+    "match_strings_unmapped": 0,
+    "opaque_markers": 4
+  },
+  "unmapped_responses": []
+}

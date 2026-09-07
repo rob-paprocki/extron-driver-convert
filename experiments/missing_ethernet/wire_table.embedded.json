@@ -1,0 +1,397 @@
+{
+  "commands": {
+    "AspectRatio": {
+      "name": "AspectRatio",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={'jsonrpc': 2.0, 'method': pictureSizeControl, 'params': {'AccessToken': {}, 'pictureSize': {}}, 'id': 1}",
+          "source": "self.__SetHelper('AspectRatio', value, qualifier, data)",
+          "value_maps": {
+            "ValueStateValues": {
+              "4:3": "4:3",
+              "16:9": "16:9"
+            }
+          },
+          "slots": [
+            "self.AccessToken"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={'jsonrpc': 2.0, 'method': pictureSizeControl, 'params': {'AccessToken': {}}, 'id': 1}",
+          "source": "self.__UpdateHelper('AspectRatio', value, qualifier, data)",
+          "value_maps": {},
+          "slots": [
+            "self.AccessToken"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {
+        "4:3": "4:3",
+        "16:9": "16:9"
+      },
+      "has_set_method": true,
+      "has_update_method": true
+    },
+    "AudioMute": {
+      "name": "AudioMute",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={'jsonrpc': 2.0, 'method': muteControl, 'params': {'AccessToken': {}, 'mute': {}}, 'id': 1}",
+          "source": "self.__SetHelper('AudioMute', value, qualifier, data)",
+          "value_maps": {
+            "ValueStateValues": {
+              "On": "muteOn",
+              "Off": "muteOff"
+            }
+          },
+          "slots": [
+            "self.AccessToken"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={'jsonrpc': 2.0, 'method': muteControl, 'params': {'AccessToken': {}}, 'id': 1}",
+          "source": "self.__UpdateHelper('AudioMute', value, qualifier, data)",
+          "value_maps": {},
+          "slots": [
+            "self.AccessToken"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {
+        "On": "muteOn",
+        "Off": "muteOff"
+      },
+      "has_set_method": true,
+      "has_update_method": true
+    },
+    "ChannelStep": {
+      "name": "ChannelStep",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={'jsonrpc': 2.0, 'method': channelUpDnControl, 'params': {'AccessToken': {}, 'control': {}}, 'id': 1}",
+          "source": "self.__SetHelper('ChannelStep', value, qualifier, data)",
+          "value_maps": {
+            "ValueStateValues": {
+              "Up": "channelUp",
+              "Down": "channelDn"
+            }
+          },
+          "slots": [
+            "self.AccessToken"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {
+        "Up": "channelUp",
+        "Down": "channelDn"
+      },
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "Input": {
+      "name": "Input",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={'jsonrpc': 2.0, 'method': inputSourceControl, 'params': {'AccessToken': {}, 'inputSource': {}}, 'id': 1}",
+          "source": "self.__SetHelper('Input', value, qualifier, data)",
+          "value_maps": {
+            "ValueStateValues": {
+              "TV": "TV",
+              "HDMI 1": "HDMI1",
+              "HDMI 2": "HDMI2",
+              "HDMI 3": "HDMI3",
+              "HDMI 4": "HDMI4"
+            }
+          },
+          "slots": [
+            "self.AccessToken"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={'jsonrpc': 2.0, 'method': inputSourceControl, 'params': {'AccessToken': {}}, 'id': 1}",
+          "source": "self.__UpdateHelper('Input', value, qualifier, data)",
+          "value_maps": {},
+          "slots": [
+            "self.AccessToken"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {
+        "TV": "TV",
+        "HDMI 1": "HDMI1",
+        "HDMI 2": "HDMI2",
+        "HDMI 3": "HDMI3",
+        "HDMI 4": "HDMI4"
+      },
+      "has_set_method": true,
+      "has_update_method": true
+    },
+    "Keypad": {
+      "name": "Keypad",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={'jsonrpc': 2.0, 'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': {}}, 'id': 1}",
+          "source": "self.__SetHelper('Keypad', value, qualifier, data)",
+          "value_maps": {
+            "ValueStateValues": {
+              "0": "number0",
+              "1": "number1",
+              "2": "number2",
+              "3": "number3",
+              "4": "number4",
+              "5": "number5",
+              "6": "number6",
+              "7": "number7",
+              "8": "number8",
+              "9": "number9"
+            }
+          },
+          "slots": [
+            "self.AccessToken"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {
+        "0": "number0",
+        "1": "number1",
+        "2": "number2",
+        "3": "number3",
+        "4": "number4",
+        "5": "number5",
+        "6": "number6",
+        "7": "number7",
+        "8": "number8",
+        "9": "number9"
+      },
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "MenuNavigation": {
+      "name": "MenuNavigation",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={'jsonrpc': 2.0, 'method': remoteKeyControl, 'params': {'AccessToken': {}, 'remoteKey': {}}, 'id': 1}",
+          "source": "self.__SetHelper('MenuNavigation', value, qualifier, data)",
+          "value_maps": {
+            "ValueStateValues": {
+              "Up": "cursorUp",
+              "Down": "cursorDn",
+              "Left": "cursorLeft",
+              "Right": "cursorRight",
+              "Menu": "menu",
+              "Enter": "enter",
+              "Return": "return",
+              "Exit": "exit",
+              "Home": "firstScreen"
+            }
+          },
+          "slots": [
+            "self.AccessToken"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {
+        "Up": "cursorUp",
+        "Down": "cursorDn",
+        "Left": "cursorLeft",
+        "Right": "cursorRight",
+        "Menu": "menu",
+        "Enter": "enter",
+        "Return": "return",
+        "Exit": "exit",
+        "Home": "firstScreen"
+      },
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "MultiviewCommand": {
+      "name": "MultiviewCommand",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={'jsonrpc': 2.0, 'method': multiviewControl, 'params': {'AccessToken': {}, 'multiviewMode': None}, 'id': 1}",
+          "source": "self.__SetHelper('MultiviewCommand', value, qualifier, data)",
+          "value_maps": {},
+          "slots": [
+            "self.AccessToken"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "MultiviewString": {
+      "name": "MultiviewString",
+      "parameters": [],
+      "set_templates": [],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "Power": {
+      "name": "Power",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={'jsonrpc': 2.0, 'method': powerControl, 'params': {'AccessToken': {}, 'power': {}}, 'id': 1}",
+          "source": "self.__SetHelper('Power', value, qualifier, data)",
+          "value_maps": {
+            "ValueStateValues": {
+              "On": "powerOn",
+              "Off": "powerOff"
+            }
+          },
+          "slots": [
+            "self.AccessToken"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={'jsonrpc': 2.0, 'method': powerControl, 'params': {'AccessToken': {}}, 'id': 1}",
+          "source": "self.__UpdateHelper('Power', value, qualifier, data)",
+          "value_maps": {},
+          "slots": [
+            "self.AccessToken"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {
+        "On": "powerOn",
+        "Off": "powerOff"
+      },
+      "has_set_method": true,
+      "has_update_method": true
+    },
+    "RefreshToken": {
+      "name": "RefreshToken",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={'jsonrpc': 2.0, 'method': createAccessToken, 'id': 1}",
+          "source": "self.__SetHelper('RefreshToken', value, qualifier, data)",
+          "value_maps": {},
+          "slots": [],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": false
+    },
+    "Volume": {
+      "name": "Volume",
+      "parameters": [],
+      "set_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={'jsonrpc': 2.0, 'method': directVolumeControl, 'params': {'AccessToken': {}, 'volume': {}}, 'id': 1}",
+          "source": "self.__SetHelper('Volume', value, qualifier, data)",
+          "value_maps": {},
+          "slots": [
+            "self.AccessToken",
+            "value"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "update_templates": [
+        {
+          "kind": "http",
+          "canonical": "url={'jsonrpc': 2.0, 'method': directVolumeControl, 'params': {'AccessToken': {}}, 'id': 1}",
+          "source": "self.__UpdateHelper('Volume', value, qualifier, data)",
+          "value_maps": {},
+          "slots": [
+            "self.AccessToken"
+          ],
+          "opaque": 0,
+          "notes": []
+        }
+      ],
+      "responses": [],
+      "value_map": {},
+      "has_set_method": true,
+      "has_update_method": true
+    }
+  },
+  "stats": {
+    "commands_found": 11,
+    "commands_with_set_method": 11,
+    "commands_with_update_method": 5,
+    "set_templates_resolved": 10,
+    "update_templates_resolved": 5,
+    "match_strings_total": 0,
+    "match_strings_mapped": 0,
+    "match_strings_unmapped": 0,
+    "opaque_markers": 0
+  },
+  "unmapped_responses": []
+}
