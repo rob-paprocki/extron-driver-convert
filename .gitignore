@@ -1,7 +1,15 @@
+
 __pycache__/
 .DS_Store
 .venv/
+*.c3p
+*.c3prj/
 *.pyc
+*.vtp
+# installer, ~60 MB combined, with no bearing on protocol or driver structure.
+# Not driver artifacts -- they are XPanel/VTPro GUI payloads and a Windows
 # scratch output from format probing
+# Touch-panel projects and installers bundled with vendor module suites.
+installer.exe
 tools/out/
 venv/
