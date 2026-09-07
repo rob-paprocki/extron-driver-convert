@@ -107,11 +107,93 @@ emitter reports as manual work, **never silently dropped**.
 Crestron JSON from the Extron module and diff wire bytes per command against
 Crestron's own file. No hardware needed.
 
-## Caveat on this finding's basis
+## Re-run results: the four weak dimensions
 
-Of nine research dimensions, three returned placeholder stubs, one crashed, and
-one was never adversarially checked. The verdict above was written by a
-synthesist who caught that, discounted those dimensions, and re-verified key
-facts first-hand. The four broken dimensions are being re-run —
-**artifact-landscape, modern-targets, direction-feasibility and legal above are
-the weakest parts of this document** until that completes.
+Three of the four came back clean (37 confirmed, 6 overstated, 1 refuted).
+`modern-targets` returned a placeholder stub twice, so it was researched by hand
+instead; those facts are marked below.
+
+### Third parties already do this — publicly
+
+The strongest evidence that "Crestron out" is achievable is that independent
+developers ship loadable drivers today, in the open:
+
+- `oznetmaster/TeslaPowerwallCrestronDriver` — builds on `windows-latest` CI
+  against the public NuGet packages
+- `jbasen/Crestron-Home-Extension-Driver-Template`
+- `dberlin/MAK2StarGrillCloudConnected`
+
+None of them is Crestron. All build against the public DevKit. This moves
+"can an outsider produce a loadable `.pkg`" from unproven to demonstrated —
+though none of these is a resource-swapped shell, which is still untested.
+
+### There is a hardware-free test path
+
+**VC-4 offers a genuine $0, 90-day, software-only trial** via a downloadable
+installer. Combined with the documented SIMPL test path (upload `.pkg` via
+Toolbox/SFTP, reference it from the `Crestron Device Drivers` wrapper module,
+pulse `<LoadDriver>` with `<EnableLogging>` for byte-level traces), the decisive
+load test may not need a processor at all.
+
+A forum report also states: *"You can upload the pkg file or the dll itself
+containing the json"* — consistent with the shell being incidental. REPORTED,
+not spec.
+
+### The signature does not bite
+
+Both Samsung shell DLLs carry a **self-signed** Authenticode-style PKCS#7
+signature — subject equals issuer, `CN=Crestron Electronics Inc, OU=Firmware
+Department`. Not CA-chained. A resource swap would break it, but **nothing in
+the documented load path ever checks it**, so breaking it has no known
+functional consequence.
+
+### V1 is not being retired *(researched by hand)*
+
+SDK **v28 released 2026-04-28**; v27 on 2026-01-30. The release notes update
+V1 (RAD Framework) topics — Security System Drivers, AV Switcher Drivers —
+alongside V2 topics in the same entry. V2 (Entity Model, from SDK 21.x) is
+described as "now available", not as a replacement. December 2025 notes even
+added SIMPL *wrapper module* support to the Supported Device Types page.
+
+So `LegacyWrappers` names a hosting layer, not a doomed one. Building on the
+JSON-engine form is not building on sand.
+
+### The licence asymmetry is the real constraint
+
+This is where the two vendors diverge sharply, and it shapes what is safe to
+build.
+
+**Crestron** — Software Development Tools License Agreement, 13 Feb 2024:
+
+- **§3.1 / §4.2(b) field-of-use:** the tools may be used "only for the purpose of
+  Developing software for **Crestron Devices**". A cross-vendor conversion tool
+  is not obviously within that field.
+- **§4.2(c):** bars discovering "any underlying ideas or algorithms … through
+  reverse engineering, de-compilation, or disassembly".
+- **§2.11:** requires a written "Underlying Agreement" — Dealer, AIP or Partner.
+  Lose it and the licence terminates.
+- **§3.2(a):** the user assigns Crestron all rights to modifications, "whether or
+  not such modifications are permitted".
+- CSP status needs 3+ years professional programming experience, certification,
+  a business plan and references.
+
+**Extron** — a free self-service "Extron Insider" account and a lighter EULA:
+no resale/redistribution without written consent, no disassembly without written
+approval, but **no field-of-use restriction to Extron-only devices and no dealer
+contract requirement**.
+
+Neither vendor's public terms address cross-vendor conversion. Reading a file you
+were given is not the same as redistributing it or shipping its transformed
+output commercially — those five activities carry materially different risk, and
+this is a question for a lawyer, not for this document.
+
+`drivers.crestron.io` is login-gated, so the one source that could quantify how
+much of Crestron's catalogue uses the JSON-engine form could not be read.
+
+## Still unproven
+
+1. Does a **resource-swapped or outsider-built shell** actually load? The public
+   third-party projects prove compiled-from-source works; nobody has shown the
+   templating shortcut works.
+2. What fraction of Crestron's shipped catalogue uses the JSON-engine form?
+   Unmeasurable without portal access. N=2 here.
