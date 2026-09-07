@@ -36,7 +36,7 @@ marked otherwise.
 | `tools/pkp_dump.py` | Extron `.pkp` → JSON object graph. Every byte accounted for on all 4 packages. | 23 |
 | `tools/pkg_dump.py` | Crestron `.pkg` → manifest + driver JSON. Real ECMA-335 metadata walk, no hardcoded offsets. | (in above) |
 | `tools/wire_table.py` | **The acceptance oracle.** Normalised per-command wire table from *both* Python dialects. Unresolvable expressions become *counted* opaque markers, never guesses. | 34 |
-| `tools/pkp2cs.py` | `.pkp` → ControlScript translator. Raises rather than degrading. | 47 |
+| `tools/pkp2cs.py` | `.pkp` → ControlScript translator. Raises rather than degrading. | 56 |
 
 Experiments live in `experiments/` (NRBF writer, Crestron→ControlScript, missing-Ethernet
 generation, docs-only generation). Harvested vendor docs in `reference/`.
