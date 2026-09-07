@@ -744,11 +744,22 @@ def analyse(source, models):
     elif any(p and p.endswith("SerialProtocolAsset") for p in proto_classes):
         a.dialect = "serial"
     elif any(p and p.endswith("EthernetProtocolAsset") for p in proto_classes):
-        a.dialect = "sis_ethernet"
+        # "SIS" is Extron's own protocol, not a synonym for Ethernet. Only use the
+        # SIS handshake template when the package itself demonstrably speaks SIS.
+        if _source_speaks_sis(source):
+            a.dialect = "sis_ethernet"
+        else:
+            a.dialect = "ethernet"
+            a.residuals.add("connection-handshake-not-translated",
+                             "Ethernet device with no SIS handshake in its own script. The "
+                             "Extron SIS echo/verbose handshake was NOT emitted (it would be "
+                             "fabricated wire content for this device). If this device needs a "
+                             "session-setup exchange, it must be added by hand.")
     else:
-        a.dialect = "sis_ethernet"
+        a.dialect = "ethernet"
         a.residuals.add("dialect-transport-not-evidenced",
-                         "no ProtocolAsset class matched a known transport; defaulted to sis_ethernet")
+                         "no ProtocolAsset class matched a known transport; defaulted to plain "
+                         "ethernet with no handshake rather than assuming SIS")
 
     # model_class_to_name: scriptClassName -> DriverModelAsset display name
     model_class_to_name = {}
@@ -839,7 +850,7 @@ def analyse(source, models):
         _dropped_cmd_match = re.match(r"^(?:_cmd_Set|_cmd_Update|__Match|Write|Read)([A-Za-z0-9]+)$", name)
         if _dropped_cmd_match and _dropped_cmd_match.group(1) in ALWAYS_DROPPED_COMMAND_NAMES:
             continue  # residual already recorded once, above, for the command itself
-        if name in ("__SetHelper", "__UpdateHelper") and a.dialect in ("sis_ethernet", "serial"):
+        if name in ("__SetHelper", "__UpdateHelper") and a.dialect in ("sis_ethernet", "serial", "ethernet"):
             # GC's own __SetHelper/__UpdateHelper are dialect-fixed
             # boilerplate, not a per-driver transform of the GC body: diffing
             # shipped DSC and DTP3 (sis_ethernet) shows their __SetHelper/
@@ -1211,9 +1222,66 @@ FIXED_SET_UPDATE_HELPER_SERIAL = '''
             self.Send(commandstring)
 '''
 
+# Plain (non-SIS) Ethernet. Derived from the SIS template by REMOVING the
+# Extron-specific echo/verbose handshake rather than by inventing a replacement:
+# a third-party device's own handshake is not knowable from the package, so it is
+# omitted and reported as a residual for a human to supply. Emitting Extron's
+# handshake to a Biamp or Clock Audio device -- which is what this code did before
+# -- is fabricated wire content.
+FIXED_SET_UPDATE_HELPER_ETHERNET_PLAIN = '''
+    def __SetHelper(self, command, commandstring, value, qualifier):
+        self.Debug = True
+        self.Send(commandstring)
+
+    def __UpdateHelper(self, command, commandstring, value, qualifier):
+        if self.initializationChk:
+            self.OnConnected()
+            self.initializationChk = False
+
+        self.counter = self.counter + 1
+        if self.counter > self.connectionCounter and self.connectionFlag:
+            self.OnDisconnected()
+
+        if self.Unidirectional == 'True':
+            self.Discard('Inappropriate Command ' + command)
+        else:
+            self.Send(commandstring)
+'''
+
+# Plain (non-SIS) Ethernet transport. Shape copied from the only plain-ethernet
+# oracle, Clock Audio's shipped EthernetClass
+# (clau_dsp_CDT100_v1_0_3_0.py:419-441). Protocol/ServicePort are deliberately the
+# NEUTRAL extronlib defaults ('TCP', 0) taken from EthernetClientInterface's own
+# signature, NOT Clock Audio's UDP/49494 -- baking one device's connection
+# settings into every module would be fabricated configuration. The real values
+# are not recoverable from the package, so a residual says so.
+MIXIN_ETHERNET = '''
+
+class EthernetClass(EthernetClientInterface, DeviceClass):
+
+    def __init__(self, Hostname, IPPort, Protocol='TCP', ServicePort=0, Model=None):
+        EthernetClientInterface.__init__(self, Hostname, IPPort, Protocol, ServicePort)
+        self.ConnectionType = 'Ethernet'
+        DeviceClass.__init__(self)
+        # Check if Model belongs to a subclass
+        if len(self.Models) > 0:
+            if Model not in self.Models:
+                print('Model mismatch')
+            else:
+                self.Models[Model]()
+
+    def Error(self, message):
+        portInfo = 'IP Address/Host: {0}:{1}'.format(self.Hostname, self.IPPort)
+        print('Module: {}'.format(__name__), portInfo, 'Error Message: {}'.format(message[0]), sep='\\r\\n')
+
+    def Discard(self, message):
+        self.Error([message])
+'''
+
 FIXED_SET_UPDATE_HELPER = {
     "sis_ethernet": FIXED_SET_UPDATE_HELPER_SIS_ETHERNET,
     "serial": FIXED_SET_UPDATE_HELPER_SERIAL,
+    "ethernet": FIXED_SET_UPDATE_HELPER_ETHERNET_PLAIN,
 }
 
 FIXED_STREAM_TAIL_EXTRA = '''
@@ -1538,11 +1606,20 @@ def emit(job, a):
         body.append("")
 
     body.append(FIXED_TAIL.rstrip("\n"))
-    if a.dialect in ("sis_ethernet", "serial"):
+    if a.dialect in ("sis_ethernet", "serial", "ethernet"):
         body.append(FIXED_STREAM_TAIL_EXTRA.rstrip("\n"))
 
     if a.dialect == "sis_ethernet":
         body.append(MIXIN_SSH.rstrip("\n"))
+    elif a.dialect == "ethernet":
+        body.append(MIXIN_ETHERNET.rstrip("\n"))
+        a.residuals.add("ethernet-connection-settings-not-recoverable",
+                         "EthernetClass emitted with the neutral extronlib defaults "
+                         "(Protocol='TCP', ServicePort=0). The device's real protocol and port are "
+                         "not recoverable from the package and must be set by hand. Note the "
+                         "shipped Biamp module uses SSHClass and the shipped Clock Audio module "
+                         "uses Protocol='UDP', ServicePort=49494 -- the correct choice is "
+                         "per-device and is not inferable here.")
     elif a.dialect == "serial":
         body.append(MIXIN_SERIAL.rstrip("\n"))
         a.residuals.add("serial-over-ethernet-mixin-generalised",
@@ -1616,6 +1693,45 @@ EXTRONLIB_PROVIDED = frozenset([
     "StopListen",
     "Toggle",
 ])
+
+
+def _source_speaks_sis(src_text):
+    """True when the embedded GC script itself uses the Extron SIS session
+    handshake. Evidence-based: the strings must be present in the package."""
+    return "w0echo" in (src_text or "") or "w3cv" in (src_text or "")
+
+
+def find_invented_wire_strings(module_source, origin_source):
+    """Return literal strings the generated module sends that do NOT occur in the
+    package it came from.
+
+    A converter must never author wire content. The sis_ethernet helper template
+    was injecting Extron's own 'w0echo' / 'w3cv' SIS handshake into Biamp and
+    Clock Audio modules -- devices that do not speak SIS -- because the template
+    was lifted from an Extron device and keyed only on "is it Ethernet". The
+    per-command wire table could not see it: it extracts command templates, not
+    helper bodies.
+    """
+    # Compare parsed constant to parsed constant. Comparing a parsed value against
+    # the origin's raw TEXT would mis-fire on every escape sequence: the AST value
+    # of 'REAL\\r' is REAL + CR, which does not occur literally in the source text.
+    origin_literals = set()
+    for node in ast.walk(ast.parse(origin_source)):
+        if isinstance(node, ast.Constant) and isinstance(node.value, str):
+            origin_literals.add(node.value)
+
+    invented = []
+    for node in ast.walk(ast.parse(module_source)):
+        if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)):
+            continue
+        if node.func.attr not in ("Send", "SendAndWait"):
+            continue
+        for arg in node.args:
+            if isinstance(arg, ast.Constant) and isinstance(arg.value, str) and arg.value.strip():
+                if arg.value not in origin_literals \
+                        and not any(arg.value in lit for lit in origin_literals):
+                    invented.append(arg.value)
+    return sorted(set(invented))
 
 
 def find_dangling_self_calls(module_source):
