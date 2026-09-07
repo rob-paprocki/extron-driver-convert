@@ -1246,6 +1246,36 @@ def emit(job, a):
 # TOP LEVEL
 # ==========================================================================
 
+EXTRONLIB_PROVIDED = frozenset([
+    # Names a ControlScript module may call on self without defining, because the
+    # concrete transport class inherits them from extronlib.interface. Derived from
+    # evidence, not assumption: these are the names Extron's OWN shipped modules
+    # call undefined. Adding to this set requires the same evidence.
+    "Send",
+])
+
+
+def find_dangling_self_calls(module_source):
+    """Return sorted names called as self.<name>(...) but never defined in the module.
+
+    A wrapper deleted by the Read/Write-wrapper rule is normally a self-contained
+    status accessor, but it can also be called cross-command from another Set body
+    to compose that command's payload. Deleting it then leaves a reference that
+    raises AttributeError at runtime -- on a control processor, not here. This is
+    a whole-module check rather than a special case, so it catches any rule that
+    removes something still in use.
+    """
+    tree = ast.parse(module_source)
+    defined = {node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)}
+    defined |= EXTRONLIB_PROVIDED
+    called = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) \
+                and isinstance(node.func.value, ast.Name) and node.func.value.id == "self":
+            called.add(node.func.attr)
+    return sorted(called - defined)
+
+
 def translate_job(job):
     residuals = Residuals()
     if job.source is None:
@@ -1258,6 +1288,11 @@ def translate_job(job):
     a = analyse(job.source, job.models)
     text = emit(job, a)
     residuals.extend(a.residuals)
+    for name in find_dangling_self_calls(text):
+        residuals.add("dangling-self-call",
+                      "generated module calls self.%s(...) but never defines it; a rewrite rule "
+                      "removed a method that is still referenced. Calling it would raise "
+                      "AttributeError at runtime." % name)
     return {
         "script_file_name": job.script_file_name,
         "dialect": a.dialect,

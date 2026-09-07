@@ -1,0 +1,382 @@
+{
+  "emitted": [
+    {
+      "capability": "AmbientOff",
+      "set_command": "AmbientOff",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "AmbientOn",
+      "set_command": "AmbientOn",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "AnalogAirAntenna",
+      "set_command": "SetAnalogAirAntenna",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "AnalogCableAntenna",
+      "set_command": "SetAnalogCableAntenna",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Artwork",
+      "set_command": "SetArtwork",
+      "update_command": "GetArtwork",
+      "kind": "stateful"
+    },
+    {
+      "capability": "Back",
+      "set_command": "Back",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Blue",
+      "set_command": "Blue",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Channel",
+      "set_command": "SetChannel",
+      "update_command": "GetChannel",
+      "kind": "stateful"
+    },
+    {
+      "capability": "ChannelDown",
+      "set_command": "ChannelDown",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "ChannelUp",
+      "set_command": "ChannelUp",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "DigitalAirAntenna",
+      "set_command": "SetDigitalAirAntenna",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "DigitalCableAntenna",
+      "set_command": "SetDigitalCableAntenna",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "DisplayRotatorControlLandscape",
+      "set_command": "SetDisplayRotatorControlLandscape",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "DisplayRotatorControlPortrait",
+      "set_command": "SetDisplayRotatorControlPortrait",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Down",
+      "set_command": "Down",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Exit",
+      "set_command": "Exit",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "FirstScreenApp",
+      "set_command": "SetFirstScreenApp",
+      "update_command": "GetFirstScreenApp",
+      "kind": "stateful"
+    },
+    {
+      "capability": "ForwardScan",
+      "set_command": "ForwardScan",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "GetAccessToken",
+      "set_command": "GetAccessToken",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "GetMultiViewModes",
+      "set_command": "GetMultiViewModes",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Green",
+      "set_command": "Green",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Home",
+      "set_command": "Home",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Keypress0",
+      "set_command": "Keypress0",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Keypress1",
+      "set_command": "Keypress1",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Keypress2",
+      "set_command": "Keypress2",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Keypress3",
+      "set_command": "Keypress3",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Keypress4",
+      "set_command": "Keypress4",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Keypress5",
+      "set_command": "Keypress5",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Keypress6",
+      "set_command": "Keypress6",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Keypress7",
+      "set_command": "Keypress7",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Keypress8",
+      "set_command": "Keypress8",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Keypress9",
+      "set_command": "Keypress9",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "KeypressDash",
+      "set_command": "KeypressDash",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "KeypressEnter",
+      "set_command": "KeypressEnter",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Left",
+      "set_command": "Left",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "MediaService",
+      "set_command": "SetMediaService",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Menu",
+      "set_command": "Menu",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "MultiViewMode1",
+      "set_command": "SetMultiViewMode1",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "MultiViewMode2",
+      "set_command": "SetMultiViewMode2",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "MultiViewMode3",
+      "set_command": "SetMultiViewMode3",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Mute",
+      "set_command": "SetMute",
+      "update_command": "GetMute",
+      "kind": "stateful"
+    },
+    {
+      "capability": "Pause",
+      "set_command": "Pause",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "PictureModeDynamic",
+      "set_command": "SetPictureModeDynamic",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "PictureModeFilmmaker",
+      "set_command": "SetPictureModeFilmmaker",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "PictureModeMovie",
+      "set_command": "SetPictureModeMovie",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "PictureModeStandard",
+      "set_command": "SetPictureModeStandard",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Play",
+      "set_command": "Play",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Power",
+      "set_command": "SetPower",
+      "update_command": "GetPower",
+      "kind": "stateful"
+    },
+    {
+      "capability": "Red",
+      "set_command": "Red",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Return",
+      "set_command": "Return",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "ReverseScan",
+      "set_command": "ReverseScan",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Right",
+      "set_command": "Right",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Select",
+      "set_command": "Select",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "SoundModeAmplify",
+      "set_command": "SetSoundModeAmplify",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "SoundModeStandard",
+      "set_command": "SetSoundModeStandard",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Stop",
+      "set_command": "Stop",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "TvInput",
+      "set_command": "SetTvInput",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "TvPlus",
+      "set_command": "SetTvPlus",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "Up",
+      "set_command": "Up",
+      "update_command": null,
+      "kind": "fire"
+    },
+    {
+      "capability": "VideoInput",
+      "set_command": "SetVideoInput",
+      "update_command": "GetReportedVideoInput",
+      "kind": "stateful"
+    },
+    {
+      "capability": "Volume",
+      "set_command": "SetVolume",
+      "update_command": "GetVolume",
+      "kind": "stateful"
+    },
+    {
+      "capability": "Yellow",
+      "set_command": "Yellow",
+      "update_command": null,
+      "kind": "fire"
+    }
+  ],
+  "skipped": [
+    {
+      "name": "VideoConfiguration",
+      "reason": "Commands['SetVideoConfiguration']: Template entry has no (correctly-cased) Info.CommandName -- keys present: ['Name', 'StatesSet', 'Transformations', 'Type', 'info']"
+    }
+  ]
+}

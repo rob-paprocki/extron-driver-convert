@@ -455,6 +455,49 @@ def test_missing_commands_dict_raises():
         return
     raise AssertionError("expected UntranslatableDriver, got a silent result")
 
+
+# --- regression: a deleted wrapper must never leave a dangling self.X() call ---
+
+def test_dangling_self_call_is_detected():
+    """The Samsung ethernet job deletes ReadMultiviewString as a status-accessor
+    wrapper, but MultiviewCommand's Set body calls it cross-command. Emitting a
+    module with a dangling reference produces an AttributeError at runtime on a
+    control system -- exactly the failure this project must never ship silently."""
+    src = ("class DeviceClass:\n"
+           "    def SetThing(self, value, qualifier):\n"
+           "        mode = self.ReadGoneString(qualifier, 'Emulated')\n"
+           "    def ReadStatus(self, command, qualifier):\n"
+           "        pass\n")
+    dangling = pkp2cs.find_dangling_self_calls(src)
+    assert "ReadGoneString" in dangling, dangling
+    assert "ReadStatus" not in dangling, dangling
+
+
+def test_no_dangling_calls_when_everything_is_defined():
+    src = ("class DeviceClass:\n"
+           "    def SetThing(self, value, qualifier):\n"
+           "        self.WriteStatus('Thing', value, qualifier)\n"
+           "    def WriteStatus(self, command, value, qualifier):\n"
+           "        pass\n")
+    assert pkp2cs.find_dangling_self_calls(src) == []
+
+
+def test_samsung_ethernet_job_reports_dangling_reference_as_residual():
+    """Integration: the real package that exposed the bug."""
+    pkp = os.path.join(REPO_ROOT, "samples", "Samsung QNxxLS03DAFXZA", "pkp",
+                       "smsg_10_6738_v1_0_0.pkp")
+    if not os.path.exists(pkp):
+        return
+    jobs = pkp2cs.discover_jobs(pkp)
+    eth = [j for j in jobs if "ethernet" in j.script_file_name]
+    if not eth:
+        return
+    result = pkp2cs.translate_job(eth[0])
+    reasons = [r["reason"] for r in result["residuals"]]
+    assert "dangling-self-call" in reasons, reasons
+    detail = " ".join(r["detail"] for r in result["residuals"] if r["reason"] == "dangling-self-call")
+    assert "ReadMultiviewString" in detail, detail
+
 if __name__ == "__main__":
     tests = [(name, obj) for name, obj in sorted(globals().items())
               if name.startswith("test_") and callable(obj)]

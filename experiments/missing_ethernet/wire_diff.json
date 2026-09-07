@@ -1,0 +1,31 @@
+{
+  "only_in_a": [],
+  "only_in_b": [
+    "ConnectionStatus"
+  ],
+  "shared": [
+    "AspectRatio",
+    "AudioMute",
+    "ChannelStep",
+    "Input",
+    "Keypad",
+    "MenuNavigation",
+    "MultiviewCommand",
+    "MultiviewString",
+    "Power",
+    "RefreshToken",
+    "Volume"
+  ],
+  "differences": {
+    "MultiviewCommand": {
+      "set_templates": {
+        "a": [
+          "url={'jsonrpc': 2.0, 'method': multiviewControl, 'params': {'AccessToken': {}, 'multiviewMode': None}, 'id': 1}"
+        ],
+        "b": [
+          "url={'jsonrpc': 2.0, 'method': multiviewControl, 'params': {'AccessToken': {}, 'multiviewMode': {}}, 'id': 1}"
+        ]
+      }
+    }
+  }
+}
