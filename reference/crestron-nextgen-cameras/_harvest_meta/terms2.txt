@@ -1,0 +1,67 @@
+model comparison
+sensor size
+HDMI
+USB
+PoE
+power supply
+cable length
+operating temperature
+humidity
+weight
+IR remote
+joystick
+Crestron Toolbox
+XPanel
+SDK
+Zoom Rooms
+Microsoft Teams
+Google Meet
+calibration
+image quality
+low light
+noise reduction
+HDR
+wide dynamic range
+gain
+shutter speed
+iris
+pan range
+tilt range
+home position
+latency
+video output format
+streaming
+multicast
+VLAN
+QoS
+release notes
+known issues
+regulatory
+FCC CE
+UL listing
+cleaning
+glossary
+appendix
+error codes
+status LED
+indicator light
+Blocking Zones
+network diagram
+CAT5
+color temperature
+backlight compensation
+day night mode
+privacy mask
+lens type
+minimum illumination
+signal to noise ratio
+video compression
+H.264
+H.265
+bit rate
+tracking algorithm
+skeleton tracking
+face detection
+audio
+microphone
+speaker
