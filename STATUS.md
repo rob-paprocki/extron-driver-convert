@@ -75,6 +75,12 @@ Read this first — it says what is known, what is being built, and what is stil
 
 ## Standing methodology notes
 
+- **A negative claim needs positive evidence.** Finding 08 asserted `Wake` was
+  undocumented because a keyword-search harvest did not surface it. It is
+  documented. Enumerate documentation sites by URL pattern or a published index,
+  and verify a negative before building an argument on it. See the correction at
+  the top of `findings/08`.
+
 - **Acceptance is defined on the wire-string table, not on file or line similarity.** Shipped
   modules are not a pure function of their package — there is version skew, hand-edits and dropped
   throttles. Two samples now show line overlap varying from 76% to 38% while the command tables stay

@@ -1,3 +1,54 @@
+# CORRECTION (2026-09-07) — READ THIS FIRST
+
+**The headline claim below was wrong.** `Wake` **is** documented, at
+`.../API-Reference/Wake-API.htm`. So are `AutoSwitchStatus`, `StartAutoSwitch`,
+`OutputStatus`, `RecordStatus`, `RoomConfigStatus`, `GetLayouts`, `LayoutStatus`
+and `GetRoomConfigs` — nine pages the harvest never found.
+
+**Root cause.** The harvest enumerated pages by keyword search and declared
+"convergence" when a second sweep of 68 terms surfaced nothing new. That is an
+absence of evidence treated as evidence of absence. The URL pattern is plainly
+`<EndpointName>-API.htm`; probing it directly finds the pages immediately. It was
+never tried. The unverified conclusion was then repeated in a finding, a commit
+message and three replies before the repo owner caught it.
+
+**Corrected measurement** — every one of the 32 endpoints Extron actually calls,
+probed directly:
+
+| | count |
+|---|---|
+| documented | **27** |
+| not documented | **5** |
+
+Not documented: `StopAutoSwitch`, `StartISORecord`, `StopISORecord`,
+`ISORecordStatus`, and `ChangeRoomConfiguration` (which appears only inside a
+cURL example on the Macro page).
+
+**What this changes.**
+- The "five endpoints with no trace at all" list was wrong: `Wake` and
+  `StartAutoSwitch` are documented.
+- The "five sub-APIs visible only inside `GetAllStatus`'s example body" claim was
+  wrong for four of the five — `AutoSwitchStatus`, `OutputStatus`, `RecordStatus`
+  and `RoomConfigStatus` all have first-class pages. Only `ISORecordStatus` does not.
+- Doc-driven generation therefore looks **better** than reported below, not worse.
+
+**What survives.** A real delta remains — 5 of 32 — and the pattern it illustrates
+is intact, because it never rested on this case. Samsung's shared undocumented
+firmware-bug workaround and the 1 Beyond cameras' undocumented `c2` command family
+were both established from driver bytes, not from failing to find a doc page.
+
+There is even a better instance of the exact asymmetry the original argument
+wanted: **`StartAutoSwitch` is documented and `StopAutoSwitch` is not.** The
+argument was sound; the evidence chosen for it was not.
+
+**Methodological lesson, which is the durable part:** this project's standing rule
+is that a claim needs positive evidence. "I searched and found nothing" is not
+positive evidence about a document's contents — it is a statement about a search.
+Enumerating a doc site by keyword search is unsound; enumerate by URL pattern, or
+by an index the site itself publishes, and verify a negative before building on it.
+
+---
+
 # Finding 08 — could you generate a driver from the vendor's API docs?
 
 **No. Documentation is necessary but not sufficient — and we can now say by exactly
