@@ -1,0 +1,353 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name: Control Concepts, Inc.
+System Name: Biamp Tesira Generic Control v3.3
+System Number:
+Programmer: DGG
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+
+#SYMBOL_NAME "Biamp Tesira Generic Control v3.3"
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENCODING_ASCII
+// #ENABLE_DYNAMIC
+// #HINT ""
+#CATEGORY "0" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// CONSTANTS
+////////////////////////////////////////////////////////////////////////////////////////////
+
+#DEFINE_CONSTANT DIGITAL	0
+#DEFINE_CONSTANT ANALOG 	1
+#DEFINE_CONSTANT SERIAL 	2
+
+#DEFINE_CONSTANT FALSE		0
+#DEFINE_CONSTANT TRUE		1
+
+#HELP_BEGIN
+To be used with Biamp Tesira Generic Control v3.3.umc module only.
+Not to be used as a stand-alone module.
+#HELP_END
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+
+#USER_SIMPLSHARP_LIBRARY "BiampTesiraLib3"
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+
+DIGITAL_INPUT _SKIP_, _SKIP_,_SKIP_,_SKIP_,_SKIP_,_SKIP_,_SKIP_,_SKIP_; 
+DIGITAL_INPUT Poll;
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// INPUTS
+////////////////////////////////////////////////////////////////////////////////////////////
+
+// DIGITAL TYPE
+DIGITAL_INPUT Digital_On, Digital_Off, Digital_Toggle;
+
+// ANALOG TYPE
+DIGITAL_INPUT Analog_Set; 
+ANALOG_INPUT Analog_Value;
+
+// SERIAL TYPE
+DIGITAL_INPUT Serial_Set;
+STRING_INPUT Serial_Value[255];
+
+DIGITAL_INPUT Enable;
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// OUTPUTS
+////////////////////////////////////////////////////////////////////////////////////////////
+
+DIGITAL_OUTPUT _SKIP_, _SKIP_,_SKIP_,_SKIP_,_SKIP_,_SKIP_,_SKIP_,_SKIP_;
+DIGITAL_OUTPUT Is_Initialized;
+
+// DIGITAL TYPE
+DIGITAL_OUTPUT Digital_Is_On, Digital_Is_Off;
+
+// ANALOG TYPE
+ANALOG_OUTPUT Current_Analog_Value;
+
+// SERIAL TYPE
+STRING_OUTPUT Current_Serial_Value;
+                                         
+DIGITAL_OUTPUT Is_Quarantined;
+/*******************************************************************************************
+  SOCKETS
+  (Uncomment and define socket definitions as needed)
+*******************************************************************************************/
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+
+STRING_PARAMETER Instance_Tag[50], Attribute_Code[50];
+INTEGER_PARAMETER Index_1, Index_2, Signal_Type, Has_Subscription, Subscription_Update_Interval, Command_Processor_ID;
+
+/*******************************************************************************************
+  Parameter Properties
+  (Uncomment and declare parameter properties as needed)
+*******************************************************************************************/
+#BEGIN_PARAMETER_PROPERTIES Instance_Tag, Attribute_Code
+   propValidUnits = unitString;
+   propDefaultUnit = unitString;
+   propDefaultValue = "";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES Index_1, Index_2
+   propValidUnits = unitDecimal;
+   propDefaultUnit = unitDecimal;
+   propBounds = 0d , 256d;
+   propDefaultValue = 0d;
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES Signal_Type
+   propValidUnits = unitDecimal;
+   propDefaultUnit = unitDecimal;
+   propBounds = 0d , 2d;
+   propDefaultValue = 0d;
+#END_PARAMETER_PROPERTIES
+                         
+#BEGIN_PARAMETER_PROPERTIES Has_Subscription
+   propValidUnits = unitDecimal;
+   propDefaultUnit = unitDecimal;
+   propBounds = 0d , 1d;
+   propDefaultValue = 0d;
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES Subscription_Update_Interval
+   propValidUnits = unitDecimal;
+   propDefaultUnit = unitDecimal;
+   propBounds = 0d , 5d;
+   propDefaultValue = 0d;
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES Command_Processor_ID
+   propValidUnits = unitDecimal;
+   propDefaultUnit = unitDecimal;
+   propBounds = 1d , 32d;
+   propDefaultValue = 1d;
+#END_PARAMETER_PROPERTIES
+
+/*******************************************************************************************
+  Structure Definitions
+  (Uncomment and define structure definitions as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: struct.myString = "";
+*******************************************************************************************/
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+
+GenericComponent component;
+INTEGER IsReady;
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+ 
+EVENTHANDLER OnSendDebug(GenericComponent sender, StringEventArgs args)
+{
+	TRACE("%s", args.Payload);
+}
+
+EVENTHANDLER OnInitializeChange(GenericComponent sender, UInt16EventArgs args)
+{
+	Is_Initialized = args.Payload;
+}
+
+EVENTHANDLER OnQuarantineChange(GenericComponent sender, UInt16EventArgs args)
+{
+	Is_Quarantined = args.Payload;
+}
+
+EVENTHANDLER OnDigitalChange(GenericComponent sender, UInt16EventArgs args)
+{
+	Digital_Is_On  = (args.Payload = TRUE);
+	Digital_Is_Off = (args.Payload = FALSE);
+}
+
+EVENTHANDLER OnAnalogChangeSigned(GenericComponent sender, Int16EventArgs args)
+{
+	Current_Analog_Value = args.Payload;
+}
+
+EVENTHANDLER OnSerialChange(GenericComponent sender, StringEventArgs args)
+{
+	MAKESTRING(Current_Serial_Value, "%s", args.Payload);
+}
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// DIGITAL TYPE
+////////////////////////////////////////////////////////////////////////////////////////////
+
+THREADSAFE PUSH Digital_On
+{
+	IF (Signal_Type = DIGITAL)
+	{
+    	component.SetDigital(TRUE);
+	}		
+}
+
+THREADSAFE PUSH Digital_Off
+{
+	IF (Signal_Type = DIGITAL)
+	{
+    	component.SetDigital(FALSE);
+	}
+}
+
+THREADSAFE PUSH Digital_Toggle
+{
+	IF (Signal_Type = DIGITAL)
+	{
+    	component.ToggleDigital();
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// ANALOG TYPE
+////////////////////////////////////////////////////////////////////////////////////////////
+
+THREADSAFE CHANGE Analog_Value
+{
+	IF (Signal_Type = ANALOG)
+	{
+    	IF (Analog_Set)
+		{
+			component.SetAnalog(Analog_Value);
+			DELAY(30);
+		}
+	}
+}              
+
+THREADSAFE PUSH Analog_Set
+{
+	IF (Signal_Type = ANALOG)
+	{
+		component.SetAnalog(Analog_Value);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// SERIAL TYPE
+////////////////////////////////////////////////////////////////////////////////////////////
+
+THREADSAFE CHANGE Serial_Value
+{
+	IF (Signal_Type = SERIAL)
+	{
+    	IF (Serial_Set)
+		{
+			component.SetSerial(Serial_Value);
+			DELAY(30);
+		}
+	}
+}              
+
+THREADSAFE PUSH Serial_Set
+{
+	IF (Signal_Type = SERIAL)
+	{
+		component.SetSerial(Serial_Value);
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// POLLING
+////////////////////////////////////////////////////////////////////////////////////////////
+THREADSAFE PUSH Poll
+{
+	IF (Has_Subscription = FALSE)
+	{
+		component.Poll();
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// ENABLE
+////////////////////////////////////////////////////////////////////////////////////////////
+THREADSAFE PUSH Enable
+{
+	IF (IsReady)
+	{
+		component.Configure(Command_Processor_ID, Instance_Tag, Attribute_Code, Index_1, Index_2, Signal_Type, Has_Subscription);
+		component.SetSubscriptionUpdateInterval(Subscription_Update_Interval);
+	}
+}
+THREADSAFE RELEASE Enable
+{
+	IF (IsReady)
+		component.UnRegister();
+}
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+	IsReady = FALSE;
+
+    WaitForInitializationComplete();
+	
+	// DEFAULTS
+	Is_Initialized = FALSE;
+	Digital_Is_On  = FALSE;
+	Digital_Is_Off = FALSE;
+    Current_Analog_Value = 0;
+	MAKESTRING(Current_Serial_Value, "");
+    
+	REGISTEREVENT(component, OnSendDebug, OnSendDebug);
+	REGISTEREVENT(component, OnInitializeChange, OnInitializeChange);
+	REGISTEREVENT(component, OnQuarantineChange, OnQuarantineChange);
+	REGISTEREVENT(component, OnDigitalChange, OnDigitalChange);
+  	REGISTEREVENT(component, OnAnalogChangeSigned, OnAnalogChangeSigned);
+   	REGISTEREVENT(component, OnSerialChange, OnSerialChange);
+    
+	IF (Enable)
+	{
+	    component.Configure(Command_Processor_ID, Instance_Tag, Attribute_Code, Index_1, Index_2, Signal_Type, Has_Subscription);
+        component.SetSubscriptionUpdateInterval(Subscription_Update_Interval);
+	}
+
+	IsReady = TRUE;
+}

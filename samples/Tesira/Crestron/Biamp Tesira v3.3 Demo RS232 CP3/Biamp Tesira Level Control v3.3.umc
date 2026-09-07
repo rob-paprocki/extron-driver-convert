@@ -1,0 +1,724 @@
+[
+Version=1
+]
+[
+ObjTp=FSgntr
+Sgntr=UserMacro
+RelVrs=4.11.06
+IntStrVrs=2
+MinSMWVrs=3.00.00
+MinTIOVrs=0
+SavedBy=SMW3.11.15
+]
+[
+ObjTp=Hd
+S0Nd=1
+S1Nd=2
+SLNd=3
+PrNm=Biamp Tesira Level Control v3.3.umc
+DbVr=85.00.001.00
+DvcDbVr=111.00.001.00
+PgmNm=JJM
+DlrNm=Control Concepts
+CltNm=Biamp Tesira Level Control v3.3
+Incl=1766,2574,2651,2817,2886,2938,2947,3181,3197,3233,3710,3735,3736,3816,3888,4176,4308,4476,4591,4769,5360,5388,5420,5455,
+McNm=Biamp Tesira Level Control v3.3
+SmVr=1099
+DvVr=1099
+TpN1=1
+TpN2=2
+TpN3=3
+TpN4=4
+TpN5=5
+PdfHelp=Biamp Tesira Level Control v3.3 Help.pdf
+DT=Audio Processor
+DST=Digital Signal Processor
+Mfg=Biamp
+NumMdl=1
+Mdl1=Tesira
+APg=0
+StdCmd=1
+FltTmp=1
+FpCS=0
+EnType=0
+ZeroOnIoOk=0
+]
+[
+ObjTp=Bk
+Nm1=\
+Sx1=0
+Sy1=0
+Mx1=1
+]
+[
+ObjTp=Bw
+H=1
+Lx=60
+Ly=60
+Rx=320
+Ry=260
+Xm=-1
+Ym=-1
+SH=6
+Z=100
+Ht=4
+Hi=12
+]
+[
+ObjTp=Bw
+H=1
+Lx=40
+Ly=40
+Rx=300
+Ry=240
+Xm=-1
+Ym=-1
+SH=8
+Z=100
+Ht=4
+Hi=14
+]
+[
+ObjTp=Symbol
+Name=Biamp Tesira Level Control v3.3
+Code=1
+SmplCName=Biamp Tesira Level Control v3.3.umc
+Smpl-C=3
+CompilerTimePrecision=Single_Or_Double_Precision
+Exclusions=1,19,20,21,88,89,167,168,179,216,225,248,249,266,302,305,213,214,215,217,226,267,310,362,378,380,405,407,408,409,478,522,537,554,586,590,611,624,718,756,767,830,841,842,854,883,955,1032,1062,1079,1128,1129,1134,1140,1157,1158,1195,1199,1220,1221,1222,1223,1299,1348,1349,1439,1472,1473,1499,1746,1803,1975,2229,2354,2514,2523,2532,2706,2707,3235,3236,3427,3454,3567,3568,3601,3602,3708,3902,3903,3912,3918,3925,3926,4206,4207,
+Hint=Biamp Tesira Level Control v3.3
+SMWRev=3.00.00
+TIORev=0
+S+=1
+HelpID=1055
+PdfHelp=Biamp Tesira Level Control v3.3 Help.pdf
+DT=Audio Processor
+DST=Digital Signal Processor
+Mfg=Biamp
+NumMdl=1
+Mdl1=Tesira
+APg=0
+StdCmd=1
+FltTmp=1
+FpCS=0
+NumFixedInputs=13
+NumFixedOutputs=13
+NumFixedParams=6
+MinVariableInputs=0
+MinVariableInputsList2=0
+MinVariableInputsList3=0
+MinVariableOutputs=0
+MinVariableOutputsList2=0
+MinVariableOutputsList3=0
+MinVariableParams=0
+SymbolTree=46
+UserSymTreeName=DSP
+InputSigType1=Digital
+InputSigType2=Digital|Analog|Serial|String
+InputSigType3=Digital
+InputSigType4=Digital
+InputSigType5=Digital|Analog|Serial|String
+InputSigType6=Analog
+InputSigType7=Digital
+InputSigType8=Digital|Analog|Serial|String
+InputSigType9=Analog
+InputSigType10=Digital
+InputSigType11=Digital|Analog|Serial|String
+InputSigType12=Digital|Analog|Serial|String
+InputSigType13=Digital
+OutputSigType1=Digital
+OutputSigType2=Digital|Analog|Serial|String
+OutputSigType3=Digital|Analog|Serial|String
+OutputSigType4=Digital|Analog|Serial|String
+OutputSigType5=Digital|Analog|Serial|String
+OutputSigType6=Analog
+OutputSigType7=Digital|Analog|Serial|String
+OutputSigType8=Digital|Analog|Serial|String
+OutputSigType9=Analog
+OutputSigType10=Digital|Analog|Serial|String
+OutputSigType11=Serial
+OutputSigType12=Digital|Analog|Serial|String
+OutputSigType13=Digital
+ParamSigType1=String
+ParamSigType2=List
+ParamSigType3=Constant
+ParamSigType4=Constant
+ParamSigType5=List
+ParamSigType6=List
+InputCue1=Poll_Level
+InputCue2=[~UNUSED~]
+InputCue3=Level_Up
+InputCue4=Level_Down
+InputCue5=[~UNUSED~]
+InputCue6=New_Level_dB
+InputCue7=Send_New_Level_dB
+InputCue8=[~UNUSED~]
+InputCue9=New_Level_Percent
+InputCue10=Send_New_Level_Percent
+InputCue11=[~UNUSED~]
+InputCue12=[~UNUSED~]
+InputCue13=Enable
+OutputCue1=Is_Initialized
+OutputCue2=[~UNUSED~]
+OutputCue3=[~UNUSED~]
+OutputCue4=[~UNUSED~]
+OutputCue5=[~UNUSED~]
+OutputCue6=Volume_Level_dB
+OutputCue7=[~UNUSED~]
+OutputCue8=[~UNUSED~]
+OutputCue9=Volume_Level_Percent
+OutputCue10=[~UNUSED~]
+OutputCue11=Volume_Level_Text
+OutputCue12=[~UNUSED~]
+OutputCue13=Is_Quarantined
+ParamCue1=Instance_Tag
+ParamCue2=Attribute_Code,level,inputLevel,crosspointLevel,channelLevel,sourceLevel,outputLevel,levelOut,levelIn,levelSource,hostMasterVol,hostVol,auxLevel
+ParamCue3=Index_1
+ParamCue4=Index_2
+ParamCue5=Level_Step,1d,2d,3d,4d,5d,6d
+ParamCue6=Command_Processor_ID,1d,2d,3d,4d,5d,6d,7d,8d,9d,10d,11d,12d,13d,14d,15d,16d,17d,18d,19d,20d,21d,22d,23d,24d,25d,26d,27d,28d,29d,30d,31d,32d
+MPi=9
+Pi1=6
+Pi3=7
+Pi4=8
+Pi6=9
+Pi7=10
+Pi9=11
+MPo=1
+Po1=12
+MPp=6
+Pp1=1
+Pp2=2
+Pp3=3
+Pp4=4
+Pp5=5
+Pp6=17
+FileName=Biamp Tesira Level Control v3.3.umc
+EncodingType=0
+ZeroOnIoOk=0
+]
+[
+ObjTp=Sm
+H=1
+SmC=157
+Nm=Central Control Modules
+ObjVer=1
+CF=2
+n1I=1
+n1O=1
+mI=1
+mO=1
+tO=1
+mP=1
+P1=
+]
+[
+ObjTp=Sm
+H=2
+SmC=157
+Nm=Network Modules
+ObjVer=1
+CF=2
+n1I=1
+n1O=1
+mI=1
+mO=1
+tO=1
+mP=1
+P1=
+]
+[
+ObjTp=Sm
+H=3
+SmC=157
+Nm=Ethernet
+ObjVer=1
+CF=2
+n1I=1
+n1O=1
+mI=1
+mO=1
+tO=1
+mP=1
+P1=
+]
+[
+ObjTp=Sm
+H=4
+SmC=156
+Nm=Logic
+ObjVer=1
+CF=2
+mC=2
+C1=7
+C2=8
+]
+[
+ObjTp=Sm
+H=5
+SmC=157
+Nm=DefineArguments
+ObjVer=1
+CF=2
+n1I=1
+n1O=1
+mC=1
+C1=6
+mI=1
+mO=1
+tO=1
+mP=1
+P1=
+]
+[
+ObjTp=Sm
+H=6
+SmC=55
+Nm=Argument Definition
+ObjVer=1
+PrH=5
+CF=2
+n1I=13
+n1O=13
+mI=13
+I1=4
+I2=16
+I3=5
+I4=6
+I5=16
+I6=13
+I7=9
+I8=16
+I9=8
+I10=7
+I11=16
+I12=16
+I13=14
+mO=13
+tO=13
+O1=10
+O2=16
+O3=16
+O4=16
+O5=16
+O6=15
+O7=16
+O8=16
+O9=11
+O10=16
+O11=12
+O12=16
+O13=18
+mP=6
+P1=Instance_Tag
+P2=Attribute_Code
+P3=Index_1
+P4=Index_2
+P5=Level_Step
+P6=Command_Processor_ID
+MPi=9
+Pi1=6
+Pi3=7
+Pi4=8
+Pi6=9
+Pi7=10
+Pi9=11
+MPo=1
+Po1=12
+MPp=6
+Pp1=1
+Pp2=2
+Pp3=3
+Pp4=4
+Pp5=5
+Pp6=17
+]
+[
+ObjTp=Sm
+H=7
+SmC=858
+Nm=Make String Permanent
+ObjVer=1
+PrH=4
+CF=2
+n1I=1
+mI=1
+I1=12
+mP=1
+P1=10d
+]
+[
+ObjTp=Sm
+H=8
+SmC=103
+Nm=Biamp Tesira Level Control v3.3.usp
+ObjVer=1
+PrH=4
+CF=2
+n1I=14
+n2I=5
+n1O=13
+mI=19
+I7=4
+I9=5
+I10=6
+I12=9
+I13=7
+I14=14
+I15=13
+I16=8
+mO=17
+tO=17
+O9=10
+O13=18
+O14=15
+O15=11
+O16=12
+mP=7
+P1=
+P2=#Instance_Tag
+P3=#Attribute_Code
+P4=#Index_1
+P5=#Index_2
+P6=#Level_Step
+P7=#Command_Processor_ID
+]
+[
+ObjTp=Sg
+H=4
+Nm=Poll_Level
+]
+[
+ObjTp=Sg
+H=5
+Nm=Level_Up
+]
+[
+ObjTp=Sg
+H=6
+Nm=Level_Down
+]
+[
+ObjTp=Sg
+H=7
+Nm=Send_New_Level_Percent
+]
+[
+ObjTp=Sg
+H=8
+Nm=New_Level_Percent
+SgTp=2
+]
+[
+ObjTp=Sg
+H=9
+Nm=Send_New_Level_dB
+]
+[
+ObjTp=Sg
+H=10
+Nm=Is_Initialized
+]
+[
+ObjTp=Sg
+H=11
+Nm=Volume_Level_Percent
+SgTp=2
+]
+[
+ObjTp=Sg
+H=12
+Nm=Volume_Level_Text
+SgTp=4
+]
+[
+ObjTp=Sg
+H=13
+Nm=New_Level_dB
+SgTp=2
+]
+[
+ObjTp=Sg
+H=14
+Nm=Enable
+]
+[
+ObjTp=Sg
+H=15
+Nm=Volume_Level_dB
+SgTp=2
+]
+[
+ObjTp=Sg
+H=16
+Nm=[~UNUSED~]
+SgTp=31
+]
+[
+ObjTp=Sg
+H=18
+Nm=Is_Quarantined
+]
+[
+ObjTp=Dp
+H=1
+Tp=1
+FD1=Instance Tag Name
+SD=InstanceTag
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=2
+Tp=1
+FD1=The Protocol Attribute Code
+SD=AttributeCode
+HD=TRUE
+DV=level
+NoS=FALSE
+EncFmt=0
+DVLF=1
+VVS=2
+VN=12
+Val1=level
+Lbl1=Level
+Val2=inputLevel
+Lbl2=InputLevel
+Val3=crosspointLevel
+Lbl3=CrosspointLevel
+Val4=channelLevel
+Lbl4=ChannelLevel
+Val5=sourceLevel
+Lbl5=SourceLevel
+Val6=outputLevel
+Lbl6=OutputLevel
+Val7=levelOut
+Lbl7=LevelOut (RC)
+Val8=levelIn
+Lbl8=LevelIn (RC)
+Val9=levelSource
+Lbl9=LevelSource (RC)
+Val10=hostMasterVol
+Lbl10=HostMasterVolume (USB)
+Val11=hostVol
+Lbl11=HostVolume (USB)
+Val12=auxLevel
+Lbl12=AuxLevel [LUX]
+Sgn=0
+]
+[
+ObjTp=Dp
+H=3
+Tp=1
+FD1=Index1 protocol value.
+SD=Index1
+HD=TRUE
+DV=0d
+Lng=TRUE
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=256d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=4
+Tp=1
+FD1=Index2 value of the protocol
+SD=Index2
+HD=TRUE
+DV=0d
+Lng=TRUE
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=256d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=5
+Tp=1
+FD1=Value to Increment/Decrement the Level
+SD=LevelStep
+HD=TRUE
+DV=1d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=2
+VN=6
+Val1=1d
+Lbl1=1 db
+Val2=2d
+Lbl2=2 db
+Val3=3d
+Lbl3=3 db
+Val4=4d
+Lbl4=4 db
+Val5=5d
+Lbl5=5 db
+Val6=6d
+Lbl6=6 db
+Sgn=0
+]
+[
+ObjTp=Dp
+H=6
+Tp=2
+DT=1
+FD1=Pulse to Poll for Current Level Value
+SD=Poll Level
+Trg=2
+]
+[
+ObjTp=Dp
+H=7
+Tp=2
+DT=1
+FD1=Pulse to increment Level Value, maintain to continue ramping.
+SD=Level Up
+Trg=2
+]
+[
+ObjTp=Dp
+H=8
+Tp=2
+DT=1
+FD1=Pulse to decrement Level Value, maintain to continue ramping.
+SD=Level Down
+Trg=2
+]
+[
+ObjTp=Dp
+H=9
+Tp=4
+FD1=Set to assign the new level value.
+SD=New Level
+NF=1
+DNF=1
+VVS=1
+LR=-100d
+HR=12d
+Sgn=1
+]
+[
+ObjTp=Dp
+H=10
+Tp=2
+DT=1
+FD1=Pulse to send the New Level value.
+SD=Send New Level
+Trg=2
+]
+[
+ObjTp=Dp
+H=11
+Tp=4
+NF=63
+DNF=1
+VVS=1
+LR=0d
+HR=100d
+]
+[
+ObjTp=Dp
+H=12
+Tp=3
+DT=1
+FD1=Is Initialized
+SD=Is Initialized
+RE=Initializing
+HS=Is Initialized
+]
+[
+ObjTp=Dp
+H=17
+Tp=1
+FD1=CommandProcessorID
+SD=CommandProcessorID
+HD=TRUE
+DV=1d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=2
+VN=32
+Val1=1d
+Lbl1=CommandProcessor 1
+Val2=2d
+Lbl2=CommandProcessor 2
+Val3=3d
+Lbl3=CommandProcessor 3
+Val4=4d
+Lbl4=CommandProcessor 4
+Val5=5d
+Lbl5=CommandProcessor 5
+Val6=6d
+Lbl6=CommandProcessor 6
+Val7=7d
+Lbl7=CommandProcessor 7
+Val8=8d
+Lbl8=CommandProcessor 8
+Val9=9d
+Lbl9=CommandProcessor 9
+Val10=10d
+Lbl10=CommandProcessor 10
+Val11=11d
+Lbl11=CommandProcessor 11
+Val12=12d
+Lbl12=CommandProcessor 12
+Val13=13d
+Lbl13=CommandProcessor 13
+Val14=14d
+Lbl14=CommandProcessor 14
+Val15=15d
+Lbl15=CommandProcessor 15
+Val16=16d
+Lbl16=CommandProcessor 16
+Val17=17d
+Lbl17=CommandProcessor 17
+Val18=18d
+Lbl18=CommandProcessor 18
+Val19=19d
+Lbl19=CommandProcessor 19
+Val20=20d
+Lbl20=CommandProcessor 20
+Val21=21d
+Lbl21=CommandProcessor 21
+Val22=22d
+Lbl22=CommandProcessor 22
+Val23=23d
+Lbl23=CommandProcessor 23
+Val24=24d
+Lbl24=CommandProcessor 24
+Val25=25d
+Lbl25=CommandProcessor 25
+Val26=26d
+Lbl26=CommandProcessor 26
+Val27=27d
+Lbl27=CommandProcessor 27
+Val28=28d
+Lbl28=CommandProcessor 28
+Val29=29d
+Lbl29=CommandProcessor 29
+Val30=30d
+Lbl30=CommandProcessor 30
+Val31=31d
+Lbl31=CommandProcessor 31
+Val32=32d
+Lbl32=CommandProcessor 32
+Sgn=0
+]

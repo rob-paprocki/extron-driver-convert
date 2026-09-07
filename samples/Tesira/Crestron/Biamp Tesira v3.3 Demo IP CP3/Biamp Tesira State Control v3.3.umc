@@ -1,0 +1,620 @@
+[
+Version=1
+]
+[
+ObjTp=FSgntr
+Sgntr=UserMacro
+RelVrs=4.11.06
+IntStrVrs=2
+MinSMWVrs=3.00.00
+MinTIOVrs=0
+SavedBy=SMW3.11.15
+]
+[
+ObjTp=Hd
+S0Nd=1
+S1Nd=2
+SLNd=3
+PrNm=Biamp Tesira State Control v3.3.umc
+DbVr=85.00.001.00
+DvcDbVr=111.00.001.00
+PgmNm=JJM
+DlrNm=Control Concepts
+CltNm=Biamp Tesira State Control v3.3
+Incl=1766,2574,2651,2817,2886,2938,2947,3181,3197,3233,3710,3735,3736,3816,3888,4176,4308,4476,4591,4769,5360,5388,5420,5455,
+McNm=Biamp Tesira State Control v3.3
+SmVr=1099
+DvVr=1099
+TpN1=1
+TpN2=2
+TpN3=3
+TpN4=4
+TpN5=5
+PdfHelp=Biamp Tesira State Control v3.3 Help.pdf
+DT=Audio Processor
+DST=Digital Signal Processor
+Mfg=Biamp
+NumMdl=1
+Mdl1=Tesira
+APg=0
+StdCmd=1
+FltTmp=1
+FpCS=0
+EnType=0
+ZeroOnIoOk=0
+]
+[
+ObjTp=Bk
+Nm1=\
+Sx1=0
+Sy1=0
+Mx1=0
+]
+[
+ObjTp=Bw
+H=1
+Lx=0
+Ly=476
+Rx=1178
+Ry=952
+Xm=-1
+Ym=-1
+SH=6
+Z=100
+Ht=4
+Hi=7
+]
+[
+ObjTp=Bw
+H=1
+Lx=0
+Ly=0
+Rx=1178
+Ry=476
+Xm=-1
+Ym=-1
+SH=8
+Z=100
+Ht=4
+Hi=12
+]
+[
+ObjTp=Symbol
+Name=Biamp Tesira State Control v3.3
+Code=1
+SmplCName=Biamp Tesira State Control v3.3.umc
+Smpl-C=3
+CompilerTimePrecision=Single_Or_Double_Precision
+Exclusions=1,19,20,21,88,89,167,168,179,213,214,215,216,217,225,226,248,249,266,267,310,362,378,380,405,407,408,409,478,522,537,554,586,590,611,624,718,756,767,830,841,842,854,883,955,1032,1062,1079,1128,1129,1134,1140,1157,1158,1195,1199,1220,1221,1222,1223,1299,1348,1349,1439,1472,1473,1499,1746,1803,1975,2229,2354,2514,2523,2532,2706,2707,3235,3236,3427,3454,3567,3568,3601,3602,3708,3902,3903,3912,3918,3925,3926,4206,4207,
+Hint=Biamp Tesira State Control v3.3
+SMWRev=3.00.00
+TIORev=0
+S+=1
+HelpID=1055
+PdfHelp=Biamp Tesira State Control v3.3 Help.pdf
+DT=Audio Processor
+DST=Digital Signal Processor
+Mfg=Biamp
+NumMdl=1
+Mdl1=Tesira
+APg=0
+StdCmd=1
+FltTmp=1
+FpCS=0
+NumFixedInputs=7
+NumFixedOutputs=7
+NumFixedParams=5
+MinVariableInputs=0
+MinVariableInputsList2=0
+MinVariableInputsList3=0
+MinVariableOutputs=0
+MinVariableOutputsList2=0
+MinVariableOutputsList3=0
+MinVariableParams=0
+SymbolTree=46
+UserSymTreeName=DSP
+InputSigType1=Digital
+InputSigType2=Digital|Analog|Serial|String
+InputSigType3=Digital
+InputSigType4=Digital
+InputSigType5=Digital
+InputSigType6=Digital|Analog|Serial|String
+InputSigType7=Digital
+OutputSigType1=Digital
+OutputSigType2=Digital|Analog|Serial|String
+OutputSigType3=Digital
+OutputSigType4=Digital
+OutputSigType5=Digital|Analog|Serial|String
+OutputSigType6=Digital|Analog|Serial|String
+OutputSigType7=Digital
+ParamSigType1=String
+ParamSigType2=List
+ParamSigType3=Constant
+ParamSigType4=Constant
+ParamSigType5=List
+InputCue1=Poll_State
+InputCue2=[~UNUSED~]
+InputCue3=State_On
+InputCue4=State_Off
+InputCue5=State_Toggle
+InputCue6=[~UNUSED~]
+InputCue7=Enable
+OutputCue1=Is_Initialized
+OutputCue2=[~UNUSED~]
+OutputCue3=State_Is_On
+OutputCue4=State_Is_Off
+OutputCue5=[~UNUSED~]
+OutputCue6=[~UNUSED~]
+OutputCue7=Is_Quarantined
+ParamCue1=Instance_Tag
+ParamCue2=Attribute_Code,mute,inputMute,outputMute,channelMute,crosspoint,crosspointLevelState,wallState,muteOut,muteIn,muteSource,state,connected,hostMasterMute,hostMute,streaming,embeddedAudioMute,videoMute,videoFreeze,auxMute
+ParamCue3=Index_1
+ParamCue4=Index_2
+ParamCue5=Command_Processor_ID,1d,2d,3d,4d,5d,6d,7d,8d,9d,10d,11d,12d,13d,14d,15d,16d,17d,18d,19d,20d,21d,22d,23d,24d,25d,26d,27d,28d,29d,30d,31d,32d
+MPi=5
+Pi1=5
+Pi3=6
+Pi4=7
+Pi5=8
+MPo=4
+Po1=11
+Po3=12
+Po4=13
+MPp=5
+Pp1=1
+Pp2=2
+Pp3=3
+Pp4=4
+Pp5=9
+FileName=Biamp Tesira State Control v3.3.umc
+EncodingType=0
+ZeroOnIoOk=0
+]
+[
+ObjTp=Sm
+H=1
+SmC=157
+Nm=Central Control Modules
+ObjVer=1
+CF=2
+n1I=1
+n1O=1
+mI=1
+mO=1
+tO=1
+mP=1
+P1=
+]
+[
+ObjTp=Sm
+H=2
+SmC=157
+Nm=Network Modules
+ObjVer=1
+CF=2
+n1I=1
+n1O=1
+mI=1
+mO=1
+tO=1
+mP=1
+P1=
+]
+[
+ObjTp=Sm
+H=3
+SmC=157
+Nm=Ethernet
+ObjVer=1
+CF=2
+n1I=1
+n1O=1
+mI=1
+mO=1
+tO=1
+mP=1
+P1=
+]
+[
+ObjTp=Sm
+H=4
+SmC=156
+Nm=Logic
+ObjVer=1
+CF=2
+mC=1
+C1=8
+]
+[
+ObjTp=Sm
+H=5
+SmC=157
+Nm=DefineArguments
+ObjVer=1
+CF=2
+n1I=1
+n1O=1
+mC=1
+C1=6
+mI=1
+mO=1
+tO=1
+mP=1
+P1=
+]
+[
+ObjTp=Sm
+H=6
+SmC=55
+Nm=Argument Definition
+ObjVer=1
+PrH=5
+CF=2
+n1I=7
+n1O=7
+mI=7
+I1=4
+I2=13
+I3=5
+I4=6
+I5=7
+I6=13
+I7=12
+mO=7
+tO=7
+O1=9
+O2=13
+O3=10
+O4=11
+O5=13
+O6=13
+O7=14
+mP=5
+P1=Instance_Tag
+P2=Attribute_Code
+P3=Index_1
+P4=Index_2
+P5=Command_Processor_ID
+MPi=5
+Pi1=5
+Pi3=6
+Pi4=7
+Pi5=8
+MPo=4
+Po1=11
+Po3=12
+Po4=13
+MPp=5
+Pp1=1
+Pp2=2
+Pp3=3
+Pp4=4
+Pp5=9
+]
+[
+ObjTp=Sm
+H=8
+SmC=103
+Nm=Biamp Tesira State Control v3.3.usp
+ObjVer=1
+PrH=4
+CF=2
+n1I=12
+n1O=12
+mI=12
+I6=4
+I8=5
+I9=6
+I10=7
+I12=12
+mO=12
+tO=12
+O6=9
+O8=10
+O9=11
+O12=14
+mP=6
+P1=
+P2=#Instance_Tag
+P3=#Attribute_Code
+P4=#Index_1
+P5=#Index_2
+P6=#Command_Processor_ID
+]
+[
+ObjTp=Sg
+H=4
+Nm=Poll_State
+]
+[
+ObjTp=Sg
+H=5
+Nm=State_On
+]
+[
+ObjTp=Sg
+H=6
+Nm=State_Off
+]
+[
+ObjTp=Sg
+H=7
+Nm=State_Toggle
+]
+[
+ObjTp=Sg
+H=9
+Nm=Is_Initialized
+]
+[
+ObjTp=Sg
+H=10
+Nm=State_Is_On
+]
+[
+ObjTp=Sg
+H=11
+Nm=State_Is_Off
+]
+[
+ObjTp=Sg
+H=12
+Nm=Enable
+]
+[
+ObjTp=Sg
+H=13
+Nm=[~UNUSED~]
+SgTp=31
+]
+[
+ObjTp=Sg
+H=14
+Nm=Is_Quarantined
+]
+[
+ObjTp=Dp
+H=1
+Tp=1
+FD1=The protocol's Instance Tag
+SD=Instance Tag
+NoS=FALSE
+EncFmt=0
+DVLF=1
+Sgn=0
+]
+[
+ObjTp=Dp
+H=2
+Tp=1
+FD1=The protocol's attribute code.
+SD=Attribute Code
+HD=TRUE
+DV=mute
+NoS=FALSE
+EncFmt=0
+DVLF=1
+VVS=2
+VN=19
+Val1=mute
+Lbl1=Mute
+Val2=inputMute
+Lbl2=InputMute
+Val3=outputMute
+Lbl3=OutputMute
+Val4=channelMute
+Lbl4=ChannelMute
+Val5=crosspoint
+Lbl5=Crosspoint
+Val6=crosspointLevelState
+Lbl6=CrosspointLevelState
+Val7=wallState
+Lbl7=WallState (RC)
+Val8=muteOut
+Lbl8=MuteOut (RC)
+Val9=muteIn
+Lbl9=MuteIn (RC)
+Val10=muteSource
+Lbl10=MuteSource (RC)
+Val11=state
+Lbl11=State
+Val12=connected
+Lbl12=ConnectionStatus (USB)
+Val13=hostMasterMute
+Lbl13=HostMasterMute (USB)
+Val14=hostMute
+Lbl14=HostMute (USB)
+Val15=streaming
+Lbl15=StreamingStatus (USB)
+Val16=embeddedAudioMute
+Lbl16=EmbeddedAudioMute [LUX]
+Val17=videoMute
+Lbl17=VideoMute
+Val18=videoFreeze
+Lbl18=VideoFreeze
+Val19=auxMute
+Lbl19=AuxMute [LUX]
+Sgn=0
+]
+[
+ObjTp=Dp
+H=3
+Tp=1
+FD1=The protocol's Index1 value.
+SD=Index1
+HD=TRUE
+DV=0d
+Lng=TRUE
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=256d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=4
+Tp=1
+FD1=The protocol's index2 value.
+SD=Index2
+HD=TRUE
+DV=0d
+Lng=TRUE
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=1
+LR=0d
+HR=256d
+Sgn=0
+]
+[
+ObjTp=Dp
+H=5
+Tp=2
+DT=1
+FD1=Pulse to poll for current state value.
+SD=Poll State
+Trg=2
+]
+[
+ObjTp=Dp
+H=6
+Tp=2
+DT=1
+FD1=Pulse to set control state to on.
+SD=State On
+Trg=2
+]
+[
+ObjTp=Dp
+H=7
+Tp=2
+DT=1
+FD1=Pulse to set control state to off.
+SD=State Off
+Trg=2
+]
+[
+ObjTp=Dp
+H=8
+Tp=2
+DT=1
+FD1=pulse to toggle the control state.
+SD=State_Toggle
+Trg=2
+]
+[
+ObjTp=Dp
+H=9
+Tp=1
+FD1=CommandProcessorID
+SD=CommandProcessorID
+HD=TRUE
+DV=1d
+NF=1
+DNF=1
+EncFmt=0
+DVLF=1
+VVS=2
+VN=32
+Val1=1d
+Lbl1=CommandProcessor 1
+Val2=2d
+Lbl2=CommandProcessor 2
+Val3=3d
+Lbl3=CommandProcessor 3
+Val4=4d
+Lbl4=CommandProcessor 4
+Val5=5d
+Lbl5=CommandProcessor 5
+Val6=6d
+Lbl6=CommandProcessor 6
+Val7=7d
+Lbl7=CommandProcessor 7
+Val8=8d
+Lbl8=CommandProcessor 8
+Val9=9d
+Lbl9=CommandProcessor 9
+Val10=10d
+Lbl10=CommandProcessor 10
+Val11=11d
+Lbl11=CommandProcessor 11
+Val12=12d
+Lbl12=CommandProcessor 12
+Val13=13d
+Lbl13=CommandProcessor 13
+Val14=14d
+Lbl14=CommandProcessor 14
+Val15=15d
+Lbl15=CommandProcessor 15
+Val16=16d
+Lbl16=CommandProcessor 16
+Val17=17d
+Lbl17=CommandProcessor 17
+Val18=18d
+Lbl18=CommandProcessor 18
+Val19=19d
+Lbl19=CommandProcessor 19
+Val20=20d
+Lbl20=CommandProcessor 20
+Val21=21d
+Lbl21=CommandProcessor 21
+Val22=22d
+Lbl22=CommandProcessor 22
+Val23=23d
+Lbl23=CommandProcessor 23
+Val24=24d
+Lbl24=CommandProcessor 24
+Val25=25d
+Lbl25=CommandProcessor 25
+Val26=26d
+Lbl26=CommandProcessor 26
+Val27=27d
+Lbl27=CommandProcessor 27
+Val28=28d
+Lbl28=CommandProcessor 28
+Val29=29d
+Lbl29=CommandProcessor 29
+Val30=30d
+Lbl30=CommandProcessor 30
+Val31=31d
+Lbl31=CommandProcessor 31
+Val32=32d
+Lbl32=CommandProcessor 32
+Sgn=0
+]
+[
+ObjTp=Dp
+H=11
+Tp=3
+DT=1
+FD1=Is Initialized
+SD=Is Initialized
+RE=Initializing
+HS=Is Initialized
+]
+[
+ObjTp=Dp
+H=12
+Tp=3
+DT=1
+FD1=State Is On
+SD=State Is On
+RE=State On
+HS=State Is On
+]
+[
+ObjTp=Dp
+H=13
+Tp=3
+DT=1
+FD1=State Is Off
+SD=State Is Off
+RE=State Off
+HS=State Is Off
+]

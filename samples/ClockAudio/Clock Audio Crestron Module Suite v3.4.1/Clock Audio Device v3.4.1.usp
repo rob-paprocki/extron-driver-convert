@@ -1,0 +1,865 @@
+/*******************************************************************************************
+  INFORMATION
+*******************************************************************************************/
+
+/*
+Dealer Name: Control Concepts, Inc.
+System Name: Clock Audio Device v3.4.1
+Programmer: DGG
+*/
+
+/*******************************************************************************************
+  COMPILER DIRECTIVES
+*******************************************************************************************/
+
+#SYMBOL_NAME "Clock Audio Device v3.4.1"
+#CATEGORY "0"
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+// #ENABLE_DYNAMIC
+// #SYMBOL_NAME ""
+// #HINT ""
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+// #ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+/*******************************************************************************************
+  CONSTANTS
+*******************************************************************************************/
+
+// MAX STUFF
+#DEFINE_CONSTANT MAX_IP_ADDRESS 255
+#DEFINE_CONSTANT MAX_COMMAND 1024
+#DEFINE_CONSTANT MAX_STRING 255
+#DEFINE_CONSTANT MAX_CHANNELS 15
+#DEFINE_CONSTANT MAX_PHANTOM_CHANNELS 4
+#DEFINE_CONSTANT MAX_SWITCHES 3
+#DEFINE_CONSTANT MAX_EQ 3
+#DEFINE_CONSTANT MAX_APT_STATES 4
+#DEFINE_CONSTANT MAX_BUTTONS 12
+
+// COLORS
+#DEFINE_CONSTANT RED 1
+#DEFINE_CONSTANT GREEN 2
+#DEFINE_CONSTANT BLUE 3
+
+// BRIGHTNESS
+#DEFINE_CONSTANT STANDARD 0
+#DEFINE_CONSTANT DUTY 1
+
+// EQ
+#DEFINE_CONSTANT EQ_LOW 0
+#DEFINE_CONSTANT EQ_MEDIUM 1
+#DEFINE_CONSTANT EQ_HIGH 2
+
+// VALUE RESET
+#DEFINE_CONSTANT NULL_STRING ""
+#DEFINE_CONSTANT NULL_VALUE	 0
+
+// OTHER STUFF
+#DEFINE_CONSTANT TRUE  1
+#DEFINE_CONSTANT FALSE 0
+
+#HELP_BEGIN
+To be used with Clock Audio [CDT100 MkI|CDT100 MkII|CDT100 MkIII|C303D|TIM1000|CUT4] v3.4.1.umc module only. Not to be used as a stand-alone module. 
+#HELP_END
+
+/*******************************************************************************************
+  INCLUDE LIBRARIES
+*******************************************************************************************/
+
+#USER_SIMPLSHARP_LIBRARY "Clock Audio"
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+*******************************************************************************************/
+
+// INPUTS
+DIGITAL_INPUT  Reinitialize, Enable_Debug, Poll, Enable_Passback, Arm_C_Mic_Down, Arm_C_Mic_Up, Arm_C_Mic_Toggle, 
+			   Preset_Save, Preset_Load, Phantom_All_Off, Phantom_All_On, LED_R_All_Off, LED_R_All_On, LED_G_All_Off, 
+			   LED_G_All_On, LED_B_All_Off, LED_B_All_On, Identify_Unit_Off, Identify_Unit_On, Identify_Unit_Toggle, Find_Unit, 
+			   Defaults, Tracking_Off, Tracking_On, Tracking_Toggle, NoiseSup_Off, NoiseSup_On, NoiseSup_Toggle, Apt_Set[MAX_APT_STATES], 
+			   Phantom_Off[MAX_PHANTOM_CHANNELS], Phantom_On[MAX_PHANTOM_CHANNELS], Phantom_Toggle[MAX_PHANTOM_CHANNELS], LED_R_Off[MAX_CHANNELS], 
+			   LED_R_On[MAX_CHANNELS], LED_R_Toggle[MAX_CHANNELS], LED_G_Off[MAX_CHANNELS], LED_G_On[MAX_CHANNELS], 
+			   LED_G_Toggle[MAX_CHANNELS], LED_B_Off[MAX_CHANNELS], LED_B_On[MAX_CHANNELS], LED_B_Toggle[MAX_CHANNELS];
+
+STRING_INPUT   Passthrough_Text[MAX_COMMAND];
+
+ANALOG_INPUT   LED_R_All_Bright_Set, LED_G_All_Bright_Set, LED_B_All_Bright_Set, EQ_Set[MAX_EQ], LED_R_Bright_Set[MAX_CHANNELS], 
+			   LED_G_Bright_Set[MAX_CHANNELS], LED_B_Bright_Set[MAX_CHANNELS]; 
+
+// OUTPUTS				
+DIGITAL_OUTPUT Is_Communicating, Is_Initialized, Debug_Enabled, Unused, Passback_Enabled, Arm_C_Mic_Is_Up, Preset_Saved, 
+			   Identify_Unit_Is_On, Tracking_Is_On, NoiseSup_Is_On, Apt_Is_Active[MAX_APT_STATES], Phantom_Is_On[MAX_PHANTOM_CHANNELS], 
+			   LED_R_Is_On[MAX_CHANNELS], LED_G_Is_On[MAX_CHANNELS], LED_B_Is_On[MAX_CHANNELS], Switch_Ch1_Is_On[MAX_SWITCHES], 
+			   Switch_Ch2_Is_On[MAX_SWITCHES], Switch_Ch3_Is_On[MAX_SWITCHES], Switch_Ch4_Is_On[MAX_SWITCHES], Button_Pressed[MAX_BUTTONS];
+
+STRING_OUTPUT  Switch_Address_Text, IP_Address_Text, Passback_Text;
+
+ANALOG_OUTPUT  EQ_Level[MAX_EQ], LED_R_Bright_Level[MAX_CHANNELS], LED_G_Bright_Level[MAX_CHANNELS], LED_B_Bright_Level[MAX_CHANNELS];
+
+/*******************************************************************************************
+  PARAMETERS
+*******************************************************************************************/
+
+INTEGER_PARAMETER Device_Type, IP_Port, Adapter_Type, Brightness_Type;
+STRING_PARAMETER IP_Address[MAX_IP_ADDRESS], Adapter_IP_Override[MAX_IP_ADDRESS];
+
+/*******************************************************************************************
+  PARAMETER PROPERTIES
+*******************************************************************************************/
+
+#BEGIN_PARAMETER_PROPERTIES Device_Type
+   propValidUnits = unitDecimal;
+   propDefaultUnit = unitDecimal;
+   propBounds = 0d , 5d;
+   propDefaultValue = 0d;
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES IP_Port
+   propValidUnits = unitDecimal;
+   propDefaultUnit = unitDecimal;
+   propBounds = 0d , 65535d;
+   propDefaultValue = 49494d;
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES Brightness_Type
+   propValidUnits = unitDecimal;
+   propDefaultUnit = unitDecimal;
+   propBounds = 0d , 1d;
+   propDefaultValue = 0d;
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES IP_Address
+   propValidUnits = unitString;
+   propDefaultUnit = unitString;
+   propDefaultValue = "0.0.0.0";
+#END_PARAMETER_PROPERTIES
+
+#BEGIN_PARAMETER_PROPERTIES Adapter_IP_Override
+   propValidUnits = unitString;
+   propDefaultUnit = unitString;
+   propDefaultValue = "0.0.0.0";
+#END_PARAMETER_PROPERTIES
+
+/*******************************************************************************************
+  GLOBAL VARIABLES
+*******************************************************************************************/
+
+ClockAudioDevice device;
+
+// CURRENT STATE TRACKING
+// THIS PREVENTS UNNECESSARY TRAFFIC IN DEBUGGER BY ONLY SHOWING SIGNALS IF THEY CHANGE
+// MORE CODE IS INVOLVED WITH THIS METHOD BUT IT MAKES FOR CLEANER DEBUGGING
+INTEGER eqLevel[MAX_EQ], ledRedLevel[MAX_CHANNELS], ledGreenLevel[MAX_CHANNELS], ledBlueLevel[MAX_CHANNELS];
+STRING  switchAddress[MAX_STRING], ipAddress[MAX_STRING];
+
+/*******************************************************************************************
+  FUNCTIONS
+*******************************************************************************************/
+
+// GENERAL
+
+FUNCTION ResetAllInfo()
+{
+  INTEGER i;
+
+  // DIGITALS
+  Is_Communicating = FALSE;
+  Is_Initialized = FALSE;
+  Debug_Enabled = FALSE;
+  Passback_Enabled = FALSE;
+  Arm_C_Mic_Is_Up = FALSE;
+  Preset_Saved = FALSE;
+  Identify_Unit_Is_On = FALSE;
+  Tracking_Is_On = FALSE;
+  NoiseSup_Is_On = FALSE;
+
+  FOR (i = 1 to MAX_APT_STATES)
+  {
+    Apt_Is_Active[i] = FALSE;  
+  }
+
+  FOR (i = 1 to MAX_PHANTOM_CHANNELS)
+  {
+    Phantom_Is_On[i] = FALSE;  
+  }
+
+  FOR (i = 1 to MAX_CHANNELS)
+  {
+    LED_R_Is_On[i] = FALSE; 
+	LED_G_Is_On[i] = FALSE;
+	LED_B_Is_On[i] = FALSE; 
+  }
+  
+  FOR (i = 1 to MAX_SWITCHES)
+  {
+    Switch_Ch1_Is_On[i] = FALSE; 
+	Switch_Ch2_Is_On[i] = FALSE;
+	Switch_Ch3_Is_On[i] = FALSE; 
+	Switch_Ch4_Is_On[i] = FALSE;
+  }
+
+  // ANALOGS
+  FOR (i = 1 to MAX_CHANNELS)
+  {
+    LED_R_Bright_Level[i] = NULL_VALUE;
+	LED_G_Bright_Level[i] = NULL_VALUE; 
+	LED_B_Bright_Level[i] = NULL_VALUE;
+
+	ledRedLevel[i] = NULL_VALUE;
+	ledGreenLevel[i] = NULL_VALUE;
+	ledBlueLevel[i] = NULL_VALUE;  
+  }
+  
+  FOR (i = 1 to MAX_EQ)
+  {
+    EQ_Level[i] = NULL_VALUE;
+	eqLevel[i] = NULL_VALUE;  
+  }
+
+  // SERIALS
+  Passback_Text = NULL_STRING;
+
+  FOR (i = 1 to MAX_CHANNELS)
+  {
+    Switch_Address_Text = NULL_STRING;
+	IP_Address_Text = NULL_STRING; 
+
+	switchAddress = NULL_STRING;
+	ipAddress = NULL_STRING;  
+  }
+}
+
+// SIMPL# EVENTS
+
+EVENTHANDLER OnDebugChange(ClockAudioDevice sender, StringEventArgs args)
+{
+  STRING ip[MAX_IP_ADDRESS];
+  ip = sender.GetIP();
+
+  IF (ip = IP_Address)
+	TRACE("%s", args.payload);
+}
+
+EVENTHANDLER OnCommunicatingChange(ClockAudioDevice sender, IntegerEventArgs args)
+{
+  STRING ip[MAX_IP_ADDRESS];
+  ip = sender.GetIP();
+
+  IF (ip = IP_Address)
+    Is_Communicating = args.payload;
+}
+
+EVENTHANDLER OnInitializedChange(ClockAudioDevice sender, IntegerEventArgs args)
+{
+  STRING ip[MAX_IP_ADDRESS];
+  ip = sender.GetIP();
+
+  IF (ip = IP_Address)
+    Is_Initialized = args.payload;
+}
+
+EVENTHANDLER OnDebugEnableChange(ClockAudioDevice sender, IntegerEventArgs args)
+{
+  STRING ip[MAX_IP_ADDRESS];
+  ip = sender.GetIP();
+
+  IF (ip = IP_Address)
+    Debug_Enabled = args.payload;
+}
+
+EVENTHANDLER OnPassbackEnableChange(ClockAudioDevice sender, IntegerEventArgs args)
+{
+  STRING ip[MAX_IP_ADDRESS];
+  ip = sender.GetIP();
+
+  IF (ip = IP_Address)
+    Passback_Enabled = args.payload;
+}
+
+EVENTHANDLER OnAddressChange(ClockAudioDevice sender, AddressStateEventArgs args)
+{
+  STRING ip[MAX_IP_ADDRESS], address[MAX_STRING], deviceIP[MAX_STRING];
+  
+  ip = sender.GetIP();
+  
+  IF (ip = IP_Address)
+  {
+    address = args.payload.GetSwitchAddress();
+	deviceIP = args.payload.GetIpAddress();
+
+	IF (address != switchAddress)
+	{
+      MAKESTRING(Switch_Address_Text, "%s", address);
+	  switchAddress = address;
+	}
+    
+	IF (deviceIP != ipAddress)
+	{
+      MAKESTRING(IP_Address_Text, "%s", deviceIP);
+	  ipAddress = deviceIP;
+	}
+  }
+}
+
+EVENTHANDLER OnArmCChange(ClockAudioDevice sender, ArmStateEventArgs args)
+{
+  STRING ip[MAX_IP_ADDRESS];
+  
+  ip = sender.GetIP();
+
+  IF (ip = IP_Address)
+    Arm_C_Mic_Is_Up = args.payload.GetState();
+}
+
+EVENTHANDLER OnPhantomChange(ClockAudioDevice sender, PhantomStateEventArgs args)
+{
+  INTEGER i;
+  STRING ip[MAX_IP_ADDRESS];
+  
+  ip = sender.GetIP();
+
+  IF (ip = IP_Address)
+  {
+  	FOR (i = 1 to MAX_PHANTOM_CHANNELS)
+    {
+	  Phantom_Is_On[i] = args.payload.GetState(i); 
+    }
+  }
+}
+           
+EVENTHANDLER OnLedChange(ClockAudioDevice sender, LedStateEventArgs args)
+{
+  INTEGER i, redLevel, greenLevel, blueLevel;
+  STRING ip[MAX_IP_ADDRESS];
+  
+  ip = sender.GetIP();
+
+  IF (ip = IP_Address)
+  {
+    FOR (i = 1 to MAX_CHANNELS)
+    {
+	  LED_R_Is_On[i] = args.payload.GetState(i, RED);
+	  LED_G_Is_On[i] = args.payload.GetState(i, GREEN);
+	  LED_B_Is_On[i] = args.payload.GetState(i, BLUE);
+      
+	  redLevel = args.payload.GetBrightness(i, RED);
+      greenLevel = args.payload.GetBrightness(i, GREEN);
+	  blueLevel = args.payload.GetBrightness(i, BLUE);
+      
+	  IF (redLevel != ledRedLevel[i])
+	  {
+      	LED_R_Bright_Level[i] = redLevel;
+		ledRedLevel[i] = redLevel;
+	  }		
+
+	  IF (greenLevel != ledGreenLevel[i])
+	  {
+      	LED_G_Bright_Level[i] = greenLevel;
+		ledGreenLevel[i] = greenLevel;
+	  }		
+
+	  IF (blueLevel != ledBlueLevel[i])
+	  {
+      	LED_B_Bright_Level[i] = blueLevel;
+		ledBlueLevel[i] = blueLevel;
+	  }
+    }
+  }
+}
+
+EVENTHANDLER OnSwitchChange(ClockAudioDevice sender, SwitchStateEventArgs args)
+{
+  INTEGER i;
+  STRING ip[MAX_IP_ADDRESS];
+  
+  ip = sender.GetIP();
+
+  IF (ip = IP_Address)
+  {
+  	FOR (i = 1 to MAX_SWITCHES)
+    {
+      Switch_Ch1_Is_On[i] = args.payload.GetState(1, i);
+      Switch_Ch2_Is_On[i] = args.payload.GetState(2, i);
+	  Switch_Ch3_Is_On[i] = args.payload.GetState(3, i);
+	  Switch_Ch4_Is_On[i] = args.payload.GetState(4, i);
+    }
+  }
+}
+
+EVENTHANDLER OnPresetChange(ClockAudioDevice sender, IntegerEventArgs args)
+{
+  INTEGER preset;
+  STRING ip[MAX_IP_ADDRESS];
+  
+  preset = args.payload;
+  ip = sender.GetIP();
+
+  IF (ip = IP_Address)
+	IF (preset = 0)
+    	PULSE(10, Preset_Saved);
+}
+
+EVENTHANDLER OnPassbackChange(ClockAudioDevice sender, StringEventArgs args)
+{
+  INTEGER i;
+  STRING ip[MAX_IP_ADDRESS];
+  
+  ip = sender.GetIP();
+
+  IF (ip = IP_Address)
+  	MAKESTRING(Passback_Text, "%s", args.payload);
+}
+
+EVENTHANDLER OnTrackingChange(ClockAudioDevice sender, IntegerEventArgs args)
+{
+  STRING ip[MAX_IP_ADDRESS];
+  ip = sender.GetIP();
+
+  IF (ip = IP_Address)
+    Tracking_Is_On = args.payload;
+}
+
+EVENTHANDLER OnAptChange(ClockAudioDevice sender, AptStateEventArgs args)
+{
+  INTEGER i, apt;
+  STRING ip[MAX_IP_ADDRESS];
+  
+  ip = sender.GetIP();
+
+  IF (ip = IP_Address)
+  {
+  	apt = args.payload.GetState();
+
+	FOR (i = 1 to MAX_APT_STATES)
+    {
+      Apt_Is_Active[i] = (apt = i);
+    }
+  }
+}
+
+EVENTHANDLER OnEQChange(ClockAudioDevice sender, EQStateEventArgs args)
+{
+  INTEGER i, eq;
+  STRING ip[MAX_IP_ADDRESS];
+  
+  ip = sender.GetIP();
+
+  IF (ip = IP_Address)
+  {
+    FOR (i = 1 to MAX_EQ)
+    {
+	  eq = args.payload.GetLevel(i);
+      
+	  IF (eq != eqLevel[i])
+	  {
+      	EQ_Level[i] = eq;
+		eqLevel[i] = eq;
+	  }		
+    }
+  }
+}
+
+EVENTHANDLER OnNoiseSupChange(ClockAudioDevice sender, IntegerEventArgs args)
+{
+  STRING ip[MAX_IP_ADDRESS];
+  ip = sender.GetIP();
+
+  IF (ip = IP_Address)
+    NoiseSup_Is_On = args.payload;
+}
+
+EVENTHANDLER OnButtonChange(ClockAudioDevice sender, ButtonStateEventArgs args)
+{
+  INTEGER i;
+  STRING ip[MAX_IP_ADDRESS];
+  
+  ip = sender.GetIP();
+
+  IF (ip = IP_Address)
+  {
+	i = args.payload.GetIndex();
+
+	IF (i > 0 && i <= MAX_BUTTONS)
+	  Button_Pressed[i] = args.payload.GetState();
+  }
+}
+
+/*******************************************************************************************
+  EVENT HANDLERS
+*******************************************************************************************/
+
+// DEVICE
+ 
+THREADSAFE PUSH Reinitialize
+{
+  device.Reinitialize();
+}
+
+THREADSAFE PUSH Enable_Debug
+{
+  device.SetDebug(TRUE);
+}
+
+THREADSAFE RELEASE Enable_Debug
+{
+  device.SetDebug(FALSE);
+}
+
+THREADSAFE PUSH Poll
+{
+  device.Poll();
+}
+
+THREADSAFE PUSH Enable_Passback
+{
+  device.SetPassback(TRUE);
+}
+
+THREADSAFE RELEASE Enable_Passback
+{
+  device.SetPassback(FALSE);
+}
+
+// ARM-C
+
+THREADSAFE PUSH Arm_C_Mic_Down
+{
+  device.SetArmC(FALSE);
+}
+
+THREADSAFE PUSH Arm_C_Mic_Up
+{
+  device.SetArmC(TRUE);
+}
+
+THREADSAFE PUSH Arm_C_Mic_Toggle
+{
+  device.ToggleArmC();
+}
+
+// PRESET
+
+THREADSAFE PUSH Preset_Save
+{
+  device.SavePreset();
+}
+
+THREADSAFE PUSH Preset_Load
+{
+  device.LoadPreset();
+}
+
+// PHANTOM POWER
+
+THREADSAFE PUSH Phantom_All_Off
+{
+  device.SetPhantomAll(FALSE);
+}
+
+THREADSAFE PUSH Phantom_All_On
+{
+  device.SetPhantomAll(TRUE);
+}
+
+THREADSAFE PUSH Phantom_Off
+{
+  INTEGER index;
+  index = GETLASTMODIFIEDARRAYINDEX();
+
+  device.SetPhantom(index, FALSE);
+}
+
+THREADSAFE PUSH Phantom_On
+{
+  INTEGER index;
+  index = GETLASTMODIFIEDARRAYINDEX();
+
+  device.SetPhantom(index, TRUE);
+}
+
+THREADSAFE PUSH Phantom_Toggle
+{
+  INTEGER index;
+  index = GETLASTMODIFIEDARRAYINDEX();
+
+  device.TogglePhantom(index);
+}
+
+// LED STATE
+
+THREADSAFE PUSH LED_R_All_Off
+{
+  device.SetLedStateAll(RED, FALSE);
+}
+
+THREADSAFE PUSH LED_R_All_On
+{
+  device.SetLedStateAll(RED, TRUE);
+}
+
+THREADSAFE PUSH LED_R_Off
+{
+  INTEGER index;
+  index = GETLASTMODIFIEDARRAYINDEX();
+
+  device.SetLedState(index, RED, FALSE);
+}
+
+THREADSAFE PUSH LED_R_On
+{
+  INTEGER index;
+  index = GETLASTMODIFIEDARRAYINDEX();
+
+  device.SetLedState(index, RED, TRUE);
+}
+
+THREADSAFE PUSH LED_R_Toggle
+{
+  INTEGER index;
+  index = GETLASTMODIFIEDARRAYINDEX();
+
+  device.ToggleLedState(index, RED);
+}
+
+THREADSAFE PUSH LED_G_All_Off
+{
+  device.SetLedStateAll(GREEN, FALSE);
+}
+
+THREADSAFE PUSH LED_G_All_On
+{
+  device.SetLedStateAll(GREEN, TRUE);
+}
+
+THREADSAFE PUSH LED_G_Off
+{
+  INTEGER index;
+  index = GETLASTMODIFIEDARRAYINDEX();
+
+  device.SetLedState(index, GREEN, FALSE);
+}
+
+THREADSAFE PUSH LED_G_On
+{
+  INTEGER index;
+  index = GETLASTMODIFIEDARRAYINDEX();
+
+  device.SetLedState(index, GREEN, TRUE);
+}
+
+THREADSAFE PUSH LED_G_Toggle
+{
+  INTEGER index;
+  index = GETLASTMODIFIEDARRAYINDEX();
+
+  device.ToggleLedState(index, GREEN);
+}
+
+THREADSAFE PUSH LED_B_All_Off
+{
+  device.SetLedStateAll(BLUE, FALSE);
+}
+
+THREADSAFE PUSH LED_B_All_On
+{
+  device.SetLedStateAll(BLUE, TRUE);
+}
+
+THREADSAFE PUSH LED_B_Off
+{
+  INTEGER index;
+  index = GETLASTMODIFIEDARRAYINDEX();
+
+  device.SetLedState(index, BLUE, FALSE);
+}
+
+THREADSAFE PUSH LED_B_On
+{
+  INTEGER index;
+  index = GETLASTMODIFIEDARRAYINDEX();
+
+  device.SetLedState(index, BLUE, TRUE);
+}
+
+THREADSAFE PUSH LED_B_Toggle
+{
+  INTEGER index;
+  index = GETLASTMODIFIEDARRAYINDEX();
+
+  device.ToggleLedState(index, BLUE);
+}
+
+// LED BRIGHTNESS
+
+THREADSAFE CHANGE LED_R_All_Bright_Set
+{
+  device.SetLedBrightAll(RED, LED_R_All_Bright_Set);
+}
+
+THREADSAFE CHANGE LED_R_Bright_Set
+{
+  INTEGER index;
+  index = GETLASTMODIFIEDARRAYINDEX();
+
+  device.SetLedBright(index, RED, LED_R_Bright_Set[index]);
+}
+
+THREADSAFE CHANGE LED_G_All_Bright_Set
+{
+  device.SetLedBrightAll(GREEN, LED_G_All_Bright_Set);
+}
+
+THREADSAFE CHANGE LED_G_Bright_Set
+{
+  INTEGER index;
+  index = GETLASTMODIFIEDARRAYINDEX();
+
+  device.SetLedBright(index, GREEN, LED_G_Bright_Set[index]);
+}
+
+THREADSAFE CHANGE LED_B_All_Bright_Set
+{
+  device.SetLedBrightAll(BLUE, LED_B_All_Bright_Set);
+}
+
+THREADSAFE CHANGE LED_B_Bright_Set
+{
+  INTEGER index;
+  index = GETLASTMODIFIEDARRAYINDEX();
+
+  device.SetLedBright(index, BLUE, LED_B_Bright_Set[index]);
+}
+
+// PASSTHROUGH
+
+THREADSAFE CHANGE Passthrough_Text
+{
+  device.Passthrough(Passthrough_Text);
+}
+
+// IDENTIFY/FIND
+
+THREADSAFE PUSH Identify_Unit_Off
+{
+  device.SetIdentify(FALSE);
+}
+
+THREADSAFE PUSH Identify_Unit_On
+{
+  device.SetIdentify(TRUE);
+}
+
+THREADSAFE PUSH Identify_Unit_Toggle
+{
+  // UNUSED. DEVICE DOES NOT PROVIDE QUERY FOR THIS, THEREFORE WE CANNOT KNOW STATE AND CANNOT TOGGLE IT.
+  // LEFT SIGNAL IN CASE CLOCK AUDIO EVER ADDS QUERY TO API FOR THIS.
+}
+
+THREADSAFE PUSH Find_Unit
+{
+  device.SetFind();
+}
+
+// DEFAULTS
+
+THREADSAFE PUSH Defaults
+{
+  device.SetDefaults();
+}
+
+// TRACKING
+
+THREADSAFE PUSH Tracking_Off
+{
+  device.SetTracking(FALSE);
+}
+
+THREADSAFE PUSH Tracking_On
+{
+  device.SetTracking(TRUE);
+}
+
+THREADSAFE PUSH Tracking_Toggle
+{
+  device.ToggleTracking();
+}
+
+// NOISESUP
+
+THREADSAFE PUSH NoiseSup_Off
+{
+  device.SetNoiseSup(FALSE);
+}
+
+THREADSAFE PUSH NoiseSup_On
+{
+  device.SetNoiseSup(TRUE);
+}
+
+THREADSAFE PUSH NoiseSup_Toggle
+{
+  device.ToggleNoiseSup();
+}
+
+// APT
+
+THREADSAFE PUSH Apt_Set
+{
+  INTEGER index;
+  index = GETLASTMODIFIEDARRAYINDEX();
+
+  device.SetApt(index);
+}
+
+// EQ
+
+THREADSAFE CHANGE EQ_Set
+{
+  INTEGER index;
+  index = GETLASTMODIFIEDARRAYINDEX();
+
+  device.SetEQ(index, EQ_Set[index]);
+}
+
+/*******************************************************************************************
+  MAIN()
+*******************************************************************************************/
+
+FUNCTION Main()
+{
+  WAITFORINITIALIZATIONCOMPLETE();
+  ResetAllInfo();
+  
+  REGISTEREVENT(device, OnDebugChange, OnDebugChange);
+  REGISTEREVENT(device, OnCommunicatingChange, OnCommunicatingChange);
+  REGISTEREVENT(device, OnInitializedChange, OnInitializedChange);
+  REGISTEREVENT(device, OnDebugEnableChange, OnDebugEnableChange);
+  REGISTEREVENT(device, OnPassbackEnableChange, OnPassbackEnableChange);
+  REGISTEREVENT(device, OnAddressChange, OnAddressChange);
+  REGISTEREVENT(device, OnArmCChange, OnArmCChange);
+  REGISTEREVENT(device, OnPhantomChange, OnPhantomChange);
+  REGISTEREVENT(device, OnLedChange, OnLedChange);
+  REGISTEREVENT(device, OnSwitchChange, OnSwitchChange);
+  REGISTEREVENT(device, OnPresetChange, OnPresetChange);  
+  REGISTEREVENT(device, OnPassbackChange, OnPassbackChange);
+  REGISTEREVENT(device, OnTrackingChange, OnTrackingChange);
+  REGISTEREVENT(device, OnAptChange, OnAptChange);
+  REGISTEREVENT(device, OnEQChange, OnEQChange);
+  REGISTEREVENT(device, OnNoiseSupChange, OnNoiseSupChange);
+  REGISTEREVENT(device, OnButtonChange, OnButtonChange);                         
+  
+  DELAY(500);
+   
+  device.Configure(Device_Type, IP_Address, IP_Port, Adapter_Type, Brightness_Type, Adapter_IP_Override);
+}

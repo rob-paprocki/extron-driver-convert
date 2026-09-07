@@ -1561,11 +1561,60 @@ def emit(job, a):
 # ==========================================================================
 
 EXTRONLIB_PROVIDED = frozenset([
-    # Names a ControlScript module may call on self without defining, because the
-    # concrete transport class inherits them from extronlib.interface. Derived from
-    # evidence, not assumption: these are the names Extron's OWN shipped modules
-    # call undefined. Adding to this set requires the same evidence.
+    # Public methods of the extronlib interface classes that ControlScript transport
+    # classes actually inherit from -- SerialInterface, EthernetClientInterface,
+    # EthernetServerInterface(Ex), IRInterface, RelayInterface, SPInterface. A module may
+    # call these on self without defining them.
+    #
+    # Source: the official ControlScript VS Code extension (extronlib API stubs,
+    # versions 3.13.39 / 3.12.5 / 1.11.1xi), not inference. Deliberately scoped to the
+    # transport bases rather than all 140 public extronlib methods: a wider list would
+    # silence real dangling references, which is the failure this check exists to catch.
+    #
+    # Note: HTTPClass inherits from DeviceClass only, with no extronlib interface base,
+    # so for the http dialect this list is broader than strictly correct.
+    "Baud",
+    "CharDelay",
+    "Clients",
+    "Connect",
+    "Connected",
+    "Credentials",
+    "Data",
+    "Disconnect",
+    "Disconnected",
+    "File",
+    "FlowControl",
+    "Host",
+    "Hostname",
+    "IPAddress",
+    "IPPort",
+    "Initialize",
+    "Interface",
+    "MaxClients",
+    "Mode",
+    "Offline",
+    "Online",
+    "Parity",
+    "PlayContinuous",
+    "PlayCount",
+    "PlayTime",
+    "Port",
+    "Protocol",
+    "Pulse",
+    "ReceiveData",
+    "SSLWrap",
     "Send",
+    "SendAndWait",
+    "ServicePort",
+    "SetBufferSize",
+    "SetState",
+    "StartKeepAlive",
+    "StartListen",
+    "State",
+    "Stop",
+    "StopKeepAlive",
+    "StopListen",
+    "Toggle",
 ])
 
 
