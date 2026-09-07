@@ -37,7 +37,9 @@ Read this first — it says what is known, what is being built, and what is stil
   expressions become *counted* opaque markers, never guesses. 34 tests.
 - `tools/pkp2cs.py` — the `.pkp` → ControlScript translator. 25 tests.
 
-**Translator scorecard** (validated independently, every difference traced to source):
+**Translator scorecard** (validated independently, every difference traced to source).
+Two metrics, because wire correctness alone is not sufficient — a module can carry a
+perfect command table and still raise `AttributeError` on a control processor:
 
 | pair | shipped | generated | matching | differing |
 |---|---|---|---|---|
@@ -45,6 +47,15 @@ Read this first — it says what is known, what is being built, and what is stil
 | DTP3 CP 42 | 31 | 29 | 27 | 1 + real version skew |
 | Samsung serial | 9 | 9 | **9** | **0** |
 | Automate VX | 18 | 18 | 17 | 1 — package omits `Scenario` params |
+
+Runtime resolvability: **26 dangling `self.X()` references → 5**, with the wire-table
+baseline unchanged. All 5 generated modules compile. The remaining 5 are one genuine
+category — GC-only scratch-command accessors (`ReadMatrixIONameString`,
+`ReadMatrixIONumberSelect`, `WriteMatrixIONameString`, `WriteMatrixIONumberSelect`,
+`ReadMultiviewString`) called cross-command to compose another command's payload.
+Extron's own shipped module solved these by restructuring to `qualifier['Number']` /
+`qualifier['Name']`, which is a design decision, not a mechanical rewrite. They are
+flagged as residuals rather than silently emitted broken.
 
 ## Plan for this session
 
