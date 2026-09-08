@@ -104,7 +104,7 @@ MOD = load_module(SOURCE)
 
 
 def make(unidirectional="True"):
-    d = MOD.EthernetClass("10.0.0.1", 5678)
+    d = MOD.EthernetClass("10.0.0.1", 5500)
     d.Unidirectional = unidirectional
     return d
 
@@ -127,20 +127,20 @@ def test_module_loads():
     for name in ("DeviceClass", "SerialClass", "SerialOverEthernetClass",
                  "EthernetClass"):
         check("%s present" % name, hasattr(MOD, name))
-    d = MOD.EthernetClass("10.0.0.1", 5678)
+    d = MOD.EthernetClass("10.0.0.1", 5500)
     check("EthernetClass instantiates", d is not None)
     check("DeviceID defaults to VISCA header 0x81", d.DeviceID == 0x81,
           hex(d.DeviceID))
     check("SerialClass instantiates", MOD.SerialClass(None, None) is not None)
     check("SerialOverEthernetClass instantiates",
-          MOD.SerialOverEthernetClass("10.0.0.1", 5678) is not None)
+          MOD.SerialOverEthernetClass("10.0.0.1", 5500) is not None)
 
 
 def test_transport_default_is_tcp():
     print("\n[2] C2: EthernetClass defaults to TCP, not UDP")
-    d = MOD.EthernetClass("10.0.0.1", 5678)
+    d = MOD.EthernetClass("10.0.0.1", 5500)
     check("default Protocol is TCP", d.Protocol == "TCP", repr(d.Protocol))
-    d2 = MOD.EthernetClass("10.0.0.1", 5678, "UDP")
+    d2 = MOD.EthernetClass("10.0.0.1", 5500, "UDP")
     check("an explicit Protocol still wins", d2.Protocol == "UDP", repr(d2.Protocol))
 
 

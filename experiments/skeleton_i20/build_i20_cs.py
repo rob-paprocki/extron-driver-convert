@@ -30,7 +30,7 @@ same byte expectations to keep that true.
 Deliverable
 -----------
 `out/onebynd_camera_IV_CAM_I20_v1_0_0_0.py` - drop into a ControlScript
-project, instantiate `EthernetClass(ip, 5678)`, call `.Set('TrackingFraming',
+project, instantiate `EthernetClass(ip, 5500)`, call `.Set('TrackingFraming',
 'Start')`. Needs no Global Configurator, no catalogue rebuild, and no driver
 library - which makes it the shortest path to a camera actually moving.
 
@@ -79,18 +79,26 @@ USAGE
 
     from onebynd_camera_IV_CAM_I20_v1_0_0_0 import EthernetClass
 
-    cam = EthernetClass('192.168.1.50', 5678)      # TCP; see note below
+    cam = EthernetClass('192.168.1.50', 5500)      # TCP 5500 -- see below
     cam.Set('Power', 'On')
     cam.Set('TrackingFraming', 'Start')
     cam.Set('IndicatorLight', 'Full', {'Color': 'Red', 'Brightness': 'Bright'})
     cam.Update('TrackingFraming')                  # -> 'Start' / 'Stop'
     print(cam.ReadStatus('TrackingFraming'))
 
-TRANSPORT. [PATCH C2] changes EthernetClass's default from UDP to TCP.
-Extron's .pkp for these cameras carries the revision note "Changed ethernet to
-TCP based on testing. DR# 62249", and Crestron's i20 driver declares a
-TcpTransport - but this ControlScript module predates that correction and
-still defaults to UDP. Pass Protocol explicitly if your camera differs.
+TRANSPORT: TCP port 5500. Three independent sources agree:
+  - Crestron's driver definition for both i20 and p20:
+        {"Name": "TcpTransport", "Type": "Tcp", "Info": {"Port": 5500}}
+  - Crestron's VISCA documentation: "By default, the port for TCP control is
+    set to 5500."
+  - Extron's own driver header: "Manufacturer confirmed ethernet control uses
+    UDP port 5500", later corrected by revision 1_0_1 -- "Changed ethernet to
+    TCP based on testing. DR# 62249".
+
+So both vendors independently name port 5500, and both converged on TCP after
+initially documenting UDP. [PATCH C2] changes this module's EthernetClass
+default from UDP to TCP accordingly; the module predates Extron's own
+correction. Serial is 9600 bps.
 
 UNVERIFIED ON HARDWARE. No i20 was available to this repo. Commands are
 transcriptions of Crestron's declarative spec, checked byte-for-byte offline
