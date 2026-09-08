@@ -43,7 +43,7 @@ splash. That is expected, not a hang.
 |---|---|---|
 | `1bynd_19_20020_v1_0_0.pkp` | nothing — byte-identical copy of Extron's driver, new filename | **discovery**: does GC index a file whose name disagrees with its internal id? |
 | `1bynd_19_20021_v1_0_0.pkp` | model strings → `IV-CAM-I12` / `IV-CAM-I20` | **metadata**: does a renamed model survive the catalogue rebuild? |
-| `1bynd_19_20022_v1_0_0.pkp` | embedded driver → the i20 command set (37,201 → 54,845 bytes) | **script substitution**: does a rewritten, *longer* driver load and run? |
+| `1bynd_19_20022_v1_0_0.pkp` | embedded driver → the i20 command set (37,201 → 68,285 bytes) | **script substitution**: does a rewritten, *longer* driver load and run? |
 | `1bynd_19_20023_v1_0_0.pkp` | both of the above | **the deliverable** |
 
 All four keep the internal identity string `1bynd_19_4743`. That is deliberate —
@@ -97,17 +97,56 @@ Gates 2–5. Everything above only proves GC read the file.
 | 2 | Preset Recall 1 | camera moves | `81 01 04 3F 02 01 FF` |
 | 3 | Zoom Tele, speed 5 | **zooms at speed 5, not speed 0** | `81 01 04 07 25 FF` |
 | 4 | Tracking Framing → Start | auto-framing engages | `81 01 04 3F 02 50 FF` |
-| 5 | Tracking Framing → Stop | auto-framing disengages | `81 01 04 3F 02 51 FF` |
-| 6 | Presenter Tracking → Enable | presenter mode | `81 01 04 3F 02 53 FF` |
-| 7 | Group Tracking → Enable | group mode | `81 01 04 3F 02 52 FF` |
+| 5 | **poll Tracking Framing** | reports **Start** | `81 09 08 01 FF` → `90 50 02 FF` |
+| 6 | Tracking Framing → Stop | auto-framing disengages | `81 01 04 3F 02 51 FF` |
+| 7 | **poll Tracking Framing** | reports **Stop** | `81 09 08 01 FF` → `90 50 03 FF` |
 | 8 | Zoom Position 6666, speed 3 | zooms to a repeatable point | `81 01 04 47 03 01 0A 02 0B FF` |
 | 9 | Freeze Frame On / Off | image freezes / resumes | `81 01 04 62 02 FF` / `03` |
+| 10 | Indicator Light: Full / Red / Bright | lightbar goes solid red | `81 C1 0D 0D 0D 0D FF` |
+| 11 | Indicator Light: Half / Green / Dim | two inner segments dim green | `81 C1 00 04 04 00 FF` |
+| 12 | Indicator Light: None | lightbar off | `81 C1 00 00 00 00 FF` |
+| 13 | Tracking Profile 2 | profile changes | `81 01 04 3F 02 6A FF` |
+| 14 | Camera Output → 2 | switches to camera 2 | `81 C2 01 08 02 FF` |
+| 15 | Intelligent Switching → Resume | switching resumes | `81 C2 01 08 00 FF` |
+| 16 | Intelligent Switching → Pause | switching pauses | `81 C2 01 0B 00 FF` |
 
-Step 3 is worth its own attention: it is the one place this driver
+Steps 5 and 7 are the **feedback** test. Polling is where this driver is most
+likely to be wrong, because it is the one place a reply layout has to be right
+rather than just a request. If the poll reports the wrong state, capture the
+raw reply bytes — that alone fixes it.
+
+Step 3 deserves its own attention: it is the one place this driver
 **deliberately differs** from Extron's shipping behaviour. Their driver
 computes the zoom speed and then transmits a constant instead, so zoom always
 ran at speed 0. If step 3 visibly zooms faster than Extron's own PTZ-IP driver
 does, that defect is confirmed on hardware.
+
+### T3b — settling a contested byte
+
+Crestron's driver and Crestron's documentation disagree about preset **83**
+(`0x53`), and only about that one. Five other reserved presets agree exactly.
+
+| source | what it calls preset 83 |
+|---|---|
+| `Camera_Crestron-1-Beyond_IV-CAM-I20_IP.pkg` (their driver) | `EnablePresenterTracking` |
+| Reserved-Presets documentation page | **Pause Group Tracking** |
+
+Both readings send the same byte, so the driver works either way — only the
+label on the control is at stake. This sequence settles it:
+
+1. Group Tracking → Enable — `81 01 04 3F 02 52 FF`. Confirm group tracking is
+   visibly running.
+2. Presenter Tracking → Enable — `81 01 04 3F 02 53 FF`.
+3. Observe.
+
+| what happens | verdict |
+|---|---|
+| group tracking **stops** | the documentation is right; the control should be renamed "Pause Group Tracking" |
+| camera switches to **presenter framing** | Crestron's driver is right; the label stands |
+| nothing | neither, on this firmware — record the firmware version |
+
+This is a finding-08-class question (docs versus implementation), and it is
+cheap to answer while you have the camera in front of you.
 
 ---
 
@@ -130,11 +169,13 @@ does, that defect is confirmed on hardware.
 - **No i20 was available to this repo.** Every added command is a transcription
   of Crestron's declarative spec, verified against it byte-for-byte offline
   (`test_i20_wire.py`, 39 checks) — but never observed on a wire.
-- **Status feedback is the weakest part.** Crestron declares the inquiry
-  *requests*; it does not fully declare the *reply* layouts. Those are parsed on
-  the same pattern Extron uses for the equivalent PTZ-IP replies, which is an
-  assumption, not a measurement. Expect polled status to be where this breaks
-  first.
+- **Status feedback is better founded than it was, but still unmeasured.**
+  The tracking poll now parses a reply layout Crestron *documents*
+  (`y0 50 02 FF` active / `y0 50 03 FF` paused) rather than one we assumed; an
+  undocumented payload raises an error instead of guessing. Two replies are
+  still inferred rather than documented - `CameraOutput` (the docs say "see
+  below" and then print nothing) and `ZoomPosition`/`PanTiltAngle` nibble
+  layouts. Expect those three to be where polling breaks first.
 - **Catalogue acceptance is not a working driver.** Finding 12 got a generated
   package listed in Driver Manager; that proves nothing about gates 2–5. Please
   don't stop at "it showed up".

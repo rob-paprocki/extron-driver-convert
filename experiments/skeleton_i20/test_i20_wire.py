@@ -284,6 +284,160 @@ def test_against_crestron_spec():
               "resolved to %r" % flat)
 
 
+def test_lightbar_matches_every_documented_string():
+    print("\n[9] the lightbar packing reproduces all 19 documented commands")
+    # Verbatim from reference/crestron-visca/COMMANDS.md section 8 - both the
+    # status-driven table and the user-settable table. If the derived packing
+    # rule (brightness << 2 | colour, half keeps outer colour bits at
+    # brightness 0) is wrong for even one row, it is the wrong rule.
+    doc = [
+        # (width,  colour,   brightness, expected payload)
+        ("None", "Green",  "Off",    "00 00 00 00"),
+        ("Full", "Green",  "Bright", "0C 0C 0C 0C"),
+        ("Full", "Green",  "Medium", "08 08 08 08"),
+        ("Full", "Green",  "Dim",    "04 04 04 04"),
+        ("Full", "Yellow", "Bright", "0F 0F 0F 0F"),
+        ("Full", "Yellow", "Medium", "0B 0B 0B 0B"),
+        ("Full", "Yellow", "Dim",    "07 07 07 07"),
+        ("Full", "Red",    "Bright", "0D 0D 0D 0D"),
+        ("Full", "Red",    "Medium", "09 09 09 09"),
+        ("Full", "Red",    "Dim",    "05 05 05 05"),
+        ("Half", "Green",  "Bright", "00 0C 0C 00"),
+        ("Half", "Green",  "Medium", "00 08 08 00"),
+        ("Half", "Green",  "Dim",    "00 04 04 00"),
+        ("Half", "Yellow", "Bright", "03 0F 0F 03"),
+        ("Half", "Yellow", "Medium", "03 0B 0B 03"),
+        ("Half", "Yellow", "Dim",    "03 07 07 03"),
+        ("Half", "Red",    "Bright", "01 0D 0D 01"),
+        ("Half", "Red",    "Medium", "01 09 09 01"),
+        ("Half", "Red",    "Dim",    "01 05 05 01"),
+    ]
+    d = make()
+    for width, colour, brightness, payload in doc:
+        expect = "81 C1 %s FF" % payload
+        got = drive(d, "_cmd_SetIndicatorLight", width,
+                    {"Color": colour, "Brightness": brightness})
+        check("%-4s %-6s %-6s -> %s" % (width, colour, brightness, expect),
+              got is not None and hexs(got) == expect,
+              "got %s" % (hexs(got) if got else "<nothing sent>"))
+
+    # The four status-driven colours in the doc's first table must fall out of
+    # the same rule - they are not a separate encoding.
+    status_rows = [
+        ("Full", "Green",  "Bright", "0C 0C 0C 0C", "intelligent camera function ON"),
+        ("Half", "Green",  "Bright", "00 0C 0C 00", "camera output ON"),
+        ("Full", "Yellow", "Bright", "0F 0F 0F 0F", "firmware update in progress"),
+        ("Half", "Red",    "Bright", "01 0D 0D 01", "privacy mode ON"),
+    ]
+    for width, colour, brightness, payload, meaning in status_rows:
+        got = drive(d, "_cmd_SetIndicatorLight", width,
+                    {"Color": colour, "Brightness": brightness})
+        check("status colour: %-32s = %s" % (meaning, payload),
+              got is not None and hexs(got) == "81 C1 %s FF" % payload)
+
+
+def test_tracking_feedback():
+    print("\n[10] tracking feedback parses the documented reply")
+    # reference/crestron-visca/COMMANDS.md: CAM_TrackingInq
+    #     y0 50 02 FF = active,  y0 50 03 FF = paused
+    for reply, expect in ((b"\x90\x50\x02\xFF", "Start"),
+                          (b"\x90\x50\x03\xFF", "Stop")):
+        d = make(unidirectional="False")
+        d.WritePower("On", None, "Live")
+        d._canned = reply
+        d._cmd_UpdateTrackingFraming(None, None)
+        got = d.ReadTrackingFraming(None, "Live")
+        check("%s -> %s" % (hexs(reply), expect), got == expect,
+              "got %r, errors=%r" % (got, d.errors))
+
+    # A reply the documentation does not define must raise, not be guessed at.
+    d = make(unidirectional="False")
+    d.WritePower("On", None, "Live")
+    d._canned = b"\x90\x50\x07\xFF"
+    d._cmd_UpdateTrackingFraming(None, None)
+    check("undocumented payload 0x07 reports an error rather than a value",
+          d.errors != [] and d.ReadTrackingFraming(None, "Live") is None,
+          "errors=%r status=%r" % (d.errors, d.ReadTrackingFraming(None, "Live")))
+
+
+def test_reserved_presets_against_documentation():
+    print("\n[11] reserved presets agree with Crestron's own preset table")
+    # COMMANDS.md section 10 gives these in DECIMAL. The driver gives them in
+    # hex. Checking the two against each other is the point.
+    d = make()
+    cases = [
+        ("_cmd_SetTrackingShot",   ("Home", None),     0,   "Home Shot"),
+        ("_cmd_SetTrackingShot",   ("Tracking", None), 1,   "Tracking Shot"),
+        ("_cmd_SetTrackingFraming", ("Start", None),   80,  "Start Tracking"),
+        ("_cmd_SetTrackingFraming", ("Stop", None),    81,  "Pause Tracking"),
+        ("_cmd_SetGroupTracking",  ("Enable", None),   82,  "Start Group Tracking"),
+        ("_cmd_SetMenu",           ("Toggle", None),   95,  "OSD Menu Toggle"),
+        ("_cmd_SetReboot",         ("Reboot", None),   99,  "Reboot"),
+    ]
+    for method, args, decimal, label in cases:
+        got = drive(d, method, *args)
+        expect = "81 01 04 3F 02 %02X FF" % decimal
+        check("preset %3d %-22s -> %s" % (decimal, label, expect),
+              got is not None and hexs(got) == expect,
+              "got %s" % (hexs(got) if got else "<nothing sent>"))
+
+    for value, decimal in ((1, 105), (4, 108)):
+        got = drive(d, "_cmd_SetTrackingProfile", value, None)
+        check("preset %d Tracking Profile %d" % (decimal, value),
+              got is not None and hexs(got) == "81 01 04 3F 02 %02X FF" % decimal,
+              "got %s" % (hexs(got) if got else "<nothing sent>"))
+    for value, decimal in ((1, 101), (4, 104)):
+        got = drive(d, "_cmd_SetPresetZone", value, None)
+        check("preset %d Preset Zone %d" % (decimal, value),
+              got is not None and hexs(got) == "81 01 04 3F 02 %02X FF" % decimal,
+              "got %s" % (hexs(got) if got else "<nothing sent>"))
+
+    # The one byte the two sources disagree about. Both readings are the same
+    # wire byte, so the driver is correct either way - only the label is at
+    # stake. Asserting the byte keeps that explicit.
+    got = drive(d, "_cmd_SetPresenterTracking", "Enable", None)
+    check("preset  83 CONTESTED (driver: presenter tracking / docs: pause group)"
+          " -> 81 01 04 3F 02 53 FF",
+          got is not None and hexs(got) == "81 01 04 3F 02 53 FF",
+          "got %s" % (hexs(got) if got else "<nothing sent>"))
+
+
+def test_intelligent_switching():
+    print("\n[12] intelligent switching (camera selection)")
+    d = make()
+    cases = [
+        ("_cmd_SetCameraOutput",         (1, None),         "81 C2 01 08 01 FF"),
+        ("_cmd_SetCameraOutput",         (5, None),         "81 C2 01 08 05 FF"),
+        ("_cmd_SetCameraOutput",         (0, None),         "81 C2 01 08 00 FF"),
+        ("_cmd_SetIntelligentSwitching", ("Pause", None),   "81 C2 01 0B 00 FF"),
+        ("_cmd_SetIntelligentSwitching", ("Resume", None),  "81 C2 01 08 00 FF"),
+    ]
+    for method, args, expect in cases:
+        got = drive(d, method, *args)
+        check("%-28s %-8s -> %s" % (method[len("_cmd_Set"):], args[0], expect),
+              got is not None and hexs(got) == expect,
+              "got %s" % (hexs(got) if got else "<nothing sent>"))
+
+    du = make(unidirectional="False")
+    du.WritePower("On", None, "Live")
+    du._canned = b""
+    du.sent = []
+    du._cmd_UpdateCameraConnectionStatus(None, {"Camera": 3})
+    check("ConnectionStatus(cam 3) -> 81 C2 09 0D 03 FF",
+          du.sent and hexs(du.sent[0]) == "81 C2 09 0D 03 FF",
+          "got %s" % (hexs(du.sent[0]) if du.sent else "<nothing sent>"))
+
+    for reply, expect in ((b"\x90\x50\x00\x01\xFF", "Connected"),
+                          (b"\x90\x50\x00\x00\xFF", "Disconnected")):
+        dd_ = make(unidirectional="False")
+        dd_.WritePower("On", None, "Live")
+        dd_._canned = reply
+        dd_._cmd_UpdateCameraConnectionStatus(None, {"Camera": 2})
+        got = dd_.ReadCameraConnectionStatus({"Camera": 2}, "Live")
+        check("%s -> %s" % (hexs(reply), expect), got == expect,
+              "got %r" % got)
+
+
 def test_python35_compatible():
     print("\n[7] the emitted driver targets Python 3.5 (non-xi processors)")
     builder = pb.PackageBuilder(build_i20.DONOR)
@@ -330,6 +484,10 @@ def main():
                test_inquiries,
                test_zoom_bug_is_fixed,
                test_against_crestron_spec,
+               test_lightbar_matches_every_documented_string,
+               test_tracking_feedback,
+               test_reserved_presets_against_documentation,
+               test_intelligent_switching,
                test_python35_compatible,
                test_package_reparses):
         fn()
