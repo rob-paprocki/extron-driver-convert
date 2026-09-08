@@ -15,7 +15,7 @@ rebuild, no Driver Manager, no GC at all.
 ```python
 from onebynd_camera_IV_CAM_I20_v1_0_0_0 import EthernetClass
 
-cam = EthernetClass('192.168.1.50', 5678)     # TCP by default
+cam = EthernetClass('192.168.1.50', 5500)     # TCP 5500
 cam.Connect()
 
 cam.Set('Power', 'On')
@@ -39,10 +39,19 @@ cam.SubscribeStatus('TrackingFraming', None,
 
 3. Build and upload as normal.
 
-**Check the IP port.** 5678 is the usual 1 Beyond VISCA-over-TCP port, but
-confirm it against the camera's web UI — this is the one value nothing in our
-source material pins down. If the camera doesn't answer, try 52381 (UDP) with
-`EthernetClass(ip, 52381, 'UDP')`.
+**Port: TCP 5500.** Not a guess — three sources in this repo agree, and two of
+them are independent vendors:
+
+| source | says |
+|---|---|
+| Crestron's driver definition, i20 **and** p20 | `"Type": "Tcp", "Info": {"Port": 5500}` |
+| Crestron's VISCA documentation | "By default, the port for TCP control is set to 5500" |
+| Extron's own driver header | "Manufacturer confirmed ethernet control uses UDP port 5500" |
+
+Both vendors also converged on the same correction: each first documented UDP,
+and Extron's revision `1_0_1` changed it to TCP "based on testing" (DR# 62249).
+If a camera has been reconfigured, its web UI is the authority — but the default
+is settled. Serial is 9600 bps.
 
 ### Every command
 

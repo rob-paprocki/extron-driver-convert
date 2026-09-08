@@ -65,6 +65,19 @@ own comment but its `Map` exposes only a boolean (Full Auto / Manual). Extron
 exposes five, including `Bright = 0x0D`. **On this command the vendor with 16
 commands is richer than the vendor with 82.** Command count is not capability.
 
+The transport agrees too, and more interestingly than a matching value would
+suggest. Both vendors name **TCP port 5500** — Crestron in its driver
+(`{"Name": "TcpTransport", "Type": "Tcp", "Info": {"Port": 5500}}`, identical on
+i20 and p20) and in its VISCA documentation ("By default, the port for TCP
+control is set to 5500"); Extron in its driver header ("Manufacturer confirmed
+ethernet control uses UDP port 5500").
+
+Note what each says about the *protocol*. Both initially documented UDP, and
+Extron's revision `1_0_1` corrected it — "Changed ethernet to TCP based on
+testing. DR# 62249". Crestron ships TCP. So the two vendors did not merely
+arrive at the same answer; **they made and corrected the same mistake**, which
+is the finding-05 pattern applied to a transport rather than a command.
+
 ## 3. Extron's shipped 1 Beyond drivers discard the zoom speed
 
 `_cmd_SetZoom` in `1bynd_19_4743` computes the combined direction+speed byte and
