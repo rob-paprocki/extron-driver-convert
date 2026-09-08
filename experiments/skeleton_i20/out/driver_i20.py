@@ -1,0 +1,1279 @@
+from Extron2.BaseDriver import BaseDriver
+import time
+from struct import pack
+
+
+class _1bynd_19_4743(BaseDriver):
+    """1bynd_19_4743
+
+    Created on  03/23/2020 10:42:08
+
+    
+    Supported Models:
+        PTZ-IP12
+        PTZ-IP20
+
+    DRIVER STYLE       
+        Synchronous due to ambiguous command responses  
+
+    COMMAND STRUCTURE
+        COMMAND DELIMITER:  '\xFF'
+        COMMAND EXAMPLE:    '\x81\x01\x04\x00\x02\xFF'  (Power On, Camera ID 1)
+        RESPONSE EXAMPLE:   '\x90\x50\x02\xFF'          (Power is On, Camera ID 1)
+
+    COMMAND NOTES
+        Manufacturer confirmed ethernet control uses UDP port 5500 and commands are same as RS232.
+
+        SetHelper:  A minimum query delay is used in the driver, because set commands respond with an ACK and
+                    completion/error. See 1 Beyond PTZ-IP12-IP20 Manual.pdf,  page 22.
+                    \xFF delitag in UpdateHelper can catch completion/error when spamming commands without a
+                    query delay which causes statuses to flip. Referenced sony_19_4539_v1_0_1.pkp.
+
+
+    ------------------------------------------------------------------
+    DERIVED DRIVER - Crestron 1 Beyond IV-CAM-i12 / i20
+
+    Derived by experiments/skeleton_i20/build_i20.py from Extron's own
+    1bynd_19_4743 (PTZ-IP12/IP20) package. Extron's original code is
+    unchanged except where noted as [PATCH].
+
+    The i20 command bytes were resolved from Crestron's SchemaVersion 2.0
+    driver definition (Camera_Crestron-1-Beyond_IV-CAM-I20_IP.pkg), not from
+    a generic VISCA reference. Cross-vendor agreement was verified on the
+    commands both vendors implement - identical bytes AND identical value
+    tables (e.g. exposure mode Full Auto=0x00, Manual=0x03, Shutter
+    Priority=0x0A, Iris Priority=0x0B).
+
+    UNVERIFIED ON HARDWARE. No i20 was available to this repo. Every added
+    command is a transcription of Crestron's declarative spec; none has been
+    observed on a wire. Treat status feedback in particular as provisional -
+    the inquiry REQUESTS are specified by Crestron, but their RESPONSE
+    layouts were not fully declared and are parsed here on the same pattern
+    Extron uses for the equivalent PTZ-IP responses.
+    ------------------------------------------------------------------
+
+    REVISION HISTORY
+    Version         Date            Notes
+    1_0_1           6/14/2021       Changed ethernet to TCP based on testing. No script changes. DR# 62249
+
+    1_0_0           3/23/2020       Initial version. DR# 59047, 59048.
+    """
+
+################################################################
+# INITIALIZATION
+################################################################
+    def __init__(self, configs):
+        """Driver Constructor
+        Read/set information passed in via configuration data.
+
+        """
+        super().__init__(configs)
+
+        self.Commands = {
+            'AutoExposure':         {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
+            'AutoFocus':            {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
+            'Backlight':            {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
+            'Focus':                {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,  'Parameters': ['Speed'],                    'Status': {}},
+            'Gain':                 {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}},
+            'Iris':                 {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}},
+            'PanTilt':              {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,  'Parameters': ['Pan Speed', 'Tilt Speed'],  'Status': {}},
+            'Power':                {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
+            'Preset':               {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,  'Parameters': ['Action'],                   'Status': {}},
+            'Shutter':              {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}},
+            'UserDefinedCommand':   {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}},
+            'UserDefinedString':    {'Set': True,   'Update': False,    'Live': False,  'Emulated': True,                                               'Status': {}},
+            'WhiteBalance':         {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
+            'Zoom':                 {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,  'Parameters': ['Speed'],                    'Status': {}},
+            # [PATCH E3] i20 command set. Bytes resolved from Crestron's
+            # SchemaVersion 2.0 definition by resolve_visca.py.
+            'TrackingFraming':      {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
+            'GroupTracking':        {'Set': True,   'Update': False,    'Live': False,  'Emulated': True,                                               'Status': {}},
+            'PresenterTracking':    {'Set': True,   'Update': False,    'Live': False,  'Emulated': True,                                               'Status': {}},
+            'ZoomPosition':         {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,   'Parameters': ['Speed'],                    'Status': {}},
+            'PanTiltAngle':         {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,   'Parameters': ['Pan Speed', 'Tilt Speed'],  'Status': {}},
+            'PanTiltHome':          {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}},
+            'FreezeFrame':          {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
+            'Menu':                 {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}},
+            'Identify':             {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}},
+            'Reboot':               {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}}
+        }
+
+        initError = [] 
+
+        try:
+            self.Unidirectional = configs['Unidirectional']
+            if self.Unidirectional not in ['True', 'False']:
+                initError.append('Unidirectional set to an invalid value: {0}'.format(configs['Unidirectional']))
+        except KeyError:
+            initError.append('Missing Unidirectional Parameter.')
+
+        try:
+            self.DeviceID = configs['DriverParams']['Device ID']
+
+            if 1 <= int(self.DeviceID) <= 7:
+                self.DeviceID = 0x80 + int(self.DeviceID)
+            else:
+                initError.append('Invalid Device ID Parameter.')
+        except KeyError:
+            initError.append('Missing Device ID Parameter.')
+        except (ValueError, TypeError):
+            initError.append('Device ID Parameter is the wrong type.')
+
+        try:
+            self.CommandPacing = configs['CommandPacing']
+            if not 0 <= self.CommandPacing <= 30:
+                initError.append('CommandPacing must be greater than or equal to 0 and less than or equal to 30')
+        except KeyError:
+            initError.append('Missing CommandPacing Parameter.')
+        except TypeError:
+            initError.append('CommandPacing Parameter is the wrong type.')
+                    
+        try:
+            self.DefaultResponseTimeout = configs['ResponseTimeout']
+            if self.DefaultResponseTimeout <= 0:
+                initError.append('ResponseTimeout must be greater than 0.')
+        except KeyError:
+            initError.append('Missing ResponseTimeout Parameter.')
+        except TypeError:
+            initError.append('ResponseTimeout Parameter is the wrong type.')
+                        
+        if initError:
+            self.Error(initError)
+            self.Disable()
+
+################################################################
+### BEGIN AUTO GENERATION OF COMMAND DEF
+################################################################
+
+    # Begin AutoExposure
+    ####################################################################################################################
+    # 1 Beyond PTZ-IP12-IP20 Manual, page 24
+    def _cmd_SetAutoExposure(self, value, qualifier):
+        """Set Auto Exposure
+        value: Enum
+        qualifier: None
+        """
+        ValueStateValues = {
+            'Full Auto':        0x00,
+            'Manual':           0x03,
+            'Shutter Priority': 0x0A,
+            'Iris Priority':    0x0B,
+            'Bright':           0x0D
+        }
+
+        if value in ValueStateValues:
+            AutoExposureCmdString = pack('>6B', self.DeviceID, 0x01, 0x04, 0x39, ValueStateValues[value], 0xFF)
+            if self.__SafeToSet('AutoExposure'):
+                self.WriteAutoExposure(value, qualifier, 'Emulated')
+                self.__SetHelper('AutoExposure', AutoExposureCmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command')
+
+    # 1 Beyond PTZ-IP12-IP20 Manual, page 26
+    def _cmd_UpdateAutoExposure(self, value, qualifier):
+        """Update Auto Exposure
+        value: Enum
+        qualifier: None
+        """
+        ValueStateValues = {
+            0x00: 'Full Auto',
+            0x03: 'Manual',
+            0x0A: 'Shutter Priority',
+            0x0B: 'Iris Priority',
+            0x0D: 'Bright'
+        }
+
+        AutoExposureCmdString = pack('>5B', self.DeviceID, 0x09, 0x04, 0x39, 0xFF)
+        res = self.__UpdateHelper('AutoExposure', AutoExposureCmdString, value, qualifier)
+        if res:
+            try:
+                value = ValueStateValues[res[2]]
+                self.WriteAutoExposure(value, qualifier, 'Live')
+            except (KeyError, IndexError):
+                self.Error(['Auto Exposure: Invalid/unexpected response'])
+
+    def WriteAutoExposure(self, value, qualifier, context):
+        """Write Auto Exposure
+        value: Enum
+        qualifier: None
+
+        """
+        self.WriteStatusHelper('AutoExposure', value, qualifier, context)
+
+    def ReadAutoExposure(self, qualifier, context):
+        """Read Auto Exposure
+        value: Enum
+        qualifier: None
+
+        """
+        return self.ReadStatusHelper('AutoExposure', qualifier, context)
+
+    # Begin AutoFocus
+    ####################################################################################################################
+    # 1 Beyond PTZ-IP12-IP20 Manual, page 23
+    def _cmd_SetAutoFocus(self, value, qualifier):
+        """Set Auto Focus
+        value: Enum
+        qualifier: None
+        """
+        ValueStateValues = {
+            'On':   0x02,
+            'Off':  0x03
+        }
+
+        if value in ValueStateValues:
+            AutoFocusCmdString = pack('>6B', self.DeviceID, 0x01, 0x04, 0x38, ValueStateValues[value], 0xFF)
+            if self.__SafeToSet('AutoFocus'):
+                self.WriteAutoFocus(value, qualifier, 'Emulated')
+                self.__SetHelper('AutoFocus', AutoFocusCmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    # 1 Beyond PTZ-IP12-IP20 Manual, page 26
+    def _cmd_UpdateAutoFocus(self, value, qualifier):
+        """Update Auto Focus
+        value: Enum
+        qualifier: None
+        """
+        ValueStateValues = {
+            0x02: 'On',
+            0x03: 'Off'
+        }
+
+        AutoFocusCmdString = pack('>5B', self.DeviceID, 0x09, 0x04, 0x38, 0xFF)
+        res = self.__UpdateHelper('AutoFocus', AutoFocusCmdString, value, qualifier)
+        if res:
+            try:
+                value = ValueStateValues[res[2]]
+                self.WriteAutoFocus(value, qualifier, 'Live')
+            except (KeyError, IndexError):
+                self.Error(['Auto Focus: Invalid/unexpected response'])
+
+    def WriteAutoFocus(self, value, qualifier, context):
+        """Write Auto Focus
+        value: Enum
+        qualifier: None
+
+        """
+        self.WriteStatusHelper('AutoFocus', value, qualifier, context)
+
+    def ReadAutoFocus(self, qualifier, context):
+        """Read Auto Focus
+        value: Enum
+        qualifier: None
+
+        """
+        return self.ReadStatusHelper('AutoFocus', qualifier, context)
+
+    # Begin Backlight
+    ####################################################################################################################
+    # 1 Beyond PTZ-IP12-IP20 Manual, page 24
+    def _cmd_SetBacklight(self, value, qualifier):
+        """Set Backlight
+        value: Enum
+        qualifier: None
+        """
+        ValueStateValues = {
+            'On':   0x02,
+            'Off':  0x03
+        }
+
+        if value in ValueStateValues:
+            BacklightCmdString = pack('>6B', self.DeviceID, 0x01, 0x04, 0x33, ValueStateValues[value], 0xFF)
+            if self.__SafeToSet('Backlight'):
+                self.WriteBacklight(value, qualifier, 'Emulated')
+                self.__SetHelper('Backlight', BacklightCmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command')
+
+    # 1 Beyond PTZ-IP12-IP20 Manual, page 26
+    def _cmd_UpdateBacklight(self, value, qualifier):
+        """Update Backlight
+        value: Enum
+        qualifier: None
+        """
+        ValueStateValues = {
+            0x02: 'On',
+            0x03: 'Off'
+        }
+
+        BacklightCmdString = pack('>5B', self.DeviceID, 0x09, 0x04, 0x33, 0xFF)
+        res = self.__UpdateHelper('Backlight', BacklightCmdString, value, qualifier)
+        if res:
+            try:
+                value = ValueStateValues[res[2]]
+                self.WriteBacklight(value, qualifier, 'Live')
+            except (KeyError, IndexError):
+                self.Error(['Backlight: Invalid/unexpected response'])
+
+    def WriteBacklight(self, value, qualifier, context):
+        """Write Backlight
+        value: Enum
+        qualifier: None
+
+        """
+        self.WriteStatusHelper('Backlight', value, qualifier, context)
+
+    def ReadBacklight(self, qualifier, context):
+        """Read Backlight
+        value: Enum
+        qualifier: None
+
+        """
+        return self.ReadStatusHelper('Backlight', qualifier, context)
+
+    # Begin Focus
+    ####################################################################################################################
+    # 1 Beyond PTZ-IP12-IP20 Manual, page 23
+    def _cmd_SetFocus(self, value, qualifier):
+        """Set Focus
+        value: Enum
+        qualifier: {'Speed' : Decimal}
+        """
+        ValueStateValues = {
+            'Far':  0x20,
+            'Near': 0x30,
+            'Stop': 0x00
+        }
+
+        speed = int(qualifier['Speed'])
+
+        if 0 <= speed <= 7 and value in ValueStateValues:
+            if value == 'Stop':
+                speed = 0x00
+            else:
+                speed += ValueStateValues[value]
+
+            FocusCmdString = pack('>6B', self.DeviceID, 0x01, 0x04, 0x08, speed, 0xFF)
+            if self.__SafeToSet('Focus'):
+                self.__SetHelper('Focus', FocusCmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    # Begin Gain
+    ####################################################################################################################
+    # 1 Beyond PTZ-IP12-IP20 Manual, page 24
+    def _cmd_SetGain(self, value, qualifier):
+        """Set Gain
+        value: Enum
+        qualifier: None
+        """
+        ValueStateValues = {
+            'Up':       0x02,
+            'Down':     0x03,
+            'Reset':    0x00
+        }
+
+        if value in ValueStateValues:
+            GainCmdString = pack('>6B', self.DeviceID, 0x01, 0x04, 0x0C, ValueStateValues[value], 0xFF)
+            if self.__SafeToSet('Gain'):
+                self.__SetHelper('Gain', GainCmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    # Begin Iris
+    ####################################################################################################################
+    # 1 Beyond PTZ-IP12-IP20 Manual, page 24
+    def _cmd_SetIris(self, value, qualifier):
+        """Set Iris
+        value: Enum
+        qualifier: None
+        """
+        ValueStateValues = {
+            'Up':       0x02,
+            'Down':     0x03,
+            'Reset':    0x00
+        }
+
+        if value in ValueStateValues:
+            IrisCmdString = pack('>6B', self.DeviceID, 0x01, 0x04, 0x0B, ValueStateValues[value], 0xFF)
+            if self.__SafeToSet('Iris'):
+                self.__SetHelper('Iris', IrisCmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    # Begin PanTilt
+    ####################################################################################################################
+    # 1 Beyond PTZ-IP12-IP20 Manual, page 25
+    def _cmd_SetPanTilt(self, value, qualifier):
+        """Set Pan Tilt
+        value: Enum
+        qualifier: {'Pan Speed' : Decimal, 'Tilt Speed' : Decimal}
+        """
+        pan_speed = int(qualifier['Pan Speed'])
+        tilt_speed = int(qualifier['Tilt Speed'])
+
+        ValueStateValues = {
+            'Up':           0x0301,
+            'Down':         0x0302,
+            'Left':         0x0103,
+            'Right':        0x0203,
+            'Up Left':      0x0101,
+            'Up Right':     0x0201,
+            'Down Left':    0x0102,
+            'Down Right':   0x0202,
+            'Stop':         0x0303,
+            'Home':         0x04,
+            'Reset':        0x05
+        }
+
+        if 1 <= pan_speed <= 24 and 1 <= tilt_speed <= 20 and value in ValueStateValues:
+            if value in ['Home', 'Reset']:
+                PanTiltCmdString = pack('>5B', self.DeviceID, 0x01, 0x06, ValueStateValues[value], 0xFF)
+            else:
+                PanTiltCmdString = pack('>6BHB', self.DeviceID, 0x01, 0x06, 0x01, pan_speed, tilt_speed, ValueStateValues[value], 0xFF)
+
+            if self.__SafeToSet('PanTilt'):
+                self.__SetHelper('PanTilt', PanTiltCmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    # Begin Power
+    ####################################################################################################################
+    # 1 Beyond PTZ-IP12-IP20 Manual, page 23
+    def _cmd_SetPower(self, value, qualifier):
+        """Set Power
+        value: Enum
+        qualifier: None
+        """
+        ValueStateValues = {
+            'On':   0x02,
+            'Off':  0x03
+        }
+
+        if value in ValueStateValues:
+            PowerCmdString = pack('>6B', self.DeviceID, 0x01, 0x04, 0x00, ValueStateValues[value], 0xFF)
+            if self.__SafeToSet('Power'):
+                self.WritePower(value, qualifier, 'Emulated')
+                self.__SetHelper('Power', PowerCmdString, value, qualifier, 5)
+        else:
+            self.Discard('Invalid Command')
+
+    # 1 Beyond PTZ-IP12-IP20 Manual, page 26
+    def _cmd_UpdatePower(self, value, qualifier):
+        """Update Power
+        value: Enum
+        qualifier: None
+        """
+        ValueStateValues = {
+            0x02: 'On',
+            0x03: 'Off',
+            0x04: 'Internal Power Circuit Error'
+        }
+
+        PowerCmdString = pack('>5B', self.DeviceID, 0x09, 0x04, 0x00, 0xFF)
+        res = self.__UpdateHelper('Power', PowerCmdString, value, qualifier)
+        if res:
+            try:
+                value = ValueStateValues[res[2]]
+                self.WritePower(value, qualifier, 'Live')
+            except (KeyError, IndexError):
+                self.Error(['Power: Invalid/unexpected response'])
+
+    def WritePower(self, value, qualifier, context):
+        """Write Power
+        value: Enum
+        qualifier: None
+
+        """
+        self.WriteStatusHelper('Power', value, qualifier, context)
+
+    def ReadPower(self, qualifier, context):
+        """Read Power
+        value: Enum
+        qualifier: None
+
+        """
+        return self.ReadStatusHelper('Power', qualifier, context)
+
+    # Begin Preset
+    ####################################################################################################################
+    # 1 Beyond PTZ-IP12-IP20 Manual, page 24
+    def _cmd_SetPreset(self, value, qualifier):
+        """Set Preset
+        value: Decimal
+        qualifier: {'Action' : Enum}
+        """
+        ActionStates = {
+            'Reset':    0x00,
+            'Save':     0x01,
+            'Recall':   0x02
+        }
+
+        action = qualifier['Action']
+
+        if action in ActionStates and 0 <= value <= 255:
+            PresetCmdString = pack('>7B', self.DeviceID, 0x01, 0x04, 0x3F, ActionStates[action], value, 0xFF)
+            if self.__SafeToSet('Preset'):
+                self.__SetHelper('Preset', PresetCmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    # Begin Shutter
+    ####################################################################################################################
+    # 1 Beyond PTZ-IP12-IP20 Manual, page 24
+    def _cmd_SetShutter(self, value, qualifier):
+        """Set Shutter
+        value: Enum
+        qualifier: None
+        """
+        ValueStateValues = {
+            'Up':       0x02,
+            'Down':     0x03,
+            'Reset':    0x00
+        }
+
+        if value in ValueStateValues:
+            ShutterCmdString = pack('>6B', self.DeviceID, 0x01, 0x04, 0x0A, ValueStateValues[value], 0xFF)
+            if self.__SafeToSet('Shutter'):
+                self.__SetHelper('Shutter', ShutterCmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    # Begin UserDefinedCommand
+    ####################################################################################################################
+    #
+    def _cmd_SetUserDefinedCommand(self, value, qualifier):
+        cmdstring = self.ReadUserDefinedString(qualifier, 'Emulated')
+        if cmdstring:
+            cmdstring = cmdstring.encode(encoding='iso-8859-1')
+            self.__SetHelper('UserDefinedCommand', cmdstring, None, None)
+
+    # Begin UserDefinedString
+    ####################################################################################################################
+    #
+    def _cmd_SetUserDefinedString(self, value, qualifier):
+        """Set User Defined String
+        value: String
+        qualifier: None
+        """
+        self.WriteUserDefinedString(value, qualifier, 'Emulated')
+
+    def WriteUserDefinedString(self, value, qualifier, context):
+        """Write User Defined String
+        value: String
+        qualifier: None
+
+        """
+        self.WriteStatusHelper('UserDefinedString', value, qualifier, context)
+
+    def ReadUserDefinedString(self, qualifier, context):
+        """Read User Defined String
+        value: String
+        qualifier: None
+
+        """
+        return self.ReadStatusHelper('UserDefinedString', qualifier, context)
+
+    # Begin WhiteBalance
+    ####################################################################################################################
+    # 1 Beyond PTZ-IP12-IP20 Manual, page 23
+    def _cmd_SetWhiteBalance(self, value, qualifier):
+        """Set White Balance
+        value: Enum
+        qualifier: None
+        """
+        ValueStateValues = {
+            'Auto':             0x00,
+            'Indoor':           0x01,
+            'Outdoor':          0x02,
+            'One Push':         0x03,
+            'Manual':           0x05,
+            'One Push Trigger': ''
+        }
+
+        if value in ValueStateValues:
+            if value != 'One Push Trigger':
+                WhiteBalanceCmdString = pack('>6B', self.DeviceID, 0x01, 0x04, 0x35, ValueStateValues[value], 0xFF)
+            else:
+                WhiteBalanceCmdString = pack('>6B', self.DeviceID, 0x01, 0x04, 0x10, 0x05, 0xFF)
+
+            if self.__SafeToSet('WhiteBalance'):
+                if value != 'One Push Trigger':
+                    self.WriteWhiteBalance(value, qualifier, 'Emulated')
+                self.__SetHelper('WhiteBalance', WhiteBalanceCmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command')
+
+    # 1 Beyond PTZ-IP12-IP20 Manual, page 26
+    def _cmd_UpdateWhiteBalance(self, value, qualifier):
+        """Update White Balance
+        value: Enum
+        qualifier: None
+        """
+        ValueStateValues = {
+            0x00: 'Auto',
+            0x01: 'Indoor',
+            0x02: 'Outdoor',
+            0x03: 'One Push',
+            0x05: 'Manual'
+        }
+
+        WhiteBalanceCmdString = pack('>5B', self.DeviceID, 0x09, 0x04, 0x35, 0xFF)
+        res = self.__UpdateHelper('WhiteBalance', WhiteBalanceCmdString, value, qualifier)
+        if res:
+            try:
+                value = ValueStateValues[res[2]]
+                self.WriteWhiteBalance(value, qualifier, 'Live')
+            except (KeyError, IndexError):
+                self.Error(['White Balance: Invalid/unexpected response'])
+
+    def WriteWhiteBalance(self, value, qualifier, context):
+        """Write White Balance
+        value: Enum
+        qualifier: None
+
+        """
+        self.WriteStatusHelper('WhiteBalance', value, qualifier, context)
+
+    def ReadWhiteBalance(self, qualifier, context):
+        """Read White Balance
+        value: Enum
+        qualifier: None
+
+        """
+        return self.ReadStatusHelper('WhiteBalance', qualifier, context)
+
+    # Begin Zoom
+    ####################################################################################################################
+    # 1 Beyond PTZ-IP12-IP20 Manual, page 23
+    def _cmd_SetZoom(self, value, qualifier):
+        """Set Zoom
+        value: Enum
+        qualifier: {'Speed' : Decimal}
+        """
+        speed = int(qualifier['Speed'])
+
+        ValueStateValues = {
+            'Tele': 0x20,
+            'Wide': 0x30,
+            'Stop': 0x00
+        }
+
+        if 0 <= speed <= 7 and value in ValueStateValues:
+            if value == 'Stop':
+                speed = 0x00
+            else:
+                speed += ValueStateValues[value]
+
+            # [PATCH E2] Extron's shipped driver transmits ValueStateValues[value] here,
+            # discarding the speed computed immediately above, so zoom always ran at
+            # speed 0. Crestron encodes this as one {SpeedAndDirection} byte; `speed`
+            # already holds exactly that.
+            ZoomCmdString = pack('>6B', self.DeviceID, 0x01, 0x04, 0x07, speed, 0xFF)
+            if self.__SafeToSet('Zoom'):
+                self.__SetHelper('Zoom', ZoomCmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+################################################################
+
+################################################################
+### [PATCH E4] i20 COMMAND SET
+###
+### Byte sequences resolved from Crestron's SchemaVersion 2.0 driver
+### definition for IV-CAM-I20_IP. See tools/out/i20_wire_table.txt.
+################################################################
+
+    def _Nibbles(self, value, count):
+        """Split an integer into `count` bytes, each carrying one nibble in
+        its low 4 bits, most-significant first.
+
+        This is Crestron's ViscaAssemble4LowerNibbles / ViscaAssemble2LowerNibbles,
+        which finding 07 identified as having no declarative definition in their
+        driver - the behaviour lived only as compiled IL. It is standard VISCA
+        absolute-position encoding, so it is reimplemented here rather than
+        recovered: 0x1A2B -> [0x01, 0x0A, 0x02, 0x0B].
+        """
+        return [(int(value) >> (4 * (count - 1 - i))) & 0x0F for i in range(count)]
+
+    def _FromNibbles(self, data):
+        """Inverse of _Nibbles (Crestron's ViscaExtractNibbles)."""
+        out = 0
+        for b in data:
+            out = (out << 4) | (b & 0x0F)
+        return out
+
+    def _PresetOpcode(self, preset):
+        """Recall a reserved preset. The i20 exposes its auto-switching and
+        framing features this way rather than through dedicated opcodes."""
+        return pack('>7B', self.DeviceID, 0x01, 0x04, 0x3F, 0x02, preset, 0xFF)
+
+    # Begin TrackingFraming
+    ####################################################################################################################
+    # Crestron IV-CAM-I20_IP: StartTrackingFraming / StopTrackingFraming
+    def _cmd_SetTrackingFraming(self, value, qualifier):
+        """Set Tracking Framing
+        value: Enum ('Start'/'Stop')
+        qualifier: None
+        """
+        ValueStateValues = {
+            'Start':    0x50,
+            'Stop':     0x51,
+        }
+
+        if value in ValueStateValues:
+            cmdString = self._PresetOpcode(ValueStateValues[value])
+            if self.__SafeToSet('TrackingFraming'):
+                self.WriteTrackingFraming(value, qualifier, 'Emulated')
+                self.__SetHelper('TrackingFraming', cmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    # Crestron IV-CAM-I20_IP: GetTrackingFraming -> 81 09 08 01 FF
+    def _cmd_UpdateTrackingFraming(self, value, qualifier):
+        """Update Tracking Framing
+        value: Enum
+        qualifier: None
+        """
+        cmdString = pack('>5B', self.DeviceID, 0x09, 0x08, 0x01, 0xFF)
+        res = self.__UpdateHelper('TrackingFraming', cmdString, value, qualifier)
+        if res:
+            try:
+                # UNVERIFIED: Crestron declares the inquiry but not the reply
+                # layout. Parsed on the same shape as Extron's PTZ-IP replies
+                # (90 50 <payload> FF), payload 0 == stopped.
+                value = 'Start' if res[2] else 'Stop'
+                self.WriteTrackingFraming(value, qualifier, 'Live')
+            except (KeyError, IndexError):
+                self.Error(['TrackingFraming: Invalid/unexpected response'])
+
+    def WriteTrackingFraming(self, value, qualifier, context):
+        self.WriteStatusHelper('TrackingFraming', value, qualifier, context)
+
+    def ReadTrackingFraming(self, qualifier, context):
+        return self.ReadStatusHelper('TrackingFraming', qualifier, context)
+
+    # Begin GroupTracking
+    ####################################################################################################################
+    # Crestron IV-CAM-I20_IP: EnableGroupTracking -> reserved preset 0x52
+    def _cmd_SetGroupTracking(self, value, qualifier):
+        """Set Group Tracking
+        value: Enum ('Enable')
+        qualifier: None
+        """
+        if value == 'Enable':
+            cmdString = self._PresetOpcode(0x52)
+            if self.__SafeToSet('GroupTracking'):
+                self.WriteGroupTracking(value, qualifier, 'Emulated')
+                self.__SetHelper('GroupTracking', cmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    def WriteGroupTracking(self, value, qualifier, context):
+        self.WriteStatusHelper('GroupTracking', value, qualifier, context)
+
+    def ReadGroupTracking(self, qualifier, context):
+        return self.ReadStatusHelper('GroupTracking', qualifier, context)
+
+    # Begin PresenterTracking
+    ####################################################################################################################
+    # Crestron IV-CAM-I20_IP: EnablePresenterTracking -> reserved preset 0x53
+    def _cmd_SetPresenterTracking(self, value, qualifier):
+        """Set Presenter Tracking
+        value: Enum ('Enable')
+        qualifier: None
+        """
+        if value == 'Enable':
+            cmdString = self._PresetOpcode(0x53)
+            if self.__SafeToSet('PresenterTracking'):
+                self.WritePresenterTracking(value, qualifier, 'Emulated')
+                self.__SetHelper('PresenterTracking', cmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    def WritePresenterTracking(self, value, qualifier, context):
+        self.WriteStatusHelper('PresenterTracking', value, qualifier, context)
+
+    def ReadPresenterTracking(self, qualifier, context):
+        return self.ReadStatusHelper('PresenterTracking', qualifier, context)
+
+    # Begin ZoomPosition
+    ####################################################################################################################
+    # Crestron IV-CAM-I20_IP: SetZoomPosition
+    #   81 01 04 47 {ZoomSpeedHex} {Y4} {Y3} {Y2} {Y1} FF
+    # Note the speed byte: standard VISCA CAM_Zoom Direct has no such field.
+    # It is a 1 Beyond extension, and is taken from Crestron's template.
+    def _cmd_SetZoomPosition(self, value, qualifier):
+        """Set Zoom Position
+        value: Decimal (0 - 16384)
+        qualifier: {'Speed' : Decimal}
+        """
+        try:
+            speed = int(qualifier['Speed'])
+        except (KeyError, TypeError, ValueError):
+            self.Discard('Invalid Command')
+            return
+
+        if 0 <= int(value) <= 16384 and 0 <= speed <= 7:
+            cmdString = pack('>10B', self.DeviceID, 0x01, 0x04, 0x47, speed,
+                             *(self._Nibbles(value, 4) + [0xFF]))
+            if self.__SafeToSet('ZoomPosition'):
+                self.WriteZoomPosition(value, qualifier, 'Emulated')
+                self.__SetHelper('ZoomPosition', cmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    # Crestron IV-CAM-I20_IP: GetZoomPosition -> 81 09 04 47 FF
+    def _cmd_UpdateZoomPosition(self, value, qualifier):
+        """Update Zoom Position
+        value: Decimal
+        qualifier: {'Speed' : Decimal}
+        """
+        cmdString = pack('>5B', self.DeviceID, 0x09, 0x04, 0x47, 0xFF)
+        res = self.__UpdateHelper('ZoomPosition', cmdString, value, qualifier)
+        if res:
+            try:
+                # Reply 90 50 0p 0q 0r 0s FF - four nibbles, as sent.
+                value = self._FromNibbles(res[2:6])
+                self.WriteZoomPosition(value, qualifier, 'Live')
+            except (KeyError, IndexError):
+                self.Error(['ZoomPosition: Invalid/unexpected response'])
+
+    def WriteZoomPosition(self, value, qualifier, context):
+        self.WriteStatusHelper('ZoomPosition', value, qualifier, context)
+
+    def ReadZoomPosition(self, qualifier, context):
+        return self.ReadStatusHelper('ZoomPosition', qualifier, context)
+
+    # Begin PanTiltAngle
+    ####################################################################################################################
+    # Crestron IV-CAM-I20_IP: SetPanTiltAngle
+    #   81 01 06 02 {PanSpeed} {TiltSpeed} {Y4..Y1} {Z4..Z1} FF
+    def _cmd_SetPanTiltAngle(self, value, qualifier):
+        """Set Pan/Tilt Angle
+        value: {'Pan': Decimal, 'Tilt': Decimal}
+        qualifier: {'Pan Speed': Decimal, 'Tilt Speed': Decimal}
+        """
+        try:
+            panSpeed = int(qualifier['Pan Speed'])
+            tiltSpeed = int(qualifier['Tilt Speed'])
+            pan = int(value['Pan'])
+            tilt = int(value['Tilt'])
+        except (KeyError, TypeError, ValueError):
+            self.Discard('Invalid Command')
+            return
+
+        if 1 <= panSpeed <= 0x18 and 1 <= tiltSpeed <= 0x14:
+            payload = ([panSpeed, tiltSpeed]
+                       + self._Nibbles(pan & 0xFFFF, 4)
+                       + self._Nibbles(tilt & 0xFFFF, 4)
+                       + [0xFF])
+            cmdString = pack('>15B', self.DeviceID, 0x01, 0x06, 0x02, *payload)
+            if self.__SafeToSet('PanTiltAngle'):
+                self.WritePanTiltAngle(value, qualifier, 'Emulated')
+                self.__SetHelper('PanTiltAngle', cmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    # Crestron IV-CAM-I20_IP: GetPanTiltAngle -> 81 09 06 12 FF
+    def _cmd_UpdatePanTiltAngle(self, value, qualifier):
+        """Update Pan/Tilt Angle
+        value: dict
+        qualifier: {'Pan Speed': Decimal, 'Tilt Speed': Decimal}
+        """
+        cmdString = pack('>5B', self.DeviceID, 0x09, 0x06, 0x12, 0xFF)
+        res = self.__UpdateHelper('PanTiltAngle', cmdString, value, qualifier)
+        if res:
+            try:
+                # Reply 90 50 0p0q0r0s 0t0u0v0w FF
+                value = {'Pan': self._FromNibbles(res[2:6]),
+                         'Tilt': self._FromNibbles(res[6:10])}
+                self.WritePanTiltAngle(value, qualifier, 'Live')
+            except (KeyError, IndexError):
+                self.Error(['PanTiltAngle: Invalid/unexpected response'])
+
+    def WritePanTiltAngle(self, value, qualifier, context):
+        self.WriteStatusHelper('PanTiltAngle', value, qualifier, context)
+
+    def ReadPanTiltAngle(self, qualifier, context):
+        return self.ReadStatusHelper('PanTiltAngle', qualifier, context)
+
+    # Begin PanTiltHome
+    ####################################################################################################################
+    # Crestron IV-CAM-I20_IP: PanTiltReset -> 81 01 06 05 FF
+    def _cmd_SetPanTiltHome(self, value, qualifier):
+        """Set Pan/Tilt Home
+        value: Enum ('Reset')
+        qualifier: None
+        """
+        cmdString = pack('>5B', self.DeviceID, 0x01, 0x06, 0x05, 0xFF)
+        if self.__SafeToSet('PanTiltHome'):
+            self.__SetHelper('PanTiltHome', cmdString, value, qualifier, 3)
+
+    # Begin FreezeFrame
+    ####################################################################################################################
+    # Crestron IV-CAM-I20_IP: SetFreezeFrame -> 81 01 04 62 {OnOff} FF
+    # OnOff from Crestron's MapBooleanToViscaOnOff: On=0x02, Off=0x03.
+    def _cmd_SetFreezeFrame(self, value, qualifier):
+        """Set Freeze Frame
+        value: Enum
+        qualifier: None
+        """
+        ValueStateValues = {
+            'On':   0x02,
+            'Off':  0x03
+        }
+
+        if value in ValueStateValues:
+            cmdString = pack('>6B', self.DeviceID, 0x01, 0x04, 0x62,
+                             ValueStateValues[value], 0xFF)
+            if self.__SafeToSet('FreezeFrame'):
+                self.WriteFreezeFrame(value, qualifier, 'Emulated')
+                self.__SetHelper('FreezeFrame', cmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    # Crestron IV-CAM-I20_IP: GetFreezeFrame -> 81 09 04 62 FF
+    def _cmd_UpdateFreezeFrame(self, value, qualifier):
+        """Update Freeze Frame
+        value: Enum
+        qualifier: None
+        """
+        ValueStateValues = {
+            0x02: 'On',
+            0x03: 'Off'
+        }
+
+        cmdString = pack('>5B', self.DeviceID, 0x09, 0x04, 0x62, 0xFF)
+        res = self.__UpdateHelper('FreezeFrame', cmdString, value, qualifier)
+        if res:
+            try:
+                value = ValueStateValues[res[2]]
+                self.WriteFreezeFrame(value, qualifier, 'Live')
+            except (KeyError, IndexError):
+                self.Error(['FreezeFrame: Invalid/unexpected response'])
+
+    def WriteFreezeFrame(self, value, qualifier, context):
+        self.WriteStatusHelper('FreezeFrame', value, qualifier, context)
+
+    def ReadFreezeFrame(self, qualifier, context):
+        return self.ReadStatusHelper('FreezeFrame', qualifier, context)
+
+    # Begin Menu
+    ####################################################################################################################
+    # Crestron IV-CAM-I20_IP: Menu -> reserved preset 0x5F
+    def _cmd_SetMenu(self, value, qualifier):
+        """Set Menu
+        value: Enum ('Toggle')
+        qualifier: None
+        """
+        cmdString = self._PresetOpcode(0x5F)
+        if self.__SafeToSet('Menu'):
+            self.__SetHelper('Menu', cmdString, value, qualifier, 3)
+
+    # Begin Identify
+    ####################################################################################################################
+    # Crestron IV-CAM-I20_IP: Identify -> 81 C2 01 01 0A FF (custom command)
+    def _cmd_SetIdentify(self, value, qualifier):
+        """Set Identify
+        value: Enum ('Identify')
+        qualifier: None
+        """
+        cmdString = pack('>6B', self.DeviceID, 0xC2, 0x01, 0x01, 0x0A, 0xFF)
+        if self.__SafeToSet('Identify'):
+            self.__SetHelper('Identify', cmdString, value, qualifier, 3)
+
+    # Begin Reboot
+    ####################################################################################################################
+    # Crestron IV-CAM-I20_IP: Reboot -> reserved preset 0x63
+    def _cmd_SetReboot(self, value, qualifier):
+        """Set Reboot
+        value: Enum ('Reboot')
+        qualifier: None
+        """
+        cmdString = self._PresetOpcode(0x63)
+        if self.__SafeToSet('Reboot'):
+            self.__SetHelper('Reboot', cmdString, value, qualifier, 5)
+
+### END AUTO GENERATION OF COMMAND DEF
+################################################################
+
+    def __CheckResponseForErrors(self, sourceCmdName, response):
+        """Check Response For Errors
+        Called by all SendAndWait calls to the device.
+        Device will always have a response...confirmation, errors or answer to queries
+
+        """
+        if response and len(response) == 4:
+            # 1 Beyond PTZ-IP12-IP20 Manual, page 22
+            error_map = {
+                0x02: 'Syntax Error',
+                0x03: 'Command Buffer Full',
+                0x04: 'Command Cancelled',
+                0x05: 'No Socket',
+                0x41: 'Command Not Executable',
+            }
+
+            if response[1] & 0x60 == 0x60:
+                self.Error(['An error occurred: {}: {}.'.format(sourceCmdName, error_map.get(response[2], 'Unknown Error'))])
+                response = ''
+
+        return response
+
+    def __SafeToSet(self, command):
+        powerstatus = self.ReadPower(None, 'Live')
+        if powerstatus in ['Off', 'Internal Power Circuit Error'] and command not in ['Power']:
+            self.Discard('Inappropriate Command')
+            return False
+        else:
+            return True
+
+    def __SetHelper(self, command, commandstring, value, qualifier, queryDisallowTime=0.1):
+        """Set Helper
+        This function is used to determine how to send.
+
+        """
+        if self.Unidirectional == 'True' or command == 'UserDefinedCommand':
+            self.Send(commandstring)
+        else:
+            res = self.SendAndWait(commandstring, self.DefaultResponseTimeout, deliTag=b'\xFF')
+            if not res:
+                self.Error(['{}: Invalid/unexpected response'.format(command)])
+            else:
+                res = self.__CheckResponseForErrors(command, res)
+            if queryDisallowTime > 0:
+                self.StartQueryDelayTimer(queryDisallowTime)
+
+    def __UpdateHelper(self, command, commandstring, value, qualifier):
+        """Update Helper
+        This function is used to determine how to send.
+
+        """
+        if self.QueryDelayTimerIsRunning():
+            self.Discard('Device Is Busy')
+            return ''
+        elif self.Unidirectional == 'True':
+            self.Discard('Inappropriate Command')
+            return ''
+        else:
+            powerstatus = self.ReadPower(qualifier, 'Live')
+            if powerstatus in ['Off', 'Internal Power Circuit Error', None] and command not in ['Power']:
+                self.Discard('Inappropriate Command')
+                return ''
+            else:
+                res = self.SendAndWait(commandstring, self.DefaultResponseTimeout, deliTag=b'\xFF')
+                self.WriteStatusHelper(command, value, qualifier, 'UpdateTime')
+                if not res:
+                    if 'Power' == command:
+                        self.WriteDeviceResponseStatus('Bad', None, 'Live')
+                    return ''
+                else:
+                    self.WriteDeviceResponseStatus('Good', None, 'Live')
+                    return self.__CheckResponseForErrors(command, res)
+     
+    def OnConnected(self):
+        '''
+        On Connected
+        This callback will be set by the firmware when a device has connected or
+        reconnected to the device.  It's called after a successful response (sync)
+        or matchstring (async) via the self.DriverResponseStatus property
+
+        '''
+        pass
+
+    def OnDisconnected(self):
+        '''
+        On Disconnected
+        This callback will be set by the firmware when a device has not responded
+        or malformed responed for <n> seconds as indicated in the driver
+        descriptor.  Behavior is to set all status to their uninitialized state.
+
+        '''
+        self.__ResetLiveStatus()
+
+################################################################
+### HELPER METHODS SECTION
+################################################################
+
+    def WriteStatusHelper(self, command, value, qualifier, context):
+        '''
+        Write Status Helper
+        Wrapper method to manage setting/posting Live and Emulated status
+
+        '''
+        Command = self.Commands[command]
+        if Command['Live'] or Command['Emulated']:
+            Status = Command['Status']
+            with self.Mutex():
+                if 'Parameters' in Command:
+                    for Parameter in Command['Parameters']: 
+                        try:
+                            Status = Status[qualifier[Parameter]]
+                        except KeyError:
+                            if Parameter in qualifier:
+                                Status[qualifier[Parameter]] = {}
+                                Status = Status[qualifier[Parameter]]
+                            else:
+                                self.Error(['Invalid parameter(s): {0}'.format(qualifier)])
+                                return
+                try:
+                    if context in ['Live', 'Emulated']:
+                        Status['TimeStamps'][context] = ExtronTime(time.monotonic())
+                        if Status[context] != value:
+                            Status[context] = value
+                            self.PostNewStatusEx(command, value, qualifier, context)
+                    elif context == 'UpdateTime':
+                        try:
+                            Status['TimeStamps']['Update'] = ExtronTime(time.monotonic())
+                        except KeyError:
+                            Status['TimeStamps'] = {'Update': ExtronTime(time.monotonic())}
+                    elif context == 'Meta':
+                        Status['Meta'] = value
+                    
+                except:
+                    Status['Emulated'] = value
+                    if 'TimeStamps' not in Status:
+                        Status['TimeStamps'] = {}
+                    Status['TimeStamps']['Emulated'] = ExtronTime(time.monotonic())
+                    self.PostNewStatusEx(command, value, qualifier, 'Emulated')
+                    if context == 'Live':
+                        Status['Live'] = value
+                        Status['TimeStamps']['Live'] = ExtronTime(time.monotonic())
+                        self.PostNewStatusEx(command, value, qualifier, 'Live')
+                    else:
+                        Status['Live'] = None
+                        Status['TimeStamps']['Live'] = None
+        else:
+            self.Error(['Command, {0}, does not have status.'.format(command)])
+            return
+
+    def ReadStatusHelper(self, command, qualifier, context):
+        '''
+        Read Status Helper
+        Wrapper method to return current status Live or Emulated
+
+        '''
+        Command = self.Commands[command]
+        if Command['Live'] or Command['Emulated']:
+            Status = Command['Status']
+            with self.Mutex():
+                if 'Parameters' in Command:
+                    for Parameter in Command['Parameters']: 
+                        try:
+                            Status = Status[qualifier[Parameter]]
+                        except KeyError:
+                            return None
+                try:
+                    return Status[context]
+                except:
+                    return None
+        else:
+            self.Error(['Command, {0}, does not have status.'.format(command)])
+            return
+
+    def __StatusItems(self, dictionary):
+        '''Iterator Function to 'yield' all of the Live/Emulated pairs
+
+        '''
+        for k, v in dictionary.items():
+            if k == 'Live' and not isinstance(dictionary['Live'], dict) and not isinstance(dictionary['Live'], ExtronTime):
+                yield [], dictionary
+            elif isinstance(v, dict):
+                for subkey, result in self.__StatusItems(v):
+                    yield [k]+subkey, result
+
+    def _cmd_SetSyncEmulatedStatus(self, value, qualifier):
+        """
+        Synchronize All Emulated Status
+        This command is issued by the automation script to cause a driver to sync 
+        all Emulated Feedback status to the authoritative Live feedback information.
+        For each Emulated Feedback field that is out of date, change notification 
+        should be generated.
+        value:  None
+        qualifier:  None
+
+        """
+        with self.Mutex():
+            if value in self.Commands:
+                Command = self.Commands[value]
+                if Command['Live'] and Command['Emulated']:
+                    Status = Command['Status']
+                    if 'Parameters' in Command:
+                        for Parameter in Command['Parameters']: 
+                            try:
+                                Status = Status[qualifier[Parameter]]
+                            except KeyError:
+                                if Parameter not in qualifier:
+                                    self.Error(['Invalid parameter(s): {0}'.format(qualifier)])
+                                    return
+                    try:
+                        if Status['Live'] is not None and Status['Live'] != Status['Emulated'] and Status['TimeStamps']['Live'] > Status['TimeStamps']['Emulated']:
+                            Status['Emulated'] = Status['Live']
+                            self.PostNewStatusEx(value, Status['Live'], qualifier, 'Emulated')
+                    except:
+                        pass
+            else:
+                self.Error(['Invalid Command: {0}'.format(value)])
+
+    def StatusRefresh(self):
+        """
+        Status Refresh
+        This command is called by the automation script when it needs a driver to
+        to generate a Refresh of status for soft clients.
+
+        """
+        self.PostNewStatusEx('RefreshBegin', None, None, 'Live')
+        with self.Mutex():
+            for command in self.Commands:
+                Command = self.Commands[command]
+                for Parameters, Status in self.__StatusItems(Command['Status']):
+                    qualifier = {}
+                    for Parameter in range(len(Parameters)):
+                        qualifier[Command['Parameters'][Parameter]] = Parameters[Parameter]
+                    self.PostNewStatusEx(command, Status['Live'], qualifier, 'LiveRefresh')
+                    self.PostNewStatusEx(command, Status['Emulated'], qualifier, 'EmulatedRefresh')
+        super().StatusRefresh()
+        self.PostNewStatusEx('RefreshComplete', None, None, 'Live')
+    
+    def __ResetLiveStatus(self):
+        '''
+        Reset Status to Uninitialized
+        This function is call when OnDisconnected is call to reset all the Live status.
+
+        '''
+        with self.Mutex():
+            for command in self.Commands:
+                Command = self.Commands[command]
+                if Command['Live']:
+                    for _, Status in self.__StatusItems(Command['Status']):
+                        Status['Live'] = None
+
+    #Parent Class overloads
+    def SendAndWait(self, data, timeout, **kwds):
+        """Send and Wait
+        Overload to handle bytes translation. If the data is a string then the data returned
+        from the device will be a string. If the data sent is a byte string, then
+        the data returned from the device will be a byte string.
+        
+        """        
+        if isinstance(data, str):
+            data = data.encode()
+            IsString = True
+        else:
+            IsString = False
+        try:
+            kwds['deliTag'] = kwds['deliTag'].encode()
+        except:
+            pass
+        if IsString:
+            check = super().SendAndWait(data, timeout, **kwds)
+            if check:
+                return check.decode()
+            else:
+                return ''
+        else:
+            return super().SendAndWait(data, timeout, **kwds)
+
+    def Send(self, data, **kwds):
+        """Send
+        Overload to handle bytes translation.
+
+        """        
+        if isinstance(data, str):
+            data = data.encode()
+        super().Send(data, **kwds)
+
+
+class ExtronTime(float):
+    pass

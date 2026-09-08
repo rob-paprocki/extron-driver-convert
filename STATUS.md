@@ -1,6 +1,6 @@
 # Status
 
-**Last updated: 2026-09-07.** Read this first. Everything below is measured unless
+**Last updated: 2026-09-08.** Read this first. Everything below is measured unless
 marked otherwise.
 
 ## Answers
@@ -10,6 +10,7 @@ marked otherwise.
 | Extron `.pkp` → ControlScript `.py`? | **Yes — built and measured.** `tools/pkp2cs.py`. |
 | ControlScript `.py` → `.pkp`? | **Format: yes.** Byte-identical NRBF round-trip on all 4 packages, and **GC ingests a package our writer produced — including a mutated one** (finding 12). A *synthesised* object graph is still untested. |
 | Crestron `.pkg` → Extron ControlScript? | **Yes — built and measured** against Extron's own driver for the same device. |
+| Crestron device driven by an Extron processor? | **Built and verified offline; untested on hardware.** `tools/pkp_build.py` + `experiments/skeleton_i20/` — 4 staged packages awaiting a GC system (finding 13). |
 | Extron → Crestron `.pkg`? | **Mechanically demonstrated** (resource-patched a real DLL). Gated by Crestron's dealer/partner licence, not by code. |
 | Generate a driver from API docs alone? | **Mostly.** ~84% of what a real driver calls. The danger is silent incompleteness, not missing methods. |
 | Is a shared intermediate representation justified? | **Yes.** Two vendors independently encode the same device to the same bytes, including its undocumented bug workarounds. |
@@ -30,6 +31,7 @@ marked otherwise.
 | 10 | *(pending write-up)* the three-questions experiments — see `tools/out/verdicts/three_questions_synthesis.md`. |
 | 11 | A protocol **spec** refereed what two implementations could not; the wire oracle has its own false-positive rate. |
 | 12 | **GC ingests packages we generate.** The gate is an index, not the file. Locates the real 6,644-package driver library. |
+| 13 | **Crestron device -> Extron processor.** The i20's auto-switching is reserved preset numbers. Cross-vendor corroboration without a Crestron processor. |
 
 ## Tools — all tested, all standard library only
 
@@ -39,6 +41,7 @@ marked otherwise.
 | `tools/pkg_dump.py` | Crestron `.pkg` → manifest + driver JSON. Real ECMA-335 metadata walk, no hardcoded offsets. | (in above) |
 | `tools/wire_table.py` | **The acceptance oracle.** Normalised per-command wire table from *both* Python dialects. Unresolvable expressions become *counted* opaque markers, never guesses. | 34 |
 | `tools/pkp2cs.py` | `.pkp` → ControlScript translator. Raises rather than degrading. | 56 |
+| `tools/pkp_build.py` | **`.pkp` transplant builder.** Refuses to emit unless the unmodified donor round-trips byte-for-byte first; no bypass flag. | 36 |
 
 Experiments live in `experiments/` (NRBF writer, Crestron→ControlScript, missing-Ethernet
 generation, docs-only generation). Harvested vendor docs in `reference/`.
