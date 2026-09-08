@@ -106,7 +106,7 @@ it, and there is no bypass flag.
 Measured (`tools/test_pkp_build.py`, 36 checks):
 
 - all **9** sample packages round-trip byte-identically, including the 16 MB Tesira
-- substitution of a **different length** works in both directions (37,201 → 54,845
+- substitution of a **different length** works in both directions (37,201 → 68,285
   bytes, and a 50 KB growth test). Confirms nrbf_write.py's claim that NRBF
   carries no absolute-offset pointers, which its own tests did not exercise
 - re-parsing the output shows **exactly one object changed**, and it is the
