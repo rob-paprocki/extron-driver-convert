@@ -129,6 +129,53 @@ The 1 Beyond camera donor is also **1,426 objects** against the Automate VX's
 43,030 — a graph small enough that from-scratch synthesis (open item 4) becomes
 a tractable next step rather than an aspiration.
 
+## 4b. The `.pkp` pins the transport, and often locks it
+
+A `.pkp` does not leave the connection to the installer. `EthernetProtocolAsset`
+carries the address, the port, the ethernet type, and a flag saying whether the
+field may be edited in Global Configurator at all:
+
+```
+_port              5500
+_canEditPort       False            <- greyed out in GC
+_protocolSubType   EthernetTypeEnum = 0
+_address           192.168.254.254
+```
+
+**`EthernetTypeEnum 0` is TCP.** Measured, not assumed: every package in
+`samples/` carries `0`, and that set includes Biamp Tesira on port 22 (SSH,
+which cannot be UDP), Samsung on 1516, Extron's own drivers on 22023, and the
+Automate VX on 4443 (HTTPS). No UDP sample is available, so what UDP encodes to
+is *not known* - only that 0 is TCP.
+
+Ports and lock state across the sample set:
+
+| package | port | `_canEditPort` |
+|---|---|---|
+| `1bynd_19_4743` PTZ-IP12/20 (our donor) | 5500 | **False** |
+| `1bynd_19_4741` AutoTracker3 | 5500 | True |
+| `1bynd_42_4279` Automate VX | 4443 | True |
+| `clau_25_5940` | 49494 | **False** |
+| `clau_25_1777` | 49494 | True |
+| `extr_17_17677`, `extr_15_17578` | 22023 | **False** |
+| `smsg_10_6738` | 1516 | **False** |
+| `biam_25_150` Tesira | 22 | **False** |
+
+Extron is not consistent even within one vendor's cameras - the two 1 Beyond
+packages differ. Two consequences:
+
+1. **Our derived package inherits TCP 5500 locked**, which is correct for the
+   i20 (Crestron declares the same), so nothing needs changing. That is luck
+   rather than design, and a donor with the wrong port would have required
+   editing `_port` - a one-line change with `pkp_build.py`, but only if someone
+   thought to look.
+2. **A from-scratch emitter must construct this asset**, not just the script.
+   The transport is package metadata; the embedded Python never mentions a port.
+
+The ControlScript form has the opposite property: the port is a constructor
+argument (`EthernetClass(ip, 5500)`), so it is the integrator's to set and
+nothing is locked.
+
 ## 5. A runtime property a from-scratch emitter needs to know
 
 The embedded driver imports only `BaseDriver`, `time` and `struct.pack`, yet
