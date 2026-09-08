@@ -95,6 +95,13 @@ class _1bynd_19_4743(BaseDriver):
             'FreezeFrame':          {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
             'Menu':                 {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}},
             'Identify':             {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}},
+            'TrackingProfile':      {'Set': True,   'Update': False,    'Live': False,  'Emulated': True,                                               'Status': {}},
+            'PresetZone':           {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}},
+            'TrackingShot':         {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}},
+            'IndicatorLight':       {'Set': True,   'Update': False,    'Live': False,  'Emulated': True,   'Parameters': ['Color', 'Brightness'],      'Status': {}},
+            'CameraOutput':         {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
+            'IntelligentSwitching': {'Set': True,   'Update': False,    'Live': False,  'Emulated': True,                                               'Status': {}},
+            'CameraConnectionStatus': {'Set': False, 'Update': True,    'Live': True,   'Emulated': False,  'Parameters': ['Camera'],                   'Status': {}},
             'Reboot':               {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}}
         }
 
@@ -672,7 +679,7 @@ class _1bynd_19_4743(BaseDriver):
 ### [PATCH E4] i20 COMMAND SET
 ###
 ### Byte sequences resolved from Crestron's SchemaVersion 2.0 driver
-### definition for IV-CAM-I20_IP. See tools/out/i20_wire_table.txt.
+### definition for IV-CAM-I20_IP. See experiments/skeleton_i20/i20_wire_table.txt.
 ################################################################
 
     def _Nibbles(self, value, count):
@@ -721,19 +728,28 @@ class _1bynd_19_4743(BaseDriver):
             self.Discard('Invalid Command')
 
     # Crestron IV-CAM-I20_IP: GetTrackingFraming -> 81 09 08 01 FF
+    #
+    # Reply layout is documented (reference/crestron-visca/COMMANDS.md, the
+    # CAM_TrackingInq rows):
+    #     y0 50 02 FF   tracking active
+    #     y0 50 03 FF   tracking paused
+    # which is VISCA's usual 0x02=on / 0x03=off convention, the same one Power
+    # and IR_ReceiveInq use on this camera.
     def _cmd_UpdateTrackingFraming(self, value, qualifier):
         """Update Tracking Framing
         value: Enum
         qualifier: None
         """
+        ValueStateValues = {
+            0x02: 'Start',
+            0x03: 'Stop'
+        }
+
         cmdString = pack('>5B', self.DeviceID, 0x09, 0x08, 0x01, 0xFF)
         res = self.__UpdateHelper('TrackingFraming', cmdString, value, qualifier)
         if res:
             try:
-                # UNVERIFIED: Crestron declares the inquiry but not the reply
-                # layout. Parsed on the same shape as Extron's PTZ-IP replies
-                # (90 50 <payload> FF), payload 0 == stopped.
-                value = 'Start' if res[2] else 'Stop'
+                value = ValueStateValues[res[2]]
                 self.WriteTrackingFraming(value, qualifier, 'Live')
             except (KeyError, IndexError):
                 self.Error(['TrackingFraming: Invalid/unexpected response'])
@@ -769,6 +785,20 @@ class _1bynd_19_4743(BaseDriver):
     # Begin PresenterTracking
     ####################################################################################################################
     # Crestron IV-CAM-I20_IP: EnablePresenterTracking -> reserved preset 0x53
+    #
+    # !! DOCS AND IMPLEMENTATION DISAGREE ON THIS BYTE !!
+    # Crestron's own driver names preset 0x53 "EnablePresenterTracking".
+    # Crestron's own documentation (COMMANDS.md section 10, from the
+    # Reserved-Presets page) names preset 83 decimal - the same byte -
+    # "Pause Group Tracking". Five of the six reserved presets agree exactly
+    # between the two sources (0x50, 0x51, 0x52, 0x5F, 0x63); this is the
+    # only one that does not.
+    #
+    # The name here follows the driver, because a shipped driver is the more
+    # specific artefact - but that is a choice, not a finding. Step 7 of
+    # PROTOCOL.md is designed to settle it on hardware: start group tracking
+    # with 0x52, then send 0x53, and observe whether group tracking PAUSES
+    # (documentation is right) or presenter mode ENGAGES (driver is right).
     def _cmd_SetPresenterTracking(self, value, qualifier):
         """Set Presenter Tracking
         value: Enum ('Enable')
@@ -985,6 +1015,246 @@ class _1bynd_19_4743(BaseDriver):
         cmdString = self._PresetOpcode(0x63)
         if self.__SafeToSet('Reboot'):
             self.__SetHelper('Reboot', cmdString, value, qualifier, 5)
+
+    # Begin TrackingProfile
+    ####################################################################################################################
+    # Reserved presets 105-108 decimal (0x69-0x6C) = Tracking Profile 1-4.
+    # I20 only. Source: reference/crestron-visca/COMMANDS.md section 10.
+    # Crestron's driver declares SetTrackingFramingProfile as a preset recall
+    # but supplies no preset value; the documentation supplies it.
+    def _cmd_SetTrackingProfile(self, value, qualifier):
+        """Set Tracking Profile
+        value: Decimal (1 - 4)
+        qualifier: None
+        """
+        if 1 <= int(value) <= 4:
+            cmdString = self._PresetOpcode(0x68 + int(value))
+            if self.__SafeToSet('TrackingProfile'):
+                self.WriteTrackingProfile(value, qualifier, 'Emulated')
+                self.__SetHelper('TrackingProfile', cmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    def WriteTrackingProfile(self, value, qualifier, context):
+        self.WriteStatusHelper('TrackingProfile', value, qualifier, context)
+
+    def ReadTrackingProfile(self, qualifier, context):
+        return self.ReadStatusHelper('TrackingProfile', qualifier, context)
+
+    # Begin PresetZone
+    ####################################################################################################################
+    # Reserved presets 101-104 decimal (0x65-0x68) = Preset Zone 1-4. I20 only.
+    def _cmd_SetPresetZone(self, value, qualifier):
+        """Set Preset Zone
+        value: Decimal (1 - 4)
+        qualifier: None
+        """
+        if 1 <= int(value) <= 4:
+            cmdString = self._PresetOpcode(0x64 + int(value))
+            if self.__SafeToSet('PresetZone'):
+                self.__SetHelper('PresetZone', cmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    # Begin TrackingShot
+    ####################################################################################################################
+    # Reserved presets 0 (Home Shot) and 1 (Tracking Shot).
+    def _cmd_SetTrackingShot(self, value, qualifier):
+        """Set Tracking Shot
+        value: Enum ('Home'/'Tracking')
+        qualifier: None
+        """
+        ValueStateValues = {
+            'Home':     0x00,
+            'Tracking': 0x01
+        }
+
+        if value in ValueStateValues:
+            cmdString = self._PresetOpcode(ValueStateValues[value])
+            if self.__SafeToSet('TrackingShot'):
+                self.__SetHelper('TrackingShot', cmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+################################################################
+### [PATCH E5] LIGHTBAR
+###
+### Command format 8x c1 ** ** ** ** ff - four payload bytes, one per
+### lightbar segment. Crestron's driver declares this as
+### SetIndicatorLight -> {Header} c1 {LedBar} FF with {LedBar} opaque; the
+### documentation supplies the packing.
+###
+### Each payload byte is (brightness << 2) | colour, with
+###     brightness  00 off, 01 dim, 10 medium, 11 bright
+###     colour      00 green, 01 red, 11 yellow   (10 undefined)
+### Half width leaves the two OUTER segments at brightness 00 while keeping
+### their colour bits - which is why "half yellow" is 03 0F 0F 03 and not
+### 00 0F 0F 00. That rule reproduces all 19 command strings printed in the
+### documentation; test_i20_wire.py asserts every one of them.
+###
+### Segment geometry differs by model but the wire format does not: I20 has
+### two outer segments of 4 lights and two inner of 3 (14 total); P20 has
+### four segments of 4 (16 total).
+################################################################
+
+    _LIGHTBAR_COLOURS = {'Green': 0x0, 'Red': 0x1, 'Yellow': 0x3}
+    _LIGHTBAR_BRIGHTNESS = {'Off': 0x0, 'Dim': 0x1, 'Medium': 0x2, 'Bright': 0x3}
+
+    def _LightbarBytes(self, width, colour, brightness):
+        """The four payload bytes for a width/colour/brightness combination."""
+        c = self._LIGHTBAR_COLOURS[colour]
+        b = self._LIGHTBAR_BRIGHTNESS[brightness]
+        lit = (b << 2) | c
+        if width == 'None':
+            return [0x00, 0x00, 0x00, 0x00]
+        if width == 'Half':
+            return [c, lit, lit, c]
+        return [lit, lit, lit, lit]
+
+    # Begin IndicatorLight
+    ####################################################################################################################
+    def _cmd_SetIndicatorLight(self, value, qualifier):
+        """Set Indicator Light (lightbar)
+        value: Enum ('None'/'Half'/'Full')
+        qualifier: {'Color': Enum, 'Brightness': Enum}
+        """
+        colour = qualifier.get('Color') if qualifier else None
+        brightness = qualifier.get('Brightness') if qualifier else None
+
+        if value == 'None':
+            # Colour and brightness are irrelevant when nothing is lit, but the
+            # qualifiers still have to be valid keys for the status tree.
+            colour = colour or 'Green'
+            brightness = 'Off'
+
+        if (value in ['None', 'Half', 'Full']
+                and colour in self._LIGHTBAR_COLOURS
+                and brightness in self._LIGHTBAR_BRIGHTNESS):
+            payload = self._LightbarBytes(value, colour, brightness)
+            cmdString = pack('>7B', self.DeviceID, 0xC1, *(payload + [0xFF]))
+            if self.__SafeToSet('IndicatorLight'):
+                self.WriteIndicatorLight(value, qualifier, 'Emulated')
+                self.__SetHelper('IndicatorLight', cmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    def WriteIndicatorLight(self, value, qualifier, context):
+        self.WriteStatusHelper('IndicatorLight', value, qualifier, context)
+
+    def ReadIndicatorLight(self, qualifier, context):
+        return self.ReadStatusHelper('IndicatorLight', qualifier, context)
+
+################################################################
+### [PATCH E6] INTELLIGENT SWITCHING (camera selection)
+###
+### The c2 command family, documented at
+### reference/crestron-visca/COMMANDS.md section 9. Transport is TCP only
+### for this family - the documentation does not offer serial, unlike the
+### main and lightbar sets.
+################################################################
+
+    # Begin CameraOutput
+    ####################################################################################################################
+    # Call Camera Output:            8x c2 01 08 0Z ff   (Z = 1..5)
+    # Resume Intelligent Switching:  8x c2 01 08 00 ff
+    def _cmd_SetCameraOutput(self, value, qualifier):
+        """Set Camera Output
+        value: Decimal (1 - 5), or 0 to resume intelligent switching
+        qualifier: None
+        """
+        if 0 <= int(value) <= 5:
+            cmdString = pack('>6B', self.DeviceID, 0xC2, 0x01, 0x08,
+                             int(value), 0xFF)
+            if self.__SafeToSet('CameraOutput'):
+                self.WriteCameraOutput(value, qualifier, 'Emulated')
+                self.__SetHelper('CameraOutput', cmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    # Get Output: 8x C2 09 08 FF
+    def _cmd_UpdateCameraOutput(self, value, qualifier):
+        """Update Camera Output
+        value: Decimal
+        qualifier: None
+        """
+        cmdString = pack('>5B', self.DeviceID, 0xC2, 0x09, 0x08, 0xFF)
+        res = self.__UpdateHelper('CameraOutput', cmdString, value, qualifier)
+        if res:
+            try:
+                # The documentation says "see below" for this reply and then
+                # does not print a layout (recorded as a gap in COMMANDS.md).
+                # Read on the same shape as the other c2 inquiries, whose
+                # replies are y0 50 <payload> FF.
+                value = res[2] & 0x0F
+                self.WriteCameraOutput(value, qualifier, 'Live')
+            except (KeyError, IndexError):
+                self.Error(['CameraOutput: Invalid/unexpected response'])
+
+    def WriteCameraOutput(self, value, qualifier, context):
+        self.WriteStatusHelper('CameraOutput', value, qualifier, context)
+
+    def ReadCameraOutput(self, qualifier, context):
+        return self.ReadStatusHelper('CameraOutput', qualifier, context)
+
+    # Begin IntelligentSwitching
+    ####################################################################################################################
+    # Pause:  8x c2 01 0B 00 ff        Resume: 8x c2 01 08 00 ff
+    def _cmd_SetIntelligentSwitching(self, value, qualifier):
+        """Set Intelligent Switching
+        value: Enum ('Resume'/'Pause')
+        qualifier: None
+        """
+        if value == 'Pause':
+            cmdString = pack('>6B', self.DeviceID, 0xC2, 0x01, 0x0B, 0x00, 0xFF)
+        elif value == 'Resume':
+            cmdString = pack('>6B', self.DeviceID, 0xC2, 0x01, 0x08, 0x00, 0xFF)
+        else:
+            self.Discard('Invalid Command')
+            return
+
+        if self.__SafeToSet('IntelligentSwitching'):
+            self.WriteIntelligentSwitching(value, qualifier, 'Emulated')
+            self.__SetHelper('IntelligentSwitching', cmdString, value, qualifier, 3)
+
+    def WriteIntelligentSwitching(self, value, qualifier, context):
+        self.WriteStatusHelper('IntelligentSwitching', value, qualifier, context)
+
+    def ReadIntelligentSwitching(self, qualifier, context):
+        return self.ReadStatusHelper('IntelligentSwitching', qualifier, context)
+
+    # Begin CameraConnectionStatus
+    ####################################################################################################################
+    # Check Connection Status: 8x c2 09 0d 0Z ff
+    #   Disconnect: Y0 50 00 00 FF     Connect: Y0 50 00 01 FF
+    def _cmd_UpdateCameraConnectionStatus(self, value, qualifier):
+        """Update Camera Connection Status
+        value: Enum
+        qualifier: {'Camera' : Decimal 2-5}
+        """
+        try:
+            camera = int(qualifier['Camera'])
+        except (KeyError, TypeError, ValueError):
+            self.Discard('Invalid Command')
+            return
+
+        if not 2 <= camera <= 5:
+            self.Discard('Invalid Command')
+            return
+
+        cmdString = pack('>6B', self.DeviceID, 0xC2, 0x09, 0x0D, camera, 0xFF)
+        res = self.__UpdateHelper('CameraConnectionStatus', cmdString, value, qualifier)
+        if res:
+            try:
+                value = 'Connected' if res[3] else 'Disconnected'
+                self.WriteCameraConnectionStatus(value, qualifier, 'Live')
+            except (KeyError, IndexError):
+                self.Error(['CameraConnectionStatus: Invalid/unexpected response'])
+
+    def WriteCameraConnectionStatus(self, value, qualifier, context):
+        self.WriteStatusHelper('CameraConnectionStatus', value, qualifier, context)
+
+    def ReadCameraConnectionStatus(self, qualifier, context):
+        return self.ReadStatusHelper('CameraConnectionStatus', qualifier, context)
 
 ### END AUTO GENERATION OF COMMAND DEF
 ################################################################

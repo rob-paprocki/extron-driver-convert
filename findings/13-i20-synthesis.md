@@ -124,15 +124,76 @@ module globals beyond the driver's own import list. Static analysis of these
 drivers will therefore report false undefined-name errors, and a synthesised
 driver may rely on the same injection.
 
+## 6. The lightbar packing is derivable, and the docs corroborate the presets
+
+`SetIndicatorLight` is declared by Crestron's driver as `{Header} c1 {LedBar} FF`
+with `{LedBar}` opaque. The documentation supplies the packing: four payload
+bytes, one per lightbar segment, each byte `(brightness << 2) | colour` with
+brightness `00` off / `01` dim / `10` medium / `11` bright and colour `00` green
+/ `01` red / `11` yellow (`10` undefined).
+
+Half width keeps the two **outer** segments' colour bits while setting their
+brightness to zero — which is why half-yellow is `03 0F 0F 03` and not
+`00 0F 0F 00`. That single rule reproduces **all 19 command strings** printed in
+the documentation, including the four fixed status colours, which turn out not
+to be a separate encoding at all. `test_i20_wire.py` asserts every one.
+
+The Reserved-Presets page also **independently corroborates finding 1 above**,
+in decimal where the driver used hex: 80/81 start/pause tracking, 82 group
+tracking, 95 OSD menu, 99 reboot — matching `0x50`, `0x51`, `0x52`, `0x5F`,
+`0x63` exactly. Two sources, derived from different artefacts, agreeing.
+
+It also adds presets the driver left unspecified: 0 Home Shot, 1 Tracking Shot,
+101–104 Preset Zone 1–4, 105–108 Tracking Profile 1–4. Crestron's driver
+declares `SetTrackingFramingProfile` as a preset recall but supplies no preset
+value; the documentation is where that value lives.
+
+## 7. Docs and implementation disagree on exactly one byte
+
+Preset **83** (`0x53`):
+
+| source | name |
+|---|---|
+| Crestron's IV-CAM-I20 driver | `EnablePresenterTracking` |
+| Crestron's Reserved-Presets page | **Pause Group Tracking** |
+
+Five of the six shared reserved presets agree exactly; this is the only one that
+does not. Both readings emit the same byte, so the driver is correct either way
+— what is wrong is one of the two labels, and a user pressing a control named
+"Presenter Tracking" may be pausing group tracking instead.
+
+Not resolved here, and deliberately not guessed. `PROTOCOL.md` section T3b is a
+three-step sequence that settles it on hardware.
+
+## 8. The status-feedback caveat was a real defect
+
+Finding 13's first draft said status feedback was "provisional". It was worse
+than that: `_cmd_UpdateTrackingFraming` parsed the reply as
+`'Start' if res[2] else 'Stop'`, and since the documented payloads are `0x02`
+and `0x03` — both truthy — it reported `Start` unconditionally. The camera could
+never have reported tracking as stopped.
+
+The reply layout *is* documented (`CAM_TrackingInq`: `y0 50 02 FF` active,
+`y0 50 03 FF` paused, VISCA's usual on/off convention). It now maps explicitly
+and raises on any payload the documentation does not define, rather than
+defaulting.
+
+The general lesson is the one already in STATUS.md's methodology notes, arriving
+from a new direction: **a guess that scores well is worse than a recorded gap.**
+This one passed every offline check the suite had, because the suite only tested
+requests. It took writing the reply test to expose it.
+
 ## What this does NOT show
 
 - **Nothing has run on hardware.** No i20 was available to this repo. The wire
   bytes are verified against Crestron's spec offline (39 checks in
   `experiments/skeleton_i20/test_i20_wire.py`), never observed on a wire.
-- **Status feedback is the weakest claim.** Crestron declares the inquiry
-  *requests*; the *reply* layouts are not fully declared. They are parsed on the
-  pattern Extron uses for equivalent PTZ-IP replies — an assumption, not a
-  measurement, and the likeliest thing to be wrong.
+- **Three reply layouts are still inferred.** `TrackingFraming` and
+  `CameraConnectionStatus` now parse documented layouts. `CameraOutput` does not:
+  the documentation says "see below" for that reply and then prints nothing.
+  `ZoomPosition` and `PanTiltAngle` nibble layouts follow the general VISCA
+  pattern rather than a printed one. Those three are where polling should be
+  expected to break.
 - **Catalogue acceptance is still not a working driver.** Finding 12's caveat
   stands unchanged: gates 2–5 (place, build, upload, control) remain untested by
   this project. `experiments/skeleton_i20/PROTOCOL.md` is the instrument for
