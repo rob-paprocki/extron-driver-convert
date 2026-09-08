@@ -121,6 +121,14 @@ computes the zoom speed and then transmits a constant instead, so zoom always
 ran at speed 0. If step 3 visibly zooms faster than Extron's own PTZ-IP driver
 does, that defect is confirmed on hardware.
 
+### Transport: nothing to configure
+
+The package pins it and Global Configurator will not let you change it:
+`_port 5500`, TCP, `_canEditPort: False`. That is inherited from Extron's
+PTZ-IP12/20 donor and it matches what Crestron declares for the i20, so the
+greyed-out port field is the right value. If the camera has been moved off
+5500, this package cannot reach it — say so and the port is a one-line rebuild.
+
 ### T3b — settling a contested byte
 
 Crestron's driver and Crestron's documentation disagree about preset **83**
