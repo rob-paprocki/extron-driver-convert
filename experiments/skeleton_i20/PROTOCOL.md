@@ -124,7 +124,7 @@ does, that defect is confirmed on hardware.
 ### Transport: nothing to configure
 
 The package pins it and Global Configurator will not let you change it:
-`_port 5500`, TCP, `_canEditPort: False`. That is inherited from Extron's
+`_port 5500`, TCP (`ProtocolCompatibilityFlags 16`), `_canEditPort: False`. That is inherited from Extron's
 PTZ-IP12/20 donor and it matches what Crestron declares for the i20, so the
 greyed-out port field is the right value. If the camera has been moved off
 5500, this package cannot reach it — say so and the port is a one-line rebuild.
