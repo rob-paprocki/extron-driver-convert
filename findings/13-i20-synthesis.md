@@ -142,11 +142,39 @@ _protocolSubType   EthernetTypeEnum = 0
 _address           192.168.254.254
 ```
 
-**`EthernetTypeEnum 0` is TCP.** Measured, not assumed: every package in
-`samples/` carries `0`, and that set includes Biamp Tesira on port 22 (SSH,
-which cannot be UDP), Samsung on 1516, Extron's own drivers on 22023, and the
-Automate VX on 4443 (HTTPS). No UDP sample is available, so what UDP encodes to
-is *not known* - only that 0 is TCP.
+**The transport is carried by `ProtocolCompatibilityFlags`, not by
+`EthernetTypeEnum`.** `_protocolSubType` is `0` in *every* package in
+`samples/` — including one that is definitively UDP — so it encodes something
+else and cannot be read as TCP-vs-UDP.
+
+*(An earlier revision of this finding claimed `EthernetTypeEnum 0 = TCP`,
+"measured". It was not: the survey behind it stopped at the first ethernet
+asset per package and never looked at a UDP device. The claim was consistent
+with every sample precisely because the field is constant. A constant field
+agreeing with a hypothesis is not evidence for it — recorded here because
+STATUS.md's methodology notes exist for exactly this error.)*
+
+`_compatibility` does discriminate:
+
+| flag | packages | protocol |
+|---|---|---|
+| **16** | both 1 Beyond cameras, port 5500 | **TCP** |
+| **32** | both ClockAudio, port 49494 | **UDP** |
+| 64 | Automate VX (4443), Samsung (1516) | **not determined** |
+| 512 | Extron (22023), Biamp Tesira (22) | **not determined** |
+
+The ClockAudio evidence is direct rather than inferred: its supported model is
+named `CDT 100-UDP`, and its driver header carries "UDP port number is based on
+the information provided by the…" plus a revision note "Added comm sheet notes
+regarding UDP connection."
+
+A second, corroborating marker: **`_udpOutputPort` is non-zero only on the UDP
+packages**, where it mirrors `_port` (49494). Every TCP package leaves it `0`.
+
+`64` and `512` are left as *not determined* rather than guessed. Both cover
+devices that are certainly TCP (HTTPS on 4443, SSH on 22), so the field is
+plainly finer-grained than a two-way transport switch — but no sample here
+settles what it distinguishes.
 
 Ports and lock state across the sample set:
 
