@@ -32,6 +32,7 @@ marked otherwise.
 | 11 | A protocol **spec** refereed what two implementations could not; the wire oracle has its own false-positive rate. |
 | 12 | **GC ingests packages we generate.** The gate is an index, not the file. Locates the real 6,644-package driver library. |
 | 13 | **Crestron device -> Extron processor.** The i20's auto-switching is reserved preset numbers. Cross-vendor corroboration without a Crestron processor. |
+| 14 | **312 third-party oracle pairs.** 80.9% wire-match, but 25% of generated modules would raise `AttributeError` — and the broken ones score *higher*. |
 
 ## Tools — all tested, all standard library only
 
@@ -88,7 +89,7 @@ not a mechanical rewrite, so they are reported as residuals rather than guessed.
    in Driver Manager. Placing it in a project, building, uploading, and controlling a device
    are each unproven. This is the same "necessary but not sufficient" trap as the wire table.
 
-*Closed by finding 12: "only 4 oracle pairs, all Extron-authored."* The GC install carries
+*Closed outright by finding 14: 352 pairs across 314 packages, scored. Superseding finding 12's* The GC install carries
 **6,644 `.pkp` across hundreds of vendors** in `C:\Users\Public\Documents\extron\driver3`,
 96% of them third-party. The sampling problem is now a selection problem.
 
