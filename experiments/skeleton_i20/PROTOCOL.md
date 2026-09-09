@@ -1,5 +1,14 @@
 # Hardware test protocol — synthesised i20 driver
 
+> **RESULT, 2026-09-08.** T0 and T1 load; T2 and T3 are rejected with
+> **"Invalid Driver … Error Code: 80085"** — after being discovered, parsed and
+> catalogued. See `findings/15-invalid-driver-80085.md` and the evidence in
+> `hardware/`. The live question is now the **ladder** (`20030`/`20031`/`20032`,
+> built by `build_ladder.py`), which isolates whether *any* script edit is
+> refused or only one that declares undeclared commands. Run those next; the
+> T0–T3 procedure below is kept as the record of how the result was obtained.
+
+
 **What you have:** four `.pkp` packages in `out/`, built by `build_i20.py` from
 Extron's own 1 Beyond PTZ-IP12/IP20 package.
 
