@@ -33,6 +33,7 @@ marked otherwise.
 | 12 | **GC ingests packages we generate.** The gate is an index, not the file. Locates the real 6,644-package driver library. |
 | 13 | **Crestron device -> Extron processor.** The i20's auto-switching is reserved preset numbers. Cross-vendor corroboration without a Crestron processor. |
 | 14 | **312 third-party oracle pairs.** 80.9% wire-match, but 25% of generated modules would raise `AttributeError` — and the broken ones score *higher*. |
+| 15 | **On hardware: `80085`.** A transplanted package is catalogued, then refused at selection. The **asset tree**, not the script, declares the command surface. |
 
 ## Tools — all tested, all standard library only
 
