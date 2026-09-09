@@ -160,13 +160,26 @@ def test_only_intended_object_changes():
     check("same object ids present", set(before) == set(after),
           "added=%s removed=%s" % (sorted(set(after) - set(before))[:5],
                                    sorted(set(before) - set(after))[:5]))
-    differing = [k for k in before if before[k] != after.get(k)]
-    check("exactly one object differs", len(differing) == 1,
-          "differing=%s" % differing[:8])
-    if len(differing) == 1:
-        check("the differing object is the script content array",
-              differing[0] == slot.content_id,
-              "changed %s, expected %s" % (differing[0], slot.content_id))
+    differing = sorted(k for k in before if before[k] != after.get(k))
+    # TWO objects, not one: replace_script also refreshes the stored SHA-256,
+    # because a package whose script disagrees with its digest is rejected by
+    # GC at selection time (error 80085 - see findings/15). Verified against
+    # Extron's own DriverAssetValidator.
+    hash_id = b.resource_hashes()[slot.key][0]
+    expected = sorted([slot.content_id, hash_id])
+    check("exactly two objects differ: the script and its digest",
+          len(differing) == 2, "differing=%s expected=%s" % (differing[:8], expected))
+    check("and they are the right two", differing == expected,
+          "changed %s, expected %s" % (differing, expected))
+
+    # Without the refresh, exactly one object changes - which is precisely the
+    # package GC refuses. Kept as the control for the pair above.
+    b2 = pb.PackageBuilder(camera_donor())
+    s2 = b2.scripts()[0]
+    b2.replace_script(s2.key, "class DeviceClass:\n    pass\n", refresh_hash=False)
+    only = [k for k in before if before[k] != _graph_fingerprint(b2.build(compress=False)).get(k)]
+    check("refresh_hash=False changes only the script", only == [s2.content_id],
+          "differing=%s" % only[:8])
 
 
 def test_string_substitution():

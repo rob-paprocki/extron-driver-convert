@@ -1,4 +1,15 @@
-# Finding 15 — the asset tree is the contract, not the script
+# Finding 15 — catalogued, then refused at selection
+
+> **SUPERSEDED IN PART, 2026-09-09.** The hardware results below stand. The
+> *cause* proposed here - that the embedded script declared commands the asset
+> tree does not - is **wrong**. `80085` is `DriverAssetValidator.ErrorCode.MismatchHash`:
+> a SHA-256 mismatch on a packaged resource. See **finding 16**, which decodes the
+> validator, reimplements it in pure Python, and fixes `pkp_build.py`.
+>
+> Worth keeping as written: the hypothesis fit every observation, because the only
+> packages modified were ones whose script had been rewritten - and rewriting the
+> script is exactly what breaks the digest. A hypothesis consistent with all the
+> data is not thereby correct.
 
 **Status: measured on hardware** 2026-09-08, Global Configurator Pro, on a
 system this repo has no access to. First hardware test of a package this

@@ -43,6 +43,7 @@ Usage
 
 import argparse
 import gzip
+import hashlib
 import os
 import re
 import sys
@@ -200,8 +201,86 @@ class PackageBuilder(object):
 
     # -- mutation ----------------------------------------------------------
 
-    def replace_script(self, key, new_source):
-        """Swap the source of the embedded script named `key`."""
+    # -- integrity ---------------------------------------------------------
+
+    def resource_hashes(self):
+        """{resource key: (hash_object_id, current 32-byte digest)}.
+
+        `DriverFileAsset._resourceHashDict` is a
+        Dictionary<string, byte[]> whose KeyValuePairs array holds one entry
+        per packaged resource - the embedded `.py` and the comm-sheet `.pdf`.
+        Each value is the **SHA-256 of that resource's bytes**, verified
+        against Extron's own stored digest.
+        """
+        root = self.objects.get(1)
+        if not (isinstance(root, dict) and "_resourceHashDict" in (root.get("members") or {})):
+            raise TransplantError("no _resourceHashDict on the root asset")
+        d = deref(self.objects, root["members"]["_resourceHashDict"])
+        kvps = deref(self.objects, (d.get("members") or {}).get("KeyValuePairs"))
+        out = {}
+        for item in (kvps or {}).get("items") or []:
+            entry = deref(self.objects, item)
+            if not isinstance(entry, dict):
+                continue
+            members = entry.get("members") or {}
+            key = deref(self.objects, members.get("key"))
+            vref = members.get("value")
+            value = deref(self.objects, vref)
+            if isinstance(key, str) and isinstance(value, dict):
+                out[key] = (ref_id(vref), bytes(value.get("items") or []))
+        return out
+
+    def refresh_resource_hash(self, key=None, source=None):
+        """Recompute the stored SHA-256 for one resource (or every script).
+
+        Global Configurator validates a package before use:
+        `DriverAssetValidator.Validate` returns `MismatchHash = 80085` when a
+        resource's bytes disagree with this digest, and GC shows "Invalid
+        Driver ... Error Code: 80085". Substituting a script without
+        refreshing the hash therefore produces a package that indexes, appears
+        in Driver Manager, and is refused on selection.
+
+        `.NET`'s own `DriverFileAssetExtensions.RefreshResourceHash` does the
+        same thing; this reimplements it so the repo stays standard-library
+        only and does not need GC installed.
+        """
+        hashes = self.resource_hashes()
+        targets = [key] if key else [s.key for s in self.scripts()]
+        changed = []
+        for k in targets:
+            if k not in hashes:
+                raise TransplantError("no stored hash for resource %r (have: %s)"
+                                      % (k, ", ".join(sorted(hashes))))
+            # `source` must be passed by replace_script: mutations live in the
+            # trace, while self.objects still holds the ORIGINAL parse. Hashing
+            # scripts() here would digest the script we just replaced, match the
+            # stored value, and silently skip - leaving a package that fails
+            # with 80085 while reporting success.
+            if source is not None:
+                text = source
+            else:
+                slot = next((s for s in self.scripts() if s.key == k), None)
+                if slot is None:
+                    raise TransplantError("resource %r is not an embedded script" % (k,))
+                text = slot.source
+            hash_id, before = hashes[k]
+            digest = hashlib.sha256(text.encode("utf-8")).digest()
+            if digest == before:
+                continue
+            mutate_primitive_array_by_object_id(self.trace, hash_id, digest)
+            self._edits.append("hash %s: %s -> %s" % (k, before[:4].hex(), digest[:4].hex()))
+            changed.append(k)
+        return changed
+
+    # -- mutation ----------------------------------------------------------
+
+    def replace_script(self, key, new_source, refresh_hash=True):
+        """Swap the source of the embedded script named `key`.
+
+        `refresh_hash` defaults to True because a package whose script does not
+        match its stored digest is rejected by GC at selection time (error
+        80085). Pass False only to reproduce that failure deliberately.
+        """
         slots = [s for s in self.scripts() if s.key == key]
         if not slots:
             raise TransplantError("no embedded script named %r (have: %s)" % (
@@ -212,7 +291,11 @@ class PackageBuilder(object):
         payload = new_source.encode("utf-8")
         old, new = mutate_primitive_array_by_object_id(
             self.trace, slot.content_id, payload)
-        self._edits.append("script %s: %d -> %d bytes" % (key, old, new))
+        self._edits.append("script %s: %d -> %d bytes%s"
+                           % (key, old, new,
+                              "" if refresh_hash else "  [HASH NOT REFRESHED -> GC error 80085]"))
+        if refresh_hash:
+            self.refresh_resource_hash(key, source=new_source)
         return old, new
 
     def replace_string(self, object_id, new_value):
@@ -271,11 +354,26 @@ def main():
                     help="replace embedded script KEY with the contents of FILE")
     ap.add_argument("--set-string", action="append", metavar="ID=VALUE",
                     help="set BinaryObjectString ID to VALUE")
+    ap.add_argument("--no-refresh-hash", action="store_true",
+                    help="do NOT recompute the stored SHA-256 after replacing a "
+                         "script; produces a package GC refuses with error 80085")
+    ap.add_argument("--hashes", action="store_true",
+                    help="print the package's stored resource hashes and exit")
     ap.add_argument("-o", "--output", help="path to write the new .pkp")
     args = ap.parse_args()
 
     b = PackageBuilder(args.donor)
     print("donor round-trips byte-identically: %d bytes" % len(b.raw))
+
+    if args.hashes:
+        for k, (oid, digest) in sorted(b.resource_hashes().items()):
+            ok = "" 
+            slot = next((s for s in b.scripts() if s.key == k), None)
+            if slot is not None:
+                actual = hashlib.sha256(slot.source.encode("utf-8")).digest()
+                ok = "  OK" if actual == digest else "  MISMATCH (actual %s)" % actual.hex()[:16]
+            print("  %-34s #%-6s %s%s" % (k, oid, digest.hex(), ok))
+        return 0
 
     if args.grep:
         for oid, val in b.find_strings(args.grep):
@@ -290,7 +388,7 @@ def main():
 
     for key, path in _parse_kv(args.replace_script, "replace-script"):
         with open(path, encoding="utf-8") as fh:
-            b.replace_script(key, fh.read())
+            b.replace_script(key, fh.read(), refresh_hash=not args.no_refresh_hash)
     for sid, val in _parse_kv(args.set_string, "set-string"):
         b.replace_string(int(sid), val)
 

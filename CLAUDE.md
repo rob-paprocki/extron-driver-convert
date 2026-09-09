@@ -37,8 +37,10 @@ A Parallels guest sharing the Mac home directory, reachable at
 | Python | 3.12.10 at `C:\Users\robp\AppData\Local\Programs\Python\Python312\` — **not on PATH**, call it by full path |
 | `Extron.Configuration.Drivers.dll` | `15.27.0.0`, x86/PE32, .NET Framework 4.8 |
 
-**GC's driver library is `C:\Users\Public\Documents\extron\driver3`** — 6,644
-`.pkp` + 1,745 `.eir`, user-writable, no elevation. That is what Driver Manager
+**GC's driver library is `C:\Users\Public\Documents\extron\Driver3`** — user-writable,
+no elevation. **Its size varies by install, so measure it rather than quoting a number:**
+finding 12 counted 6,644 `.pkp` + 1,745 `.eir` on one machine; this one holds
+**1,853 `.pkp` + 26 `.eir`** (2026-09-09). That is what Driver Manager
 reads, *not* the 54 packages under `Program Files`. Read finding 12 before
 touching it, and back up `DataFile.dat` + `DriverLookup.dat` first — GC truncates
 the catalogue before rebuilding it, so an interrupted start leaves 0 bytes.
