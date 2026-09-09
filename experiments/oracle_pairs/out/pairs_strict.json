@@ -1,0 +1,2980 @@
+[
+ {
+  "pkp": "1bynd_42_4279_v1_0_11.pkp",
+  "matches": [
+   {
+    "model": "Automate VX",
+    "module": "onebynd_sm_Automate_VX_Series_v1_0_11_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "7th_42_6501_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "Delta Media Server",
+    "module": "_7th_sm_Delta_Media_Server_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "absn_10_17243_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "X163 V2",
+    "module": "absn_display_X136_X163_V2_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "absn_10_6675_v1_0_4.pkp",
+  "matches": [
+   {
+    "model": "X108",
+    "module": "absn_display_X108_X136_X163_v1_0_4_0.py"
+   },
+   {
+    "model": "X136",
+    "module": "absn_display_X108_X136_X163_v1_0_4_0.py"
+   },
+   {
+    "model": "X163",
+    "module": "absn_display_X108_X136_X163_v1_0_4_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "acbr_13_5141_v1_1_0.pkp",
+  "matches": [
+   {
+    "model": "ECLYPSE",
+    "module": "acbr_lc_ECLYPSE_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "acor_10_17397_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "AVL-1050-D",
+    "module": "acor_display_AVL_1050_D_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "acor_39_17395_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "AVE-9200",
+    "module": "acor_tdisplay_AVE_9200_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "acor_39_6588_v1_0_4.pkp",
+  "matches": [
+   {
+    "model": "AVL-1050-T",
+    "module": "acor_tdisplay_AVL_1050_T_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "adac_25_2129_v1_1_2.pkp",
+  "matches": [
+   {
+    "model": "DSP40",
+    "module": "adac_dsp_DSP40_ISP40_MSP40_TSP40_XMP44_v1_1_00.py"
+   },
+   {
+    "model": "ISP40",
+    "module": "adac_dsp_DSP40_ISP40_MSP40_TSP40_XMP44_v1_1_00.py"
+   },
+   {
+    "model": "MSP40",
+    "module": "adac_dsp_DSP40_ISP40_MSP40_TSP40_XMP44_v1_1_00.py"
+   },
+   {
+    "model": "TSP40",
+    "module": "adac_dsp_DSP40_ISP40_MSP40_TSP40_XMP44_v1_1_00.py"
+   },
+   {
+    "model": "XMP44",
+    "module": "adac_dsp_DSP40_ISP40_MSP40_TSP40_XMP44_v1_1_00.py"
+   }
+  ]
+ },
+ {
+  "pkp": "ah_25_791_v1_5_0.pkp",
+  "matches": [
+   {
+    "model": "QU-16",
+    "module": "ah_dsp_QU_16_24_32_Pac_v1_4_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "amx_20_17551_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "CE-IRS4",
+    "module": "amx_controller_CE_IRS4_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "apc_31_6732_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "AP8931",
+    "module": "apc_other_AP8931_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "apc_31_6734_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "APDU9941",
+    "module": "apc_other_APDU9941_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "atero_25_3397_v1_2_0.pkp",
+  "matches": [
+   {
+    "model": "unD6IO-BT",
+    "module": "atero_dsp_unD6IO_BT_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "atx_8_16908_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "VSBB100",
+    "module": "atx_tuner_VSBB100_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "audt_25_5836_v1_1_0.pkp",
+  "matches": [
+   {
+    "model": "ATDM-1012",
+    "module": "audt_dsp_ATDM_1012_Series_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "audt_31_2901_v1_2_5.pkp",
+  "matches": [
+   {
+    "model": "ATUC-50",
+    "module": "audt_other_ATUC50_v1_2_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "audt_31_5801_v1_3_0.pkp",
+  "matches": [
+   {
+    "model": "ATND1061DAN",
+    "module": "audt_other_ATND1061DAN_v1_2_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "avr_15_6408_v1_0_7.pkp",
+  "matches": [
+   {
+    "model": "MT300N",
+    "module": "avr_matrix_MT300N_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "avr_16_27773_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "AverVision F50+",
+    "module": "avr_dc_AverVision_F50HD_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "avr_19_17043_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "TR525",
+    "module": "avr_camera_TR525_TR535_v1_0_0_0.py"
+   },
+   {
+    "model": "TR535",
+    "module": "avr_camera_TR525_TR535_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "avr_19_4303_v1_0_6.pkp",
+  "matches": [
+   {
+    "model": "PTZ310",
+    "module": "avr_camera_PTZ310_PTZ330_v1_0_4_0.py"
+   },
+   {
+    "model": "PTZ330",
+    "module": "avr_camera_PTZ310_PTZ330_v1_0_4_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "avr_19_4307_v1_3_0.pkp",
+  "matches": [
+   {
+    "model": "PTC500S",
+    "module": "avr_camera_TR_320_530_PTC500S_v1_3_0_0.py"
+   },
+   {
+    "model": "TR320",
+    "module": "avr_camera_TR_320_530_PTC500S_v1_3_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "avr_19_5199_v1_0_6.pkp",
+  "matches": [
+   {
+    "model": "PTC310",
+    "module": "avr_camera_PTC310_PTC330_Series_v1_0_5_0.py"
+   },
+   {
+    "model": "PTC330",
+    "module": "avr_camera_PTC310_PTC330_Series_v1_0_5_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "avr_19_5346_v1_2_0.pkp",
+  "matches": [
+   {
+    "model": "CAM520 Pro2",
+    "module": "avr_camera_CAM520_Pro2_v1_1_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "avr_19_5837_v1_0_3.pkp",
+  "matches": [
+   {
+    "model": "CAM550",
+    "module": "avr_camera_CAM550_v1_0_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "avr_19_6207_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "CAM570",
+    "module": "avr_camera_CAM570_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "avr_19_6562_v1_1_0.pkp",
+  "matches": [
+   {
+    "model": "CAM520 Pro3",
+    "module": "avr_camera_CAM520_Pro3_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "avr_19_6643_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "TR211",
+    "module": "avr_camera_TR211_TR3x5_N_Series_v1_0_1_1.py"
+   }
+  ]
+ },
+ {
+  "pkp": "avr_31_5021_v1_2_1.pkp",
+  "matches": [
+   {
+    "model": "CL01",
+    "module": "avr_other_CL01_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "away_18_5688_v1_3_0.pkp",
+  "matches": [
+   {
+    "model": "AQL-C+",
+    "module": "away_sp_AQL_C_Series_v1_3_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "axis_19_5250_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "V5925",
+    "module": "axis_camera_V5925_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "axis_19_6787_v1_1_0.pkp",
+  "matches": [
+   {
+    "model": "Q6225-LE",
+    "module": "axis_camera_Q6225_LE_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "axis_42_6677_v1_1_0.pkp",
+  "matches": [
+   {
+    "model": "D1110 Video Decoder 4K",
+    "module": "axis_sm_D1110_Video_Decoder_4K_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "barc_1_2536_v1_3_0.pkp",
+  "matches": [
+   {
+    "model": "F80-Q9",
+    "module": "barc_vp_F80Q9_F90_4K13_W13_v1_1_0_0.py"
+   },
+   {
+    "model": "F90-4K13",
+    "module": "barc_vp_F80Q9_F90_4K13_W13_v1_1_0_0.py"
+   },
+   {
+    "model": "F90-W13",
+    "module": "barc_vp_F904K13_F90W13_v1_0_3_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "barc_1_2777_v1_0_2.pkp",
+  "matches": [
+   {
+    "model": "FS70-4K6",
+    "module": "barc_vp_FS704K6_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "barc_1_3965_v1_1_3.pkp",
+  "matches": [
+   {
+    "model": "DP2K-10S",
+    "module": "barc_vp_DP2K_10sX_v1_1_0_0.py"
+   },
+   {
+    "model": "DP2K-10Sx",
+    "module": "barc_vp_DP2K_10sX_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "barc_1_5802_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "G100-W16",
+    "module": "barc_vp_G100_W16_W19_W22_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "barc_44_5120_v1_1_4.pkp",
+  "matches": [
+   {
+    "model": "CX-50",
+    "module": "barc_cs_CX_50_Gen2_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "bddg_19_17082_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "X5 Ultra",
+    "module": "bddg_camera_X5_Ultra_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "biam_12_17212_v1_0_2.pkp",
+  "matches": [
+   {
+    "model": "Parle VBC 2800",
+    "module": "biam_vtc_Parle_VBC_2800_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "biam_44_2729_v1_1_6.pkp",
+  "matches": [
+   {
+    "model": "Devio CR-1",
+    "module": "biam_cs_Devio_CR1_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "blkmd_37_382_v1_4_0.pkp",
+  "matches": [
+   {
+    "model": "HyperDeck Studio",
+    "module": "blkmd_dvr_HyperDeckStudio_Series_v1_3_4_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "blkmd_37_5641_v1_1_3.pkp",
+  "matches": [
+   {
+    "model": "HyperDeck Studio 4K Pro",
+    "module": "blkmd_dvr_HyperDeck_Studio_4K_Pro_HD_Plusv1110.py"
+   }
+  ]
+ },
+ {
+  "pkp": "blsd_43_4490_v1_0_3.pkp",
+  "matches": [
+   {
+    "model": "B100S",
+    "module": "blsd_mp_B100S_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "bsch_31_525_v1_16_0.pkp",
+  "matches": [
+   {
+    "model": "DCN-CCU2",
+    "module": "bsch_other_DCNCCU2_v1_15_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "bsch_44_4230_v1_5_0.pkp",
+  "matches": [
+   {
+    "model": "Dicentis DCNM-LSYS",
+    "module": "bsch_cs_Dicentis_DCNM_LSYS_v1_2_7_2.py"
+   }
+  ]
+ },
+ {
+  "pkp": "bstm_15_6482_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "CMX44CS",
+    "module": "bstm_matrix_CMX44CS_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "byr_31_1449_v1_5_1.pkp",
+  "matches": [
+   {
+    "model": "Orbis CU",
+    "module": "byr_other_OrbisCU_v1_4_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "bzbg_19_16942_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "BG-VPTZ-HSU3",
+    "module": "bzbg_camera_BG_VPTZ_HSU3_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "cano_19_5331_v1_2_7.pkp",
+  "matches": [
+   {
+    "model": "CR-N300",
+    "module": "cano_camera_CR_N300_N500_v1_2_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "cano_19_6575_v1_1_3.pkp",
+  "matches": [
+   {
+    "model": "CR-N700",
+    "module": "cano_camera_CR_N700_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "catb_31_6394_v1_2_2.pkp",
+  "matches": [
+   {
+    "model": "Plus",
+    "module": "catb_other_Plus_v1_2_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "chri_1_3306_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "DWU630-GS",
+    "module": "chri_vp_DHD630_DWU630_GS_v1_0_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "chri_1_3693_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "Crimson WU25",
+    "module": "chri_vp_Crimson_WU25_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "chri_1_4874_v1_1_2.pkp",
+  "matches": [
+   {
+    "model": "CP4325-RGB",
+    "module": "chri_vp_CP4220_CP4230_CP42LH_CP4325RGB_v1000.py"
+   }
+  ]
+ },
+ {
+  "pkp": "clr1_25_17026_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "BMA 360D",
+    "module": "clr1_dsp_BMA_360D_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "clth_10_6438_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "CleverWall",
+    "module": "clth_display_CleverWall_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "colt_29_6385_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "X100 Pro",
+    "module": "colt_vidpsr_X100_Pro_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "colt_29_6669_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "X16E",
+    "module": "colt_vidpsr_X16E_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "colt_29_6776_v1_0_3.pkp",
+  "matches": [
+   {
+    "model": "Z4 Pro",
+    "module": "colt_vidpsr_Z4_Pro_Z5_v1_0_3_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "ctrs_8_51_v1_3_3.pkp",
+  "matches": [
+   {
+    "model": "232-ATSC",
+    "module": "ctrs_tt_232_ATSC_Series_v1_2_2_0.py"
+   },
+   {
+    "model": "232-ATSC+",
+    "module": "ctrs_tt_232_ATSC_Series_v1_2_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "dexn_29_17023_v1_1_0.pkp",
+  "matches": [
+   {
+    "model": "DXN6000",
+    "module": "dexn_vidpsr_DXN6000_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "dsan_31_2959_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "Limitimer PRO-2000",
+    "module": "dsan_other_Limitimer_PRO_2000_Series_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "dscan_10_16879_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "DS752LT5",
+    "module": "dscan_display_DS752LT5_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "dtvd_42_4711_v1_2_0.pkp",
+  "matches": [
+   {
+    "model": "NVS-40",
+    "module": "dtvd_sm_NVS_40_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "dyna_13_892_v1_3_2.pkp",
+  "matches": [
+   {
+    "model": "DPC406",
+    "module": "dyna_lc_Dynet_Dimtek_DPC406_v1_2_5_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "ebed_46_6828_v1_1_0.pkp",
+  "matches": [
+   {
+    "model": "CP-IP-B",
+    "module": "ebed_bms_CP_IP_B_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "elim_8_3848_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "IRD 2160 movieNET",
+    "module": "elim_tuner_IRD2160movieNET_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "entt_13_2531_v1_3_1.pkp",
+  "matches": [
+   {
+    "model": "DIN-ODE",
+    "module": "entt_lc_DINODE_EthergateMK3_v1_1_1_2.py"
+   },
+   {
+    "model": "DIN-ODE POE Mk2",
+    "module": "entt_lc_DIN_ODE_POE_Mk2_Ethergate_MK3_v1_3_1_0.py"
+   },
+   {
+    "model": "Ethergate MK3",
+    "module": "entt_lc_DINODE_EthergateMK3_v1_1_1_2.py"
+   }
+  ]
+ },
+ {
+  "pkp": "epip_19_17541_v1_0_2.pkp",
+  "matches": [
+   {
+    "model": "EC20",
+    "module": "epip_camera_EC20_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "epip_42_978_v1_6_5.pkp",
+  "matches": [
+   {
+    "model": "Pearl",
+    "module": "epip_sm_Pearl_v1_6_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "epsn_1_4326_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "PowerLite 800F",
+    "module": "epsn_vp_CB_EB_PowerLite_800F_805F_Series.py"
+   }
+  ]
+ },
+ {
+  "pkp": "epsn_1_5220_v1_0_5.pkp",
+  "matches": [
+   {
+    "model": "PowerLite L730U",
+    "module": "epsn_vp_EB_CB_PowerLite_L730U_735U_730G_v1_050.py"
+   }
+  ]
+ },
+ {
+  "pkp": "epsn_1_5374_v1_0_3.pkp",
+  "matches": [
+   {
+    "model": "PowerLite L530U",
+    "module": "epsn_vp_CB_EB_PowerLite_L530U_v1_0_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "epsn_1_5463_v1_0_7.pkp",
+  "matches": [
+   {
+    "model": "PowerLite L630U",
+    "module": "epsn_vp_CB_EB_PowerLite_L630U_Series_v1_0_7_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "epsn_1_5466_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "PowerLite L520U",
+    "module": "epsn_vp_CB_EB_PowerLite_L520U_Series_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "esl_2_17208_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "7366",
+    "module": "esl_switcher_7366_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_15_16965_v1_8_0.pkp",
+  "matches": [
+   {
+    "model": "DTP3 CrossPoint 884",
+    "module": "extr_matrix_DTP3_CrossPoint_884_Series_v1_7_00.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_15_17578_v1_3_0.pkp",
+  "matches": [
+   {
+    "model": "DTP3 CrossPoint 42",
+    "module": "extr_matrix_DTP3_CrossPoint_42_Series_v1_2_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_15_178_v1_5_10.pkp",
+  "matches": [
+   {
+    "model": "DTP CrossPoint 84",
+    "module": "extr_matrix_DTPCrossPoint84_v1_5_6_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_15_2708_v1_3_2.pkp",
+  "matches": [
+   {
+    "model": "USB Plus Matrix Controller",
+    "module": "extr_matrix_USB_Plus_Matrix_Controller_v1320.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_15_32_v1_2_0.pkp",
+  "matches": [
+   {
+    "model": "MPX 866 A",
+    "module": "extr_matrix_MPX_866_A_v1_2_0_1.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_15_4601_v1_1_3.pkp",
+  "matches": [
+   {
+    "model": "DXP 42 HD 4K PLUS",
+    "module": "extr_matrix_DXP_42_HD_4K_PLUS_v1_1_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_15_4603_v1_1_4.pkp",
+  "matches": [
+   {
+    "model": "DTP2 CrossPoint 82",
+    "module": "extr_matrix_DTP2CrossPoint_82_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_17_15_v1_7_1.pkp",
+  "matches": [
+   {
+    "model": "IN1606",
+    "module": "extr_scaler_IN1606_IN1608_Series_v1_7_0_0.py"
+   },
+   {
+    "model": "IN1608",
+    "module": "extr_scaler_IN1606_IN1608_Series_v1_7_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_17_17181_v1_0_4.pkp",
+  "matches": [
+   {
+    "model": "IN2004",
+    "module": "extr_scaler_IN2004_Series_v1_0_3_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_17_17676_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "DSC HD-12G A",
+    "module": "extr_scaler_DSC_HD_12G_A_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_17_17677_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "DSC 12G-HD A",
+    "module": "extr_scaler_DSC_12G_HD_A_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_17_3288_v1_2_4.pkp",
+  "matches": [
+   {
+    "model": "IN1608 xi",
+    "module": "extr_scaler_IN1608xi_Series_v1_2_4_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_17_3842_v1_3_0.pkp",
+  "matches": [
+   {
+    "model": "IN1804",
+    "module": "extr_scaler_IN1804_Series_v1_3_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_17_3966_v1_2_2.pkp",
+  "matches": [
+   {
+    "model": "IN1808",
+    "module": "extr_Scaler_IN806_IN1808_Series_v1_1_5_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_18_16_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "DSC 301 HD",
+    "module": "extr_sp_DSC_301_HD_v1_0_1_1.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_18_366_v1_2_1.pkp",
+  "matches": [
+   {
+    "model": "Annotator 300",
+    "module": "extr_sp_Annotator300_v1_2_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_18_39_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "Annotator",
+    "module": "extr_sp_Annotator300_v1_2_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_18_5158_v1_3_1.pkp",
+  "matches": [
+   {
+    "model": "MGP 641",
+    "module": "extr_sp_MGP_641_v1_3_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_18_5288_v1_0_2.pkp",
+  "matches": [
+   {
+    "model": "DSC 401A",
+    "module": "extr_sp_DSC401A_v1_0_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_18_5290_v1_0_3.pkp",
+  "matches": [
+   {
+    "model": "ISS 608",
+    "module": "extr_sp_ISS_608_v1_0_3_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_18_5296_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "ISS 408",
+    "module": "extr_sp_ISS_408_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_18_5301_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "ISS 506",
+    "module": "extr_sp_ISS_506_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_18_53_v1_2_4.pkp",
+  "matches": [
+   {
+    "model": "DVS 605",
+    "module": "extr_sp_DVS605_v1_2_3_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_18_5534_v1_2_1.pkp",
+  "matches": [
+   {
+    "model": "Annotator 401",
+    "module": "extr_sp_Annotator401_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_18_81_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "RAC 104",
+    "module": "extr_sp_RAC104_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_20_123_v1_0_6.pkp",
+  "matches": [
+   {
+    "model": "IPL T CR48",
+    "module": "extr_controller_IPL_T_CR48_v1_0_6_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_20_133_v1_2_5.pkp",
+  "matches": [
+   {
+    "model": "IPL T PCS4",
+    "module": "extr_controller_IPL_T_PCS4_IPL_T_PCS4I_v1_2_50.py"
+   },
+   {
+    "model": "IPL T PCS4i",
+    "module": "extr_controller_IPL_T_PCS4_IPL_T_PCS4I_v1_2_50.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_20_14_v1_1_0.pkp",
+  "matches": [
+   {
+    "model": "MLA VC10",
+    "module": "extr_controller_MLAVC10Plus_v1_0_2_0.py"
+   },
+   {
+    "model": "MLA VC10 Plus",
+    "module": "extr_controller_MLAVC10Plus_v1_0_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_20_153_v1_0_6.pkp",
+  "matches": [
+   {
+    "model": "MLC 226 IP",
+    "module": "extr_controller_MLC226IP_v1_0_3_1.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_20_158_v1_0_2.pkp",
+  "matches": [
+   {
+    "model": "IPL T PC1",
+    "module": "extr_controller_IPL_T_PC1_v1_0_1_1.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_20_16937_v1_1_0.pkp",
+  "matches": [
+   {
+    "model": "IPL EXP PDU8L",
+    "module": "extr_controller_IPL_EXP_PDU8L_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_20_235_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "SCP 104",
+    "module": "extr_controller_SCP_104_226_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_20_5661_v1_0_2.pkp",
+  "matches": [
+   {
+    "model": "IPL EXP PDU4H",
+    "module": "extr_controller_IPL_EXP_PDU4H_v1_0_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_20_921_v1_0_2.pkp",
+  "matches": [
+   {
+    "model": "IPL 250",
+    "module": "extr_controller_IPL250_v1_0_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_25_16939_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "MVC 121 xi",
+    "module": "extr_dsp_MVC_121_xi_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_25_20_v1_3_3.pkp",
+  "matches": [
+   {
+    "model": "SSP 7.1",
+    "module": "extr_dsp_SSP71_v1_3_3_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_25_2146_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "MVC 121",
+    "module": "extr_dsp_MVC121_v1_0_2_2.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_25_2441_v1_2_1.pkp",
+  "matches": [
+   {
+    "model": "DMP 64",
+    "module": "extr_dsp_DMP64_v1_2_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_25_2513_v1_10_16.pkp",
+  "matches": [
+   {
+    "model": "DMP 128 Plus",
+    "module": "extr_dsp_DMP_128_Plus_Series_v1_10_14_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_25_4848_v1_0_5.pkp",
+  "matches": [
+   {
+    "model": "XMP 240 C AT",
+    "module": "extr_dsp_XMP_240_C_AT_v1_0_4_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_25_5103_v1_2_0.pkp",
+  "matches": [
+   {
+    "model": "SSP 200",
+    "module": "extr_dsp_SSP_200_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_25_5_v1_5_12.pkp",
+  "matches": [
+   {
+    "model": "DMP 128",
+    "module": "extr_dsp_DMP128_FlexPlus_v1_0_9_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_25_664_v1_0_3.pkp",
+  "matches": [
+   {
+    "model": "AXP 50 C AT",
+    "module": "extr_dsp_AXP_50_C_AT_v1_0_3_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_25_6847_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "DMP 44 xi",
+    "module": "extr_dsp_DMP44_xi_v1_0_0_1.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_27_17623_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "XTP II FR 401 8K",
+    "module": "extr_receiver_XTP_II_FR_401_8K_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_111_v1_1_2.pkp",
+  "matches": [
+   {
+    "model": "MLS 304",
+    "module": "extr_switcher_MLS_304_406_Series_v1_1_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_115_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "SW 6V",
+    "module": "extr_switcher_MTP_SW6_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_125_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "System 5 IP",
+    "module": "extr_switcher_System5IP_v1_1_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_1363_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "XTP T FB 202",
+    "module": "extr_switcher_XTP_T_FB202_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_137_v1_2_1.pkp",
+  "matches": [
+   {
+    "model": "PVS 405D",
+    "module": "extr_switcher_PVS_405D_v1_2_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_138_v1_1_2.pkp",
+  "matches": [
+   {
+    "model": "System 7SC",
+    "module": "extr_switcher_System_7SC_v1_1_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_142_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "MPS 601",
+    "module": "extr_switcher_MPS_601_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_144_v1_2_1.pkp",
+  "matches": [
+   {
+    "model": "MPS 602",
+    "module": "extr_switcher_MPS602_v1_2_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_1637_v1_3_0.pkp",
+  "matches": [
+   {
+    "model": "PVS 407D",
+    "module": "extr_switcher_PVS407D_v1_2_3_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_16994_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "DTP3 T 212 D",
+    "module": "extr_switcher_DTP3_T_212_D_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_17466_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "UCS T 503",
+    "module": "extr_switcher_UCS_T_503_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_17575_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "SW2 HD 8K",
+    "module": "extr_switcher_SW2_HD_8K_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_17_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "MLS 506",
+    "module": "extr_switcher_MLS506_Series_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_22_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "MTP SW6",
+    "module": "extr_switcher_MTP_SW6_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_2432_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "FOX T USW 203 MM",
+    "module": "extr_switcher_FOX_T_USW_203_MM_SM_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_2458_v1_1_2.pkp",
+  "matches": [
+   {
+    "model": "DTP T SW4 HD 4K",
+    "module": "extr_switcher_DTP_T_SW4_HD_4K_v1_1_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_4283_v1_0_2.pkp",
+  "matches": [
+   {
+    "model": "DTP2 T 203",
+    "module": "extr_switcher_DTP2T203_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_4481_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "DTP2 T 204",
+    "module": "extr_switcher_DTP2_T_204_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_4856_v1_3_0.pkp",
+  "matches": [
+   {
+    "model": "DTP2 R 212",
+    "module": "extr_switcher_DTP2_R_212_Series_v1_2_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_620_v1_1_2.pkp",
+  "matches": [
+   {
+    "model": "FOX T USW 103",
+    "module": "extr_switcher_FOX_T_USW103_v1_1_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_64_v1_1_2.pkp",
+  "matches": [
+   {
+    "model": "MPS 112",
+    "module": "extr_switcher_MPS_112_Series_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_6512_v1_0_5.pkp",
+  "matches": [
+   {
+    "model": "UCS 303",
+    "module": "extr_switcher_UCS_303_v1_0_5_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_6513_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "DTP3 T 203",
+    "module": "extr_switcher_DTP3_T_203_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_71_v1_4_0.pkp",
+  "matches": [
+   {
+    "model": "SW4 HD 4K",
+    "module": "extr_switcher_DTP_T_SW4_HD_4K_v1_1_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_78_v1_3_1.pkp",
+  "matches": [
+   {
+    "model": "XTP T USW 103",
+    "module": "extr_switcher_XTP_T_USW_103_v1_3_0_1.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_2_879_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "SW2 DP",
+    "module": "extr_switcher_SW2_DP_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_31_1685_v1_3_3.pkp",
+  "matches": [
+   {
+    "model": "MediaPort 200",
+    "module": "extr_other_MediaPort200_v1_3_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_31_17022_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "AXI 22 AT D Plus",
+    "module": "extr_other_AXI_22_AT_D_Plus_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_31_17214_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "NetPA 204 POE",
+    "module": "extr_other_NetPA204POE_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_31_17680_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "NetPA U 4004 FX",
+    "module": "extr_other_NetPAU4004FX_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_31_2182_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "PowerCage 401",
+    "module": "extr_other_PowerCage401_v1_1_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_31_247_v1_0_4.pkp",
+  "matches": [
+   {
+    "model": "CTR 8",
+    "module": "extr_other_CTR8_v1_0_3_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_31_5055_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "NetPA U 8001 SUB",
+    "module": "extr_other_NetPAU8001SUB_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_31_5064_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "NetPA U 2002 SB",
+    "module": "extr_other_NetPAU2002SB_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_31_5521_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "AXI 22 AT",
+    "module": "extr_other_AXI_22_AT_D_Plus_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_31_6096_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "MediaPort 300",
+    "module": "extr_other_MediaPort_300_v1_1_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_31_6112_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "PowerCage 411",
+    "module": "extr_other_PowerCage411_v1_1_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_31_6422_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "AXI 02 AT",
+    "module": "extr_other_AXI02AT_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_31_769_v1_1_0.pkp",
+  "matches": [
+   {
+    "model": "FOX II T HD 4K MM",
+    "module": "extr_other_FOX_II_T_HD_4K_MM_SM_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_42_1339_v1_11_10.pkp",
+  "matches": [
+   {
+    "model": "SMD 101",
+    "module": "extr_sm_SMD101_SMD202_v1_11_10_0.py"
+   },
+   {
+    "model": "SMD 202",
+    "module": "extr_sm_SMD101_SMD202_v1_11_10_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_42_2546_v1_6_9.pkp",
+  "matches": [
+   {
+    "model": "SMP 111",
+    "module": "extr_sm_SMP_111_v1_6_9_1.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_42_2980_v1_2_0.pkp",
+  "matches": [
+   {
+    "model": "StudioStation",
+    "module": "extr_sm_StudioStation_v1_2_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_42_3581_v1_3_1.pkp",
+  "matches": [
+   {
+    "model": "SME 211",
+    "module": "extr_sm_SME211_v1_0_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_42_6768_v1_0_2.pkp",
+  "matches": [
+   {
+    "model": "SMP 401",
+    "module": "extr_sm_SMP_401_Series_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_44_16854_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "ShareLink Pro 2000",
+    "module": "extr_cs_ShareLink_Pro_2000_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_44_17159_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "ShareLink Pro Module",
+    "module": "extr_cs_ShareLink_Pro_Module_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_44_17256_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "ShareLink Pro 2500",
+    "module": "extr_cs_ShareLink_Pro_2500_v1_0_0_1.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_47_17624_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "XTP II FT 402 8K",
+    "module": "extr_tx_XTP_II_FT_402_8K_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_49_17552_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "FOX3 T 111",
+    "module": "extr_foe_FOX3_T_111_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_52_17469_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "NF 4C LP",
+    "module": "extr_speaker_NF_4C_LP_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "extr_8_4_v1_3_0.pkp",
+  "matches": [
+   {
+    "model": "AVT 200HD",
+    "module": "extr_tuner_AVT_200HD_v1_3_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "flct_43_17348_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "Falcon Player",
+    "module": "flct_mp_Falcon_Player_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "frpt_31_5101_v1_3_4.pkp",
+  "matches": [
+   {
+    "model": "Mercury",
+    "module": "frpt_other_Mercury_v1_3_4_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "gude_20_5456_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "Expert Net Control 2302-1",
+    "module": "gude_controller_Expert_Net_Control_2302_1v1110.py"
+   }
+  ]
+ },
+ {
+  "pkp": "gude_20_6163_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "Expert Net Control 2304-1",
+    "module": "gude_controller_Expert_Net_Control_2304_1v1010.py"
+   }
+  ]
+ },
+ {
+  "pkp": "hit_1_2224_v1_2_2.pkp",
+  "matches": [
+   {
+    "model": "CP-AW2505",
+    "module": "hit_vp_CP_AW2505_v1210.py"
+   }
+  ]
+ },
+ {
+  "pkp": "igen_2_17539_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "IP2USB",
+    "module": "igen_sw_IP2USB_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "infb_32_6840_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "iTrans UC-Hub21",
+    "module": "infb_kvms_iTrans_UC_Hub21_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "ints_46_3393_v1_0_2.pkp",
+  "matches": [
+   {
+    "model": "ASCII Server - BACnet/IP Client",
+    "module": "ints_controller_ASCIIServerBACnetIPClientv1010.py"
+   }
+  ]
+ },
+ {
+  "pkp": "jbl_25_4862_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "SDP-55",
+    "module": "jbl_dsp_SDP_55_SDR_35_v1_0_1_0.py"
+   },
+   {
+    "model": "SDR-35",
+    "module": "jbl_dsp_SDP_55_SDR_35_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "jgse_31_17241_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "iP PD1-4",
+    "module": "jgse_other_iP_PD1_4_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "jgse_31_4491_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "iP-50",
+    "module": "jgse_other_iP50_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "jupi_10_16897_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "Pana 105X",
+    "module": "jupi_display_Pana_105X_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "jupi_29_2896_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "Fusion Catalyst 4000",
+    "module": "jupi_vprocessor_FusionCatalyst_4000_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "jvc_10_17287_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "DT-E17L4G",
+    "module": "jvc_display_DT_E17L4G_E21L4_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "kary_25_17755_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "Kommander-KA02 I",
+    "module": "kary_dsp_Kommander_KA02I_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "kmtr_20_1650_v1_0_3.pkp",
+  "matches": [
+   {
+    "model": "R2S8CR",
+    "module": "kmtr_controller_R2S8CR_UD8CR_v1_0_1_0.py"
+   },
+   {
+    "model": "UD8CR",
+    "module": "kmtr_controller_R2S8CR_UD8CR_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "krmr_2_6486_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "VP-429H2",
+    "module": "krmr_switcher_VP_429H2_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "krmr_44_5475_v1_0_4.pkp",
+  "matches": [
+   {
+    "model": "VIA GO",
+    "module": "krmr_cs_VIA_GO_GO2_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "ktek_25_2922_v1_1_4.pkp",
+  "matches": [
+   {
+    "model": "DM8000",
+    "module": "ktek_dsp_DM8000_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "laco_25_1773_v1_2_1.pkp",
+  "matches": [
+   {
+    "model": "LA12X",
+    "module": "laco_dsp_LA8_LA4X_LA4_lA12X_v1_1_0_0.py"
+   },
+   {
+    "model": "LA4X",
+    "module": "laco_dsp_LA8_LA4X_LA4_lA12X_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "lect_25_1620_v1_3_1.pkp",
+  "matches": [
+   {
+    "model": "SPN Conference",
+    "module": "lect_dsp_SPN_Conference_v1_2_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "lg_10_17175_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "32SM5J",
+    "module": "lg_display_32SM5J_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "lg_10_6581_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "86BH5F-M",
+    "module": "lg_display_86BH5F_M_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "lind_31_2279_v1_0_2.pkp",
+  "matches": [
+   {
+    "model": "IPower Switch Classic 8",
+    "module": "lind_other_IPower_Switch_Classic_8_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "ltwr_15_5106_v1_0_8.pkp",
+  "matches": [
+   {
+    "model": "UCX-4x2-HC30",
+    "module": "ltwr_matrix_UCX_4x2_HC30_D_v1_0_6_0.py"
+   },
+   {
+    "model": "UCX-4x2-HC30D",
+    "module": "ltwr_matrix_UCX_4x2_HC30_D_v1_0_6_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "ltwr_15_6838_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "MX2M-FR24R",
+    "module": "ltwr_matrix_MX2M_FR24R_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "ltwr_2_17180_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "UCX-2x1-TPX-TX20",
+    "module": "ltwr_sw_UCX_2x1_TPX_TX20_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "lumn_16_1103_v1_3_0.pkp",
+  "matches": [
+   {
+    "model": "CL510",
+    "module": "lumn_dc_CL510_v1_0_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "lumn_19_17434_v1_0_2.pkp",
+  "matches": [
+   {
+    "model": "VC-TR61",
+    "module": "lumn_camera_VC_TR61_v1_0_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "lumn_19_6103_v1_2_0.pkp",
+  "matches": [
+   {
+    "model": "VC-TR40",
+    "module": "lumn_camera_VC_TR40_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "lumn_19_6668_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "VC-TR30",
+    "module": "lumn_camera_VC_TR30_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "lumn_31_6541_v1_2_5.pkp",
+  "matches": [
+   {
+    "model": "CamConnect Pro (AI-Box1)",
+    "module": "lumn_other_CamConnect_Pro_AI_Box1_v1_2_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "lumn_42_6764_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "LC300",
+    "module": "lumn_sm_LC300_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "lumn_42_6836_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "OIP-N60D",
+    "module": "lumn_sm_OIP_N60D_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "luna_13_6691_v1_0_2.pkp",
+  "matches": [
+   {
+    "model": "DALI 4Net",
+    "module": "luna_lc_DALI_4Net_v1_0_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "lutr_13_48_v1_4_11.pkp",
+  "matches": [
+   {
+    "model": "RadioRA 2",
+    "module": "lutr_lc_RadioRA_2_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "mal_13_5607_v1_1_0.pkp",
+  "matches": [
+   {
+    "model": "grandMA3",
+    "module": "mal_lc_grandMA3_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "matl_20_2838_v1_3_0.pkp",
+  "matches": [
+   {
+    "model": "RLNK-215",
+    "module": "matl_controller_RLNK_215_v1_3_0_1.py"
+   }
+  ]
+ },
+ {
+  "pkp": "matl_20_2964_v1_2_0.pkp",
+  "matches": [
+   {
+    "model": "RLNK-915R",
+    "module": "matl_controller_RLNK915R_v1_2_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "matl_20_6552_v1_0_2.pkp",
+  "matches": [
+   {
+    "model": "UPX-RLNK-2000R-2",
+    "module": "matl_controller_UPX_RLNK_2000R_2_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "mgwl_42_17345_v1_0_3.pkp",
+  "matches": [
+   {
+    "model": "Pro Convert IP to USB",
+    "module": "mgwl_sm_Pro_Convert_IP_to_USB_v1_0_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "mhub_39_17520_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "C9850",
+    "module": "mhub_tdisplay_C9850_Vx550_Series_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "minr_19_4387_v1_0_3.pkp",
+  "matches": [
+   {
+    "model": "UV100T",
+    "module": "minr_camera_UV830_UV100T_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "mrsh_19_5214_v1_1_0.pkp",
+  "matches": [
+   {
+    "model": "CV420-30X-IP",
+    "module": "mrsh_camera_CV355_CV420_30X_IP_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "mshs_13_1203_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "WhisperShade IQ2",
+    "module": "mshs_lc_WhisperShade_IQ2_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "mtac_39_4412_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "MT557D",
+    "module": "mtac_tdisplay_MT556_MT557D_Series_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "mtrx_42_5652_v1_0_3.pkp",
+  "matches": [
+   {
+    "model": "Maevex 6020 Remote Recorder",
+    "module": "mtrx_sm_Maevex_6020_Remote_Recorder_v1_0_3_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "nec_10_5304_v1_1_2.pkp",
+  "matches": [
+   {
+    "model": "E498",
+    "module": "nec_display_Ex38_E498_Ex58_Series_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "nec_10_5648_v1_2_1.pkp",
+  "matches": [
+   {
+    "model": "C750Q",
+    "module": "nec_display_C750Q_C860Q_v1_2_0_0.py"
+   },
+   {
+    "model": "C860Q",
+    "module": "nec_display_C750Q_C860Q_v1_2_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "nec_10_6279_v1_0_4.pkp",
+  "matches": [
+   {
+    "model": "MultiSync M751",
+    "module": "nec_display_MultiSync_M751_M861_M981_v1_0_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "nec_10_6296_v1_0_3.pkp",
+  "matches": [
+   {
+    "model": "E758",
+    "module": "nec_display_E758_E868_E988_v1_0_2_0.py"
+   },
+   {
+    "model": "E868",
+    "module": "nec_display_E758_E868_E988_v1_0_2_0.py"
+   },
+   {
+    "model": "E988",
+    "module": "nec_display_E758_E868_E988_v1_0_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "nec_1_2710_v1_0_6.pkp",
+  "matches": [
+   {
+    "model": "NP-PA653U",
+    "module": "nec_vp_NPPA_653U_803U_853W_903X_v1_0_1_0.py"
+   },
+   {
+    "model": "NP-PA803U",
+    "module": "nec_vp_NPPA_803UL_653UL_v1_1_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "nec_1_4042_v1_2_3.pkp",
+  "matches": [
+   {
+    "model": "NP-P525UL",
+    "module": "nec_vp_NP_P525_UL_WL_v1_2_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "nec_1_6371_v1_1_0.pkp",
+  "matches": [
+   {
+    "model": "NP-P547UL",
+    "module": "nec_vp_NP_P547UL_P627UL_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "nti_31_17262_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "PWR-RMT-RBT-C13",
+    "module": "nti_other_PWR_RMT_RBT_C13_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "nvstr_29_3289_v1_3_0.pkp",
+  "matches": [
+   {
+    "model": "MCTRL 4K",
+    "module": "nvstr_vidpsr_MCTRL_4K_v1_2_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "opto_1_4215_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "DAZUBLZ",
+    "module": "opto_vp_ZU860_DAZUBLZ_v1_0_0_0.py"
+   },
+   {
+    "model": "ZU860",
+    "module": "opto_vp_ZU860_DAZUBLZ_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "opto_1_4409_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "ZU506",
+    "module": "opto_vp_ZU506_ZU606_ZU516_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "pana_19_3768_v1_6_1.pkp",
+  "matches": [
+   {
+    "model": "AW-SF100",
+    "module": "pana_camera_AW_SF_100_200_v1_4_3_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "pana_19_5231_v1_2_0.pkp",
+  "matches": [
+   {
+    "model": "AW-UE100",
+    "module": "pana_camera_AW_UE100_Series_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "pana_19_5702_v1_4_5.pkp",
+  "matches": [
+   {
+    "model": "AW-UE40",
+    "module": "pana_camera_AW_UE40_UE50_UE80_v1_4_4_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "pana_1_17031_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "PT-RZ6",
+    "module": "pana_vp_PTRW630_PTRZ670_Series_v1_0_9_3.py"
+   }
+  ]
+ },
+ {
+  "pkp": "pana_1_2193_v1_2_1.pkp",
+  "matches": [
+   {
+    "model": "PT-EW550",
+    "module": "pana_vp_PT_EW550_EW650_EX520_EX620_EZ590_v1201.py"
+   }
+  ]
+ },
+ {
+  "pkp": "pana_1_3700_v1_2_1.pkp",
+  "matches": [
+   {
+    "model": "PT-RS20K",
+    "module": "pana_vp_PT_RS20K_RZ21K_v1_2_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "pana_1_4192_v1_1_2.pkp",
+  "matches": [
+   {
+    "model": "PT-BMX50",
+    "module": "pana_vp_PT_BMX50_VMW50_VMW60_VMZ_Series_v1_110.py"
+   }
+  ]
+ },
+ {
+  "pkp": "pana_25_3988_v1_0_3.pkp",
+  "matches": [
+   {
+    "model": "WX-SR200",
+    "module": "pana_dsp_WXSR200_Series_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "pano_43_4116_v1_4_0.pkp",
+  "matches": [
+   {
+    "model": "Remote Recorder",
+    "module": "pano_mp_Remote_Recorder_v1_1_1_1.py"
+   }
+  ]
+ },
+ {
+  "pkp": "phil_13_3821_v1_2_0.pkp",
+  "matches": [
+   {
+    "model": "Hue Bridge",
+    "module": "phil_lc_Hue_Bridge_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "plcm_31_17617_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "Leg Controller (Rx)",
+    "module": "plcm_other_Leg_Controller_Rx_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "plnr_10_6569_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "URW105",
+    "module": "plnr_tdisplay_URW105_ERO_T_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "plnr_29_6586_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "VC8-L-C5G",
+    "module": "plnr_vidpsr_VC8_L_C5G_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "plnr_39_6584_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "URW105-ERO-T",
+    "module": "plnr_tdisplay_URW105_ERO_T_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "pmax_20_3566_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "M4315-PRO",
+    "module": "pmax_controller_M4315PRO_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "poet_31_16966_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "GBT-24-M",
+    "module": "poet_other_GBT_24_M_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "poly_12_16955_v1_0_3.pkp",
+  "matches": [
+   {
+    "model": "Studio G62",
+    "module": "poly_vtc_Studio_G62_v1_0_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "poly_12_4381_v1_6_2.pkp",
+  "matches": [
+   {
+    "model": "G7500",
+    "module": "poly_vtc_G7500_v1_6_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "prac_13_5927_v1_1_0.pkp",
+  "matches": [
+   {
+    "model": "LPC 1",
+    "module": "prac_lc_LPC_1_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "rcwr_19_17027_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "RC821U",
+    "module": "rcwr_camera_RC821U_RC840S_RC841U_v1_0_1_0.py"
+   },
+   {
+    "model": "RC840S",
+    "module": "rcwr_camera_RC821U_RC840S_RC841U_v1_0_1_0.py"
+   },
+   {
+    "model": "RC841U",
+    "module": "rcwr_camera_RC821U_RC840S_RC841U_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "rlnd_2_4057_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "XS-62S",
+    "module": "rlnd_switcher_XS_62S_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "ross_15_3280_v1_3_2.pkp",
+  "matches": [
+   {
+    "model": "Ultrix",
+    "module": "ross_matrix_Ultrix_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "sdds_48_17215_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "PIX 260i",
+    "module": "sdds_recorder_PIX_260i_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "senn_25_4124_v1_6_3.pkp",
+  "matches": [
+   {
+    "model": "TeamConnect Ceiling 2",
+    "module": "senn_dsp_TeamConnect_Ceiling2_v1_6_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "senn_25_6252_v1_0_5.pkp",
+  "matches": [
+   {
+    "model": "TeamConnect Ceiling Medium",
+    "module": "senn_dsp_TeamConnect_Ceiling_Medium_v1_0_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "senn_27_3089_v1_1_4.pkp",
+  "matches": [
+   {
+    "model": "SL Rack Receiver DW",
+    "module": "senn_rcv_SLRackReceiverDW_v1_0_4_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "senn_31_5578_v1_0_5.pkp",
+  "matches": [
+   {
+    "model": "MobileConnect",
+    "module": "senn_other_MobileConnect_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "senn_31_6624_v1_1_4.pkp",
+  "matches": [
+   {
+    "model": "TeamConnect Bar S",
+    "module": "senn_other_TeamConnect_Bar_Series_v1_1_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "shrp_10_2945_v1_0_6.pkp",
+  "matches": [
+   {
+    "model": "PN-LE601",
+    "module": "shrp_display_PN_LE601_LE701_LE801_LE901_v1052.py"
+   },
+   {
+    "model": "PN-LE901",
+    "module": "shrp_display_PNLE901_v1_0_3_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "shrp_10_3494_v1_0_2.pkp",
+  "matches": [
+   {
+    "model": "PN-H801",
+    "module": "shrp_display_PN_H801_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "shur_25_5845_v1_5_0.pkp",
+  "matches": [
+   {
+    "model": "MXA920",
+    "module": "shur_dsp_MXA920_v1_5_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "shur_25_6520_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "MXA902",
+    "module": "shur_dsp_MXA902_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "shur_31_16931_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "MXA901-R",
+    "module": "shur_other_MXA901R_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "shur_31_17299_v1_0_4.pkp",
+  "matches": [
+   {
+    "model": "neXt 4",
+    "module": "shur_other_MXWAPXx_neXt_4_8_v1_0_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "shur_31_4905_v1_0_3.pkp",
+  "matches": [
+   {
+    "model": "MXA-MUTE",
+    "module": "shur_other_MXA_MUTE_v1_0_3_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "shur_31_4923_v1_1_0.pkp",
+  "matches": [
+   {
+    "model": "MXA710-2FT",
+    "module": "shur_other_MXA710_2FT_4FT_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "shur_31_493_v1_1_6.pkp",
+  "matches": [
+   {
+    "model": "QLX-D",
+    "module": "shur_other_QLX_D_ULX_D_Series_v1_1_5_0.py"
+   },
+   {
+    "model": "ULX-D",
+    "module": "shur_other_QLX_D_ULX_D_Series_v1_1_5_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "shur_31_6805_v1_1_2.pkp",
+  "matches": [
+   {
+    "model": "MXWAPXD2",
+    "module": "shur_other_MXW_APXD2_neXt2_v1_1_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "siem_46_3391_v1_1_1.pkp",
+  "matches": [
+   {
+    "model": "Desigo PXC",
+    "module": "siem_bms_Desigo_PXC_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "smsg_10_17483_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "MM015F-A",
+    "module": "smsg_display_MM015F_A_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "smsg_10_17762_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "MM015F-A",
+    "module": "smsg_display_MM015F_A_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "smsg_18_17063_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "SBB-CS4B",
+    "module": "smsg_sp_SBB_CS4B_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "sony_19_6315_v1_1_10.pkp",
+  "matches": [
+   {
+    "model": "SRG-A12",
+    "module": "sony_camera_SRG_A12_A40_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "sony_1_4830_v1_0_2.pkp",
+  "matches": [
+   {
+    "model": "VPL-CWZ10",
+    "module": "sony_vp_VPL_CWZ10_CXZ10_v1_0_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "sony_20_3593_v1_2_2.pkp",
+  "matches": [
+   {
+    "model": "ZRCT-100",
+    "module": "sony_controller_ZRCT100_v1_2_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "sony_31_4422_v1_1_3.pkp",
+  "matches": [
+   {
+    "model": "REA-C1000",
+    "module": "sony_other_REA_C1000_v1_1_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "spph_20_5491_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "IP Control Box",
+    "module": "spph_controller_IP_Control_Box_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "tasc_45_4712_v1_2_1.pkp",
+  "matches": [
+   {
+    "model": "BD-MP1",
+    "module": "tasc_bluray_BD_MP1_v1_2_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "tasc_5_3475_v1_2_2.pkp",
+  "matches": [
+   {
+    "model": "CD-400U",
+    "module": "tasc_cd_CD400U_CD400UDAB_v1_0_1_0.py"
+   },
+   {
+    "model": "CD-400UDAB",
+    "module": "tasc_cd_CD400U_CD400UDAB_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "telc_31_1470_v1_7_4.pkp",
+  "matches": [
+   {
+    "model": "CoCon",
+    "module": "telc_other_CoCon_v1_7_4_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "telc_31_2512_v1_3_2.pkp",
+  "matches": [
+   {
+    "model": "Plixus",
+    "module": "telc_other_Plixus_v1_3_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "telc_44_6071_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "Confidea WAP G4",
+    "module": "telc_cs_Confidea_WAP_G4_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "tenc_12_6008_v1_2_0.pkp",
+  "matches": [
+   {
+    "model": "Tencent Room",
+    "module": "tenc_vtc_Tencent_Room_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "tidn_31_5391_v1_0_2.pkp",
+  "matches": [
+   {
+    "model": "HCS-4800",
+    "module": "tidn_other_HCS_4800_8600_9600_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "tplay_26_4680_v1_2_4.pkp",
+  "matches": [
+   {
+    "model": "TN029",
+    "module": "tplay_cb_TN029_v1_2_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "ubi_42_17230_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "Nudgis",
+    "module": "ubi_sm_Nudgis_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "vadd_16_17139_v1_0_3.pkp",
+  "matches": [
+   {
+    "model": "DocCAM 4K HDBT",
+    "module": "vadd_dc_DocCAM_4K_HDBT_v1_0_3_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "vadd_19_5435_v1_0_3.pkp",
+  "matches": [
+   {
+    "model": "IntelliSHOT",
+    "module": "vadd_camera_IntelliSHOT_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "vadd_19_5647_v1_1_3.pkp",
+  "matches": [
+   {
+    "model": "ConferenceSHOT ePTZ",
+    "module": "vadd_camera_ConferenceSHOT_ePTZ_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "vadd_2_4820_v1_0_7.pkp",
+  "matches": [
+   {
+    "model": "AV Bridge 2x1",
+    "module": "vadd_switcher_AV_Bridge_2x1_v1_0_5_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "vadd_2_4898_v1_3_2.pkp",
+  "matches": [
+   {
+    "model": "EasyIP Mixer",
+    "module": "vadd_switcher_EasyIP_Mixer_v1_3_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "vadd_42_4948_v1_1_2.pkp",
+  "matches": [
+   {
+    "model": "AV Bridge Mini",
+    "module": "vadd_sm_AV_Bridge_Mini_v1_1_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "view_1_3681_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "PA502X",
+    "module": "view_vp_PA502X_PA603X_PG603W_PG603X_PG703W.py"
+   },
+   {
+    "model": "PA502XP",
+    "module": "view_vp_PA502X_PA603X_PG603W_PG603X_PG703W.py"
+   },
+   {
+    "model": "PA503SP",
+    "module": "view_vp_PA500X_PA503S_PA503W_PA503X_v1_0_0_0.py"
+   },
+   {
+    "model": "PX705HD",
+    "module": "view_vp_PA500_PX705HD_Series_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "view_39_4757_v1_1_0.pkp",
+  "matches": [
+   {
+    "model": "IFP9850-3",
+    "module": "view_tdisplay_IFP9850_3_v1_0_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "vmrq_31_6651_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "MD4-0112T",
+    "module": "vmrq_other_MD4_0112T_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "vsca_19_1101_v1_0_3.pkp",
+  "matches": [
+   {
+    "model": "Visca",
+    "module": "vsca_camera_Visca_v1_0_1_2.py"
+   }
+  ]
+ },
+ {
+  "pkp": "vvtk_1_3559_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "DK8500Z",
+    "module": "vvtk_vp_DK8500Z_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "watt_13_17652_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "WattStopper Plus SSU",
+    "module": "watt_lc_WattStopper_Plus_SSU_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "wmav_47_17436_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "BA CT1",
+    "module": "wmav_tx_BA_CT1_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "wolf_16_17113_v1_1_0.pkp",
+  "matches": [
+   {
+    "model": "VZ-2.UHD",
+    "module": "wolf_dc_VZ_2UHD_3neoUHD_8UHD_8neoUHD_v1_1_0_0.py"
+   },
+   {
+    "model": "VZ-8.UHD",
+    "module": "wolf_dc_VZ_8_UHD_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "wolf_44_2101_v1_18_4.pkp",
+  "matches": [
+   {
+    "model": "Cynap",
+    "module": "wolf_cs_Cynap_Core_Pure_Pro_v1_1_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "wtec_46_17187_v1_0_0.pkp",
+  "matches": [
+   {
+    "model": "smartdirector",
+    "module": "wtec_bms_smartdirector_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "wyre_44_17056_v1_1_0.pkp",
+  "matches": [
+   {
+    "model": "SW-640L-TX-W",
+    "module": "wyre_cs_SW_640L_TX_W_v1_1_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "yama_18_5381_v1_1_2.pkp",
+  "matches": [
+   {
+    "model": "RM-CR",
+    "module": "yama_sp_RM_CR_v1_1_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "yama_18_5515_v1_3_0.pkp",
+  "matches": [
+   {
+    "model": "RM-CG",
+    "module": "yama_sp_RM_CG_v1_3_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "yama_25_2973_v1_1_2.pkp",
+  "matches": [
+   {
+    "model": "TF-Rack",
+    "module": "yama_dsp_TF1_TF5_TFRack_v1_1_2_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "yama_25_6663_v1_0_2.pkp",
+  "matches": [
+   {
+    "model": "DME7",
+    "module": "yama_dsp_DME7_v1_0_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "yea_31_6499_v1_6_1.pkp",
+  "matches": [
+   {
+    "model": "RoomConnect",
+    "module": "yea_other_RoomConnect_v1_4_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "zctl_13_17152_v1_0_1.pkp",
+  "matches": [
+   {
+    "model": "Application Controller Pro 3",
+    "module": "zctl_lc_Application_Controller_Pro_3_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "zowt_42_16976_v1_0_2.pkp",
+  "matches": [
+   {
+    "model": "ZowieBox 4K NDI Video Decoder",
+    "module": "zowt_sm_ZowieBox_4K_NDI_Video_Decoder_v1_0_0_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "zvee_20_3065_v1_1_3.pkp",
+  "matches": [
+   {
+    "model": "ZyPer",
+    "module": "zvee_controller_ZyPer_Series_v1_1_1_0.py"
+   }
+  ]
+ },
+ {
+  "pkp": "zvee_31_17264_v1_0_2.pkp",
+  "matches": [
+   {
+    "model": "ZUHD60MPUNL",
+    "module": "zvee_other_ZUHD60MPUNL_v1_0_2_0.py"
+   }
+  ]
+ }
+]
