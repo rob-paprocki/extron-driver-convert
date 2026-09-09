@@ -30,10 +30,12 @@ marked otherwise.
 | 09 | VISCA: documentation closes **protocol** gaps, not **device** gaps. |
 | 10 | *(pending write-up)* the three-questions experiments — see `tools/out/verdicts/three_questions_synthesis.md`. |
 | 11 | A protocol **spec** refereed what two implementations could not; the wire oracle has its own false-positive rate. |
-| 12 | **GC ingests packages we generate.** The gate is an index, not the file. Locates the real 6,644-package driver library. |
+| 12 | **GC ingests packages we generate.** The gate is an index, not the file. Locates the driver library (size varies by install; see finding 16). |
 | 13 | **Crestron device -> Extron processor.** The i20's auto-switching is reserved preset numbers. Cross-vendor corroboration without a Crestron processor. |
 | 14 | **312 third-party oracle pairs.** 80.9% wire-match, but 25% of generated modules would raise `AttributeError` — and the broken ones score *higher*. |
-| 15 | **On hardware: `80085`.** A transplanted package is catalogued, then refused at selection. The **asset tree**, not the script, declares the command surface. |
+| 15 | **On hardware: `80085`.** A transplanted package is catalogued, then refused at selection. *Its proposed cause is superseded by finding 16.* |
+| 16 | **`80085` is a SHA-256 mismatch.** Extron's validator reimplemented in pure Python; 1,900/1,919 exact agreement with their own code, so GC is no longer needed to check a package. |
+| 17 | **How a human writes one.** A working integrator splices Extron's template from two vintages rather than authoring from scratch — the same instinct as our transplant. |
 
 ## Tools — all tested, all standard library only
 
@@ -44,6 +46,7 @@ marked otherwise.
 | `tools/wire_table.py` | **The acceptance oracle.** Normalised per-command wire table from *both* Python dialects. Unresolvable expressions become *counted* opaque markers, never guesses. | 34 |
 | `tools/pkp2cs.py` | `.pkp` → ControlScript translator. Raises rather than degrading. | 56 |
 | `tools/pkp_build.py` | **`.pkp` transplant builder.** Refuses to emit unless the unmodified donor round-trips byte-for-byte first; no bypass flag. | 36 |
+| `tools/pkp_validate.py` | **Extron's driver validator, in pure Python.** Same verdict as GC's own code on 1,900 of 1,919 packages, with no GC installed. | 127 |
 | `experiments/skeleton_i20/` | **i20 driver, both forms.** `.pkp` transplant + standalone ControlScript module, held to identical bytes. | 85 + 56 |
 
 Experiments live in `experiments/` (NRBF writer, Crestron→ControlScript, missing-Ethernet
