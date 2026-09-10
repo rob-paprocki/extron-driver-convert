@@ -202,9 +202,12 @@ def test_nibble_encoding():
           got is not None and hexs(got) == "81 01 04 47 03 01 0A 02 0B FF",
           "got %s" % (hexs(got) if got else "<nothing sent>"))
 
-    got = drive(d, "_cmd_SetPanTiltAngle",
-                {"Pan": 0x0123, "Tilt": 0x0456},
-                {"Pan Speed": 0x18, "Tilt Speed": 0x14})
+    # Every parameter arrives in the qualifier: none of them is the asset's
+    # `Value`, and GC routes non-Value params that way. Confirmed against
+    # Extron's own pana_19_5702 and measured in GC (findings/18 s8).
+    got = drive(d, "_cmd_SetPanTiltAngle", None,
+                {"Pan Speed": 0x18, "Tilt Speed": 0x14,
+                 "Pan": 0x0123, "Tilt": 0x0456})
     check("PanTiltAngle(0x0123, 0x0456) -> 81 01 06 02 18 14 00 01 02 03 00 04 05 06 FF",
           got is not None and
           hexs(got) == "81 01 06 02 18 14 00 01 02 03 00 04 05 06 FF",
@@ -226,7 +229,11 @@ def test_inquiries():
     cases = [
         ("_cmd_UpdateTrackingFraming", "81 09 08 01 FF"),
         ("_cmd_UpdateZoomPosition",    "81 09 04 47 FF"),
-        ("_cmd_UpdatePanTiltAngle",    "81 09 06 12 FF"),
+        # Position feedback is split in two - one VISCA inquiry, two GC
+        # commands - because a command carries one Value. Both send the same
+        # request; they differ in which half of the reply they keep.
+        ("_cmd_UpdatePanAngleStatus",  "81 09 06 12 FF"),
+        ("_cmd_UpdateTiltAngleStatus", "81 09 06 12 FF"),
         ("_cmd_UpdateFreezeFrame",     "81 09 04 62 FF"),
     ]
     for method, expect in cases:

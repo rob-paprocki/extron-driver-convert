@@ -79,7 +79,9 @@ class DeviceClass:
             'TrackingShot': {'Status': {}},
             'PresetZone': {'Status': {}},
             'ZoomPosition': {'Parameters': ['Speed'], 'Status': {}},
-            'PanTiltAngle': {'Parameters': ['Pan Speed', 'Tilt Speed'], 'Status': {}},
+            'PanTiltAngle': {'Parameters': ['Pan Speed', 'Tilt Speed', 'Pan', 'Tilt'], 'Status': {}},
+            'PanAngleStatus': {'Status': {}},
+            'TiltAngleStatus': {'Status': {}},
             'PanTiltHome': {'Status': {}},
             'FreezeFrame': {'Status': {}},
             'Menu': {'Status': {}},
@@ -556,8 +558,13 @@ class DeviceClass:
         try:
             panSpeed = int(qualifier['Pan Speed'])
             tiltSpeed = int(qualifier['Tilt Speed'])
-            pan = int(value['Pan'])
-            tilt = int(value['Tilt'])
+            # Pan and Tilt ride in the qualifier, matching the .pkp driver so
+            # the two emitters stay byte-identical. In the .pkp that is forced
+            # (GC routes every non-Value parameter through the qualifier); here
+            # it is a choice, made so a programmer moving between the two forms
+            # is not surprised.
+            pan = int(qualifier['Pan'])
+            tilt = int(qualifier['Tilt'])
         except (KeyError, TypeError, ValueError):
             self.Discard('Invalid Command for SetPanTiltAngle')
             return
@@ -574,17 +581,33 @@ class DeviceClass:
             self.Discard('Invalid Command for SetPanTiltAngle')
 
     # Pan-tiltPosInq: 81 09 06 12 FF -> 90 50 0p0q0r0s 0t0u0v0w FF
-    def UpdatePanTiltAngle(self, value, qualifier):
+    #
+    # One inquiry, two commands. The .pkp form has to split this because a GC
+    # command carries a single Value; this module mirrors the split so both
+    # emitters expose the same surface.
+    def _PanTiltAngleInquiry(self, command, value, qualifier):
 
         cmdString = pack('>5B', self.DeviceID, 0x09, 0x06, 0x12, 0xFF)
-        res = self.__UpdateHelper('PanTiltAngle', cmdString, value, qualifier)
-        if res:
-            try:
-                value = {'Pan': self._FromNibbles(res[2:6]),
-                         'Tilt': self._FromNibbles(res[6:10])}
-                self.WriteStatus('PanTiltAngle', value, qualifier)
-            except (KeyError, IndexError):
-                self.Error(['PanTiltAngle: Invalid/unexpected response'])
+        res = self.__UpdateHelper(command, cmdString, value, qualifier)
+        if not res:
+            return None
+        try:
+            return (self._FromNibbles(res[2:6]), self._FromNibbles(res[6:10]))
+        except (KeyError, IndexError):
+            self.Error(['%s: Invalid/unexpected response' % command])
+            return None
+
+    def UpdatePanAngleStatus(self, value, qualifier):
+
+        pos = self._PanTiltAngleInquiry('PanAngleStatus', value, qualifier)
+        if pos is not None:
+            self.WriteStatus('PanAngleStatus', pos[0], qualifier)
+
+    def UpdateTiltAngleStatus(self, value, qualifier):
+
+        pos = self._PanTiltAngleInquiry('TiltAngleStatus', value, qualifier)
+        if pos is not None:
+            self.WriteStatus('TiltAngleStatus', pos[1], qualifier)
 
     # PanTiltReset: 81 01 06 05 FF
     def SetPanTiltHome(self, value, qualifier):

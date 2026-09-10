@@ -30,6 +30,7 @@ Run:  python3 experiments/skeleton_i20/build_i20_assets.py
 """
 
 import os
+import re
 import sys
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -120,10 +121,19 @@ def build():
     for name, script, lo, hi, attrs, desc in DECIMAL_PLAN:
         _decimal_command(g, name, script, lo, hi, attrs, desc)
 
+    script_src = b.scripts()[0].source
     _zoom_position(g)
     _pan_tilt_angle(g)
-    _indicator_light(g)
+    _indicator_light(g, script_src)
     _camera_connection_status(g)
+
+    # Position feedback, split in two because one VISCA inquiry returns both
+    # numbers and a GC command carries one Value. Extron does the same in
+    # pana_19_5702 (PanPositionStatus / TiltPositionStatus).
+    for nm, sn, lo, hi in (("Pan Angle Status", "PanAngleStatus", -2448, 2448),
+                           ("Tilt Angle Status", "TiltAngleStatus", -1296, 1296)):
+        _decimal_command(g, nm, sn, lo, hi, ATTR_UPDATE_ONLY,
+                         "Current absolute position reported by the camera")
 
     # 20023 and 20024 are otherwise identical in identity - same internal
     # driver name, same two model strings, same version - so Driver Manager
@@ -133,6 +143,7 @@ def build():
 
     after = len(g.commands())
     print("commands in the graph after : %d  (+%d)" % (after, after - before))
+    verify(g, script_src)
     b.write(OUT_PKG)
     print("wrote %s" % OUT_PKG)
     return OUT_PKG
@@ -154,6 +165,92 @@ def _bump_model_version(g, minor):
         ev["value"] = minor
     g._reparse()
     print("   model version minor -> %d on %d models" % (minor, len(models)))
+
+
+def verify(g, src):
+    """Refuse to emit unless the asset tree and the script agree.
+
+    Both halves of the contract are checkable here, and both have already been
+    wrong once:
+
+      * a command in the graph with no `self.Commands` entry is a control GC
+        draws and the driver ignores;
+      * an enum state the script does not accept is an option that silently
+        Discards - the first build offered Blue, Cyan, Magenta, Low and High,
+        none of which the lightbar code knows;
+      * a parameter name mismatch means GC sends a qualifier key the script
+        never reads.
+    """
+    import ast
+
+    m = re.search(r"self\.Commands\s*=\s*\{", src)
+    if not m:
+        raise SystemExit("cannot find self.Commands in the driver")
+    lines = src[m.start():].splitlines()
+    depth = 0
+    buf = []
+    for line in lines:
+        buf.append(line)
+        depth += line.count("{") - line.count("}")
+        if depth == 0:
+            break
+    joined = chr(10).join(buf).split("=", 1)[1]
+    table = ast.literal_eval(re.sub(r"#.*", "", joined))
+
+    problems = []
+    assets = g.commands()
+
+    for sn in sorted(assets):
+        if sn not in table:
+            # ConnectionStatus is an asset with no script entry in Extron's own
+            # donor - the framework answers it - so it is not an error.
+            if sn != "ConnectionStatus":
+                problems.append("%s: in the graph, not in self.Commands" % sn)
+            continue
+        params = [g.name_of(k) for k in g.children(assets[sn]) if g.name_of(k) != "Value"]
+        declared = table[sn].get("Parameters") or []
+        if sorted(params) != sorted(declared):
+            problems.append("%s: asset params %s vs script Parameters %s"
+                            % (sn, params, declared))
+
+    for sn in sorted(table):
+        if sn not in assets:
+            problems.append("%s: in self.Commands, not in the graph" % sn)
+
+    # Enum states the script actually accepts, where it says so plainly.
+    for sn, cid in sorted(assets.items()):
+        NL = chr(10)
+        body = re.search(r"def _cmd_Set%s\(self.*?(?=%s    def |\Z)" % (sn, NL),
+                         src, re.S)
+        if not body:
+            continue
+        d = re.search(r"ValueStateValues\s*=\s*\{(.*?)%s\s*\}" % NL,
+                      body.group(0), re.S)
+        accepted = re.findall(r"'([^']+)'\s*:", d.group(1)) if d else None
+        if accepted is None:
+            lit = re.search(r"value in \[([^\]]+)\]", body.group(0))
+            accepted = re.findall(r"'([^']+)'", lit.group(1)) if lit else None
+        if not accepted:
+            continue
+        value = [k for k in g.children(cid) if g.name_of(k) == "Value"]
+        if not value:
+            continue
+        states = [g.name_of(x) for x in g.children(value[0])]
+        if not states:
+            continue
+        extra = sorted(set(states) - set(accepted))
+        # A state the script does not Set can still be status-only - Extron's
+        # own Power carries 'Internal Power Circuit Error' that way - so this
+        # is only an error for commands we added.
+        if extra and sn not in ("Power",):
+            problems.append("%s: asset offers %s, script accepts %s"
+                            % (sn, extra, accepted))
+
+    if problems:
+        for p in problems:
+            print("   VERIFY FAIL  %s" % p)
+        raise SystemExit("%d contract mismatch(es); refusing to emit" % len(problems))
+    print("   verify: graph and script agree on %d commands" % len(assets))
 
 
 # -- builders ---------------------------------------------------------------
@@ -217,9 +314,12 @@ def _zoom_position(g):
 
 def _pan_tilt_angle(g):
     """Absolute Pan and Tilt, keeping the donor's two speed qualifiers."""
+    # Set-only. Extron's own absolute-position command (pana_19_5702's
+    # PanTiltAbsolutePosition) is Set:True/Update:False for the same reason:
+    # with no Value parameter there is nothing for feedback to land in.
     cid = g.clone_command("PanTilt", "Pan Tilt Angle", "PanTiltAngle",
                           description="Drive the head to an absolute pan and tilt angle",
-                          attributes=ATTR_SET_UPDATE)
+                          attributes=ATTR_SET_ONLY)
     for k in g.children(cid):
         if g.name_of(k) == "Value":
             g.detach(cid, k)
@@ -230,7 +330,23 @@ def _pan_tilt_angle(g):
     print("   + %-24s Pan Tilt Angle  (composed)" % "PanTiltAngle")
 
 
-def _indicator_light(g):
+def _lightbar_states(script_src, const):
+    """The keys of a lightbar constant, read from the driver's own source.
+
+    Hardcoding these once already shipped an asset offering Blue, Cyan,
+    Magenta, Low and High - none of which the script accepts, so GC would have
+    drawn five options that silently Discard. Read them instead.
+    """
+    m = re.search(r"%s\s*=\s*\{(.*?)\}" % const, script_src, re.S)
+    if not m:
+        raise SystemExit("cannot find %s in the embedded driver" % const)
+    keys = re.findall(r"'([^']+)'\s*:", m.group(1))
+    if not keys:
+        raise SystemExit("%s parsed but is empty" % const)
+    return keys
+
+
+def _indicator_light(g, script_src):
     """Three-state light bar with Color and Brightness enum qualifiers."""
     cid = g.clone_command("Backlight", "Indicator Light", "IndicatorLight",
                           description="Light bar pattern, colour and brightness",
@@ -241,19 +357,23 @@ def _indicator_light(g):
     g.attach(value_id, extra)
 
     # Colour and brightness are enums; clone White Balance's Value, which
-    # already carries six states, and rename as many as each needs.
+    # already carries six states, and keep as many as each needs.
     wb = [k for k in g.children(g.commands()["WhiteBalance"])
           if g.name_of(k) == "Value"][0]
-    for label, wanted in (("Color", ["Green", "Red", "Blue", "Yellow", "Cyan", "Magenta"]),
-                          ("Brightness", ["Off", "Low", "Medium", "High"])):
+    for label, const in (("Color", "_LIGHTBAR_COLOURS"),
+                         ("Brightness", "_LIGHTBAR_BRIGHTNESS")):
+        wanted = _lightbar_states(script_src, const)
         p, _ = g.clone_asset(wb, name=label)
         have = g.children(p)
+        if len(wanted) > len(have):
+            raise SystemExit("%s needs %d states, donor enum has %d"
+                             % (label, len(wanted), len(have)))
         for sid, new_name in zip(have, wanted):
             g.rename_asset(sid, new_name)
         for sid in have[len(wanted):]:
             g.detach(p, sid)
         g.attach(cid, p)
-    print("   + %-24s Indicator Light  (composed)" % "IndicatorLight")
+        print("   + %-24s %s %s" % ("IndicatorLight", label, wanted))
 
 
 def _camera_connection_status(g):

@@ -192,9 +192,12 @@ def test_same_bytes_as_the_pkp_driver():
               "pkp=%s  cs=%s" % (hexs(a) if a else "<none>",
                                  hexs(b) if b else "<none>"))
 
-    # PanTiltAngle takes a dict value, handled separately.
-    args = ({"Pan": 0x0123, "Tilt": 0x0456},
-            {"Pan Speed": 0x18, "Tilt Speed": 0x14})
+    # PanTiltAngle carries every parameter in the qualifier (see findings/18
+    # s8): GC routes non-Value parameters that way, and the ControlScript form
+    # mirrors it so the two emitters cannot drift.
+    args = (None,
+            {"Pan Speed": 0x18, "Tilt Speed": 0x14,
+             "Pan": 0x0123, "Tilt": 0x0456})
     a = drive(pkp, "_cmd_SetPanTiltAngle", *args)
     b = drive(cs, "SetPanTiltAngle", *args)
     check("SetPanTiltAngle                    %s" % (hexs(b) if b else "<none>"),
@@ -232,7 +235,8 @@ def test_inquiries_match():
 
     for command, qual in (("TrackingFraming", None),
                           ("ZoomPosition", {"Speed": 0}),
-                          ("PanTiltAngle", {"Pan Speed": 1, "Tilt Speed": 1}),
+                          ("PanAngleStatus", {}),
+                          ("TiltAngleStatus", {}),
                           ("FreezeFrame", None),
                           ("CameraOutput", None)):
         pkp.sent = []
