@@ -90,7 +90,9 @@ class _1bynd_19_4743(BaseDriver):
             'GroupTracking':        {'Set': True,   'Update': False,    'Live': False,  'Emulated': True,                                               'Status': {}},
             'PresenterTracking':    {'Set': True,   'Update': False,    'Live': False,  'Emulated': True,                                               'Status': {}},
             'ZoomPosition':         {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,   'Parameters': ['Speed'],                    'Status': {}},
-            'PanTiltAngle':         {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,   'Parameters': ['Pan Speed', 'Tilt Speed'],  'Status': {}},
+            'PanTiltAngle':         {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,  'Parameters': ['Pan Speed', 'Tilt Speed', 'Pan', 'Tilt'],   'Status': {}},
+            'PanAngleStatus':       {'Set': False,  'Update': True,     'Live': True,   'Emulated': False,                              'Status': {}},
+            'TiltAngleStatus':      {'Set': False,  'Update': True,     'Live': True,   'Emulated': False,                              'Status': {}},
             'PanTiltHome':          {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}},
             'FreezeFrame':          {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
             'Menu':                 {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}},
@@ -872,14 +874,22 @@ class _1bynd_19_4743(BaseDriver):
     #   81 01 06 02 {PanSpeed} {TiltSpeed} {Y4..Y1} {Z4..Z1} FF
     def _cmd_SetPanTiltAngle(self, value, qualifier):
         """Set Pan/Tilt Angle
-        value: {'Pan': Decimal, 'Tilt': Decimal}
-        qualifier: {'Pan Speed': Decimal, 'Tilt Speed': Decimal}
+        value: None
+        qualifier: {'Pan Speed': Decimal, 'Tilt Speed': Decimal,
+                    'Pan': Decimal, 'Tilt': Decimal}
+
+        Every parameter arrives in the qualifier because none of them is the
+        asset's `Value`. That is Extron's own convention for a multi-number
+        command - see pana_19_5702's PanTiltAbsolutePosition, whose asset is
+        `Pan(Decimal) | Tilt(Decimal)` with no Value and whose script reads
+        `qualifier['Pan']`. An earlier revision took pan and tilt from `value`
+        as a dict, which GC cannot express and which therefore never ran.
         """
         try:
             panSpeed = int(qualifier['Pan Speed'])
             tiltSpeed = int(qualifier['Tilt Speed'])
-            pan = int(value['Pan'])
-            tilt = int(value['Tilt'])
+            pan = int(qualifier['Pan'])
+            tilt = int(qualifier['Tilt'])
         except (KeyError, TypeError, ValueError):
             self.Discard('Invalid Command')
             return
@@ -891,33 +901,58 @@ class _1bynd_19_4743(BaseDriver):
                        + [0xFF])
             cmdString = pack('>15B', self.DeviceID, 0x01, 0x06, 0x02, *payload)
             if self.__SafeToSet('PanTiltAngle'):
-                self.WritePanTiltAngle(value, qualifier, 'Emulated')
                 self.__SetHelper('PanTiltAngle', cmdString, value, qualifier, 3)
         else:
             self.Discard('Invalid Command')
 
+    # Position feedback is split in two because ONE VISCA inquiry returns both
+    # numbers and a GC command can only carry one Value. Extron solves it the
+    # same way in pana_19_5702 (PanPositionStatus / TiltPositionStatus), so the
+    # split is their pattern rather than our invention.
+    #
     # Crestron IV-CAM-I20_IP: GetPanTiltAngle -> 81 09 06 12 FF
-    def _cmd_UpdatePanTiltAngle(self, value, qualifier):
-        """Update Pan/Tilt Angle
-        value: dict
-        qualifier: {'Pan Speed': Decimal, 'Tilt Speed': Decimal}
-        """
+    #   reply  y0 50 0p0q0r0s 0t0u0v0w FF
+    def _PanTiltAngleInquiry(self, command, value, qualifier):
+        """Send the shared inquiry; return (pan, tilt) or None."""
         cmdString = pack('>5B', self.DeviceID, 0x09, 0x06, 0x12, 0xFF)
-        res = self.__UpdateHelper('PanTiltAngle', cmdString, value, qualifier)
-        if res:
-            try:
-                # Reply 90 50 0p0q0r0s 0t0u0v0w FF
-                value = {'Pan': self._FromNibbles(res[2:6]),
-                         'Tilt': self._FromNibbles(res[6:10])}
-                self.WritePanTiltAngle(value, qualifier, 'Live')
-            except (KeyError, IndexError):
-                self.Error(['PanTiltAngle: Invalid/unexpected response'])
+        res = self.__UpdateHelper(command, cmdString, value, qualifier)
+        if not res:
+            return None
+        try:
+            return (self._FromNibbles(res[2:6]), self._FromNibbles(res[6:10]))
+        except (KeyError, IndexError):
+            self.Error(['%s: Invalid/unexpected response' % command])
+            return None
 
-    def WritePanTiltAngle(self, value, qualifier, context):
-        self.WriteStatusHelper('PanTiltAngle', value, qualifier, context)
+    def _cmd_UpdatePanAngleStatus(self, value, qualifier):
+        """Update Pan Angle Status
+        value: Decimal
+        qualifier: None
+        """
+        pos = self._PanTiltAngleInquiry('PanAngleStatus', value, qualifier)
+        if pos is not None:
+            self.WritePanAngleStatus(pos[0], qualifier, 'Live')
 
-    def ReadPanTiltAngle(self, qualifier, context):
-        return self.ReadStatusHelper('PanTiltAngle', qualifier, context)
+    def WritePanAngleStatus(self, value, qualifier, context):
+        self.WriteStatusHelper('PanAngleStatus', value, qualifier, context)
+
+    def ReadPanAngleStatus(self, qualifier, context):
+        return self.ReadStatusHelper('PanAngleStatus', qualifier, context)
+
+    def _cmd_UpdateTiltAngleStatus(self, value, qualifier):
+        """Update Tilt Angle Status
+        value: Decimal
+        qualifier: None
+        """
+        pos = self._PanTiltAngleInquiry('TiltAngleStatus', value, qualifier)
+        if pos is not None:
+            self.WriteTiltAngleStatus(pos[1], qualifier, 'Live')
+
+    def WriteTiltAngleStatus(self, value, qualifier, context):
+        self.WriteStatusHelper('TiltAngleStatus', value, qualifier, context)
+
+    def ReadTiltAngleStatus(self, qualifier, context):
+        return self.ReadStatusHelper('TiltAngleStatus', qualifier, context)
 
     # Begin PanTiltHome
     ####################################################################################################################

@@ -88,18 +88,21 @@ not a mechanical rewrite, so they are reported as residuals rather than guessed.
    versus V2 Entity Model versus V1 RAD? Two data points so far: Samsung = LegacyWrappers JSON
    engine, 1 Beyond = V2 with a **bounded, named** IL residue. `drivers.crestron.io` is
    login-gated, so this can only be answered by sampling.
-4. **Does GC render a command we added to the object graph?** Finding 18 closed the build
-   side: `1bynd_19_20024` carries 32 command assets where the donor had 15, every original
-   unchanged, and **Extron's own `DriverFileAsset.LoadFromFile` returns a live asset whose
-   `DriverCommands` collection enumerates all 32** with the right names, parameters, enum
-   states and attributes. What remains is whether Driver Manager lists it and the editor
-   draws the parameter widgets. Note that `Valid` is NOT evidence here: the first build of
-   20024 validated and was completely unloadable (finding 18 s6). GCP licence expires
-   ~2026-10-07.
-5. **Catalogue acceptance is not a working driver.** Finding 18 got a transplanted package
-   *selected* into a GCP project — two gates past finding 12. Building, uploading, and
-   controlling a device remain unproven, as does whether any of it drives an actual i20.
-   Same "necessary but not sufficient" trap as the wire table.
+4. ~~**Does GC render a command we added to the object graph?**~~ **Closed by finding 18.**
+   `1bynd_19_20024` carries 34 command assets where the donor had 15; Driver Manager lists
+   it, it assigns to an Ethernet port, and the editor renders every command with the exact
+   decimal ranges and enum states written into the graph — verified by driving GCP over UI
+   Automation. What remains is **Build, upload and control**: nothing has run on a processor
+   and no socket has been opened to a camera. GCP licence expires ~2026-10-07.
+5. **A rendered driver is not a working driver.** Finding 18 got a synthesised package all
+   the way into a GCP project with its full command surface drawn correctly. Build, upload
+   and control remain unproven, and no i20 has ever been reachable from this project. Same
+   "necessary but not sufficient" trap as the wire table, one gate further along.
+
+6. **Emulated feedback where the device publishes nothing.** 7 of the 19 added i20 commands
+   poll a real VISCA inquiry; 12 are emulated because the documented 47-inquiry set has
+   nothing to read for them. `CAM_TrackingInq` cannot distinguish group from presenter
+   tracking. A device limit, but a limit.
 
 *Closed outright by finding 14: 352 pairs across 314 packages, scored. Superseding finding 12's* The GC install carries
 **6,644 `.pkp` across hundreds of vendors** in `C:\Users\Public\Documents\extron\driver3`,

@@ -202,6 +202,33 @@ Measured on the output:
 arrangement** — the donor ships it that way, handled by the ControlScript
 framework rather than the driver — and was reproduced rather than corrected.
 
+## 8. Verified in Global Configurator, by driving it
+
+`.pkp` work no longer needs a person in the loop. GCP is a WPF application with
+proper `AutomationId`s, so UI Automation from PowerShell drives it directly.
+The whole acceptance chain was run this way on 2026-09-10:
+
+| step | result |
+|---|---|
+| catalogue rebuild ingests the package | `DriverLookup.dat` lists `1bynd_19_20024_v1_0_0.pkp`; `DataFile.dat` grows 5,716 bytes |
+| Driver Manager lists it | `1 Beyond / IV-CAM-I12 / 1.2 / Camera` and the same for `IV-CAM-I20` |
+| assign to an Ethernet port in a project | `Ethernet Port 1 - 1 Beyond - IV-CAM-I20 v1.2`, TCP 5500 |
+| command surface renders | **all 34**, with the composed parameter lists |
+| descriptions render | "Light bar pattern, colour and brightness" |
+| decimal ranges render | Pan `(-2448) to 2448`, Tilt `(-1296) to 1296` |
+| enum states render | Color `Green, Red, Yellow`; Brightness `Off, Dim, Medium, Bright`; Value `None, Half, Full` |
+
+So a synthesised subtree survives every stage: deserialization, catalogue,
+selection, project assignment, and the property editor reading back the exact
+ranges and states that were written into the graph. **Negative decimal bounds
+work**, which was not obvious - `_min` is a decimal-as-string and could have
+been unsigned.
+
+Two techniques worth keeping, both of which turn a trip into seconds:
+
+- **`LoadFromFile` through reflection** answers "will GC accept this file?"
+- **UIA over GCP** answers "will GC *render* it?"
+
 ## What this does NOT show
 
 - **GC has not rendered these commands.** Everything above is measured on the
