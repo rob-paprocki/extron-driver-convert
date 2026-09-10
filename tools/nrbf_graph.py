@@ -348,23 +348,33 @@ def owned_subtree(objects, root, rev=None):
 # ---------------------------------------------------------------------------
 
 class IdAllocator(object):
-    """Hand out unused object ids.
+    """Hand out unused object ids. Always POSITIVE - this is not a style choice.
 
-    .NET's BinaryFormatter numbers reference objects positively and inline
-    value types negatively; a clone keeps that convention so the stream stays
-    recognisable to a reader that cares.
+    .NET's BinaryFormatter writes inline value types with NEGATIVE object ids,
+    and it is tempting to mirror that when cloning one, so the copy looks like
+    the original. Measured 2026-09-09: doing so makes the package
+    undeserializable. `BinaryFormatter.Deserialize` throws
+
+        SerializationException: An object cannot be registered twice.
+
+    and `DriverFileAsset.LoadFromFile` swallows that and returns null, so
+    Global Configurator silently drops the package from its catalogue - it
+    never appears in Driver Manager at all.
+
+    A negative id is not a free identifier: it is a marker the formatter uses
+    for its own value-type bookkeeping, and minting new ones collides inside
+    that path. Cloning the same subtree with positive ids throughout loads
+    correctly through Extron's own loader, with the value-type members intact.
+
+    So `like` is accepted and deliberately ignored. It documents what the
+    original was, and the point is that we do NOT copy it.
     """
 
     def __init__(self, spans):
         ids = [i for i in spans if i is not None]
         self._next_pos = max([i for i in ids if i > 0] or [0]) + 1
-        self._next_neg = min([i for i in ids if i < 0] or [0]) - 1
 
-    def new(self, like):
-        if like is not None and like < 0:
-            v = self._next_neg
-            self._next_neg -= 1
-            return v
+    def new(self, like=None):
         v = self._next_pos
         self._next_pos += 1
         return v

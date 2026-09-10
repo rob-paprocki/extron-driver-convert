@@ -18,6 +18,10 @@ Four properties:
   4. Guards hold. Renaming a shared string, detaching a non-child, or cloning
      a command whose script name already exists must raise rather than
      silently produce a broken package.
+  5. No clone mints a NEGATIVE object id. .NET reserves those for its own
+     value-type bookkeeping; a new one makes BinaryFormatter throw and GC drop
+     the package from its catalogue silently. Nothing downstream of our own
+     parser can see this, so it is asserted directly - see findings/18 s6.
 
 Run: python3 tools/test_pkp_asset.py
 """
@@ -227,8 +231,34 @@ def test_compose_a_shape_the_donor_lacks():
           repr(pb.deref(g.objects, rng["_max"])))
 
 
+def test_no_new_negative_ids():
+    print("\n[8] every id a clone mints is POSITIVE (a negative one kills the package)")
+    b = pb.PackageBuilder(camera_donor())
+    before = set(ng.EventWalker(b.trace).spans)
+    g = pa.CommandGraph(b)
+    g.clone_command("Backlight", "Auto Tracking", "TrackingFraming",
+                    description="d", text_map={"On": "Start", "Off": "Stop"})
+    after = set(ng.EventWalker(b.trace).spans)
+    minted = after - before
+    check("the clone did mint ids", len(minted) > 20, "%d" % len(minted))
+    negatives = sorted(i for i in minted if i < 0)
+    # Measured 2026-09-09 against Extron 15.27.0.0: mirroring .NET's negative
+    # ids for inline value types makes BinaryFormatter throw "An object cannot
+    # be registered twice", LoadFromFile return null, and GC drop the package
+    # from its catalogue entirely. Nothing in a pure-Python check sees this -
+    # the package parses and validates - so the invariant is asserted directly.
+    check("none of them is negative", not negatives,
+          "minted negatives: %s" % negatives[:8])
+    check("the donor's own negative ids are untouched",
+          all(i in after for i in before if i < 0))
+
+    alloc = ng.IdAllocator(ng.EventWalker(b.trace).spans)
+    check("IdAllocator ignores the sign of the original",
+          alloc.new(-999) > 0 and alloc.new(1) > 0)
+
+
 def test_guards():
-    print("\n[8] unsafe edits raise instead of producing a broken package")
+    print("\n[9] unsafe edits raise instead of producing a broken package")
     b = pb.PackageBuilder(camera_donor())
     g = pa.CommandGraph(b)
 
@@ -263,7 +293,7 @@ def test_guards():
 
 
 def test_shared_description_not_clobbered():
-    print("\n[9] giving one command a description does not describe the other 14")
+    print("\n[10] giving one command a description does not describe the other 14")
     b = pb.PackageBuilder(camera_donor())
     g = pa.CommandGraph(b)
     desc_before = {sn: pb.deref(g.objects,
@@ -283,7 +313,7 @@ def test_shared_description_not_clobbered():
 
 
 def test_output_is_a_loadable_package():
-    print("\n[10] the built package re-parses and passes Extron's integrity rule")
+    print("\n[11] the built package re-parses and passes Extron's integrity rule")
     import pkp_validate as pv
     b = pb.PackageBuilder(camera_donor())
     g = pa.CommandGraph(b)
@@ -309,6 +339,7 @@ def main():
                test_collections_all_updated,
                test_array_growth_beyond_capacity,
                test_compose_a_shape_the_donor_lacks,
+               test_no_new_negative_ids,
                test_guards,
                test_shared_description_not_clobbered,
                test_output_is_a_loadable_package):

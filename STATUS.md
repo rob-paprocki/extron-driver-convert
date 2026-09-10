@@ -1,6 +1,6 @@
 # Status
 
-**Last updated: 2026-09-09.** Read this first. Everything below is measured unless
+**Last updated: 2026-09-10.** Read this first. Everything below is measured unless
 marked otherwise.
 
 ## Answers
@@ -35,7 +35,7 @@ marked otherwise.
 | 14 | **312 third-party oracle pairs.** 80.9% wire-match, but 25% of generated modules would raise `AttributeError` — and the broken ones score *higher*. |
 | 15 | **On hardware: `80085`.** A transplanted package is catalogued, then refused at selection. *Its proposed cause is superseded by finding 16.* |
 | 16 | **`80085` is a SHA-256 mismatch.** Extron's validator reimplemented in pure Python; 1,900/1,919 exact agreement with their own code, so GC is no longer needed to check a package. |
-| 18 | **The asset tree is the command surface** — GC never asks the script what it can do. A package can be `Valid` and silently short. Object-graph synthesis built and tested; the i20 package goes 15 -> 32 commands. |
+| 18 | **The asset tree is the command surface** — GC never asks the script what it can do, so a package can be `Valid` and silently short. Object-graph synthesis built and verified **through Extron's own deserializer**; the i20 package goes 15 -> 32 commands. Carries the negative-object-id trap that no local check could see. |
 | 17 | **How a human writes one.** A working integrator splices Extron's template from two vintages rather than authoring from scratch — the same instinct as our transplant. |
 
 ## Tools — all tested, all standard library only
@@ -49,7 +49,7 @@ marked otherwise.
 | `tools/pkp_build.py` | **`.pkp` transplant builder.** Refuses to emit unless the unmodified donor round-trips byte-for-byte first; no bypass flag. | 36 |
 | `tools/pkp_validate.py` | **Extron's driver validator, in pure Python.** Same verdict as GC's own code on 1,900 of 1,919 packages, with no GC installed. | 127 |
 | `tools/nrbf_graph.py` | **Structural navigation over an NRBF trace.** Every object id → its exact span of records, by replaying the reader's grammar. Verified end-to-end on all 9 packages, up to 4.4M events / 668k objects. | (with below) |
-| `tools/pkp_asset.py` | **Adds commands to a `.pkp`'s object graph.** Clone/attach/detach of asset subtrees with computed ownership, so a shared string is never renamed and a donor is never damaged. | 41 |
+| `tools/pkp_asset.py` | **Adds commands to a `.pkp`'s object graph.** Clone/attach/detach of asset subtrees with computed ownership, so a shared string is never renamed and a donor is never damaged. Output confirmed loadable by Extron's own `LoadFromFile`. | 43 |
 | `experiments/skeleton_i20/` | **i20 driver, both forms.** `.pkp` transplant + standalone ControlScript module, held to identical bytes. | 85 + 56 |
 
 Experiments live in `experiments/` (NRBF writer, Crestron→ControlScript, missing-Ethernet
@@ -90,10 +90,12 @@ not a mechanical rewrite, so they are reported as residuals rather than guessed.
    login-gated, so this can only be answered by sampling.
 4. **Does GC render a command we added to the object graph?** Finding 18 closed the build
    side: `1bynd_19_20024` carries 32 command assets where the donor had 15, every original
-   unchanged, and it validates. But **package validation covers only the packaged resources**
-   (finding 16), so a structurally wrong graph still returns `Valid`. Only GC's UI can say
-   whether the added assets are well-formed. This is the single highest-value hardware test
-   outstanding, and the GCP licence expires ~2026-10-07.
+   unchanged, and **Extron's own `DriverFileAsset.LoadFromFile` returns a live asset whose
+   `DriverCommands` collection enumerates all 32** with the right names, parameters, enum
+   states and attributes. What remains is whether Driver Manager lists it and the editor
+   draws the parameter widgets. Note that `Valid` is NOT evidence here: the first build of
+   20024 validated and was completely unloadable (finding 18 s6). GCP licence expires
+   ~2026-10-07.
 5. **Catalogue acceptance is not a working driver.** Finding 18 got a transplanted package
    *selected* into a GCP project — two gates past finding 12. Building, uploading, and
    controlling a device remain unproven, as does whether any of it drives an actual i20.
