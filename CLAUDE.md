@@ -111,7 +111,20 @@ top it up from here without checking first.
    dangling `self.X()` references hid behind a near-perfect scorecard. Check
    runtime resolvability too.
 
-4. **Unresolvable means opaque, never guessed.** The translator raises rather
+4. **`Valid` does not mean loadable, and a local check can share your wrong model.**
+   Finding 18 built a package that parsed, round-tripped, validated and passed
+   39 tests — and Global Configurator would not list it at all, because .NET's
+   `BinaryFormatter` refused the stream. Every one of those checks used *our*
+   model of the format, so none of them could see it. **Deserialize through
+   Extron's own code before believing a graph edit.** From 32-bit PowerShell:
+   `LoadFromFile` (returns null on failure, swallowing the reason) or
+   `BinaryFormatter.Deserialize` with an `AssemblyResolve` handler mapping the
+   stream's `Extron.Configuration.* 1.1.24.402` onto the installed 15.27.0.0
+   DLLs — that one gives the real exception. Both are seconds, not a trip.
+   `DataFile.dat` / `DriverLookup.dat` are themselves raw NRBF and parse with
+   `pkp_dump.py`, so whether GC catalogued something is directly checkable.
+
+5. **Unresolvable means opaque, never guessed.** The translator raises rather
    than degrading, and `wire_table.py` emits *counted* opaque markers. Preserve
    that — a plausible guess is worse than a recorded gap, because it scores well.
 

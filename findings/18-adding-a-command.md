@@ -1,7 +1,8 @@
 # Finding 18 — the asset tree is the command surface, and it can be extended
 
-**Status: measured** 2026-09-09. Two halves: a hardware observation that
-settles finding 15's open question, and a tool that acts on it.
+**Status: measured** 2026-09-09, corrected 2026-09-10. Three parts: a hardware
+observation that settles finding 15's open question, a tool that acts on it,
+and a bug that only Extron's own deserializer could reveal (section 6).
 
 ## 1. What Global Configurator actually showed
 
@@ -25,7 +26,7 @@ standing; it was hypothesis until the screenshot. **GC builds its command
 surface from `DriverCommandAsset` objects in the NRBF graph and never asks the
 script what it can do.**
 
-Three gates, and now all three are characterised:
+Four gates, and all four are now characterised:
 
 | gate | decided by | fails as |
 |---|---|---|
@@ -34,8 +35,10 @@ Three gates, and now all three are characterised:
 | selection | SHA-256 of packaged resources | `80085` |
 | **command surface** | **the asset tree** | **silently short** |
 
-The fourth is the dangerous one, because nothing reports it. The package is
-valid, loads, and is simply less than it claims.
+The last is the dangerous one, because nothing reports it: the package is
+valid, loads, and is simply less than it claims. Section 6 shows the second
+gate is dangerous in its own way - a package can fail it while every local
+check passes.
 
 ## 2. `_scriptName` is the seam
 
@@ -139,7 +142,49 @@ Two array details cost real time and are worth recording:
   first implementation asserted count == capacity and failed loudly on the
   parameter collections, which is how it was found.
 
-## 6. The result
+## 6. The bug that only Extron's own loader could find
+
+The first build carried all 32 commands, validated, re-parsed cleanly, and
+passed 39 local tests. **Global Configurator did not list it at all** - not
+short, not refused at selection: absent from Driver Manager entirely.
+
+`DriverLookup.dat` and `DataFile.dat` are themselves raw NRBF, so they can be
+parsed with `pkp_dump.py`. The package was in neither, after a rebuild that
+post-dated its installation. So it was failing at the **catalogue parse** gate,
+two gates earlier than expected.
+
+Calling `DriverFileAsset.LoadFromFile` directly through 32-bit reflection
+returned **null** - where `20023` and the donor both returned a real asset.
+`LoadFromFile` swallows the exception, so the cause needed
+`BinaryFormatter.Deserialize` with an assembly resolver (the stream names
+`Extron.Configuration.Drivers 1.1.24.402`; the installed DLL is 15.27.0.0):
+
+```
+SerializationException: An object cannot be registered twice.
+```
+
+Bisecting the operations found every one of them failing, down to a single
+plain `clone_command` - while appending an unreferenced record, referencing an
+appended record, and growing a `BinaryArray` were all fine. The difference was
+the ids.
+
+**.NET writes inline value types with NEGATIVE object ids, and the allocator
+mirrored that when cloning one** - so a copy would look like the original.
+That is wrong. A negative id is not a free identifier; it is a marker the
+formatter uses for its own value-type bookkeeping, and minting new ones
+collides inside that path. Cloning the same subtree with positive ids
+throughout loads correctly, value-type members intact.
+
+Nothing in a pure-Python check could see this. The package parsed, round-
+tripped, validated, and passed every structural test - **because the tests and
+the parser share my model of the format, and the model was wrong.** The
+hardware gate was not GC's UI, as assumed; it was the deserializer, and it was
+reachable locally all along by calling Extron's own loader.
+
+`test_pkp_asset.py [8]` now asserts the invariant directly, since no
+downstream check will.
+
+## 7. The result
 
 `experiments/skeleton_i20/build_i20_assets.py` produces
 **`1bynd_19_20024`** — 32 commands in the graph, matching the script's 31 plus
