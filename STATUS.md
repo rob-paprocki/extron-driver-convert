@@ -1,6 +1,6 @@
 # Status
 
-**Last updated: 2026-09-08.** Read this first. Everything below is measured unless
+**Last updated: 2026-09-09.** Read this first. Everything below is measured unless
 marked otherwise.
 
 ## Answers
@@ -8,7 +8,7 @@ marked otherwise.
 | question | answer |
 |---|---|
 | Extron `.pkp` → ControlScript `.py`? | **Yes — built and measured.** `tools/pkp2cs.py`. |
-| ControlScript `.py` → `.pkp`? | **Format: yes.** Byte-identical NRBF round-trip on all 4 packages, and **GC ingests a package our writer produced — including a mutated one** (finding 12). A *synthesised* object graph is still untested. |
+| ControlScript `.py` → `.pkp`? | **Format: yes. Command surface: yes.** Byte-identical NRBF round-trip on all 9 packages; GC loads and selects a transplanted package (findings 12, 16, 18); and `tools/pkp_asset.py` now **adds commands to the object graph** — 17 added to the i20 package, all 15 originals unchanged (finding 18). Whether GC *renders* added commands is the open hardware gate. |
 | Crestron `.pkg` → Extron ControlScript? | **Yes — built and measured** against Extron's own driver for the same device. |
 | Crestron device driven by an Extron processor? | **Built and verified offline; untested on hardware.** Both forms: 4 staged `.pkp` and a drop-in ControlScript module. Same wire table from two emitters (finding 13). |
 | Extron → Crestron `.pkg`? | **Mechanically demonstrated** (resource-patched a real DLL). Gated by Crestron's dealer/partner licence, not by code. |
@@ -35,6 +35,7 @@ marked otherwise.
 | 14 | **312 third-party oracle pairs.** 80.9% wire-match, but 25% of generated modules would raise `AttributeError` — and the broken ones score *higher*. |
 | 15 | **On hardware: `80085`.** A transplanted package is catalogued, then refused at selection. *Its proposed cause is superseded by finding 16.* |
 | 16 | **`80085` is a SHA-256 mismatch.** Extron's validator reimplemented in pure Python; 1,900/1,919 exact agreement with their own code, so GC is no longer needed to check a package. |
+| 18 | **The asset tree is the command surface** — GC never asks the script what it can do. A package can be `Valid` and silently short. Object-graph synthesis built and tested; the i20 package goes 15 -> 32 commands. |
 | 17 | **How a human writes one.** A working integrator splices Extron's template from two vintages rather than authoring from scratch — the same instinct as our transplant. |
 
 ## Tools — all tested, all standard library only
@@ -47,6 +48,8 @@ marked otherwise.
 | `tools/pkp2cs.py` | `.pkp` → ControlScript translator. Raises rather than degrading. | 56 |
 | `tools/pkp_build.py` | **`.pkp` transplant builder.** Refuses to emit unless the unmodified donor round-trips byte-for-byte first; no bypass flag. | 36 |
 | `tools/pkp_validate.py` | **Extron's driver validator, in pure Python.** Same verdict as GC's own code on 1,900 of 1,919 packages, with no GC installed. | 127 |
+| `tools/nrbf_graph.py` | **Structural navigation over an NRBF trace.** Every object id → its exact span of records, by replaying the reader's grammar. Verified end-to-end on all 9 packages, up to 4.4M events / 668k objects. | (with below) |
+| `tools/pkp_asset.py` | **Adds commands to a `.pkp`'s object graph.** Clone/attach/detach of asset subtrees with computed ownership, so a shared string is never renamed and a donor is never damaged. | 41 |
 | `experiments/skeleton_i20/` | **i20 driver, both forms.** `.pkp` transplant + standalone ControlScript module, held to identical bytes. | 85 + 56 |
 
 Experiments live in `experiments/` (NRBF writer, Crestron→ControlScript, missing-Ethernet
@@ -85,13 +88,16 @@ not a mechanical rewrite, so they are reported as residuals rather than guessed.
    versus V2 Entity Model versus V1 RAD? Two data points so far: Samsung = LegacyWrappers JSON
    engine, 1 Beyond = V2 with a **bounded, named** IL residue. `drivers.crestron.io` is
    login-gated, so this can only be answered by sampling.
-4. **Does a *synthesised* `.pkp` load?** Finding 12 showed GC ingests a package our NRBF
-   writer produced, and one we mutated — but every test descended from a real package's byte
-   stream. Assembling an object graph from scratch is the untested step. The container, the
-   index and the catalogue ingest are now known **not** to be the barrier.
-5. **Catalogue acceptance is not a working driver.** Finding 12 got a generated package listed
-   in Driver Manager. Placing it in a project, building, uploading, and controlling a device
-   are each unproven. This is the same "necessary but not sufficient" trap as the wire table.
+4. **Does GC render a command we added to the object graph?** Finding 18 closed the build
+   side: `1bynd_19_20024` carries 32 command assets where the donor had 15, every original
+   unchanged, and it validates. But **package validation covers only the packaged resources**
+   (finding 16), so a structurally wrong graph still returns `Valid`. Only GC's UI can say
+   whether the added assets are well-formed. This is the single highest-value hardware test
+   outstanding, and the GCP licence expires ~2026-10-07.
+5. **Catalogue acceptance is not a working driver.** Finding 18 got a transplanted package
+   *selected* into a GCP project — two gates past finding 12. Building, uploading, and
+   controlling a device remain unproven, as does whether any of it drives an actual i20.
+   Same "necessary but not sufficient" trap as the wire table.
 
 *Closed outright by finding 14: 352 pairs across 314 packages, scored. Superseding finding 12's* The GC install carries
 **6,644 `.pkp` across hundreds of vendors** in `C:\Users\Public\Documents\extron\driver3`,
