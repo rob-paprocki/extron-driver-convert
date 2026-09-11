@@ -1,0 +1,7 @@
+path	status	code	detail
+C:\Users\robp\AppData\Local\Temp\extval\mutants\case_UPPER.EIR	ok	0	Valid
+C:\Users\robp\AppData\Local\Temp\extval\mutants\case_bare_noDOT_xxxeir	loadnull		LoadFromFile returned null
+C:\Users\robp\AppData\Local\Temp\extval\mutants\case_clean.eir	ok	0	Valid
+C:\Users\robp\AppData\Local\Temp\extval\mutants\case_mixed.EiR	ok	0	Valid
+C:\Users\robp\AppData\Local\Temp\extval\mutants\case_not.eirx	loadnull		LoadFromFile returned null
+C:\Users\robp\AppData\Local\Temp\extval\mutants\case_weir.weir	loadnull		LoadFromFile returned null

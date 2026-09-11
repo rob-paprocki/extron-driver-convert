@@ -1,0 +1,34 @@
+donor: onebynd_camera_PTZ_IP12_IP20_v1_0_0_0.py (20497 bytes)
+  derived module: 39651 bytes (+19154), verification clean
+  Z:\GitHub\rob-paprocki\extron-driver-convert\experiments\skeleton_i20\out\onebynd_camera_IV_CAM_I20_v1_0_0_0.py
+--- pkp wire ---
+[7] the emitted driver targets Python 3.5 (non-xi processors)
+  ok   no f-strings
+  ok   no walrus operator
+  ok   no dataclasses import
+  ok   compiles on this interpreter
+
+[8] the built .pkp reads back with the derived driver inside
+  ok   output round-trips byte-identically
+  ok   exactly one embedded script
+  ok   carries the i20 command set
+  ok   carries the E2 fix
+  ok   still compiles after the round trip
+
+86 passed, 0 failed, 86 total
+--- cs wire ---
+  ok   payload 0x07 reports an error
+  ok   and leaves status unset
+  ok   a documented payload is silent and sets status
+
+[8] the module targets Python 3.5 (non-xi processors)
+  ok   no f-strings
+  ok   no walrus operator
+  ok   compiles
+  ok   imports only extronlib, re and struct
+
+[9] the file in out/ matches what the builder produces now
+  ok   out/ is up to date with the builder
+
+57 passed, 0 failed, 57 total
+DONE-WIRE

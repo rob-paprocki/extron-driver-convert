@@ -1,0 +1,62 @@
+test_pkp_build.py - offline gate for the .pkp transplant builder
+
+[1] every sample package round-trips byte-identically
+  ok   round-trip 1bynd_19_4741_v1_0_1.pkp
+  ok   round-trip 1bynd_19_4743_v1_0_1.pkp
+  ok   round-trip 1bynd_42_4279_v1_0_11.pkp
+  ok   round-trip clau_25_1777_v1_3_0.pkp
+  ok   round-trip clau_25_5940_v1_1_1.pkp
+  ok   round-trip extr_17_17677_v1_0_0.pkp
+  ok   round-trip extr_15_17578_v1_3_0.pkp
+  ok   round-trip smsg_10_6738_v1_0_0.pkp
+  ok   round-trip biam_25_150_v1_20_0.pkp
+
+[2] an unmutated build reproduces the donor's NRBF stream
+  ok   uncompressed build == donor raw
+  ok   no edits recorded
+
+[3] the embedded driver is found and is the 1 Beyond VISCA module
+  ok   exactly one .py slot
+  ok   key names the package
+  ok   source is VISCA
+  ok   source parses as Python
+
+[4] equal-length substitution changes only the payload
+  ok   test fixture is equal length
+  ok   output is the same size as the donor
+  ok   output differs from the donor
+  ok   re-parsed output carries the mutation
+
+[5] different-length substitution rewrites the array length
+  ok   reported old length matches source
+  ok   reported new length matches replacement
+  ok   output shrank by the byte difference
+  ok   re-parsed output carries the short script
+
+[6] a LARGER script also works (the synthesised-driver case)
+  ok   output grew by the byte difference
+  ok   re-parsed output carries the larger script
+
+[7] substitution leaves every other object in the graph untouched
+  ok   same object ids present
+  ok   exactly two objects differ: the script and its digest
+  ok   and they are the right two
+  ok   refresh_hash=False changes only the script
+
+[8] string substitution targets exactly one object
+  ok   target string changed
+  ok   no other string changed
+
+[9] the round-trip gate cannot be skipped
+  ok   PackageBuilder has no bypass flag
+  ok   a non-package donor raises rather than building
+
+[10] a bad substitution name fails loudly, not silently
+  ok   unknown script key raises TransplantError
+  ok   unknown array object id raises TransplantError
+
+[11] the gzipped artefact is what pkp_dump would read back
+  ok   output is gzip
+  ok   gunzips to the built stream
+
+37 passed, 0 failed, 37 total

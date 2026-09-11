@@ -1,14 +1,15 @@
 # Status
 
-**Last updated: 2026-09-10.** Read this first. Everything below is measured unless
-marked otherwise.
+**Last updated: 2026-09-11.** Read this first. Everything below is measured unless
+marked otherwise. **What is left to do lives in `ROADMAP.md`; the machine it runs on is
+described in `ENVIRONMENT.md`.**
 
 ## Answers
 
 | question | answer |
 |---|---|
 | Extron `.pkp` → ControlScript `.py`? | **Yes — built and measured.** `tools/pkp2cs.py`. |
-| ControlScript `.py` → `.pkp`? | **Format: yes. Command surface: yes.** Byte-identical NRBF round-trip on all 9 packages; GC loads and selects a transplanted package (findings 12, 16, 18); and `tools/pkp_asset.py` now **adds commands to the object graph** — 17 added to the i20 package, all 15 originals unchanged (finding 18). Whether GC *renders* added commands is the open hardware gate. |
+| ControlScript `.py` → `.pkp`? | **Format: yes. Command surface: yes.** Byte-identical NRBF round-trip on all 9 packages; GC loads and selects a transplanted package (findings 12, 16, 18); and `tools/pkp_asset.py` now **adds commands to the object graph** — 17 added to the i20 package, all 15 originals unchanged (finding 18). GC renders all 34, with the exact ranges and enum states written into the graph (finding 18 §8). |
 | Crestron `.pkg` → Extron ControlScript? | **Yes — built and measured** against Extron's own driver for the same device. |
 | Crestron device driven by an Extron processor? | **Built and verified offline; untested on hardware.** Both forms: 4 staged `.pkp` and a drop-in ControlScript module. Same wire table from two emitters (finding 13). |
 | Extron → Crestron `.pkg`? | **Mechanically demonstrated** (resource-patched a real DLL). Gated by Crestron's dealer/partner licence, not by code. |
@@ -35,8 +36,8 @@ marked otherwise.
 | 14 | **312 third-party oracle pairs.** 80.9% wire-match, but 25% of generated modules would raise `AttributeError` — and the broken ones score *higher*. |
 | 15 | **On hardware: `80085`.** A transplanted package is catalogued, then refused at selection. *Its proposed cause is superseded by finding 16.* |
 | 16 | **`80085` is a SHA-256 mismatch.** Extron's validator reimplemented in pure Python; 1,900/1,919 exact agreement with their own code, so GC is no longer needed to check a package. |
-| 18 | **The asset tree is the command surface** — GC never asks the script what it can do, so a package can be `Valid` and silently short. Object-graph synthesis built and verified **through Extron's own deserializer**; the i20 package goes 15 -> 32 commands. Carries the negative-object-id trap that no local check could see. |
 | 17 | **How a human writes one.** A working integrator splices Extron's template from two vintages rather than authoring from scratch — the same instinct as our transplant. |
+| 18 | **The asset tree is the command surface** — GC never asks the script what it can do, so a package can be `Valid` and silently short. Object-graph synthesis built and verified **through Extron's own deserializer** and in GCP itself; the i20 package goes 15 -> 34 commands. Carries the negative-object-id trap that no local check could see. |
 
 ## Tools — all tested, all standard library only
 
@@ -46,14 +47,20 @@ marked otherwise.
 | `tools/pkg_dump.py` | Crestron `.pkg` → manifest + driver JSON. Real ECMA-335 metadata walk, no hardcoded offsets. | (in above) |
 | `tools/wire_table.py` | **The acceptance oracle.** Normalised per-command wire table from *both* Python dialects. Unresolvable expressions become *counted* opaque markers, never guesses. | 34 |
 | `tools/pkp2cs.py` | `.pkp` → ControlScript translator. Raises rather than degrading. | 56 |
-| `tools/pkp_build.py` | **`.pkp` transplant builder.** Refuses to emit unless the unmodified donor round-trips byte-for-byte first; no bypass flag. | 36 |
+| `tools/pkp_build.py` | **`.pkp` transplant builder.** Refuses to emit unless the unmodified donor round-trips byte-for-byte first; no bypass flag. | 37 |
 | `tools/pkp_validate.py` | **Extron's driver validator, in pure Python.** Same verdict as GC's own code on 1,900 of 1,919 packages, with no GC installed. | 127 |
 | `tools/nrbf_graph.py` | **Structural navigation over an NRBF trace.** Every object id → its exact span of records, by replaying the reader's grammar. Verified end-to-end on all 9 packages, up to 4.4M events / 668k objects. | (with below) |
 | `tools/pkp_asset.py` | **Adds commands to a `.pkp`'s object graph.** Clone/attach/detach of asset subtrees with computed ownership, so a shared string is never renamed and a donor is never damaged. Output confirmed loadable by Extron's own `LoadFromFile`. | 43 |
-| `experiments/skeleton_i20/` | **i20 driver, both forms.** `.pkp` transplant + standalone ControlScript module, held to identical bytes. | 85 + 56 |
+| `tools/gc_catalogue.py` | **What Global Configurator catalogued.** Reads `DriverLookup.dat` (raw NRBF); `--against` compares it with a driver folder. Failing the catalogue-parse gate shows only as absence — this measures it. | 14 |
+| `experiments/skeleton_i20/` | **i20 driver, both forms.** `.pkp` transplant + standalone ControlScript module, held to identical bytes. | 86 + 57 |
+| `experiments/gcp_harness/` | **Windows-only.** `Load-Package.ps1` asks Extron's own `LoadFromFile`/`BinaryFormatter` about a package; `scratch/` is the verified UI Automation chain that drove GCP. PowerShell because Python cannot load the x86 Extron assemblies without a third-party bridge. | manual |
 
 Experiments live in `experiments/` (NRBF writer, Crestron→ControlScript, missing-Ethernet
-generation, docs-only generation). Harvested vendor docs in `reference/`.
+generation, docs-only generation, oracle pairs, graph probes, Ross Ultrix, GCP harness).
+Harvested vendor docs in `reference/`. **`corpus/` is a 1.3 GB snapshot of the Windows box's
+Extron library** (1,854 `.pkp`, 2,235 ControlScript modules), so findings 14, 16 and 17
+reproduce off that machine. `evidence/` holds the screenshots and catalogue captures the
+findings cite.
 
 ### Translator scorecard
 
@@ -104,9 +111,10 @@ not a mechanical rewrite, so they are reported as residuals rather than guessed.
    nothing to read for them. `CAM_TrackingInq` cannot distinguish group from presenter
    tracking. A device limit, but a limit.
 
-*Closed outright by finding 14: 352 pairs across 314 packages, scored. Superseding finding 12's* The GC install carries
-**6,644 `.pkp` across hundreds of vendors** in `C:\Users\Public\Documents\extron\driver3`,
-96% of them third-party. The sampling problem is now a selection problem.
+*The "only 4 oracle pairs" item was closed by finding 14: 352 pairs across 314 packages,
+scored.* Finding 12 counted **6,644 `.pkp`** in one GC install; this box's library held
+1,854, and that library is now committed under `corpus/`. The sampling problem is a
+selection problem.
 
 ## Standing methodology notes
 
