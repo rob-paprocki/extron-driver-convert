@@ -1,93 +1,76 @@
 # extron-driver-convert
 
 Research repo. Can an Extron `.pkp` driver (Global Configurator Plus/Pro) be
-converted to or from a ControlScript device module (`.py`)? And does the same
-hold across vendors, with Crestron?
+converted to or from a ControlScript device module (`.py`)? Does the same hold
+across vendors, with Crestron? And, in practice: can an Extron processor drive
+Crestron-owned hardware — the 1 Beyond IV-CAM-I20 — from a driver built here?
 
-Read `STATUS.md` first. It carries the verdicts, the translator scorecard, the
-findings index and the methodology notes, and it is the file kept current.
+**Read `STATUS.md` first.** It carries the verdicts, the findings index, the
+translator scorecard and the methodology notes, and it is the file kept
+current. **`ROADMAP.md`** lists everything unfinished, in order, with the
+blocker and first step for each. **`ENVIRONMENT.md`** describes the Windows box
+the machine-bound work runs on.
 
 Not affiliated with Extron or Crestron.
 
-## Status
-
-All four original directions have verdicts, and the translator is built and
-measured. `tools/pkp2cs.py` converts a `.pkp` into a ControlScript module and
-is scored against Extron's own shipped module for the same device.
-
-This is a research repo rather than a product. The tools exist to answer the
-questions, and the open questions in `STATUS.md` matter more than the code.
-
-## The questions, and where they landed
+## Where it stands
 
 | Direction | Verdict |
 |---|---|
-| `.pkp` to `.py` | Yes. Built and measured (finding 02) |
-| `.py` to `.pkp` | Format: yes. Byte-identical NRBF round-trip on all four packages. Whether Global Configurator accepts a from-scratch package is untested (finding 10 supersedes finding 02's "no") |
-| Crestron `.pkg` to Extron | Yes for JSON-engine drivers (findings 03 to 05) |
-| Extron to Crestron `.pkg` | Mechanically demonstrated by resource-patching a real DLL. Gated by Crestron's dealer licence, not by code (finding 06) |
+| `.pkp` → ControlScript `.py` | **Yes, built and measured.** `tools/pkp2cs.py`; 80.9% wire-match across 312 third-party oracle pairs (finding 14) |
+| ControlScript `.py` → `.pkp` | **Yes, including new commands.** Transplant into a real package, refresh its SHA-256 digests, and synthesise `DriverCommandAsset` subtrees into the object graph. Global Configurator loads, catalogues and renders the result (findings 16, 18) |
+| Crestron `.pkg` → Extron | **Yes** for JSON-engine drivers (findings 03 to 05, 13) |
+| Extron → Crestron `.pkg` | Mechanically demonstrated by resource-patching a real DLL. Gated by Crestron's dealer licence, not by code (finding 06) |
+| Crestron IV-CAM-I20 on an Extron processor | **Built both ways and rendered in GCP.** A 34-command `.pkp` and a drop-in ControlScript module, byte-identical on the wire. **Not yet run against a camera** |
 
-Two further questions came out of the samples. A driver can be generated from
-API documentation alone to about 84% of what a real driver calls, where the
-danger is silent incompleteness rather than missing methods. And a shared
-intermediate representation is justified, because two vendors independently
-encode the same device to the same bytes.
-
-Crestron came into scope once samples showed that same convergence: identical
-wire traffic for the Samsung display, including the same undocumented
-firmware-bug workaround from two vendor teams (finding 05).
+Two further results came out of the samples: a driver can be generated from API
+documentation alone to about 84% of what a real driver calls, where the danger
+is silent incompleteness; and a shared intermediate representation is
+justified, because two vendors independently encode the same device to the same
+bytes — including the same undocumented firmware-bug workaround (finding 05).
 
 ## Tools
 
-Standard library only. Run each test file directly; there is no pytest and none
-is needed.
+Standard library Python only. Run each test file directly; there is no pytest
+and none is needed.
 
 | tool | what it does |
 |---|---|
-| `tools/pkp_dump.py` | `.pkp` to a JSON object graph. Every byte accounted for on all four packages |
-| `tools/pkg_dump.py` | Crestron `.pkg` to manifest and driver JSON. A real ECMA-335 metadata walk, no hardcoded offsets |
-| `tools/wire_table.py` | the acceptance oracle. A normalised per-command wire table from both Python dialects. Unresolvable expressions become counted opaque markers, never guesses |
-| `tools/pkp2cs.py` | the `.pkp` to ControlScript translator. Raises rather than degrading |
+| `tools/pkp_dump.py` | `.pkp` to a JSON object graph |
+| `tools/pkg_dump.py` | Crestron `.pkg` to manifest and driver JSON, via a real ECMA-335 metadata walk |
+| `tools/wire_table.py` | **the acceptance oracle** — a normalised per-command wire table from both Python dialects |
+| `tools/pkp2cs.py` | `.pkp` → ControlScript translator. Raises rather than degrading |
+| `tools/pkp_build.py` | `.pkp` transplant builder; refuses to emit unless the donor round-trips byte-for-byte |
+| `tools/pkp_validate.py` | Extron's driver validator reimplemented; agrees with GC on 1,900 of 1,919 packages |
+| `tools/nrbf_graph.py` | maps every NRBF object to its exact span of records |
+| `tools/pkp_asset.py` | adds commands to a `.pkp`'s object graph by clone / attach / detach |
+| `tools/gc_catalogue.py` | reads GC's `DriverLookup.dat`: what it actually catalogued |
 
-| test file | tests |
-|---|---|
-| `tools/test_pkp2cs.py` | 56 |
-| `tools/test_wire_table.py` | 34 |
-| `tools/test_pkg_dump.py` | 23 |
-| `experiments/nrbf_writeback/test_nrbf_write.py` | 16 |
-| `experiments/crestron2cs/test_crestron2cs.py` | 14 |
+The one non-Python component is `experiments/gcp_harness/` — Windows-only
+PowerShell that asks Extron's own DLLs whether a package loads, and the UI
+Automation chain that drove GCP. See its README for why.
 
-## Translator scorecard
-
-Two metrics, because wire correctness alone is not sufficient. A module can
-carry a perfect command table and still raise `AttributeError` on a processor.
-
-| pair | shipped cmds | generated | wire-matching | differing |
-|---|---|---|---|---|
-| DSC 12G-HD | 29 | 29 | 28 | 1, Extron's own `LogoAssignment` bug |
-| DTP3 CP 42 | 31 | 29 | 27 | 1, plus real version skew |
-| Samsung serial | 9 | 9 | 9 | 0 |
-| Automate VX | 18 | 18 | 17 | 1, the package omits `Scenario` params |
-
-Runtime resolvability went from 26 dangling `self.X()` references down to 5,
-with the wire baseline unchanged and all five modules compiling. The remaining
-five are one honest category: GC-only scratch-command accessors called across
-commands to compose another command's payload. Extron restructured these by
-hand into `qualifier['Number']` and `qualifier['Name']`, which is a design
-decision rather than a mechanical rewrite, so they are reported as residuals
-rather than guessed.
+Test counts are in `STATUS.md`.
 
 ## Layout
 
 ```
-samples/<device>/pkp/            .pkp driver packages
-samples/<device>/controlscript/  the shipped ControlScript module for the same device
-samples/<device>/Crestron/       the Crestron package, where one exists
-tools/                           the tools above, with their tests
-experiments/                     NRBF writer, Crestron to ControlScript, docs-only generation
-findings/                        numbered research output, 00 to 11
-reference/                       harvested vendor documentation
-notes/                           sample provenance
+STATUS.md  ROADMAP.md  ENVIRONMENT.md
+findings/                    numbered research output, 01 to 18
+tools/                       the tools above, with their tests
+experiments/
+  skeleton_i20/              the IV-CAM-I20 driver, .pkp and ControlScript forms
+  oracle_pairs/              the 312-pair translator scorecard (finding 14)
+  gcp_harness/               Windows-only: Extron DLL probes + GCP UI Automation
+  graph_probes/              packages that located finding 18's deserializer bug
+  ross_ultrix/               the one oracle pair with a human-written side (finding 17)
+  nrbf_writeback/ crestron2cs/ docs_only/ missing_ethernet/
+samples/<device>/            .pkp, shipped ControlScript module, Crestron package
+corpus/                      1.3 GB snapshot of the Windows box's Extron library
+evidence/                    screenshots and GC catalogue captures the findings cite
+reference/                   harvested vendor documentation
+notes/                       sample provenance
+private/                     session records + tool settings (licence data) — git-ignored, on disk only
 ```
 
 ## Grading a conversion
@@ -101,50 +84,17 @@ Six things decide how far a direction gets:
 5. Logic and events: GC's event layer against ControlScript's user code.
 6. Round-trip loss: what is silently dropped, and does it matter?
 
-A conversion that gets 1 to 4 and abandons 5 may still be worth building. That
-call belongs in the writeup, so don't settle it in advance.
-
-## What is still open
-
-In the order it matters. `STATUS.md` has the detail.
-
-1. Does an outsider-built `.pkg` load on a processor? Independent developers
-   ship drivers built from the public NuGet DevKit, so the compile path is
-   demonstrated. The resource-swap shortcut used here is not. Answering it
-   needs Crestron Toolbox or VC-4, both dealer-gated. No amount of further
-   research substitutes for this.
-2. Crestron's licence restricts its tools to developing software for Crestron
-   devices, bars reverse engineering, and requires a dealer or partner
-   agreement. Extron requires a free account with no field-of-use limit. That
-   is a lawyer's question, and cheaper to ask before building an emitter than
-   after.
-3. Catalogue coverage. How much of Crestron's library is the extractable
-   JSON-engine form, against the V2 Entity Model or V1 RAD? Two data points so
-   far. `drivers.crestron.io` is login-gated, so this can only be answered by
-   sampling.
-4. Only four oracle pairs, all Extron-authored. The translator's rules were
-   derived from and validated against the same small set, so more pairs is the
-   cheapest way to find where it breaks.
-
 ## Method
 
-A negative claim needs positive evidence. Where no published index exists,
-report a negative as "not found by method X", never as "does not exist".
-Finding 08 got this wrong twice and carries the corrections in its header.
-
-Acceptance is the wire-string table, not file or line similarity. Line overlap
-between a package and its shipped module ranges from 76% down to 38% while the
-command tables stay near-identical.
-
-Samples beat documentation. Doc-only research recommended point-to-point
-converters and claimed Crestron's declarative layer stopped at a whitelist.
-Real files reversed both.
-
-Calibrate before trusting a document. Score it against facts you can already
-verify before relying on it for facts you cannot.
+A negative claim needs positive evidence: report *"not found by method X"*,
+never *"does not exist"*. Acceptance is the wire-string table, not file
+similarity — and wire correctness is necessary but not sufficient. `Valid` does
+not mean loadable: finding 18 built a package that passed every local check and
+that GC would not list, because every local check shared one wrong model of the
+format. Deserialize through the vendor's own code before believing an edit.
 
 ## Provenance and licensing
 
-The sample drivers are Extron and Crestron vendor material, so this repo stays
-private. Findings may describe the formats; the sample files are not
-redistributed.
+The sample drivers and `corpus/` are Extron and Crestron vendor material, so
+this repo stays private. Findings may describe the formats; vendor files are
+not redistributed.

@@ -1,0 +1,48 @@
+path	status	code	name	verified	bypassed	nres	warnings
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_00_control.pkp	ok	0	Valid	True	False	2	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_01_stale_script.pkp	ok	80085	MismatchHash	True	False	2	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_02_refreshed_script.pkp	ok	0	Valid	True	False	2	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_03_bad_py_digest.pkp	ok	80085	MismatchHash	True	False	2	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_04_short_py_digest.pkp	ok	80085	MismatchHash	True	False	2	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_05_empty_py_digest.pkp	ok	80085	MismatchHash	True	False	2	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_08_bothkeys_renamed.pkp	ok	0	Valid	True	False	2	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_09_stale_pdf.pkp	ok	80085	MismatchHash	True	False	2	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_10_bad_pdf_digest.pkp	ok	80085	MismatchHash	True	False	2	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_11_both_digests_bad.pkp	ok	80085	MismatchHash	True	False	2	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_12_filename_eir_baddigest.pkp	ok	80085	MismatchHash	True	False	2	ambiguous IR bypass: serialized _filename ends in 'eir' but on-disk name does not, and the decodes disagree on which one Validate reads (gap 2). Not taking the bypass; the code below is the hash outcome, and GC may return Valid regardless.
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_13_filename_eir_clean.pkp	ok	0	Valid	True	False	2	ambiguous IR bypass: serialized _filename ends in 'eir' but on-disk name does not, and the decodes disagree on which one Validate reads (gap 2). Not taking the bypass; the code below is the hash outcome, and GC may return Valid regardless.
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_00_control.pkp	ok	0	Valid	True	False	3	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_01_stale_script.pkp	ok	80085	MismatchHash	True	False	3	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_02_refreshed_script.pkp	ok	0	Valid	True	False	3	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_03_bad_py_digest.pkp	ok	80085	MismatchHash	True	False	3	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_04_short_py_digest.pkp	ok	80085	MismatchHash	True	False	3	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_05_empty_py_digest.pkp	ok	80085	MismatchHash	True	False	3	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_08_bothkeys_renamed.pkp	ok	0	Valid	True	False	3	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_09_stale_pdf.pkp	ok	80085	MismatchHash	True	False	3	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_10_bad_pdf_digest.pkp	ok	80085	MismatchHash	True	False	3	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_11_both_digests_bad.pkp	ok	80085	MismatchHash	True	False	3	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_12_filename_eir_baddigest.pkp	ok	80085	MismatchHash	True	False	3	ambiguous IR bypass: serialized _filename ends in 'eir' but on-disk name does not, and the decodes disagree on which one Validate reads (gap 2). Not taking the bypass; the code below is the hash outcome, and GC may return Valid regardless.
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_13_filename_eir_clean.pkp	ok	0	Valid	True	False	3	ambiguous IR bypass: serialized _filename ends in 'eir' but on-disk name does not, and the decodes disagree on which one Validate reads (gap 2). Not taking the bypass; the code below is the hash outcome, and GC may return Valid regardless.
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_00_control.pkp	ok	0	Valid	True	False	2	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_01_stale_script.pkp	ok	80085	MismatchHash	True	False	2	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_02_refreshed_script.pkp	ok	0	Valid	True	False	2	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_03_bad_py_digest.pkp	ok	80085	MismatchHash	True	False	2	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_04_short_py_digest.pkp	ok	80085	MismatchHash	True	False	2	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_05_empty_py_digest.pkp	ok	80085	MismatchHash	True	False	2	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_08_bothkeys_renamed.pkp	ok	0	Valid	True	False	2	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_09_stale_pdf.pkp	ok	80085	MismatchHash	True	False	2	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_10_bad_pdf_digest.pkp	ok	80085	MismatchHash	True	False	2	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_11_both_digests_bad.pkp	ok	80085	MismatchHash	True	False	2	
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_12_filename_eir_baddigest.pkp	ok	80085	MismatchHash	True	False	2	ambiguous IR bypass: serialized _filename ends in 'eir' but on-disk name does not, and the decodes disagree on which one Validate reads (gap 2). Not taking the bypass; the code below is the hash outcome, and GC may return Valid regardless.
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_13_filename_eir_clean.pkp	ok	0	Valid	True	False	2	ambiguous IR bypass: serialized _filename ends in 'eir' but on-disk name does not, and the decodes disagree on which one Validate reads (gap 2). Not taking the bypass; the code below is the hash outcome, and GC may return Valid regardless.
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_01_stale_script_ondisk.eir	ok	80085	MismatchHash	True	False	2	ambiguous IR bypass: on-disk name ends in 'eir' but serialized _filename does not, and the decodes disagree on which one Validate reads (gap 2). Not taking the bypass; the code below is the hash outcome, and GC may return Valid regardless.
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_03_bad_py_digest_ondisk.eir	ok	80085	MismatchHash	True	False	2	ambiguous IR bypass: on-disk name ends in 'eir' but serialized _filename does not, and the decodes disagree on which one Validate reads (gap 2). Not taking the bypass; the code below is the hash outcome, and GC may return Valid regardless.
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_01_stale_script_ondisk.eir	ok	80085	MismatchHash	True	False	3	ambiguous IR bypass: on-disk name ends in 'eir' but serialized _filename does not, and the decodes disagree on which one Validate reads (gap 2). Not taking the bypass; the code below is the hash outcome, and GC may return Valid regardless.
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_03_bad_py_digest_ondisk.eir	ok	80085	MismatchHash	True	False	3	ambiguous IR bypass: on-disk name ends in 'eir' but serialized _filename does not, and the decodes disagree on which one Validate reads (gap 2). Not taking the bypass; the code below is the hash outcome, and GC may return Valid regardless.
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_01_stale_script_ondisk.eir	ok	80085	MismatchHash	True	False	2	ambiguous IR bypass: on-disk name ends in 'eir' but serialized _filename does not, and the decodes disagree on which one Validate reads (gap 2). Not taking the bypass; the code below is the hash outcome, and GC may return Valid regardless.
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_03_bad_py_digest_ondisk.eir	ok	80085	MismatchHash	True	False	2	ambiguous IR bypass: on-disk name ends in 'eir' but serialized _filename does not, and the decodes disagree on which one Validate reads (gap 2). Not taking the bypass; the code below is the hash outcome, and GC may return Valid regardless.
+C:\Users\robp\AppData\Local\Temp\extval\mutants\trunc_half.pkp	ok	-2	Unparseable	False	False	0	cannot read C:\Users\robp\AppData\Local\Temp\extval\mutants\trunc_half.pkp: EOFError: Compressed file ended before the end-of-stream marker was reached
+C:\Users\robp\AppData\Local\Temp\extval\mutants\trunc_16.pkp	ok	-2	Unparseable	False	False	0	cannot read C:\Users\robp\AppData\Local\Temp\extval\mutants\trunc_16.pkp: EOFError: Compressed file ended before the end-of-stream marker was reached
+C:\Users\robp\AppData\Local\Temp\extval\mutants\empty.pkp	ok	-2	Unparseable	False	False	0	empty input
+C:\Users\robp\AppData\Local\Temp\extval\mutants\notgzip.pkp	ok	-2	Unparseable	False	False	0	not a readable NRBF stream: unhandled/unknown record type while parsing | record_type=0x74(116) | offset=0x0 (0)
+C:\Users\robp\AppData\Local\Temp\extval\mutants\gzip_garbage.pkp	ok	-2	Unparseable	False	False	0	not a readable NRBF stream: unhandled/unknown record type while parsing | record_type=0x20(32) | offset=0x11 (17)

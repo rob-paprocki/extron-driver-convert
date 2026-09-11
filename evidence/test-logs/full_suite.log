@@ -1,0 +1,12 @@
+tools/test_pkp2cs.py                           rc=0  56 passed, 0 failed, 56 total 
+tools/test_wire_table.py                       rc=0  34 passed, 0 failed, 34 total 
+tools/test_pkg_dump.py                         rc=0  23 passed, 0 failed, 23 total 
+tools/test_pkp_build.py                        rc=0  37 passed, 0 failed, 37 total 
+tools/test_pkp_validate.py                     rc=0  127 passed, 0 failed, 127 total 
+tools/test_pkp_asset.py                        rc=0  43 passed, 0 failed, 43 total 
+tools/test_gc_catalogue.py                     rc=0  14 passed, 0 failed, 14 total 
+experiments/nrbf_writeback/test_nrbf_write.py  rc=0  16/16 passed 
+experiments/crestron2cs/test_crestron2cs.py    rc=0  Ran 14 tests in 0.238s OK 
+experiments/skeleton_i20/test_i20_wire.py      rc=0  86 passed, 0 failed, 86 total 
+experiments/skeleton_i20/test_i20_cs_wire.py   rc=0  57 passed, 0 failed, 57 total 
+DONE-SUITE

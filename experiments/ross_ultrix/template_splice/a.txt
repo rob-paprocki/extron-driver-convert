@@ -1,0 +1,231 @@
+--- DTP3(generated)
++++ ROSS
+@@ -1,40 +1,38 @@
+-    ######################################################    
++    ######################################################
+     # RECOMMENDED not to modify the code below this point
+     ######################################################
+-
+-    # Send Control Commands
++	# Send Control Commands
+     def Set(self, command, value, qualifier=None):
+-        method = getattr(self, 'Set%s' % command, None)
++        method = getattr(self, 'Set%s' % command)
+         if method is not None and callable(method):
+             method(value, qualifier)
+         else:
+-            raise AttributeError(command + 'does not support Set.')
++            print(command, 'does not support Set.')
+ 
+-    # Send Update Commands
+     def Update(self, command, qualifier=None):
+-        method = getattr(self, 'Update%s' % command, None)
++        method = getattr(self, 'Update%s' % command)
+         if method is not None and callable(method):
+             method(None, qualifier)
+         else:
+-            raise AttributeError(command + 'does not support Update.')
++            print(command, 'does not support Update.')
+ 
+     # This method is to tie an specific command with a parameter to a call back method
+     # when its value is updated. It sets how often the command will be query, if the command
+     # have the update method.
+-    # If the command doesn't have the update feature then that command is only used for feedback 
++    # If the command doesn't have the update feature then that command is only used for feedback
+     def SubscribeStatus(self, command, qualifier, callback):
+-        Command = self.Commands.get(command, None)
++        Command = self.Commands.get(command)
+         if Command:
+             if command not in self.Subscription:
+-                self.Subscription[command] = {'method':{}}
+-        
++                self.Subscription[command] = {'method': {}}
++
+             Subscribe = self.Subscription[command]
+             Method = Subscribe['method']
+-        
++
+             if qualifier:
+                 for Parameter in Command['Parameters']:
+                     try:
+                         Method = Method[qualifier[Parameter]]
+-                    except:
++                    except BaseException:
+                         if Parameter in qualifier:
+                             Method[qualifier[Parameter]] = {}
+@@ -42,13 +40,13 @@
+                         else:
+                             return
+-        
++
+             Method['callback'] = callback
+-            Method['qualifier'] = qualifier    
++            Method['qualifier'] = qualifier
+         else:
+-            raise KeyError('Invalid command for SubscribeStatus ' + command)
++            print(command, 'does not exist in the module')
+ 
+     # This method is to check the command with new status have a callback method then trigger the callback
+     def NewStatus(self, command, value, qualifier):
+-        if command in self.Subscription :
++        if command in self.Subscription:
+             Subscribe = self.Subscription[command]
+             Method = Subscribe['method']
+@@ -58,8 +56,8 @@
+                     try:
+                         Method = Method[qualifier[Parameter]]
+-                    except:
++                    except BaseException:
+                         break
+             if 'callback' in Method and Method['callback']:
+-                Method['callback'](command, value, qualifier)  
++                Method['callback'](command, value, qualifier)
+ 
+     # Save new status to the command
+@@ -79,10 +77,10 @@
+                         Status = Status[qualifier[Parameter]]
+                     else:
+-                        return  
++                        return
+         try:
+             if Status['Live'] != value:
+                 Status['Live'] = value
+                 self.NewStatus(command, value, qualifier)
+-        except:
++        except BaseException:
+             Status['Live'] = value
+             self.NewStatus(command, value, qualifier)
+@@ -90,29 +88,27 @@
+     # Read the value from a command.
+     def ReadStatus(self, command, qualifier=None):
+-        Command = self.Commands.get(command, None)
+-        if Command:
+-            Status = Command['Status']
+-            if qualifier:
+-                for Parameter in Command['Parameters']:
+-                    try:
+-                        Status = Status[qualifier[Parameter]]
+-                    except KeyError:
+-                        return None
+-            try:
+-                return Status['Live']
+-            except:
+-                return None
+-        else:
+-            raise KeyError('Invalid command for ReadStatus: ' + command)
++        Command = self.Commands[command]
++        Status = Command['Status']
++        if qualifier:
++            for Parameter in Command['Parameters']:
++                try:
++                    Status = Status[qualifier[Parameter]]
++                except KeyError:
++                    return None
++        try:
++            return Status['Live']
++        except BaseException:
++            return None
+ 
+     def __ReceiveData(self, interface, data):
+         # Handle incoming data
++        self.OnConnected()
++        return
+         self.__receiveBuffer += data
+-        index = 0    # Start of possible good data
+-        
+-        #check incoming data if it matched any expected data from device module
++        index = 0  # Start of possible good data
++        # check incoming data if it matched any expected data from device module
+         for regexString, CurrentMatch in self.__matchStringDict.items():
+             while True:
+-                result = re.search(regexString, self.__receiveBuffer)
++                result = search(regexString, self.__receiveBuffer)
+                 if result:
+                     index = result.start()
+@@ -121,6 +117,6 @@
+                 else:
+                     break
+-                    
+-        if index: 
++
++        if index:
+             # Clear out any junk data that came in before any good matches.
+             self.__receiveBuffer = self.__receiveBuffer[index:]
+@@ -133,23 +129,54 @@
+     def AddMatchString(self, regex_string, callback, arg):
+         if regex_string not in self.__matchStringDict:
+-            self.__matchStringDict[regex_string] = {'callback': callback, 'para':arg}
++            self.__matchStringDict[regex_string] = {'callback': callback, 'para': arg}
+ 
+-    def MissingCredentialsLog(self, credential_type):
+-        if isinstance(self, EthernetClientInterface):
+-            port_info = 'IP Address: {0}:{1}'.format(self.IPAddress, self.IPPort)
+-        elif isinstance(self, SerialInterface):
+-            port_info = 'Host Alias: {0}\r\nPort: {1}'.format(self.Host.DeviceAlias, self.Port)
+-        else:
+-            return 
+-        ProgramLog("{0} module received a request from the device for a {1}, "
+-                   "but device{1} was not provided.\n Please provide a device{1} "
+-                   "and attempt again.\n Ex: dvInterface.device{1} = '{1}'\n Please "
+-                   "review the communication sheet.\n {2}"
+-                   .format(__name__, credential_type, port_info), 'warning') 
++class SerialClass(SerialInterface, DeviceClass):
+ 
+-class SSHClass(EthernetClientInterface, DeviceClass):
++    def __init__(self, Host, Port, Baud=9600, Data=8, Parity='None', Stop=1, FlowControl='Off', CharDelay=0, Mode='RS232', Model =None):
++        SerialInterface.__init__(self, Host, Port, Baud, Data, Parity, Stop, FlowControl, CharDelay, Mode)
++        self.ConnectionType = 'Serial'
++        DeviceClass.__init__(self)
++        # Check if Model belongs to a subclass
++        if len(self.Models) > 0:
++            if Model not in self.Models:
++                print('Model mismatch')
++            else:
++                self.Models[Model]()
+ 
+-    def __init__(self, Hostname, IPPort, Protocol='SSH', ServicePort=0, Credentials=(None), Model=None):
+-        EthernetClientInterface.__init__(self, Hostname, IPPort, Protocol, ServicePort, Credentials)
++    def Error(self, message):
++        portInfo = 'Host Alias: {0}, Port: {1}'.format(self.Host.DeviceAlias, self.Port)
++        print('Module: {}'.format(__name__), portInfo, 'Error Message: {}'.format(message[0]), sep='\r\n')
++
++    def Discard(self, message):
++        self.Error([message])
++
++class SerialOverEthernetClass(EthernetClientInterface, DeviceClass):
++
++    def __init__(self, Hostname, IPPort, Protocol='TCP', ServicePort=0, Model=None):
++        EthernetClientInterface.__init__(self, Hostname, IPPort, Protocol, ServicePort)
++        self.ConnectionType = 'Serial'
++        DeviceClass.__init__(self)
++        # Check if Model belongs to a subclass
++        if len(self.Models) > 0:
++            if Model not in self.Models:
++                print('Model mismatch')
++            else:
++                self.Models[Model]()
++
++    def Error(self, message):
++        portInfo = 'IP Address/Host: {0}:{1}'.format(self.Hostname, self.IPPort)
++        print('Module: {}'.format(__name__), portInfo, 'Error Message: {}'.format(message[0]), sep='\r\n')
++
++    def Discard(self, message):
++        self.Error([message])
++
++    def Disconnect(self):
++        EthernetClientInterface.Disconnect(self)
++        self.OnDisconnected()
++
++class EthernetClass(EthernetClientInterface, DeviceClass):
++
++    def __init__(self, Hostname, IPPort, Protocol='TCP', ServicePort=0, Model=None):
++        EthernetClientInterface.__init__(self, Hostname, IPPort, Protocol, ServicePort)
+         self.ConnectionType = 'Ethernet'
+         DeviceClass.__init__(self)
+@@ -162,5 +189,5 @@
+ 
+     def Error(self, message):
+-        portInfo = 'IP Address/Host: {0}:{1}'.format(self.IPAddress, self.IPPort)
++        portInfo = 'IP Address/Host: {0}:{1}'.format(self.Hostname, self.IPPort)
+         print('Module: {}'.format(__name__), portInfo, 'Error Message: {}'.format(message[0]), sep='\r\n')
+ 

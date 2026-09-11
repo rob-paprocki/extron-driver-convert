@@ -1,0 +1,33 @@
+      string 358: 'PTZ-IP12' -> 'IV-CAM-I12'
+      string 368: 'PTZ-IP20' -> 'IV-CAM-I20'
+      script _1bynd_19_4743.py: 37201 -> 70146 bytes
+      hash _1bynd_19_4743.py: cc80101d -> a160a967
+
+wrote Z:\GitHub\rob-paprocki\extron-driver-convert\experiments\skeleton_i20\out
+--- assets ---
+commands in the graph before: 15
+   + TrackingFraming          Auto Tracking
+   + GroupTracking            Group Tracking
+   + PresenterTracking        Presenter Tracking
+   + PanTiltHome              Pan Tilt Home
+   + FreezeFrame              Freeze Frame
+   + Menu                     Menu
+   + Identify                 Identify
+   + TrackingShot             Tracking Shot
+   + IntelligentSwitching     Intelligent Switching
+   + Reboot                   Reboot
+   + TrackingProfile          Tracking Profile  (1-4)
+   + PresetZone               Preset Zone  (1-4)
+   + CameraOutput             Camera Output  (0-5)
+   + ZoomPosition             Zoom Position  (0-16384, composed)
+   + PanTiltAngle             Pan Tilt Angle  (composed)
+   + IndicatorLight           Color ['Green', 'Red', 'Yellow']
+   + IndicatorLight           Brightness ['Off', 'Dim', 'Medium', 'Bright']
+   + CameraConnectionStatus   Camera Connection Status  (composed)
+   + PanAngleStatus           Pan Angle Status  (-2448-2448)
+   + TiltAngleStatus          Tilt Angle Status  (-1296-1296)
+   model version minor -> 2 on 2 models
+commands in the graph after : 34  (+19)
+   verify: graph and script agree on 34 commands
+wrote Z:\GitHub\rob-paprocki\extron-driver-convert\experiments\skeleton_i20\out\1bynd_19_20024_v1_0_0.pkp
+DONE-REBUILD

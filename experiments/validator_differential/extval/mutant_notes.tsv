@@ -1,0 +1,47 @@
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_00_control.pkp	untouched rebuild
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_01_stale_script.pkp	stale script hash
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_02_refreshed_script.pkp	script + refreshed hash
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_03_bad_py_digest.pkp	py digest last byte flipped
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_04_short_py_digest.pkp	py digest truncated to 16 bytes
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_05_empty_py_digest.pkp	py digest zero-length
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_08_bothkeys_renamed.pkp	both keys renamed to ZZ_extr_17_17677.py
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_09_stale_pdf.pkp	pdf bytes appended, digest untouched
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_10_bad_pdf_digest.pkp	pdf digest last byte flipped
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_11_both_digests_bad.pkp	BOTH digests corrupted
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_12_filename_eir_baddigest.pkp	_filename -> *.eir AND py digest corrupted
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_13_filename_eir_clean.pkp	_filename -> *.eir, everything else intact
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_00_control.pkp	untouched rebuild
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_01_stale_script.pkp	stale script hash
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_02_refreshed_script.pkp	script + refreshed hash
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_03_bad_py_digest.pkp	py digest last byte flipped
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_04_short_py_digest.pkp	py digest truncated to 16 bytes
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_05_empty_py_digest.pkp	py digest zero-length
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_08_bothkeys_renamed.pkp	both keys renamed to ZZ_smsg_10_6738_ethernet.py
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_09_stale_pdf.pkp	pdf bytes appended, digest untouched
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_10_bad_pdf_digest.pkp	pdf digest last byte flipped
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_11_both_digests_bad.pkp	BOTH digests corrupted
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_12_filename_eir_baddigest.pkp	_filename -> *.eir AND py digest corrupted
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_13_filename_eir_clean.pkp	_filename -> *.eir, everything else intact
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_00_control.pkp	untouched rebuild
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_01_stale_script.pkp	stale script hash
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_02_refreshed_script.pkp	script + refreshed hash
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_03_bad_py_digest.pkp	py digest last byte flipped
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_04_short_py_digest.pkp	py digest truncated to 16 bytes
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_05_empty_py_digest.pkp	py digest zero-length
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_08_bothkeys_renamed.pkp	both keys renamed to ZZ_biam_25_150.py
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_09_stale_pdf.pkp	pdf bytes appended, digest untouched
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_10_bad_pdf_digest.pkp	pdf digest last byte flipped
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_11_both_digests_bad.pkp	BOTH digests corrupted
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_12_filename_eir_baddigest.pkp	_filename -> *.eir AND py digest corrupted
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_13_filename_eir_clean.pkp	_filename -> *.eir, everything else intact
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_01_stale_script_ondisk.eir	stale script hash + on-disk name ends .eir
+C:\Users\robp\AppData\Local\Temp\extval\mutants\dsc_03_bad_py_digest_ondisk.eir	py digest last byte flipped + on-disk name ends .eir
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_01_stale_script_ondisk.eir	stale script hash + on-disk name ends .eir
+C:\Users\robp\AppData\Local\Temp\extval\mutants\smsg_03_bad_py_digest_ondisk.eir	py digest last byte flipped + on-disk name ends .eir
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_01_stale_script_ondisk.eir	stale script hash + on-disk name ends .eir
+C:\Users\robp\AppData\Local\Temp\extval\mutants\tesira_03_bad_py_digest_ondisk.eir	py digest last byte flipped + on-disk name ends .eir
+C:\Users\robp\AppData\Local\Temp\extval\mutants\trunc_half.pkp	structurally broken
+C:\Users\robp\AppData\Local\Temp\extval\mutants\trunc_16.pkp	structurally broken
+C:\Users\robp\AppData\Local\Temp\extval\mutants\empty.pkp	structurally broken
+C:\Users\robp\AppData\Local\Temp\extval\mutants\notgzip.pkp	structurally broken
+C:\Users\robp\AppData\Local\Temp\extval\mutants\gzip_garbage.pkp	structurally broken

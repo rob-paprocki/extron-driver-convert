@@ -1,0 +1,69 @@
+test_pkp_asset.py - offline gate for object-graph synthesis
+
+[1] the record grammar consumes every sample trace exactly
+  ok   walk 1bynd_19_4741_v1_0_1.pkp
+  ok   walk 1bynd_19_4743_v1_0_1.pkp
+  ok   walk 1bynd_42_4279_v1_0_11.pkp
+  ok   walk clau_25_1777_v1_3_0.pkp
+  ok   walk clau_25_5940_v1_1_1.pkp
+  ok   walk extr_17_17677_v1_0_0.pkp
+  ok   walk extr_15_17578_v1_3_0.pkp
+  ok   walk smsg_10_6738_v1_0_0.pkp
+  ok   walk biam_25_150_v1_20_0.pkp
+
+[2] spans nest properly and every object is claimed once
+  ok   no partially overlapping spans
+  ok   every span is non-empty
+  ok   object count is plausible
+
+[3] a cloned command shares nothing mutable with its donor
+  ok   command count rose by exactly one
+  ok   the new command is present by script name
+  ok   the donor is unchanged
+  ok   no parameter object is shared with the donor
+  ok   states were renamed on the copy only
+  ok   donor states still On/Off
+
+[4] adding commands leaves all 15 originals identical
+  ok   all 15 originals still present
+  ok   none of them changed in any way
+
+[5] a new command is registered in EVERY command collection
+  ok   there is more than one command collection
+  ok   every collection lists the new command
+  ok   every collection's size grew by one
+
+[6] growth past the donor's spare slot works (capacity 16, size 15)
+  ok   all collections reached 19
+  ok   capacity grew to hold them
+  ok   output re-parses
+
+[7] parameters compose: a decimal value beside a decimal speed
+  ok   the clone starts with the donor's enum Value
+  ok   composed shape is Speed+Value, both decimal
+  ok   the donor Zoom still has its enum Value
+  ok   range was applied
+
+[8] every id a clone mints is POSITIVE (a negative one kills the package)
+  ok   the clone did mint ids
+  ok   none of them is negative
+  ok   the donor's own negative ids are untouched
+  ok   IdAllocator ignores the sign of the original
+
+[8] unsafe edits raise instead of producing a broken package
+  ok   duplicate script name is refused
+  ok   unknown donor is refused
+  ok   renaming a string that is not in the clone is refused
+  ok   detaching a non-child is refused
+
+[9] giving one command a description does not describe the other 14
+  ok   the new command has its description
+  ok   no existing description changed
+
+[10] the built package re-parses and passes Extron's integrity rule
+  ok   output parses
+  ok   output is gzip
+  ok   validator returns Valid
+
+43 passed, 0 failed, 43 total
+DONE-ASSET

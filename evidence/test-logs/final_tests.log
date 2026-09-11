@@ -1,0 +1,6 @@
+tools/test_pkp_asset.py            43 passed, 0 failed, 43 total
+tools/test_pkp_build.py            37 passed, 0 failed, 37 total
+tools/test_pkp_validate.py         127 passed, 0 failed, 127 total
+AttributeError: '_1bynd_19_4743' object has no attribute '_cmd_UpdatePanTiltAngle'. Did you mean: '_cmd_SetPanTiltAngle'?
+AttributeError: '_1bynd_19_4743' object has no attribute '_cmd_UpdatePanTiltAngle'. Did you mean: '_cmd_SetPanTiltAngle'?
+DONE-FINAL
