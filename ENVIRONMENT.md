@@ -4,9 +4,11 @@ What the Windows box looked like when this project was packed up on
 2026-09-11, what was moved off its C: drive, and how to rebuild it. Read with
 `ROADMAP.md` — several open items can only be done on a box like this one.
 
-**The box was reimaged after the pack-up.** Every project-related file that
-lived on C: was moved here first: into git where it is safe to push, and into
-the git-ignored `private/` folder where it carries account or licence data.
+**The box is to be reimaged after this pack-up.** Before that, every
+project-related file that lived on C: was moved here: into git where it is safe
+to push, and into the git-ignored `private/` folder where it carries account or
+licence data. At the time of writing GCP is still installed and licensed —
+`ROADMAP.md` §6 lists what is worth doing with it before the reimage.
 
 ## The machine
 

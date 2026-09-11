@@ -47,7 +47,7 @@ sys.path.insert(0, os.path.join(_ROOT, "tools"))
 import pkp2cs                    # noqa: E402
 import wire_table                # noqa: E402
 
-from build_index import DEFAULT_D, DEFAULT_G, latest_gs_dir   # noqa: E402
+from build_index import DEFAULT_D, DEFAULT_G, resolve_gs   # noqa: E402
 
 
 def main():
@@ -58,8 +58,7 @@ def main():
     ap.add_argument("-o", "--outdir", default=os.path.join(_HERE, "out"))
     args = ap.parse_args()
 
-    gs = latest_gs_dir(args.modules) if os.path.basename(args.modules) == "GS_Modules" \
-        else args.modules
+    gs = resolve_gs(args.modules)
     pairs = json.load(open(os.path.join(args.outdir, "pairs_strict.json")))
     print("scoring %d packages" % len(pairs))
 

@@ -68,7 +68,7 @@ Two gotchas that cost time here:
 - **Git refuses the share** with "dubious ownership" until the repo is added to
   `safe.directory` (already done for this repo and `extron-gdl-toolkit`).
 
-Verified 2026-09-11 on the Windows box (Python 3.11.9), all passing — 507 tests:
+Verified 2026-09-11 on the Windows box (Python 3.11.9), all passing — 518 tests:
 
 | suite | tests |
 |---|---|
@@ -83,6 +83,7 @@ Verified 2026-09-11 on the Windows box (Python 3.11.9), all passing — 507 test
 | `experiments/crestron2cs/test_crestron2cs.py` | 14 |
 | `experiments/skeleton_i20/test_i20_wire.py` | 86 |
 | `experiments/skeleton_i20/test_i20_cs_wire.py` | 57 |
+| `experiments/oracle_pairs/test_build_index.py` | 11 |
 
 `test_pkp_build.py` and `test_pkp_asset.py` walk every sample package, including
 the 4.4M-event Tesira one; expect minutes, not seconds. Run them with `python -u`

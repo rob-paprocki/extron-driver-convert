@@ -1,0 +1,14 @@
+  ...1800/1854
+
+parsed 1854 packages, 0 parse errors
+model entries:                      6822
+packages with a vendor-consistent match: 311
+distinct pairs:                     349
+packages rejected (vendor mismatch only): 36
+wrote C:\Users\robp\.claude\jobs\a721b700/tmp/repro2
+--- vs committed ---
+rebuilt packages: 311  committed packages: 314
+only in rebuilt: []
+only in committed: ['catb_31_6394_v1_2_2.pkp', 'frpt_31_5101_v1_3_4.pkp', 'pano_43_4116_v1_4_0.pkp']
+IDENTICAL CONTENT: False
+DONE-REPRO2

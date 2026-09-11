@@ -1,0 +1,21 @@
+  ...400/1854
+  ...600/1854
+  ...800/1854
+  ...1000/1854
+  ...1200/1854
+  ...1400/1854
+  ...1600/1854
+  ...1800/1854
+
+parsed 1854 packages, 0 parse errors
+model entries:                      6822
+packages with a vendor-consistent match: 312
+distinct pairs:                     350
+packages rejected (vendor mismatch only): 35
+wrote C:\Users\robp\.claude\jobs\a721b700/tmp/repro_index
+--- diff vs committed ---
+rebuilt pairs: 312  committed pairs: 314
+only in rebuilt: [] 0
+only in committed: ['frpt_31_5101_v1_3_4.pkp', 'mshs_13_1203_v1_0_1.pkp'] 2
+identical content: False
+DONE-REPRO

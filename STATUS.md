@@ -53,6 +53,7 @@ described in `ENVIRONMENT.md`.**
 | `tools/pkp_asset.py` | **Adds commands to a `.pkp`'s object graph.** Clone/attach/detach of asset subtrees with computed ownership, so a shared string is never renamed and a donor is never damaged. Output confirmed loadable by Extron's own `LoadFromFile`. | 43 |
 | `tools/gc_catalogue.py` | **What Global Configurator catalogued.** Reads `DriverLookup.dat` (raw NRBF); `--against` compares it with a driver folder. Failing the catalogue-parse gate shows only as absence — this measures it. | 14 |
 | `experiments/skeleton_i20/` | **i20 driver, both forms.** `.pkp` transplant + standalone ControlScript module, held to identical bytes. | 86 + 57 |
+| `experiments/oracle_pairs/` | **Finding 14's pair index and scorecard.** `build_index.py` now reproduces the committed pair set exactly (314 packages, 352 pairs) from `corpus/`; its join previously depended on directory order. | 11 |
 | `experiments/gcp_harness/` | **Windows-only.** `Load-Package.ps1` asks Extron's own `LoadFromFile`/`BinaryFormatter` about a package; `scratch/` is the verified UI Automation chain that drove GCP. PowerShell because Python cannot load the x86 Extron assemblies without a third-party bridge. | manual |
 
 Experiments live in `experiments/` (NRBF writer, Crestron→ControlScript, missing-Ethernet
