@@ -1,0 +1,628 @@
+from extronlib.interface import SerialInterface, EthernetClientInterface
+import re
+from extronlib.system import Wait, ProgramLog
+class DeviceClass:
+
+
+    
+    def __init__(self):
+
+        self.Unidirectional = 'False'
+        self.connectionCounter = 15
+        self.DefaultResponseTimeout = 0.3
+        self._compile_list = {}
+        self.Subscription = {}
+        self.ReceiveData = self.__ReceiveData
+        self._ReceiveBuffer = b''
+        self.counter = 0
+        self.connectionFlag = True
+        self.initializationChk = True
+        self.Debug = False
+        self.Models = {}
+
+
+        self.Commands = {
+            'ConnectionStatus': {'Status': {}},
+            'AspectRatio': { 'Status': {}},
+            'AutoImage': { 'Status': {}},
+            'ClosedCaption': { 'Status': {}},
+            'Input': { 'Status': {}},
+            'LampMode': { 'Status': {}},
+            'LampUsage': { 'Status': {}},
+            'OnScreenDisplay': { 'Status': {}},
+            'PIPMode': { 'Status': {}},
+            'PIPPosition': { 'Status': {}},
+            'PIPSize': { 'Status': {}},
+            'PIPSwap': { 'Status': {}},
+            'Power': { 'Status': {}},
+            'Shutter': { 'Status': {}},
+        }
+
+
+
+
+        
+
+        
+
+        
+
+        if self.Unidirectional == 'False':
+
+            self.AddMatchString(re.compile(b'\(SZP!([0-7])\)'), self.__MatchAspectRatio, None)
+            self.AddMatchString(re.compile(b'\(CLC!([0-2])\)'), self.__MatchClosedCaption, None)
+            self.AddMatchString(re.compile(b'\(SIN!([0-9]{1,2})\)'), self.__MatchInput, None)
+            self.AddMatchString(re.compile(b'\(LPM!([0-2])\)'), self.__MatchLampMode, None)
+            self.AddMatchString(re.compile(b'\(LIF\+LP1H!(\d+)\)'), self.__MatchLampUsage, None)
+            self.AddMatchString(re.compile(b'\(OSD!([01])\)'), self.__MatchOnScreenDisplay, None)
+            self.AddMatchString(re.compile(b'\(PIP!([01])\)'), self.__MatchPIPMode, None)
+            self.AddMatchString(re.compile(b'\(PPP!([0-7])\)'), self.__MatchPIPPosition, None)
+            self.AddMatchString(re.compile(b'\(PHS!([0-2])\)'), self.__MatchPIPSize, None)
+            self.AddMatchString(re.compile(b'\(PWR!([01]{1,2})\)'), self.__MatchPower, None)
+            self.AddMatchString(re.compile(b'\(SHU!([01])\)'), self.__MatchShutter, None)
+            self.AddMatchString(re.compile(b'ERR\d+ \"([\s\S]+)\"\)'), self.__MatchError, None)
+
+
+    def SetAspectRatio(self, value, qualifier):
+
+
+        AspectRatioStateValues = {
+            'Auto'          : '(SZP0)',
+            'Native'        : '(SZP1)',
+            '4:3'           : '(SZP2)',
+            'LetterBox'     : '(SZP3)',
+            'Full Size'     : '(SZP4)',
+            'Full Width'    : '(SZP5)',
+            'Full Height'   : '(SZP6)',
+            'Custom'        : '(SZP7)'
+        }
+
+        AspectRatioCmdString = AspectRatioStateValues[value]
+        self.__SetHelper('AspectRatio', AspectRatioCmdString, value, qualifier)
+    def UpdateAspectRatio(self, value, qualifier): 
+
+        AspectRatioCmdString = '(SZP?)'
+        self.__UpdateHelper('AspectRatio', AspectRatioCmdString, value, qualifier)
+
+    def __MatchAspectRatio(self, match, qualifier):
+
+        AspectRatioStateNames = {
+            '0' : 'Auto',
+            '1' : 'Native',
+            '2' : '4:3',
+            '3' : 'LetterBox',
+            '4' : 'Full Size',
+            '5' : 'Full Width',
+            '6' : 'Full Height',
+            '7' : 'Custom'
+       }
+        value = AspectRatioStateNames[match.group(1).decode()]
+        self.WriteStatus('AspectRatio', value, None)
+
+    def SetAutoImage(self, value, qualifier):
+
+
+        AutoImageStateValues = {
+            'Normal': '(AIM0)',
+            'Wide'  : '(AIM1)'
+        }
+
+        AutoImageCmdString = AutoImageStateValues[value]
+        self.__SetHelper('AutoImage', AutoImageCmdString, value, qualifier)
+
+
+
+
+    def SetClosedCaption(self, value, qualifier):
+
+
+        ClosedCaptionStateValues = {
+            'CC1' : '(CLC1)',
+            'CC2' : '(CLC2)',
+            'Off' : '(CLC0)'
+        }
+
+        ClosedCaptionCmdString = ClosedCaptionStateValues[value]
+        self.__SetHelper('ClosedCaption', ClosedCaptionCmdString, value, qualifier)
+    def UpdateClosedCaption(self, value, qualifier): 
+
+        ClosedCaptionCmdString = '(CLC?)'
+        self.__UpdateHelper('ClosedCaption', ClosedCaptionCmdString, value, qualifier)
+
+    def __MatchClosedCaption(self, match, qualifier):
+
+        ClosedCaptionStateNames = {
+            '1' : 'CC1',
+            '2' : 'CC2',
+            '0' : 'Off'
+        }
+
+        value = ClosedCaptionStateNames[match.group(1).decode()]
+        self.WriteStatus('ClosedCaption', value, None)
+
+    def SetInput(self, value, qualifier):
+
+
+        InputStateValues = {
+            'VGA'               : '(SIN1)',
+            'HDMI'              : '(SIN4)',
+            'DVI-D'             : '(SIN5)',
+            'DisplayPort'       : '(SIN6)',
+            'Component'         : '(SIN7)',
+            'S-Video'           : '(SIN8)',
+            'Composite'         : '(SIN9)',
+            'Christie Presenter': '(SIN10)',
+            'Card Reader'       : '(SIN11)',
+            'Mini USB'          : '(SIN12)'
+        }
+
+        InputCmdString = InputStateValues[value]
+        self.__SetHelper('Input', InputCmdString, value, qualifier)
+    def UpdateInput(self, value, qualifier): 
+
+        InputCmdString = '(SIN?)'
+        self.__UpdateHelper('Input', InputCmdString, value, qualifier)
+
+    def __MatchInput(self, match, qualifier):
+
+        InputStateNames = {
+            '1' : 'VGA',
+            '4' : 'HDMI',
+            '5' : 'DVI-D',
+            '6' : 'DisplayPort',
+            '7' : 'Component',
+            '8' : 'S-Video',
+            '9' : 'Composite',
+            '10' : 'Christie Presenter',
+            '11' : 'Card Reader',
+            '12' : 'Mini USB'
+        }
+
+        value = InputStateNames[match.group(1).decode()]
+        self.WriteStatus('Input', value, None)
+
+    def SetLampMode(self, value, qualifier):
+
+
+        LampModeStateValues = {
+            'Normal': '(LPM0)',
+            'Eco'   : '(LPM2)',
+            'Auto'  : '(LPM1)'
+        }
+
+        LampModeCmdString = LampModeStateValues[value]
+        self.__SetHelper('LampMode', LampModeCmdString, value, qualifier)
+    def UpdateLampMode(self, value, qualifier): 
+
+        LampModeCmdString = '(LPM?)'
+        self.__UpdateHelper('LampMode', LampModeCmdString, value, qualifier)
+
+    def __MatchLampMode(self, match, qualifier):
+
+        LampModeStateNames = {
+            '0' : 'Normal',
+            '2' : 'Eco',
+            '1' : 'Auto'
+        }
+
+        value = LampModeStateNames[match.group(1).decode()]
+        self.WriteStatus('LampMode', value, None)
+
+    def UpdateLampUsage(self, value, qualifier): 
+
+
+        LampUsageCmdString = '(LIF+LP1H?)'
+        self.__UpdateHelper('LampUsage', LampUsageCmdString, value, qualifier)
+
+    def __MatchLampUsage(self, match, qualifier):
+
+        value = int(match.group(1))
+        self.WriteStatus('LampUsage', value, None)
+
+    def SetOnScreenDisplay(self, value, qualifier):
+
+
+        OnScreenDisplayStateValues = {
+            'On'    : '(OSD1)',
+            'Off'   : '(OSD0)'
+        }
+
+        OnScreenDisplayCmdString = OnScreenDisplayStateValues[value]
+        self.__SetHelper('OnScreenDisplay', OnScreenDisplayCmdString, value, qualifier)
+    def UpdateOnScreenDisplay(self, value, qualifier): 
+
+        OnScreenDisplayCmdString = '(OSD?)'
+        self.__UpdateHelper('OnScreenDisplay', OnScreenDisplayCmdString, value, qualifier)
+
+    def __MatchOnScreenDisplay(self, match, qualifier):
+
+        OnScreenDisplayStateNames = {
+            '1' : 'On',
+            '0' : 'Off'
+        }
+
+        value = OnScreenDisplayStateNames[match.group(1).decode()]
+        self.WriteStatus('OnScreenDisplay', value, None)
+
+    def SetPIPMode(self, value, qualifier):
+
+
+        PIPModeStateValues = {
+            'On'    : '(PIP 1)',
+            'Off'   : '(PIP 0)'
+        }
+
+        PIPModeCmdString = PIPModeStateValues[value]
+        self.__SetHelper('PIPMode', PIPModeCmdString, value, qualifier)
+    def UpdatePIPMode(self, value, qualifier): 
+
+        PIPModeCmdString = '(PIP?)'
+        self.__UpdateHelper('PIPMode', PIPModeCmdString, value, qualifier)
+
+    def __MatchPIPMode(self, match, qualifier):
+
+        PIPModeStateNames = {
+            '1' : 'On',
+            '0' : 'Off'
+        }
+
+        value = PIPModeStateNames[match.group(1).decode()]
+        self.WriteStatus('PIPMode', value, None)
+
+    def SetPIPPosition(self, value, qualifier):
+
+
+        PIPPositionStateValues = {
+            'Left'          : '(PPP0)',
+            'Top'           : '(PPP1)',
+            'Right'         : '(PPP2)',
+            'Bottom'        : '(PPP3)',
+            'Bottom Right'  : '(PPP4)',
+            'Bottom Left'   : '(PPP5)',
+            'Top Left'      : '(PPP6)',
+            'Top Right'     : '(PPP7)'
+        }
+
+        PIPPositionCmdString = PIPPositionStateValues[value]
+        self.__SetHelper('PIPPosition', PIPPositionCmdString, value, qualifier)
+    def UpdatePIPPosition(self, value, qualifier): 
+
+        PIPPositionCmdString = '(PPP?)'
+        self.__UpdateHelper('PIPPosition', PIPPositionCmdString, value, qualifier)
+
+    def __MatchPIPPosition(self, match, qualifier):
+
+        PIPPositionStateNames = {
+            '0' : 'Left',
+            '1' : 'Top',
+            '2' : 'Right',
+            '3' : 'Bottom',
+            '4' : 'Bottom Right',
+            '5' : 'Bottom Left',
+            '6' : 'Top Left',
+            '7' : 'Top Right'
+        }
+
+        value = PIPPositionStateNames[match.group(1).decode()]
+        self.WriteStatus('PIPPosition', value, None)
+
+    def SetPIPSize(self, value, qualifier):
+
+
+        PIPSizeStateValues = {
+            'Small'     : '(PHS0)',
+            'Medium'    : '(PHS1)',
+            'Large'     : '(PHS2)'
+        }
+
+        PIPSizeCmdString = PIPSizeStateValues[value]
+        self.__SetHelper('PIPSize', PIPSizeCmdString, value, qualifier)
+    def UpdatePIPSize(self, value, qualifier): 
+
+        PIPSizeCmdString = '(PHS?)'
+        self.__UpdateHelper('PIPSize', PIPSizeCmdString, value, qualifier)
+
+    def __MatchPIPSize(self, match, qualifier):
+
+        PIPSizeStateNames = {
+            '0' : 'Small',
+            '1' : 'Medium',
+            '2' : 'Large'
+        }
+
+        value = PIPSizeStateNames[match.group(1).decode()]
+        self.WriteStatus('PIPSize', value, None)
+
+    def SetPIPSwap(self, value, qualifier):
+
+
+
+        PIPSwapCmdString = b'(PPS1)'
+        self.__SetHelper('PIPSwap', PIPSwapCmdString, value, qualifier)
+
+
+    def SetPower(self, value, qualifier):
+
+
+        PowerStateValues = {
+            'On'    : '(PWR1)',
+            'Off'   : '(PWR0)'
+        }
+
+        PowerCmdString = PowerStateValues[value]
+        self.__SetHelper('Power', PowerCmdString, value, qualifier)
+    def UpdatePower(self, value, qualifier): 
+
+
+        PowerCmdString = '(PWR?)'
+        self.__UpdateHelper('Power', PowerCmdString, value, qualifier)
+
+    def __MatchPower(self, match, qualifier):
+
+        PowerStateNames = {
+            '1'  : 'On',
+            '0'  : 'Off',
+            '11' : 'Warming Up',
+            '10' : 'Cooling Down'
+        }
+
+
+        value = PowerStateNames[match.group(1).decode()]
+        self.WriteStatus('Power', value, None)
+
+    def SetShutter(self, value, qualifier):
+
+
+        ShutterStateValues = {
+            'On'  : '(SHU1)',
+            'Off' : '(SHU0)'
+        }
+
+        ShutterCmdString = ShutterStateValues[value]
+        self.__SetHelper('Shutter', ShutterCmdString, value, qualifier)
+    def UpdateShutter(self, value, qualifier): 
+
+        ShutterCmdString = '(SHU?)'
+        self.__UpdateHelper('Shutter', ShutterCmdString, value, qualifier)
+
+    def __MatchShutter(self, match, qualifier):
+
+        ShutterStateNames = {
+            '1' : 'On',
+            '0' : 'Off'
+        }
+
+        value = ShutterStateNames[match.group(1).decode()]
+        self.WriteStatus('Shutter', value, None)
+
+    def __SetHelper(self, command, commandstring, value, qualifier):
+        self.Debug = True
+
+
+
+        self.Send(commandstring)
+        
+    def __UpdateHelper(self, command, commandstring, value, qualifier):
+
+        if self.Unidirectional == 'True':
+            self.Discard('Inappropriate Command ' + command)
+        else:
+
+            if self.initializationChk:
+                self.OnConnected()
+                self.initializationChk = False
+
+            self.counter = self.counter + 1
+            if self.counter > self.connectionCounter and self.connectionFlag:
+                self.OnDisconnected()
+
+            self.Send(commandstring)
+
+    def __MatchError(self, match, tag):
+        self.Error(['An error occured.'])
+      
+    def OnConnected(self):
+        self.connectionFlag = True
+        self.WriteStatus('ConnectionStatus', 'Connected')
+        self.counter = 0
+
+
+    def OnDisconnected(self):
+        self.WriteStatus('ConnectionStatus', 'Disconnected')
+        self.connectionFlag = False
+
+        
+    
+    ######################################################    
+    # RECOMMENDED not to modify the code below this point
+    ######################################################
+    # Send Control Commands
+    def Set(self, command, value, qualifier=None):
+        method = 'Set%s' % command
+        if hasattr(self, method) and callable(getattr(self, method)):
+            getattr(self, method)(value, qualifier)
+        else:
+            print(command, 'does not support Set.')
+    # Send Update Commands
+    def Update(self, command, qualifier=None):
+        method = 'Update%s' % command
+        if hasattr(self, method) and callable(getattr(self, method)):
+            getattr(self, method)(None, qualifier)
+        else:
+            print(command, 'does not support Update.') 
+
+    # This method is to tie an specific command with a parameter to a call back method
+    # when its value is updated. It sets how often the command will be query, if the command
+    # have the update method.
+    # If the command doesn't have the update feature then that command is only used for feedback 
+    def SubscribeStatus(self, command, qualifier, callback):
+        Command = self.Commands.get(command)
+        if Command:
+            if command not in self.Subscription:
+                self.Subscription[command] = {'method':{}}
+        
+            Subscribe = self.Subscription[command]
+            Method = Subscribe['method']
+        
+            if qualifier:
+                for Parameter in Command['Parameters']:
+                    try:
+                        Method = Method[qualifier[Parameter]]
+                    except:
+                        if Parameter in qualifier:
+                            Method[qualifier[Parameter]] = {}
+                            Method = Method[qualifier[Parameter]]
+                        else:
+                            return
+        
+            Method['callback'] = callback
+            Method['qualifier'] = qualifier    
+        else:
+            print(command, 'does not exist in the module')
+
+    # This method is to check the command with new status have a callback method then trigger the callback
+    def NewStatus(self, command, value, qualifier):
+        if command in self.Subscription :
+            Subscribe = self.Subscription[command]
+            Method = Subscribe['method']
+            Command = self.Commands[command]
+            if qualifier:
+                for Parameter in Command['Parameters']:
+                    try:
+                        Method = Method[qualifier[Parameter]]
+                    except:
+                        break
+            if 'callback' in Method and Method['callback']:
+                Method['callback'](command, value, qualifier)  
+
+    # Save new status to the command
+    def WriteStatus(self, command, value, qualifier=None):
+        self.counter = 0
+        if not self.connectionFlag:
+            self.OnConnected()
+        Command = self.Commands[command]
+        Status = Command['Status']
+        if qualifier:
+            for Parameter in Command['Parameters']:
+                try:
+                    Status = Status[qualifier[Parameter]]
+                except KeyError:
+                    if Parameter in qualifier:
+                        Status[qualifier[Parameter]] = {}
+                        Status = Status[qualifier[Parameter]]
+                    else:
+                        return  
+        try:
+            if Status['Live'] != value:
+                Status['Live'] = value
+                self.NewStatus(command, value, qualifier)
+        except:
+            Status['Live'] = value
+            self.NewStatus(command, value, qualifier)            
+
+    # Read the value from a command.
+    def ReadStatus(self, command, qualifier=None):
+        Command = self.Commands[command]
+        Status = Command['Status']
+        if qualifier:
+            for Parameter in Command['Parameters']:
+                try:
+                    Status = Status[qualifier[Parameter]]
+                except KeyError:
+                    return None
+        try:
+            return Status['Live']
+        except:
+            return None
+    def __ReceiveData(self, interface, data):
+    # handling incoming unsolicited data
+        self._ReceiveBuffer += data
+        # check incoming data if it matched any expected data from device module
+        if self.CheckMatchedString() and len(self._ReceiveBuffer) > 10000:
+            self._ReceiveBuffer = b''
+
+    # Add regular expression so that it can be check on incoming data from device.
+    def AddMatchString(self, regex_string, callback, arg):
+        if regex_string not in self._compile_list:
+            self._compile_list[regex_string] = {'callback': callback, 'para':arg}
+                
+
+   # Check incoming unsolicited data to see if it was matched with device expectancy.
+    def CheckMatchedString(self):
+        for regexString in self._compile_list:
+            while True:
+                result = re.search(regexString, self._ReceiveBuffer)
+                if result:
+                    self._compile_list[regexString]['callback'](result, self._compile_list[regexString]['para'])
+                    self._ReceiveBuffer = self._ReceiveBuffer.replace(result.group(0), b'')
+                else:
+                    break
+        return True
+class SerialClass(SerialInterface, DeviceClass):
+
+    def __init__(self, Host, Port, Baud=115200, Data=8, Parity='None', Stop=1, FlowControl='Off', CharDelay=0, Mode='RS232', Model =None):
+        SerialInterface.__init__(self, Host, Port, Baud, Data, Parity, Stop, FlowControl, CharDelay, Mode)
+        self.ConnectionType = 'Serial'
+        DeviceClass.__init__(self)
+        # Check if Model belongs to a subclass
+        if len(self.Models) > 0:
+            if Model not in self.Models: 
+                print('Model mismatch')              
+            else:
+                self.Models[Model]()
+
+    def Error(self, message):
+        portInfo = 'Host Alias: {0}, Port: {1}'.format(self.Host.DeviceAlias, self.Port)
+        print('Module: {}'.format(__name__), portInfo, 'Error Message: {}'.format(message[0]), sep='\r\n')
+  
+    def Discard(self, message):
+        self.Error([message])
+
+class SerialOverEthernetClass(EthernetClientInterface, DeviceClass):
+
+    def __init__(self, Hostname, IPPort, Protocol='TCP', ServicePort=0, Model=None):
+        EthernetClientInterface.__init__(self, Hostname, IPPort, Protocol, ServicePort)
+        self.ConnectionType = 'Serial'
+        DeviceClass.__init__(self) 
+        # Check if Model belongs to a subclass       
+        if len(self.Models) > 0:
+            if Model not in self.Models: 
+                print('Model mismatch')              
+            else:
+                self.Models[Model]()
+
+    def Error(self, message):
+        portInfo = 'IP Address/Host: {0}:{1}'.format(self.Hostname, self.IPPort)
+        print('Module: {}'.format(__name__), portInfo, 'Error Message: {}'.format(message[0]), sep='\r\n')
+  
+    def Discard(self, message):
+        self.Error([message])
+
+    def Disconnect(self):
+        EthernetClientInterface.Disconnect(self)
+        self.OnDisconnected()
+
+class EthernetClass(EthernetClientInterface, DeviceClass):
+
+    def __init__(self, Hostname, IPPort, Protocol='TCP', ServicePort=0, Model=None):
+        EthernetClientInterface.__init__(self, Hostname, IPPort, Protocol, ServicePort)
+        self.ConnectionType = 'Ethernet'
+        DeviceClass.__init__(self) 
+        # Check if Model belongs to a subclass       
+        if len(self.Models) > 0:
+            if Model not in self.Models: 
+                print('Model mismatch')              
+            else:
+                self.Models[Model]()
+
+    def Error(self, message):
+        portInfo = 'IP Address/Host: {0}:{1}'.format(self.Hostname, self.IPPort)
+        print('Module: {}'.format(__name__), portInfo, 'Error Message: {}'.format(message[0]), sep='\r\n')
+  
+    def Discard(self, message):
+        self.Error([message])
+
+    def Disconnect(self):
+        EthernetClientInterface.Disconnect(self)
+        self.OnDisconnected()
+

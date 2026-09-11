@@ -1,0 +1,406 @@
+from extronlib.interface import SerialInterface, EthernetClientInterface
+from extronlib.system import Wait, ProgramLog
+import re
+import binascii
+from struct import unpack
+
+class DeviceClass:
+    def __init__(self):
+
+        self.Unidirectional = 'False'
+        self.connectionCounter = 15
+        self.DefaultResponseTimeout = 0.3
+        self.Subscription = {}
+        self.ReceiveData = self.__ReceiveData
+        self.__receiveBuffer = b''
+        self.__maxBufferSize = 2048
+        self.__matchStringDict = {}
+        self.counter = 0
+        self.connectionFlag = True
+        self.initializationChk = True
+        self.Debug = False
+        self.Models = {}
+
+        self.Commands = {
+            'ConnectionStatus': {'Status': {}},
+            'AllDelegatesOff': { 'Status': {}},
+            'AllMicrophonesOff': { 'Status': {}},
+            'ConferenceMode': { 'Status': {}},
+            'Microphone': {'Parameters':['ID'], 'Status': {}},
+            'Record': {'Parameters':['ID'], 'Status': {}},
+            'Setting': { 'Status': {}},
+            'Voting': { 'Status': {}},
+            'VotingFunction': {'Parameters':['ID'], 'Status': {}},
+            'VotingSetting': { 'Status': {}}
+        }
+            
+        if self.ConnectionType == 'Serial':
+            self.StartString = b'\xFE'
+        else:
+            self.StartString = b'\x00\x06\x00'
+                        
+        if self.Unidirectional == 'False':
+            self.AddMatchString(re.compile(b'\xFE\x11([\x00-\xFF]{2})\xFC'), self.__MatchMicrophone, None)
+
+    def SetAllDelegatesOff(self, value, qualifier):
+
+        AllDelegatesOffCmdString = b''.join([self.StartString, b'\x11\xFB\xFF\xFC\xFC'])
+        self.__SetHelper('AllDelegatesOff', AllDelegatesOffCmdString, value, qualifier)
+
+    def SetAllMicrophonesOff(self, value, qualifier):
+
+        AllMicrophonesOffCmdString = b''.join([self.StartString, b'\x11\xF1\xFF\xFC\xFC'])
+        self.__SetHelper('AllMicrophonesOff', AllMicrophonesOffCmdString, value, qualifier)
+
+    def SetConferenceMode(self, value, qualifier):
+
+        ConferenceModeCmdString = b''.join([self.StartString, b'\x00\x00\x01\xFC\xFC'])
+        self.__SetHelper('ConferenceMode', ConferenceModeCmdString, value, qualifier)
+
+    def SetMicrophone(self, value, qualifier):
+
+        IDConstraints = {
+            'Min' : 1,
+            'Max' : 4094
+            }
+
+        ValueStateValues = {
+            'Open'  : '0', 
+            'Close' : '1', 
+        }
+
+        id_val = qualifier['ID']
+        if IDConstraints['Min'] <= id_val <= IDConstraints['Max']:
+            proc_id = ''.join([hex(id_val)[2:].zfill(3)[0], ValueStateValues[value], hex(id_val)[2:].zfill(3)[1:]])
+            MicrophoneCmdString = b''.join([self.StartString, b'\x11', binascii.a2b_hex(proc_id), b'\xFC\xFC'])
+            self.__SetHelper('Microphone', MicrophoneCmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command for SetMicrophone')
+
+    def UpdateMicrophone(self, value, qualifier):
+
+        MicrophoneCmdString = b''.join([self.StartString, b'\x00\xF6\xFF\xFC\xFC'])
+        self.__UpdateHelper('RequiredCommand', MicrophoneCmdString, value, qualifier)
+
+    def __MatchMicrophone(self, match, tag):
+
+        ValueStateValues = {
+            '0' : 'Open', 
+            '1' : 'Close', 
+            '2' : 'Waiting', 
+            '3' : 'Waiting Cancelled', 
+        }
+        
+        proc_id = binascii.b2a_hex(match.group(1)).decode()
+        id_val = unpack('>H', binascii.a2b_hex((proc_id[0] + proc_id[2:]).zfill(4)))[0]
+        value = proc_id[1]
+        self.WriteStatus('Microphone', ValueStateValues[value], {'ID' : id_val})
+        
+    def SetRecord(self, value, qualifier):
+
+        IDConstraints = {
+            'Min' : 1,
+            'Max' : 4094
+            }
+
+        ValueStateValues = {
+            'Start' : '1', 
+            'Stop'  : '0'
+        }
+
+        id_val = qualifier['ID']
+        if IDConstraints['Min'] <= id_val <= IDConstraints['Max']:
+            proc_id = ''.join([hex(id_val)[2:].zfill(3)[0], ValueStateValues[value], hex(id_val)[2:].zfill(3)[1:]])
+            RecordCmdString = b''.join([self.StartString, b'\x28', binascii.a2b_hex(proc_id), b'\xFC\xFC'])
+            self.__SetHelper('Record', RecordCmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command for SetRecord')
+
+    def SetSetting(self, value, qualifier):
+
+        ValueStateValues = {
+            'Voting Mode'   : b'\x00', 
+            'Election Mode' : b'\x01', 
+            'Rating Mode'   : b'\x02'
+        }
+
+        SettingCmdString = b''.join([self.StartString, b'\x02\x00', ValueStateValues[value], b'\xFC\xFC'])
+        self.__SetHelper('Setting', SettingCmdString, value, qualifier)
+
+    def SetVoting(self, value, qualifier):
+
+        ValueStateValues = {
+            'Enter'        : b'\x02', 
+            'View Results' : b'\x07', 
+            'Withdraw'     : b'\x01'
+        }
+
+        VotingCmdString = b''.join([self.StartString, b'\x02', ValueStateValues[value], b'\x00\xFC\xFC'])
+        self.__SetHelper('Voting', VotingCmdString, value, qualifier)
+
+    def SetVotingFunction(self, value, qualifier):
+
+        IDConstraints = {
+            'Min' : 1,
+            'Max' : 4094
+            }
+
+        ValueStateValues = {
+            'Enable'  : '5', 
+            'Disable' : '6'
+        }
+
+        id_val = qualifier['ID']
+        if IDConstraints['Min'] <= id_val <= IDConstraints['Max']:
+            proc_id = ''.join([hex(id_val)[2:].zfill(3)[0], ValueStateValues[value], hex(id_val)[2:].zfill(3)[1:]])
+            VotingFunctionCmdString = b''.join([self.StartString, b'\x0C', binascii.a2b_hex(proc_id), b'\xFC\xFC'])
+            self.__SetHelper('VotingFunction', VotingFunctionCmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command for SetVotingFunction')
+
+    def SetVotingSetting(self, value, qualifier):
+
+        ValueStateValues = {
+            "Last Time is Valid, Don't Need Check-In"  : b'\x00', 
+            "Last Time is Valid, Need Check-In"        : b'\x01', 
+            "First Time is Valid, Don't Need Check-In" : b'\x10', 
+            "First Time is Valid, Need Check-In"       : b'\x11'
+        }
+
+        VotingSettingCmdString = b''.join([self.StartString, b'\x02\x03', ValueStateValues[value], b'\xFC\xFC'])
+        self.__SetHelper('VotingSetting', VotingSettingCmdString, value, qualifier)
+
+    def __SetHelper(self, command, commandstring, value, qualifier):
+
+        self.Debug = True
+
+        self.Send(commandstring)
+
+    def __UpdateHelper(self, command, commandstring, value, qualifier):
+
+        if self.Unidirectional == 'True':
+            self.Discard('Inappropriate Command ' + command)
+        else:
+            if self.initializationChk:
+                self.OnConnected()
+                self.initializationChk = False
+
+            self.counter = self.counter + 1
+            if self.counter > self.connectionCounter and self.connectionFlag:
+                self.OnDisconnected()
+
+            self.Send(commandstring)
+
+    def OnConnected(self):
+
+        self.connectionFlag = True
+        self.WriteStatus('ConnectionStatus', 'Connected')
+        self.counter = 0
+    
+    def OnDisconnected(self):
+
+        self.WriteStatus('ConnectionStatus', 'Disconnected')
+        self.connectionFlag = False
+
+    ######################################################    
+    # RECOMMENDED not to modify the code below this point
+    ######################################################
+
+    # Send Control Commands
+    def Set(self, command, value, qualifier=None):
+        method = getattr(self, 'Set%s' % command, None)
+        if method is not None and callable(method):
+            method(value, qualifier)
+        else:
+            raise AttributeError(command + 'does not support Set.')
+
+    # Send Update Commands
+    def Update(self, command, qualifier=None):
+        method = getattr(self, 'Update%s' % command, None)
+        if method is not None and callable(method):
+            method(None, qualifier)
+        else:
+            raise AttributeError(command + 'does not support Update.')
+
+    # This method is to tie an specific command with a parameter to a call back method
+    # when its value is updated. It sets how often the command will be query, if the command
+    # have the update method.
+    # If the command doesn't have the update feature then that command is only used for feedback 
+    def SubscribeStatus(self, command, qualifier, callback):
+        Command = self.Commands.get(command, None)
+        if Command:
+            if command not in self.Subscription:
+                self.Subscription[command] = {'method':{}}
+        
+            Subscribe = self.Subscription[command]
+            Method = Subscribe['method']
+        
+            if qualifier:
+                for Parameter in Command['Parameters']:
+                    try:
+                        Method = Method[qualifier[Parameter]]
+                    except:
+                        if Parameter in qualifier:
+                            Method[qualifier[Parameter]] = {}
+                            Method = Method[qualifier[Parameter]]
+                        else:
+                            return
+        
+            Method['callback'] = callback
+            Method['qualifier'] = qualifier    
+        else:
+            raise KeyError('Invalid command for SubscribeStatus ' + command)
+
+    # This method is to check the command with new status have a callback method then trigger the callback
+    def NewStatus(self, command, value, qualifier):
+        if command in self.Subscription :
+            Subscribe = self.Subscription[command]
+            Method = Subscribe['method']
+            Command = self.Commands[command]
+            if qualifier:
+                for Parameter in Command['Parameters']:
+                    try:
+                        Method = Method[qualifier[Parameter]]
+                    except:
+                        break
+            if 'callback' in Method and Method['callback']:
+                Method['callback'](command, value, qualifier)  
+
+    # Save new status to the command
+    def WriteStatus(self, command, value, qualifier=None):
+        self.counter = 0
+        if not self.connectionFlag:
+            self.OnConnected()
+        Command = self.Commands[command]
+        Status = Command['Status']
+        if qualifier:
+            for Parameter in Command['Parameters']:
+                try:
+                    Status = Status[qualifier[Parameter]]
+                except KeyError:
+                    if Parameter in qualifier:
+                        Status[qualifier[Parameter]] = {}
+                        Status = Status[qualifier[Parameter]]
+                    else:
+                        return  
+        try:
+            if Status['Live'] != value:
+                Status['Live'] = value
+                self.NewStatus(command, value, qualifier)
+        except:
+            Status['Live'] = value
+            self.NewStatus(command, value, qualifier)
+
+    # Read the value from a command.
+    def ReadStatus(self, command, qualifier=None):
+        Command = self.Commands.get(command, None)
+        if Command:
+            Status = Command['Status']
+            if qualifier:
+                for Parameter in Command['Parameters']:
+                    try:
+                        Status = Status[qualifier[Parameter]]
+                    except KeyError:
+                        return None
+            try:
+                return Status['Live']
+            except:
+                return None
+        else:
+            raise KeyError('Invalid command for ReadStatus: ' + command)
+
+    def __ReceiveData(self, interface, data):
+        # Handle incoming data
+        self.__receiveBuffer += data
+        index = 0    # Start of possible good data
+        
+        #check incoming data if it matched any expected data from device module
+        for regexString, CurrentMatch in self.__matchStringDict.items():
+            while True:
+                result = re.search(regexString, self.__receiveBuffer)
+                if result:
+                    index = result.start()
+                    CurrentMatch['callback'](result, CurrentMatch['para'])
+                    self.__receiveBuffer = self.__receiveBuffer[:result.start()] + self.__receiveBuffer[result.end():]
+                else:
+                    break
+                    
+        if index: 
+            # Clear out any junk data that came in before any good matches.
+            self.__receiveBuffer = self.__receiveBuffer[index:]
+        else:
+            # In rare cases, the buffer could be filled with garbage quickly.
+            # Make sure the buffer is capped.  Max buffer size set in init.
+            self.__receiveBuffer = self.__receiveBuffer[-self.__maxBufferSize:]
+
+    # Add regular expression so that it can be check on incoming data from device.
+    def AddMatchString(self, regex_string, callback, arg):
+        if regex_string not in self.__matchStringDict:
+            self.__matchStringDict[regex_string] = {'callback': callback, 'para':arg}
+class SerialClass(SerialInterface, DeviceClass):
+
+    def __init__(self, Host, Port, Baud=9600, Data=8, Parity='None', Stop=1, FlowControl='Off', CharDelay=0, Mode='RS232', Model =None):
+        SerialInterface.__init__(self, Host, Port, Baud, Data, Parity, Stop, FlowControl, CharDelay, Mode)
+        self.ConnectionType = 'Serial'
+        DeviceClass.__init__(self)
+        # Check if Model belongs to a subclass
+        if len(self.Models) > 0:
+            if Model not in self.Models: 
+                print('Model mismatch')              
+            else:
+                self.Models[Model]()
+
+    def Error(self, message):
+        portInfo = 'Host Alias: {0}, Port: {1}'.format(self.Host.DeviceAlias, self.Port)
+        print('Module: {}'.format(__name__), portInfo, 'Error Message: {}'.format(message[0]), sep='\r\n')
+  
+    def Discard(self, message):
+        self.Error([message])
+
+class SerialOverEthernetClass(EthernetClientInterface, DeviceClass):
+
+    def __init__(self, Hostname, IPPort, Protocol='TCP', ServicePort=0, Model=None):
+        EthernetClientInterface.__init__(self, Hostname, IPPort, Protocol, ServicePort)
+        self.ConnectionType = 'Serial'
+        DeviceClass.__init__(self) 
+        # Check if Model belongs to a subclass       
+        if len(self.Models) > 0:
+            if Model not in self.Models: 
+                print('Model mismatch')              
+            else:
+                self.Models[Model]()
+
+    def Error(self, message):
+        portInfo = 'IP Address/Host: {0}:{1}'.format(self.IPAddress, self.IPPort)
+        print('Module: {}'.format(__name__), portInfo, 'Error Message: {}'.format(message[0]), sep='\r\n')
+  
+    def Discard(self, message):
+        self.Error([message])
+
+    def Disconnect(self):
+        EthernetClientInterface.Disconnect(self)
+        self.OnDisconnected()
+
+class EthernetClass(EthernetClientInterface, DeviceClass):
+
+    def __init__(self, Hostname, IPPort, Protocol='TCP', ServicePort=0, Model=None):
+        EthernetClientInterface.__init__(self, Hostname, IPPort, Protocol, ServicePort)
+        self.ConnectionType = 'Ethernet'
+        DeviceClass.__init__(self) 
+        # Check if Model belongs to a subclass       
+        if len(self.Models) > 0:
+            if Model not in self.Models: 
+                print('Model mismatch')              
+            else:
+                self.Models[Model]()
+
+    def Error(self, message):
+        portInfo = 'IP Address/Host: {0}:{1}'.format(self.IPAddress, self.IPPort)
+        print('Module: {}'.format(__name__), portInfo, 'Error Message: {}'.format(message[0]), sep='\r\n')
+  
+    def Discard(self, message):
+        self.Error([message])
+
+    def Disconnect(self):
+        EthernetClientInterface.Disconnect(self)
+        self.OnDisconnected()

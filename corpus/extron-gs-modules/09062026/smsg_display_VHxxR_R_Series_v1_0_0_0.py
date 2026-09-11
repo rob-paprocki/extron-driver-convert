@@ -1,0 +1,596 @@
+from extronlib.interface import SerialInterface, EthernetClientInterface
+import re
+from extronlib.system import Wait, ProgramLog
+from struct import pack
+
+
+class DeviceClass:
+    def __init__(self):
+
+        self.Unidirectional = 'False'
+        self.connectionCounter = 15
+        self.DefaultResponseTimeout = 0.3
+        self.Subscription = {}
+        self.ReceiveData = self.__ReceiveData
+        self.__receiveBuffer = b''
+        self.__maxBufferSize = 2048
+        self.__matchStringDict = {}
+        self.counter = 0
+        self.connectionFlag = True
+        self.initializationChk = True
+        self.Debug = False
+        self.Models = {}
+
+        self.Commands = {
+            'ConnectionStatus': {'Status': {}},
+            'Input': {'Parameters': ['Device ID'], 'Status': {}},
+            'Power': {'Parameters': ['Device ID'], 'Status': {}},
+            'SafetyLock': {'Parameters': ['Device ID'], 'Status': {}},
+            'VideoWall': {'Parameters': ['Device ID'], 'Status': {}},
+            'VideoWallMode': {'Parameters': ['Device ID'], 'Status': {}},
+            'VideoWallSize': {'Parameters': ['Device ID', 'Row', 'Column'], 'Status': {}},
+            'Volume': {'Parameters': ['Device ID'], 'Status': {}},
+        }
+
+        if self.Unidirectional == 'False':
+            self.AddMatchString(re.compile(b'\xAA\xFF([\x00-\xE0])\x03\x41\x14([\x18\x20\x1F\x21\x23\x25])[\x00-\xFF]'), self.__MatchInput, None)
+            self.AddMatchString(re.compile(b'\xAA\xFF([\x00-\xE0])\x03\x41\x11([\x00\x01])[\x00-\xFF]'), self.__MatchPower, None)
+            self.AddMatchString(re.compile(b'\xAA\xFF([\x00-\xE0])\x03\x41\x5D([\x00\x01])[\x00-\xFF]'), self.__MatchSafetyLock, None)
+            self.AddMatchString(re.compile(b'\xAA\xFF([\x00-\xE0])\x03\x41\x84([\x00\x01])[\x00-\xFF]'), self.__MatchVideoWall, None)
+            self.AddMatchString(re.compile(b'\xAA\xFF([\x00-\xE0])\x03\x41\\x5C([\x00\x01])[\x00-\xFF]'), self.__MatchVideoWallMode, None)
+            self.AddMatchString(re.compile(b'\xAA\xFF([\x00-\xE0])\x04\x41\x89([\x00-\xFF])([\x01-\x64])[\x00-\xFF]'), self.__MatchVideoWallSize, None)
+            self.AddMatchString(re.compile(b'\xAA\xFF([\x00-\xE0])\x03\x41\x12([\x00-\x64])[\x00-\xFF]'), self.__MatchVolume, None)
+
+            self.AddMatchString(re.compile(b'\xAA\xFF([\x00-\xE0])[\x00-\xFF]\x4E([\x14\x11\\x5D\x84\\x5C\x89\x12])'), self.__MatchError, None)
+
+    def device_id_check(self, device_id):
+        try:
+            if device_id == 'Broadcast':
+                return 0xFE
+            elif 0 <= int(device_id) <= 224:
+                return int(device_id)
+        except (KeyError, ValueError):
+            pass
+
+        return None
+
+    def checksum(self, s):
+        return bytes([sum(s[1:]) & 0xFF])
+
+    def build_set(self, device_id, command, data, sub_command=None):
+        if sub_command:
+            s = pack('>5B', 0xAA, command, device_id, len(data), sub_command) + data
+        else:
+            s = pack('>4B', 0xAA, command, device_id, len(data)) + data
+
+        return s + self.checksum(s)
+
+    def build_get(self, device_id, command):
+        s = pack('>4B', 0xAA, command, device_id, 0x00)
+
+        return s + self.checksum(s)
+
+    def SetInput(self, value, qualifier):
+
+        device_id = self.device_id_check(qualifier['Device ID'])
+
+        ValueStateValues = {
+            'DVI': b'\x18',
+            'MagicInfo': b'\x20',
+            'HDMI 1': b'\x21',
+            'HDMI 2': b'\x23',
+            'DisplayPort': b'\x25'
+        }
+
+        if device_id is not None and value in ValueStateValues:
+            InputCmdString = self.build_set(device_id, 0x14, ValueStateValues[value])
+            self.__SetHelper('Input', InputCmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command for SetInput')
+
+    def UpdateInput(self, value, qualifier):
+
+        device_id = self.device_id_check(qualifier['Device ID'])
+
+        if device_id is not None:
+            InputCmdString = self.build_get(device_id, 0x14)
+            self.__UpdateHelper('Input', InputCmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command for UpdateInput')
+
+    def __MatchInput(self, match, tag):
+
+        ValueStateValues = {
+            0x18: 'DVI',
+            0x20: 'MagicInfo',
+            0x1F: 'DVI Video',
+            0x21: 'HDMI 1',
+            0x23: 'HDMI 2',
+            0x25: 'DisplayPort'
+        }
+
+        qualifier = {
+            'Device ID': str(ord(match.group(1)))
+        }
+
+        value = ValueStateValues[ord(match.group(2))]
+        self.WriteStatus('Input', value, qualifier)
+
+    def SetPower(self, value, qualifier):
+
+        device_id = self.device_id_check(qualifier['Device ID'])
+
+        ValueStateValues = {
+            'On': b'\x01',
+            'Off': b'\x00'
+        }
+
+        if device_id is not None and value in ValueStateValues:
+            PowerCmdString = self.build_set(device_id, 0x11, ValueStateValues[value])
+            self.__SetHelper('Power', PowerCmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command for SetPower')
+
+    def UpdatePower(self, value, qualifier):
+
+        device_id = self.device_id_check(qualifier['Device ID'])
+
+        if device_id is not None:
+            PowerCmdString = self.build_get(device_id, 0x11)
+            self.__UpdateHelper('Power', PowerCmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command for UpdatePower')
+
+    def __MatchPower(self, match, tag):
+
+        ValueStateValues = {
+            0x01: 'On',
+            0x00: 'Off'
+        }
+
+        device_id = ord(match.group(1))
+        qualifier = {
+            'Device ID': str(device_id)
+        }
+
+        value = ValueStateValues[ord(match.group(2))]
+        self.WriteStatus('Power', value, qualifier)
+
+    def SetSafetyLock(self, value, qualifier):
+
+        device_id = self.device_id_check(qualifier['Device ID'])
+
+        ValueStateValues = {
+            'On': b'\x01',
+            'Off': b'\x00'
+        }
+
+        if device_id is not None and value in ValueStateValues:
+            SafetyLockCmdString = self.build_set(device_id, 0x5D, ValueStateValues[value])
+            self.__SetHelper('SafetyLock', SafetyLockCmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command for SetSafetyLock')
+
+    def UpdateSafetyLock(self, value, qualifier):
+
+        device_id = self.device_id_check(qualifier['Device ID'])
+
+        if device_id is not None:
+            SafetyLockCmdString = self.build_get(device_id, 0x5D)
+            self.__UpdateHelper('SafetyLock', SafetyLockCmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command for UpdateSafetyLock')
+
+    def __MatchSafetyLock(self, match, tag):
+
+        ValueStateValues = {
+            0x01: 'On',
+            0x00: 'Off'
+        }
+
+        qualifier = {
+            'Device ID': str(ord(match.group(1)))
+        }
+
+        value = ValueStateValues[ord(match.group(2))]
+        self.WriteStatus('SafetyLock', value, qualifier)
+
+    def SetVideoWall(self, value, qualifier):
+
+        device_id = self.device_id_check(qualifier['Device ID'])
+
+        ValueStateValues = {
+            'On': b'\x01',
+            'Off': b'\x00'
+        }
+
+        if device_id is not None and value in ValueStateValues:
+            VideoWallCmdString = self.build_set(device_id, 0x84, ValueStateValues[value])
+            self.__SetHelper('VideoWall', VideoWallCmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command for SetVideoWall')
+
+    def UpdateVideoWall(self, value, qualifier):
+
+        device_id = self.device_id_check(qualifier['Device ID'])
+
+        if device_id is not None:
+            VideoWallCmdString = self.build_get(device_id, 0x84)
+            self.__UpdateHelper('VideoWall', VideoWallCmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command for UpdateVideoWall')
+
+    def __MatchVideoWall(self, match, tag):
+
+        ValueStateValues = {
+            0x01: 'On',
+            0x00: 'Off'
+        }
+
+        qualifier = {
+            'Device ID': str(ord(match.group(1)))
+        }
+
+        value = ValueStateValues[ord(match.group(2))]
+        self.WriteStatus('VideoWall', value, qualifier)
+
+    def SetVideoWallMode(self, value, qualifier):
+
+        device_id = self.device_id_check(qualifier['Device ID'])
+
+        ValueStateValues = {
+            'Full': b'\x01',
+            'Natural': b'\x00'
+        }
+
+        if device_id is not None and value in ValueStateValues:
+            VideoWallModeCmdString = self.build_set(device_id, 0x5C, ValueStateValues[value])
+            self.__SetHelper('VideoWallMode', VideoWallModeCmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command for SetVideoWallMode')
+
+    def UpdateVideoWallMode(self, value, qualifier):
+
+        device_id = self.device_id_check(qualifier['Device ID'])
+
+        if device_id is not None:
+            VideoWallModeCmdString = self.build_get(device_id, 0x5C)
+            self.__UpdateHelper('VideoWallMode', VideoWallModeCmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command for UpdateVideoWallMode')
+
+    def __MatchVideoWallMode(self, match, tag):
+
+        ValueStateValues = {
+            0x01: 'Full',
+            0x00: 'Natural'
+        }
+
+        qualifier = {
+            'Device ID': str(ord(match.group(1)))
+        }
+
+        value = ValueStateValues[ord(match.group(2))]
+        self.WriteStatus('VideoWallMode', value, qualifier)
+
+    def SetVideoWallSize(self, value, qualifier):
+
+        device_id = self.device_id_check(qualifier['Device ID'])
+        horizontal = int(qualifier['Row'])
+        vertical = int(qualifier['Column'])
+
+        if all([device_id is not None,
+                1 <= horizontal <= 10,
+                1 <= vertical <= 10,
+                1 <= int(value) <= 100,
+                int(value) <= horizontal * vertical]):
+            position = horizontal * 16 + vertical
+            VideoWallSizeCmdString = self.build_set(device_id, 0x89, bytes([position, int(value)]))
+            self.__SetHelper('VideoWallSize', VideoWallSizeCmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command for SetVideoWallSize')
+
+    def UpdateVideoWallSize(self, value, qualifier):
+
+        device_id = self.device_id_check(qualifier['Device ID'])
+        horizontal = int(qualifier['Row'])
+        vertical = int(qualifier['Column'])
+
+        if all([device_id is not None,
+                1 <= horizontal <= 10,
+                1 <= vertical <= 10]):
+            VideoWallSizeCmdString = self.build_get(device_id, 0x89)
+            self.__UpdateHelper('VideoWallSize', VideoWallSizeCmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command for UpdateVideoWallSize')
+
+    def __MatchVideoWallSize(self, match, tag):
+
+        position = ord(match.group(2))
+
+        qualifier = {
+            'Device ID': str(ord(match.group(1))),
+            'Row': str(position // 16),
+            'Column': str(position % 16)
+        }
+
+        value = str(ord(match.group(3)))
+        self.WriteStatus('VideoWallSize', value, qualifier)
+
+    def SetVolume(self, value, qualifier):
+
+        device_id = self.device_id_check(qualifier['Device ID'])
+
+        if device_id is not None and 0 <= value <= 100:
+            VolumeCmdString = self.build_set(device_id, 0x12, bytes([value]))
+            self.__SetHelper('Volume', VolumeCmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command for SetVolume')
+
+    def UpdateVolume(self, value, qualifier):
+
+        device_id = self.device_id_check(qualifier['Device ID'])
+
+        if device_id is not None:
+            VolumeCmdString = self.build_get(device_id, 0x12)
+            self.__UpdateHelper('Volume', VolumeCmdString, value, qualifier)
+        else:
+            self.Discard('Invalid Command for UpdateVolume')
+
+    def __MatchVolume(self, match, tag):
+
+        qualifier = {
+            'Device ID': str(ord(match.group(1)))
+        }
+
+        value = ord(match.group(2))
+        self.WriteStatus('Volume', value, qualifier)
+
+    def __SetHelper(self, command, commandstring, value, qualifier):
+        self.Debug = True
+
+        self.Send(commandstring)
+
+    def __UpdateHelper(self, command, commandstring, value, qualifier):
+
+        if self.Unidirectional == 'True' or qualifier['Device ID'] == 'Broadcast':
+            self.Discard('Inappropriate Command ' + command)
+        else:
+            if self.initializationChk:
+                self.OnConnected()
+                self.initializationChk = False
+
+            self.counter = self.counter + 1
+            if self.counter > self.connectionCounter and self.connectionFlag:
+                self.OnDisconnected()
+
+            self.Send(commandstring)
+
+    def __MatchError(self, match, tag):
+        self.counter = 0
+
+        DEVICE_ERROR_CODES = {
+            b'\x14': 'Input',
+            b'\x11': 'Power',
+            b'\x5D': 'Safety Lock',
+            b'\x84': 'Video Wall',
+            b'\x5C': 'Video Wall Mode',
+            b'\x89': 'Video Wall Size',
+            b'\x12': 'Volume'
+        }
+
+        self.Error(['An error occurred: ID {}: {}.'.format(str(ord(match.group(1))), DEVICE_ERROR_CODES[match.group(2)])])
+
+    def OnConnected(self):
+        self.connectionFlag = True
+        self.WriteStatus('ConnectionStatus', 'Connected')
+        self.counter = 0
+
+    def OnDisconnected(self):
+        self.WriteStatus('ConnectionStatus', 'Disconnected')
+        self.connectionFlag = False
+
+    ######################################################    
+    # RECOMMENDED not to modify the code below this point
+    ######################################################
+
+    # Send Control Commands
+    def Set(self, command, value, qualifier=None):
+        method = getattr(self, 'Set%s' % command, None)
+        if method is not None and callable(method):
+            method(value, qualifier)
+        else:
+            raise AttributeError(command + 'does not support Set.')
+
+    # Send Update Commands
+    def Update(self, command, qualifier=None):
+        method = getattr(self, 'Update%s' % command, None)
+        if method is not None and callable(method):
+            method(None, qualifier)
+        else:
+            raise AttributeError(command + 'does not support Update.')
+
+    # This method is to tie an specific command with a parameter to a call back method
+    # when its value is updated. It sets how often the command will be query, if the command
+    # have the update method.
+    # If the command doesn't have the update feature then that command is only used for feedback 
+    def SubscribeStatus(self, command, qualifier, callback):
+        Command = self.Commands.get(command, None)
+        if Command:
+            if command not in self.Subscription:
+                self.Subscription[command] = {'method':{}}
+        
+            Subscribe = self.Subscription[command]
+            Method = Subscribe['method']
+        
+            if qualifier:
+                for Parameter in Command['Parameters']:
+                    try:
+                        Method = Method[qualifier[Parameter]]
+                    except:
+                        if Parameter in qualifier:
+                            Method[qualifier[Parameter]] = {}
+                            Method = Method[qualifier[Parameter]]
+                        else:
+                            return
+        
+            Method['callback'] = callback
+            Method['qualifier'] = qualifier    
+        else:
+            raise KeyError('Invalid command for SubscribeStatus ' + command)
+
+    # This method is to check the command with new status have a callback method then trigger the callback
+    def NewStatus(self, command, value, qualifier):
+        if command in self.Subscription :
+            Subscribe = self.Subscription[command]
+            Method = Subscribe['method']
+            Command = self.Commands[command]
+            if qualifier:
+                for Parameter in Command['Parameters']:
+                    try:
+                        Method = Method[qualifier[Parameter]]
+                    except:
+                        break
+            if 'callback' in Method and Method['callback']:
+                Method['callback'](command, value, qualifier)  
+
+    # Save new status to the command
+    def WriteStatus(self, command, value, qualifier=None):
+        self.counter = 0
+        if not self.connectionFlag:
+            self.OnConnected()
+        Command = self.Commands[command]
+        Status = Command['Status']
+        if qualifier:
+            for Parameter in Command['Parameters']:
+                try:
+                    Status = Status[qualifier[Parameter]]
+                except KeyError:
+                    if Parameter in qualifier:
+                        Status[qualifier[Parameter]] = {}
+                        Status = Status[qualifier[Parameter]]
+                    else:
+                        return  
+        try:
+            if Status['Live'] != value:
+                Status['Live'] = value
+                self.NewStatus(command, value, qualifier)
+        except:
+            Status['Live'] = value
+            self.NewStatus(command, value, qualifier)
+
+    # Read the value from a command.
+    def ReadStatus(self, command, qualifier=None):
+        Command = self.Commands.get(command, None)
+        if Command:
+            Status = Command['Status']
+            if qualifier:
+                for Parameter in Command['Parameters']:
+                    try:
+                        Status = Status[qualifier[Parameter]]
+                    except KeyError:
+                        return None
+            try:
+                return Status['Live']
+            except:
+                return None
+        else:
+            raise KeyError('Invalid command for ReadStatus: ' + command)
+
+    def __ReceiveData(self, interface, data):
+        # Handle incoming data
+        self.__receiveBuffer += data
+        index = 0    # Start of possible good data
+        
+        # check incoming data if it matched any expected data from device module
+        for regexString, CurrentMatch in self.__matchStringDict.items():
+            while True:
+                result = re.search(regexString, self.__receiveBuffer)
+                if result:
+                    index = result.start()
+                    CurrentMatch['callback'](result, CurrentMatch['para'])
+                    self.__receiveBuffer = self.__receiveBuffer[:result.start()] + self.__receiveBuffer[result.end():]
+                else:
+                    break
+                    
+        if index: 
+            # Clear out any junk data that came in before any good matches.
+            self.__receiveBuffer = self.__receiveBuffer[index:]
+        else:
+            # In rare cases, the buffer could be filled with garbage quickly.
+            # Make sure the buffer is capped.  Max buffer size set in init.
+            self.__receiveBuffer = self.__receiveBuffer[-self.__maxBufferSize:]
+
+    # Add regular expression so that it can be check on incoming data from device.
+    def AddMatchString(self, regex_string, callback, arg):
+        if regex_string not in self.__matchStringDict:
+            self.__matchStringDict[regex_string] = {'callback': callback, 'para':arg}
+
+class SerialClass(SerialInterface, DeviceClass):
+
+    def __init__(self, Host, Port, Baud=9600, Data=8, Parity='None', Stop=1, FlowControl='Off', CharDelay=0, Mode='RS232', Model =None):
+        SerialInterface.__init__(self, Host, Port, Baud, Data, Parity, Stop, FlowControl, CharDelay, Mode)
+        self.ConnectionType = 'Serial'
+        DeviceClass.__init__(self)
+        # Check if Model belongs to a subclass
+        if len(self.Models) > 0:
+            if Model not in self.Models: 
+                print('Model mismatch')              
+            else:
+                self.Models[Model]()
+
+    def Error(self, message):
+        portInfo = 'Host Alias: {0}, Port: {1}'.format(self.Host.DeviceAlias, self.Port)
+        print('Module: {}'.format(__name__), portInfo, 'Error Message: {}'.format(message[0]), sep='\r\n')
+  
+    def Discard(self, message):
+        self.Error([message])
+
+class SerialOverEthernetClass(EthernetClientInterface, DeviceClass):
+
+    def __init__(self, Hostname, IPPort, Protocol='TCP', ServicePort=0, Model=None):
+        EthernetClientInterface.__init__(self, Hostname, IPPort, Protocol, ServicePort)
+        self.ConnectionType = 'Serial'
+        DeviceClass.__init__(self) 
+        # Check if Model belongs to a subclass       
+        if len(self.Models) > 0:
+            if Model not in self.Models: 
+                print('Model mismatch')              
+            else:
+                self.Models[Model]()
+
+    def Error(self, message):
+        portInfo = 'IP Address/Host: {0}:{1}'.format(self.Hostname, self.IPPort)
+        print('Module: {}'.format(__name__), portInfo, 'Error Message: {}'.format(message[0]), sep='\r\n')
+  
+    def Discard(self, message):
+        self.Error([message])
+
+    def Disconnect(self):
+        EthernetClientInterface.Disconnect(self)
+        self.OnDisconnected()
+
+class EthernetClass(EthernetClientInterface, DeviceClass):
+
+    def __init__(self, Hostname, IPPort, Protocol='TCP', ServicePort=0, Model=None):
+        EthernetClientInterface.__init__(self, Hostname, IPPort, Protocol, ServicePort)
+        self.ConnectionType = 'Ethernet'
+        DeviceClass.__init__(self) 
+        # Check if Model belongs to a subclass       
+        if len(self.Models) > 0:
+            if Model not in self.Models: 
+                print('Model mismatch')              
+            else:
+                self.Models[Model]()
+
+    def Error(self, message):
+        portInfo = 'IP Address/Host: {0}:{1}'.format(self.Hostname, self.IPPort)
+        print('Module: {}'.format(__name__), portInfo, 'Error Message: {}'.format(message[0]), sep='\r\n')
+  
+    def Discard(self, message):
+        self.Error([message])
+
+    def Disconnect(self):
+        EthernetClientInterface.Disconnect(self)
+        self.OnDisconnected()
+
