@@ -58,7 +58,7 @@ described in `ENVIRONMENT.md`.**
 
 Experiments live in `experiments/` (NRBF writer, Crestron→ControlScript, missing-Ethernet
 generation, docs-only generation, oracle pairs, graph probes, Ross Ultrix, GCP harness).
-Harvested vendor docs in `reference/`. **`corpus/` is a 1.3 GB snapshot of the Windows box's
+Harvested vendor docs in `reference/`. **`corpus/` is a 1.3 GB snapshot of an
 Extron library** (1,854 `.pkp`, 2,235 ControlScript modules), so findings 14, 16 and 17
 reproduce off that machine. `evidence/` holds the screenshots and catalogue captures the
 findings cite.
@@ -85,8 +85,8 @@ not a mechanical rewrite, so they are reported as residuals rather than guessed.
 
 1. **Does an outsider-built `.pkg` load on a processor?** Independent developers ship drivers
    built from the public NuGet DevKit, so the compile path is demonstrated; the resource-swap
-   shortcut is not. **Crestron Toolbox is installed on the Windows box** (see Environment in
-   `CLAUDE.md`), so the tool is no longer the gate — a processor or VC-4 instance is, plus the
+   shortcut is not. **Crestron Toolbox is obtainable** (see `ENVIRONMENT.md`), so
+   the tool is no longer the gate — a processor or VC-4 instance is, plus the
    licence question below. *No amount of research substitutes for this.*
 2. **Crestron's licence** restricts its tools to "Developing software for Crestron Devices",
    bars reverse engineering, and requires a Dealer/AIP/Partner agreement. Extron requires a
@@ -113,7 +113,7 @@ not a mechanical rewrite, so they are reported as residuals rather than guessed.
    tracking. A device limit, but a limit.
 
 *The "only 4 oracle pairs" item was closed by finding 14: 352 pairs across 314 packages,
-scored.* Finding 12 counted **6,644 `.pkp`** in one GC install; this box's library held
+scored.* Finding 12 counted **6,644 `.pkp`** in one GC install; the snapshotted library held
 1,854, and that library is now committed under `corpus/`. The sampling problem is a
 selection problem.
 

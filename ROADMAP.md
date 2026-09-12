@@ -8,7 +8,7 @@ All four conversion directions work offline, and 518 standard-library tests pass
 
 **"Done" today means verified offline, plus Extron's loader and the GCP editor.** Nothing has run on a processor, and no socket has ever been opened to a camera. The next milestone is a camera that moves under an Extron processor. The deadline is the GCP licence, whose expiry date is not confirmed (§6).
 
-**The pack-up itself is done.** Every project-related file that lived on the Windows box's C: drive is in this repo — commits `1cc8fae` and `a7ca505` (the Extron corpus), `6eb1118` (everything else), and the commit that added this file — or, where it carries account or licence data, in the git-ignored `private/`. `ENVIRONMENT.md` records what moved where and what stayed. All 195 project source files on C: were matched byte-for-byte in the repo, and the 6,354 corpus files were SHA-256 verified.
+**The 2026-09 pack-up is done and closed.** Everything a retired workstation held is either in this repo or, where it carries account or licence data, in the git-ignored `private/`. All 195 project source files were matched byte-for-byte and the 6,354 corpus files SHA-256 verified. `notes/2026-09-pack-up.md` records what moved where; it is history and needs nothing further.
 
 ---
 
@@ -18,7 +18,7 @@ Cheapest failure first. Each session should capture **raw reply bytes**, because
 
 | ID | What | Blocked by | Exact steps | What to look for | Evidence | Effort |
 |---|---|---|---|---|---|---|
-| H0 | Save a GCP project, then run **compile-only Build** (no camera needed) | Windows box + GCP licence | **Save by hand, never over UIA:** Save As renamed a repo folder last time. **Set a dummy address first:** the Add Controller dialog comes pre-filled with the real processor's address and credentials, so replace it with a non-routable one before anything else.<br>1. New Project (Pro): IPCP Pro 255Q xi.<br>2. Ethernet Port 1 → `1 Beyond IV-CAM-I20 v1.2` (TCP 5500, `1bynd_19_20024`).<br>3. Save As a full path in an empty folder; keep the `.gcpro` under `evidence/` or `experiments/skeleton_i20/`.<br>4. Build. | Any build error, verbatim. No network contact during Build. | `experiments/gcp_harness/README.md` traps 4–5; STATUS item 4; offer at transcript a721b700 ~L4764, never answered | S |
+| H0 | Save a GCP project, then run **compile-only Build** (no camera needed) | a licensed GCP install | **Save by hand, never over UIA:** Save As renamed a repo folder last time. **Set a dummy address first:** the Add Controller dialog comes pre-filled with the real processor's address and credentials, so replace it with a non-routable one before anything else.<br>1. New Project (Pro): IPCP Pro 255Q xi.<br>2. Ethernet Port 1 → `1 Beyond IV-CAM-I20 v1.2` (TCP 5500, `1bynd_19_20024`).<br>3. Save As a full path in an empty folder; keep the `.gcpro` under `evidence/` or `experiments/skeleton_i20/`.<br>4. Build. | Any build error, verbatim. No network contact during Build. | `experiments/gcp_harness/README.md` traps 4–5; STATUS item 4; offer at transcript a721b700 ~L4764, never answered | S |
 | H1 | **Processor only, no camera:** import the modules | any Extron processor | 1. Put `experiments/skeleton_i20/out/onebynd_camera_IV_CAM_I20_v1_0_0_0.py` in a ControlScript project on an xi unit (Python 3.11) and, if one is available, a non-xi unit (3.5).<br>2. Do the same with one clean generated module: Samsung serial, 9/9 wire match, 0 dangling.<br>3. Instantiate each with a dummy IP. | `SyntaxError` on 3.5: the only 3.5 check today is an f-string lint. `NameError`: finding 13 §5 shows embedded drivers call runtime-injected globals such as `ExtronTime`. `AttributeError`. | findings 14 and 17 "No module was executed"; build_i20 f-string lint only | S |
 | H2 | **ControlScript Path A against an i20** | processor + i20 | 1. `EthernetClass(ip, 5500)`.<br>2. Run the `main.py` from QUICKSTART. | QUICKSTART's three answers: does it move; does `Update('TrackingFraming')` return Start/Stop correctly; what does preset 83 do. | `QUICKSTART.md` "What to report back"; STATUS row "untested on hardware" | S |
 | H3 | **Wire captures**, in the same session as H2 | processor + i20 | Send each probe in the table below and log request and reply. | — | PROTOCOL T3 / T3b / "Known limits"; findings 09, 13; STATUS item 6 | M |
@@ -55,7 +55,7 @@ Ordered by value. **Blocked by: nothing, unless noted.**
 | ID | What | Why it matters | First concrete step | Evidence | Effort |
 |---|---|---|---|---|---|
 | R3 | **Fix the tester-facing docs.** QUICKSTART:63 shows PanTiltAngle's value as `{'Pan','Tilt'}`. QUICKSTART:80-84 lists "eleven" updatable commands including PanTiltAngle, but the module has 13 `Update*` methods, `UpdatePanAngleStatus` / `UpdateTiltAngleStatus` and **no** `UpdatePanTiltAngle`. QUICKSTART:90 says "four .pkp" (there are five). PROTOCOL.md:3-9 sends the tester to the 20030–20032 ladder, which was never kept and which finding 16 §3 answered offline. PROTOCOL's package table stops at 20023, and PROTOCOL:188 says "39 checks" (now 86 + 57). | Stops the first hardware session failing on documentation errors. | Make 20024 the T3 package, mark the T3 "Place" step done (by UIA), rewrite the Update table from the generated module. | files cited | S |
-| R4 | **STATUS / README / CLAUDE.md consistency.**<br>STATUS: row 10 is still "(pending write-up)"; its source, `tools/out/verdicts/three_questions_synthesis.md`, was recovered on 2026-09-11 (D9). The Answers row says "17 added" while item 6 says 19 (15 + 19 = 34). "4 staged `.pkp`" should name 20024. pkp_dump's "all 4 packages" should be 9. "~84%" is 27/32, but finding 08's final tally is 29/32.<br>README:27: "about 84%".<br>CLAUDE.md:103-111: "What is left is a graph assembled from scratch" is out of date (render is now done; Build/upload/control remains), and "Closed by finding 12" should credit finding 14.<br>findings/README.md: its list stops at 12. | These are the hand-off entry points, and each contradicts itself. | One pass over all four files. Re-measure the docs-only figure (R32) rather than assuming 29/32. | STATUS.md:12,14,16,32,46,109; CLAUDE.md:103-111 | S |
+| R4 | **STATUS / README / CLAUDE.md consistency.**<br>STATUS: row 10 is still "(pending write-up)"; its source, `tools/out/verdicts/three_questions_synthesis.md`, was recovered on 2026-09-11 (D9). The Answers row says "17 added" while item 6 says 19 (15 + 19 = 34). "4 staged `.pkp`" should name 20024. pkp_dump's "all 4 packages" should be 9. "~84%" is 27/32, but finding 08's final tally is 29/32.<br>README:27: "about 84%".<br>~~CLAUDE.md: "graph assembled from scratch" out of date, and "Closed by finding 12" miscredited~~ — **both corrected.**<br>findings/README.md: its list stops at 12. | These are the hand-off entry points, and each contradicts itself. | One pass over the remaining files. Re-measure the docs-only figure (R32) rather than assuming 29/32. | STATUS.md:12,14,16,32,46,109 | S |
 | R5 | **Stale text inside findings.**<br>00: 16 unticked boxes.<br>02:75, 03:40/90, 04:6/46, 05:124, 07:4: still say "re-run" or "under verification".<br>08: the body still says Wake is undocumented, "22 of 32 (69%)" and "No".<br>09:99: repeats the retracted Wake claim; 09:120 says the zoom harvest is pending, but `ZOOM.md` §4 found no digital range.<br>15: "80085 is undecoded", "ladder is unrun" (both superseded by 16).<br>18: line 190 says 32 commands and the first "does NOT show" bullet says GC has not rendered them (superseded by §8 / 34); "PanTiltAngle shape is a guess" is partly superseded by 86c5acb.<br>Code comments: `build_i20_assets.py` docstring says 31 / 17; `pkp_build.py:11` cites "STATUS open item 4", which is now a different item; `pkp_validate.py` gap (1) says the repo does not ship `ExtronDH.dat`, but `validator_differential/ilres/` now holds it. | A reader who skips headers gets the wrong answer, and the open work looks larger than it is. | Add a one-line "resolved by finding NN" pointer beside each; rewrite finding 08's body inline. | grep results as cited | S |
 | R6 | **Results that no finding records.**<br>Finding 10 resolution: the Clock Audio 5940 mis-pairing, 82.7% agreement vs 100% fidelity-to-source, and the `SRBG` typo (in no finding).<br>Finding 07 correction: the `.usp` is a dispatcher; the logic lives in a SimplSharp DLL whose wire strings are readable from its `#US` heap.<br>The three-questions experiments (crestron2cs, missing_ethernet, docs_only) have no finding — but their synthesis is recovered (`tools/out/verdicts/three_questions_synthesis.md`), so finding 10 can now be written from it.<br>missing_ethernet's `MultiviewCommand` slot residual is unexplained.<br>`experiments/docs_only/REPORT.md`, cited by `generator.py:23` for the protocol-integrity disclosure, is missing.<br>The Tesira speed-dial double-quoting bug (`ttp_validation.md`) is not in finding 11.<br>86c5acb's three contract bugs appear only in the commit message. | The claims exist only in `tools/out/verdicts/` or commit text. | Write the finding 10 / 07 sections from `heldout_synthesis.md` §1, §4–§6 first. | `heldout_synthesis.md`; grep | M |
 | R7 | **Remove the tracked temp directory** `experiments/skeleton_i20/out/.ptmp3A0FB0/` | A glob over `out/` could copy it into Driver3. | `git rm -r`, add `.ptmp*/` to `.gitignore`, then check that `pkp_build` cleans its temp file on failure. | `git ls-files` | S |
@@ -92,7 +92,7 @@ Ordered by value. **Blocked by: nothing, unless noted.**
 | R23 | **Parity with Crestron's i20 driver:** privacy, exposure compensation, focus position and mode, AutoFocus behaviour, AutoSoftwareUpdate, GetDeviceInformation, the PressAndHold / Release menu, SetFieldOfView, SetPtzSuperOperation, the discrete speed setters, GetPanTiltSpeedMax | The user asked for full parity with both back ends; the module has 32 commands. | Diff Crestron's command names against both emitters' `Commands` tables. Every new `.pkp` command must pass `build_i20_assets.py`'s agreement check. | transcript a721b700 ~L2638 | L |
 | R24 | **p12/p20 variant.** Asked for at the outset; only the i20 was built. | A generalisation test as well as a deliverable. | Run `resolve_visca.py` on the P20 `.pkg` (in `samples/`). The P20 spec is in `reference/crestron-visca/`; note the 4×4 lightbar and the 4-nibble assemble. | transcript 2141be6e L252; no p20 builder exists | L |
 
-### 2E. `.pkp` synthesis generality (final gate is `Load-Package.ps1` on the Windows box)
+### 2E. `.pkp` synthesis generality (final gate is `Load-Package.ps1` on a workstation)
 
 | ID | What | Why it matters | First concrete step | Evidence | Effort |
 |---|---|---|---|---|---|
@@ -125,13 +125,13 @@ Ordered by value. **Blocked by: nothing, unless noted.**
 | D4 | **Scratch-accessor policy:** attempt the `qualifier['Number']` / `['Name']` rewrite, or keep failing loudly | 5 residuals in-sample, but 146 calls in 77 packages at scale (≈25% of modules would raise). | Yes or no; if yes, derive the rule from the shipped DTP3 module, test-first. | STATUS scorecard note; finding 14 §3 | L if yes |
 | D5 | **Which Crestron first-party switchers** to target | Named as the user's main interest, alongside 1 Beyond. There are no samples. | Drop the `.pkg` files into `samples/`; classify them with `pkg_dump`. | transcript 2141be6e L252 | L |
 | D6 | **Build the hub-and-spoke IR?** | Recommended (finding 04:87-104) and justified (STATUS), but it does not exist. Decides whether R35 is worth doing. | Go / no-go. If go, start from `resolve_visca.py` plus `DriverDefinition` sections. | findings 04–06; no IR module in the repo | L |
-| D7 | **GCP:** renew? Can the reimage wait until H0/H4? Does a fresh install re-licence (the licence blobs are in `private/app-settings/Local-Extron/`)? | The one licensed GCP is the gate for H0, H4 and the GCP render check. | The user's answer; check GCP's licence dialog. | §6 | S |
+| D7 | **GCP licence: renew, or race it?** A reinstall has happened since the countdown was last read, and whether that reset the trial is unknown. | A licensed GCP is the gate for H0, H4 and the render check. | Read GCP's licence / About dialog and record the measured date in §6. | §6 | S |
 | D8 | **Report defects to Extron?**<br>- zoom speed 0 in `1bynd_19_4743` and AutoTracker3<br>- the `SRBG` typo in `clau_25_5940`<br>- `LogoAssignment` in DSC 12G-HD<br>- Tesira speed-dial quoting<br>- **the `.eir` filename check that skips hashing** (security-relevant; private disclosure) | Nothing in the repo promises it; listed so it is decided rather than forgotten. | Yes or no, recorded in STATUS. | findings 13 §3, 16 §5b; `pkp_validate.py` gap (2) | S |
 | D9 | **Mostly resolved: the synthesis documents.** `.gitignore`'s `tools/out/` rule kept every verdict out of git. Fixed, and the saved results of all 14 workflow runs from the first session plus finding 10's `three_questions_synthesis.md` were recovered and committed under `tools/out/verdicts/` (`6eb1118`). | Some claims can't be checked, e.g. finding 09's "1 uncertain". | Map each finding (02, 04–09) to the run it was written from (`tools/out/verdicts/workflows/22114bf1/`); mark any with no surviving source. | `.gitignore` provenance note | S |
 | D10 | **Sample provenance.** `notes/sample-provenance.md` has one "(pending)" row. | Findings are meant to cite where each sample came from. | Claude fills in versions with `pkp_dump` / `pkg_dump`; the user supplies each source. | `samples/README.md:12-13` | S |
 | D11 | **A Clock Audio MK3 ControlScript module.** The GS shipment holds only `clau_dsp_CDT100_v1_0_3_0.py` (the 1777 module). | Without one, `clau_25_5940` stays unscored. | Extron Insider or Clock Audio. | `heldout_synthesis.md` §6 #7 | S |
 | D13 | **Claude session transcripts in git?** They are in the git-ignored `private/claude/` (this project's) and at `Z:\.claude\projects\` (the first session). Copying the first session's transcripts into the repo was refused by the permission classifier, and was not routed around. | They hold full tool output, account details and lab IPs — and the reasoning behind several findings. | The owner's call. |  | S |
-| D12 | **Install identity pinning on the box** (the per-folder gitconfig with `includeIf`, the credential helper, and `identity-guard.sh` at a Windows path) | `~/.config/git` and `~/.claude/hooks` are absent; commits use a hand-set repo-local email. | User action, then a dry-run commit and push. | `ENVIRONMENT.md:118-120` | S |
+| D12 | **Install commit-identity pinning** (the per-folder gitconfig with `includeIf`, the credential helper, and `identity-guard.sh`) | Git needs `user.name`/`user.email` and cannot always auto-detect them, so a fresh checkout refuses to commit until identity is set by hand. | User action, then a dry-run commit and push. | `ENVIRONMENT.md` troubleshooting | S |
 
 ---
 
@@ -188,39 +188,27 @@ Ordered by value. **Blocked by: nothing, unless noted.**
 
 | Clock | What is known | Action | Effort |
 |---|---|---|---|
-| **GCP Pro licence** | Status bar read "Expires in 30 Days" on 2026-09-07, 2026-09-09 and 2026-09-10, so the counter did not move. **~2026-10-07 is an inference, not a measurement.** | Read the date from GCP's licence / About dialog and record it in ENVIRONMENT.md and CLAUDE.md, without copying licence data into git. Schedule H0 → H4 and the GCP render check before whichever date is confirmed. | S |
-| **Reimage of the Windows box** | Not done yet. The pack-up checklist below is complete; GCP work (H0, H4) still needs this licensed install. | Answer D7 first. | — |
+| **GCP Pro licence** | The status bar read "Expires in 30 Days" on three separate days without the counter moving, so the expiry date is **inferred, not measured**. A reinstall may or may not reset it. | Read the date from GCP's licence / About dialog and record it here as a measured value, without copying licence data into git. Schedule H0–H4 and the render check before it. | S |
 
-### Before the reimage (parent tasks 4 and 5)
+### What needs a licensed GCP install
 
-1. **Done at the end of the pack-up:** this session's transcript (`a721b700-….jsonl`), its workflow subagents and job timeline were copied into `private/claude/`, redacted of token-shaped strings. Anything said in the session after that copy exists only on C:. `d44e6766` is not this project (zero Extron or Crestron mentions) and was left.
-2. Save a GCP project (H0) and, ideally, run H4 while this licensed install exists.
-3. Confirm that `Driver3` on C: matches the corpus. It does as of this audit: 1,854 `.pkp` + 26 `.eir` + 2 `.dat` = 1,882 on both sides.
-4. **Done:** committed and pushed (`1cc8fae`, `a7ca505`, `6eb1118`, and the commit that added this file); every project source file on C: matched in the repo.
+Everything else on a workstation — the loader, the validator, the IL scans —
+needs only the Extron DLLs and 32-bit PowerShell, which are not licence-gated.
+`ENVIRONMENT.md` has the full capability table. Only these two need the licence:
 
-### What only the Windows box can do
+| Capability | Used by |
+|---|---|
+| GCP render check over UI Automation — 12 verified steps live in `experiments/gcp_harness/scratch/`, **not yet consolidated into one script**. Worth making `Render-Package.ps1`, restoring the catalogue backup on exit (M). | every new package: R23, R24, R26–R28 |
+| GCP Build and Upload (Upload also needs a processor) | H0, H4 |
 
-| Capability | Needs | Used by |
-|---|---|---|
-| `Load-Package.ps1` (`LoadFromFile` / `BinaryFormatter`) | Extron 15.27 DLLs + 32-bit PowerShell; not the licence | R26–R28, R30 |
-| Extron's validator on new packages and mutants (`harness.exe`); IL caller scans | Extron DLLs; `csc` to rebuild | R9 (mutants only), §5 caller scan |
-| GCP render check over UI Automation (12 verified steps in `gcp_harness/scratch/`, **not yet one script**) | **GCP licence**; nobody using the mouse | Every new package (R23, R24, R26–R28). Consolidate into `Render-Package.ps1`, restoring the catalogue backup on exit (M). |
-| GCP Build and Upload | Licence (+ processor for Upload) | H0, H4 |
-| Re-extracting `ExtronDH.dat` | That GCP version installed | Already extracted to `ilres/`; nothing further needed |
-| Crestron Toolbox | Installed here | H8 |
+Everything in `tools/`, the corpus reproductions, and all of 2B–2D except the
+final loader gates run anywhere Python 3 does.
 
-Everything in `tools/`, the corpus reproductions (R8, R9 Python side) and all of 2B–2D except the final loader gates runs anywhere Python 3 does.
+### Standing constraint
 
-### Rebuilding the box: gaps in ENVIRONMENT.md's six steps (R-level, S)
-
-- **`gh` CLI + `gh auth login --user rob-paprocki`.** Pushing depends on it: `askpass.sh` runs `gh auth token`. Not currently listed.
-- **Identity pinning (D12)** and `safe.directory` for the `\\Mac\Home` share.
-- **Crestron Toolbox / SIMPL reinstall** (versions are recorded, but there is no install step).
-- **Rebuild the validator harnesses:** `C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe /platform:x86 Harness.cs` (and `Dir`, `Mutate`, `Reflect2`).
-- **Unpack the vsix** into `tools/out/vsix` for the extronlib stubs (R13).
-- **Tests:** "see STATUS.md" gives counts, not commands. List all 11 suites (from CLAUDE.md) with `python -u <file>`, or add a stdlib `run_all_tests.py`.
-- **Acceptance check:** `Load-Package.ps1 -Commands` on `experiments/skeleton_i20/out/1bynd_19_20024_v1_0_0.pkp` should enumerate 34 commands.
-
+Nothing in this project has run on a processor, and no socket has ever been
+opened to a camera. Treat "renders correctly in the editor" as one gate short of
+working, the same way the wire table was one gate short of a runnable module.
 ---
 
 *Produced by workflow `wf_61d1161c-2c8` (script in `tools/out/verdicts/workflows/`): five readers over the findings, code and three session transcripts, two independent sweeps of the C: drive, a completeness critic, and a synthesis pass that re-checked each claim against the tree. Corrected afterwards for commits that landed while it ran.*

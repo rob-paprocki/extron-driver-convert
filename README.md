@@ -8,7 +8,7 @@ Crestron-owned hardware — the 1 Beyond IV-CAM-I20 — from a driver built here
 **Read `STATUS.md` first.** It carries the verdicts, the findings index, the
 translator scorecard and the methodology notes, and it is the file kept
 current. **`ROADMAP.md`** lists everything unfinished, in order, with the
-blocker and first step for each. **`ENVIRONMENT.md`** describes the Windows box
+blocker and first step for each. **`ENVIRONMENT.md`** describes what a workstation
 the machine-bound work runs on.
 
 Not affiliated with Extron or Crestron.
@@ -66,7 +66,7 @@ experiments/
   ross_ultrix/               the one oracle pair with a human-written side (finding 17)
   nrbf_writeback/ crestron2cs/ docs_only/ missing_ethernet/
 samples/<device>/            .pkp, shipped ControlScript module, Crestron package
-corpus/                      1.3 GB snapshot of the Windows box's Extron library
+corpus/                      1.3 GB snapshot of an Extron driver library
 evidence/                    screenshots and GC catalogue captures the findings cite
 reference/                   harvested vendor documentation
 notes/                       sample provenance
