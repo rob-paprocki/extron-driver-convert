@@ -1,9 +1,8 @@
 # validator_differential/
 
 The workspace behind **finding 16**: how Extron's own `DriverAssetValidator` was
-called directly, and how `tools/pkp_validate.py` was tested against it. Moved
-here verbatim from `C:\Users\robp\extron_val\` (created 2026-09-09) before the
-Windows box was reimaged.
+called directly, and how `tools/pkp_validate.py` was tested against it. Kept
+verbatim from the 2026-09 working session that produced it.
 
 ## The harnesses (C#, .NET Framework 4.8, x86)
 
@@ -44,7 +43,7 @@ first showed a refreshed digest makes a replaced script `Valid`.
 
 ## extval/ — the mutant differential, Python side
 
-Moved from `C:\Users\robp\AppData\Local\Temp\extval\`. Where `m2/`…`m6/` above
+Recovered from scratch space during the 2026-09 pack-up. Where `m2/`…`m6/` above
 were built by `Mutate.cs` inside .NET, these were built by
 `extval/make_mutants.py` from three sample packages — DSC 12G-HD, the Samsung
 display and Biamp Tesira — and then scored by both validators:
@@ -61,7 +60,7 @@ display and Biamp Tesira — and then scored by both validators:
 
 ## ilres/ — reading the validator's IL, and the GUID table
 
-Moved from `C:\Users\robp\AppData\Local\Temp\ilres\`.
+Recovered from scratch space during the 2026-09 pack-up.
 
 - **`ExtronDH.dat`** (534,939 bytes) is the resource embedded in
   `Extron.Configuration.Drivers.dll` 15.27.0.0 that `LoadDefaultFromResource()`
@@ -78,5 +77,5 @@ The first direct probes of the validator and the hash refresh
 (`probe_*.ps1`, `validate*.ps1`, `refresh_hash.ps1`, `v3.ps1`, `v4.ps1`,
 `il.ps1`, `reflect.ps1`), `insp*.py` inspecting the resource-hash dictionary
 through `pkp_dump`, and `dis.py`, a hand-rolled disassembler for one validator
-method body. All moved from `C:\Users\robp\AppData\Local\Temp\`; superseded by
+method body. All recovered from scratch space; superseded by
 the harnesses above and by `tools/pkp_validate.py`.

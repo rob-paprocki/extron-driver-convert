@@ -33,7 +33,7 @@ is an open item in `ROADMAP.md`.
 
 ## template_splice/ — finding 17 §2's evidence
 
-Moved from `C:\Users\robp\AppData\Local\Temp\`. How "the boilerplate is
+Recovered from scratch space during the 2026-09 pack-up. How "the boilerplate is
 Extron's; the device is theirs" was measured:
 
 | file | content |

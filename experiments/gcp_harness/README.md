@@ -11,7 +11,7 @@ without a third-party bridge (pythonnet) — and the repo's no-dependency rule
 excludes that. So the harness is PowerShell, and machine-bound, like the GC
 experiments it supports.
 
-## Requirements (measured on the 2026-09 Windows box)
+## Requirements (see `ENVIRONMENT.md` for the current list)
 
 | | |
 |---|---|
@@ -98,10 +98,11 @@ attempts described below.
 
 ## askpass.sh
 
-The workaround for Git Credential Manager hanging on an invisible prompt when
-pushing from this box. Point `GIT_ASKPASS` at it and it answers with
-`gh auth token` — the `rob-paprocki` keyring login — so the token never
-appears in argv or the process table:
+A workaround for Git Credential Manager hanging on an invisible prompt, which
+happens on some machines and not others — if plain `git push` already works, you
+do not need this. Point `GIT_ASKPASS` at it and it answers with `gh auth token`
+for whichever login `gh` is authenticated as, so the token never appears in argv
+or the process table:
 
 ```sh
 GIT_ASKPASS="$PWD/experiments/gcp_harness/askpass.sh" GIT_TERMINAL_PROMPT=0 git push origin main

@@ -1,7 +1,7 @@
 # oracle_pairs/scratch/
 
 The working iterations behind finding 14, kept verbatim as provenance. They
-were written on the Windows box between 2026-09-08 and 2026-09-09 and are
+were written between 2026-09-08 and 2026-09-09 and are
 **superseded** by `../build_index.py` and `../score.py`, which is what to run.
 
 | file | became |
