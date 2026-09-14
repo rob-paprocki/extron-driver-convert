@@ -382,6 +382,28 @@ def part5():
         capture.close()
 
 
+def part6(mod):
+    print("\n[6] README Path B's GC macro: every wire string is what the module sends")
+    macro = loopback_steps.GC_MACRO
+    check("the macro table and its expectation list line up (%d steps)" % len(macro),
+          len(macro) == len(vl.EXPECTED_GC_MACRO))
+    for (gc_command, gc_params, kind, command, value, qualifier), (step, label, want) in zip(
+            macro, vl.EXPECTED_GC_MACRO):
+        cam = mod.EthernetClass("192.0.2.1", 5500)
+        quiet(cam.Set, command, value, qualifier)
+        got = " | ".join(vl.hexs(f) for f in cam.sent)
+        check("%-6s %-22s %-48s -> %s" % (step, gc_command, gc_params, want), got == want,
+              "the module sends %s" % (got or "nothing"))
+    rows = []
+    for _, _, h in vl.EXPECTED_GC_MACRO:
+        d = vl.decode(bytes.fromhex(h))
+        rows.append({"time": "", "dir": "rx", "hex": h, "kind": d.kind, "name": d.name,
+                     "detail": d.detail})
+    text, result = vl.summarize(rows, expect="gc-macro")
+    check("a capture of the macro, in order, passes --expect gc-macro",
+          result["seen_all"] and result["in_order"] and result["odd"] == 0, text)
+
+
 def note_full_mode():
     print("\n[note] mode 'full' with a SendAndWait that keeps unread data - not a test")
     listener = vl.Listener("127.0.0.1", 0, "full", vl.Capture(echo=False))
@@ -403,11 +425,13 @@ def note_full_mode():
 
 
 def main():
+    recording = load_module(RecordingInterface)
     part1()
-    part2(load_module(RecordingInterface))
+    part2(recording)
     part3()
     part4()
     part5()
+    part6(recording)
     note_full_mode()
     print("\n%d passed, %d failed, %d total" % (len(PASS), len(FAIL), len(PASS) + len(FAIL)))
     return 1 if FAIL else 0

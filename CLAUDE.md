@@ -52,7 +52,7 @@ Two things worth knowing before planning work:
   and `experiments/oracle_pairs/` reads it by default — so findings 14, 16 and 17
   reproduce with no Extron install at all.
 
-**595 tests, all standard library, no pytest.** Run each file directly; the
+**618 tests, all standard library, no pytest.** Run each file directly; the
 commands are listed in `ENVIRONMENT.md`. `test_pkp_build.py` and
 `test_pkp_validate.py` walk every sample package including a 4.4M-event one, so
 budget about 20 minutes for the full set and use `python -u` if you are piping

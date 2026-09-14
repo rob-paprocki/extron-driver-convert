@@ -2,7 +2,7 @@
 
 *Written 2026-09-11 from a deduplicated backlog. Every status claim below was re-checked against the working tree that day, then corrected for the commits that landed while it was being written. Effort: **S** is under half a day, **M** is 1–3 days, **L** is a week or more.*
 
-All four conversion directions work offline, and 595 standard-library tests pass. The i20 driver exists in two forms:
+All four conversion directions work offline, and 618 standard-library tests pass. The i20 driver exists in two forms:
 - **`.pkp`:** `1bynd_19_20024`, 34 commands. It loads through Extron's own `LoadFromFile`, and GCP renders every command (finding 18 §8, checked by driving GCP over UI Automation).
 - **ControlScript module:** 32 commands, identical wire bytes.
 

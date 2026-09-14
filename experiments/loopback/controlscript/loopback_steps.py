@@ -55,3 +55,37 @@ POLLS = [('Update', c, None, None, 'poll') for c in (
     for n in (2, 3, 4, 5)]
 
 SEQUENCE = T3 + EDGES + POLLS
+
+# README Path B: the same commands as one Global Configurator macro. Each row is
+# (GC command, GC parameters, kind, script command, value, qualifier). The GC
+# names are the ones Extron's own loader reads from 1bynd_19_20024; the script
+# half is what test_visca_listener.py drives through the module to prove every
+# wire string in visca_listener.EXPECTED_GC_MACRO.
+GC_MACRO = [
+    ('Power', 'Value On', 'Set', 'Power', 'On', None),
+    ('Preset', 'Action Recall, Value 1', 'Set', 'Preset', 1, {'Action': 'Recall'}),
+    ('Zoom', 'Value Tele, Speed 5', 'Set', 'Zoom', 'Tele', {'Speed': 5}),
+    ('Auto Tracking', 'Value Start', 'Set', 'TrackingFraming', 'Start', None),
+    ('Auto Tracking', 'Value Stop', 'Set', 'TrackingFraming', 'Stop', None),
+    ('Zoom Position', 'Value 6699, Speed 3', 'Set', 'ZoomPosition', 6699, {'Speed': 3}),
+    ('Freeze Frame', 'Value On', 'Set', 'FreezeFrame', 'On', None),
+    ('Freeze Frame', 'Value Off', 'Set', 'FreezeFrame', 'Off', None),
+    ('Indicator Light', 'Value Full, Color Red, Brightness Bright', 'Set', 'IndicatorLight',
+     'Full', {'Color': 'Red', 'Brightness': 'Bright'}),
+    ('Indicator Light', 'Value Half, Color Green, Brightness Dim', 'Set', 'IndicatorLight',
+     'Half', {'Color': 'Green', 'Brightness': 'Dim'}),
+    ('Indicator Light', 'Value None, Color Green, Brightness Off', 'Set', 'IndicatorLight',
+     'None', {'Color': 'Green', 'Brightness': 'Off'}),
+    ('Tracking Profile', 'Value 2', 'Set', 'TrackingProfile', 2, None),
+    ('Camera Output', 'Value 2', 'Set', 'CameraOutput', 2, None),
+    ('Intelligent Switching', 'Value Resume', 'Set', 'IntelligentSwitching', 'Resume', None),
+    ('Intelligent Switching', 'Value Pause', 'Set', 'IntelligentSwitching', 'Pause', None),
+    ('Group Tracking', 'Value Enable', 'Set', 'GroupTracking', 'Enable', None),
+    ('Presenter Tracking', 'Value Enable', 'Set', 'PresenterTracking', 'Enable', None),
+    ('Pan Tilt Angle', 'Pan -2448, Tilt -1296, Pan Speed 1, Tilt Speed 1', 'Set',
+     'PanTiltAngle', None, {'Pan Speed': 1, 'Tilt Speed': 1, 'Pan': -2448, 'Tilt': -1296}),
+    ('Pan Tilt Angle', 'Pan 2448, Tilt 1296, Pan Speed 24, Tilt Speed 20', 'Set',
+     'PanTiltAngle', None, {'Pan Speed': 24, 'Tilt Speed': 20, 'Pan': 2448, 'Tilt': 1296}),
+    ('Zoom Position', 'Value 16384, Speed 7', 'Set', 'ZoomPosition', 16384, {'Speed': 7}),
+    ('Camera Output', 'Value 5', 'Set', 'CameraOutput', 5, None),
+]

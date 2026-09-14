@@ -100,6 +100,38 @@ EXPECTED_T3 = [
     ("T3b 2", "Presenter Tracking Enable", "81 01 04 3F 02 53 FF"),
 ]
 
+# README Path B's Global Configurator macro (controlscript/loopback_steps.py
+# GC_MACRO), as bytes. test_visca_listener.py [6] drives each step through the
+# module and fails if any string here is not what it sends.
+EXPECTED_GC_MACRO = [
+    ("GC 1", "Power On", "81 01 04 00 02 FF"),
+    ("GC 2", "Preset Recall 1", "81 01 04 3F 02 01 FF"),
+    ("GC 3", "Zoom Tele, Speed 5", "81 01 04 07 25 FF"),
+    ("GC 4", "Auto Tracking Start", "81 01 04 3F 02 50 FF"),
+    ("GC 5", "Auto Tracking Stop", "81 01 04 3F 02 51 FF"),
+    ("GC 6", "Zoom Position 6699, Speed 3", "81 01 04 47 03 01 0A 02 0B FF"),
+    ("GC 7", "Freeze Frame On", "81 01 04 62 02 FF"),
+    ("GC 8", "Freeze Frame Off", "81 01 04 62 03 FF"),
+    ("GC 9", "Indicator Light Full Red Bright", "81 C1 0D 0D 0D 0D FF"),
+    ("GC 10", "Indicator Light Half Green Dim", "81 C1 00 04 04 00 FF"),
+    ("GC 11", "Indicator Light None", "81 C1 00 00 00 00 FF"),
+    ("GC 12", "Tracking Profile 2", "81 01 04 3F 02 6A FF"),
+    ("GC 13", "Camera Output 2", "81 C2 01 08 02 FF"),
+    ("GC 14", "Intelligent Switching Resume", "81 C2 01 08 00 FF"),
+    ("GC 15", "Intelligent Switching Pause", "81 C2 01 0B 00 FF"),
+    ("GC 16", "Group Tracking Enable", "81 01 04 3F 02 52 FF"),
+    ("GC 17", "Presenter Tracking Enable", "81 01 04 3F 02 53 FF"),
+    ("GC 18", "Pan Tilt Angle -2448 / -1296", "81 01 06 02 01 01 0F 06 07 00 0F 0A 0F 00 FF"),
+    ("GC 19", "Pan Tilt Angle 2448 / 1296", "81 01 06 02 18 14 00 09 09 00 00 05 01 00 FF"),
+    ("GC 20", "Zoom Position 16384, Speed 7", "81 01 04 47 07 04 00 00 00 FF"),
+    ("GC 21", "Camera Output 5", "81 C2 01 08 05 FF"),
+]
+
+EXPECTED_SETS = {
+    "t3": ("PROTOCOL T3 wire strings", EXPECTED_T3),
+    "gc-macro": ("GC macro wire strings (README Path B)", EXPECTED_GC_MACRO),
+}
+
 
 def hexs(data):
     return " ".join("%02X" % b for b in data)
@@ -482,8 +514,9 @@ def read_capture(path):
     return [dict(zip(Capture.COLUMNS, line.split("\t"))) for line in lines[1:] if line]
 
 
-def summarize(rows):
-    """Counts, anomalies, and the PROTOCOL T3 checklist. Returns (text, result)."""
+def summarize(rows, expect="t3"):
+    """Counts, anomalies, and a checklist of expected wire strings. Returns (text, result)."""
+    title, expected = EXPECTED_SETS[expect]
     rx = [r for r in rows if r.get("dir") == "rx"]
     out = ["%d frame(s) received over %d connection(s)"
            % (len(rx), sum(1 for r in rows if r.get("dir") == "open"))]
@@ -496,9 +529,9 @@ def summarize(rows):
         out.append("  %s  %s  %s %s" % (r["time"], r["hex"], r["name"], r["detail"]))
 
     hexes = [r["hex"] for r in rx]
-    out.append("PROTOCOL T3 wire strings:")
+    out.append(title + ":")
     position, seen_all, in_order = 0, True, True
-    for step, label, want in EXPECTED_T3:
+    for step, label, want in expected:
         if want not in hexes:
             seen_all = False
             mark = "MISSING"
@@ -509,8 +542,8 @@ def summarize(rows):
             in_order = False
             mark = "ok (out of order)"
         out.append("  %-18s %-6s %-32s %s" % (mark, step, label, want))
-    out.append("all %d seen: %s; in PROTOCOL order: %s"
-               % (len(EXPECTED_T3), "yes" if seen_all else "no",
+    out.append("all %d seen: %s; in order: %s"
+               % (len(expected), "yes" if seen_all else "no",
                   "yes" if seen_all and in_order else "no"))
     return "\n".join(out), {"received": len(rx), "odd": len(odd),
                             "seen_all": seen_all, "in_order": seen_all and in_order}
@@ -527,10 +560,12 @@ def main(argv=None):
                          "full: ACK then Completion, as the docs describe")
     ap.add_argument("--captures", default=DEFAULT_CAPTURES, help="where capture TSVs go")
     ap.add_argument("--summarize", metavar="CAPTURE", help="summarize a capture and exit")
+    ap.add_argument("--expect", choices=sorted(EXPECTED_SETS), default="t3",
+                    help="which wire-string checklist --summarize applies")
     args = ap.parse_args(argv)
 
     if args.summarize:
-        print(summarize(read_capture(args.summarize))[0])
+        print(summarize(read_capture(args.summarize), args.expect)[0])
         return 0
 
     os.makedirs(args.captures, exist_ok=True)
