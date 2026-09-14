@@ -54,6 +54,7 @@ described in `ENVIRONMENT.md`.**
 | `tools/gc_catalogue.py` | **What Global Configurator catalogued.** Reads `DriverLookup.dat` (raw NRBF); `--against` compares it with a driver folder. Failing the catalogue-parse gate shows only as absence — this measures it. | 14 |
 | `experiments/skeleton_i20/` | **i20 driver, both forms.** `.pkp` transplant + standalone ControlScript module, held to identical bytes. | 86 + 57 |
 | `experiments/oracle_pairs/` | **Finding 14's pair index and scorecard.** `build_index.py` now reproduces the committed pair set exactly (314 packages, 352 pairs) from `corpus/`; its join previously depended on directory order. | 11 |
+| `experiments/loopback/` | **A processor drives the i20 module at a PC.** A command console on the processor, a VISCA listener playing the camera, and an orchestrator checking every step's frames and reads against the module run locally. Rehearsed end to end offline; not yet deployed (needs the ControlScript Deployment Utility and a certified project). Found two reply-parser bugs before any hardware. | 50 + 19 |
 | `experiments/gcp_harness/` | **Windows-only.** `Load-Package.ps1` asks Extron's own `LoadFromFile`/`BinaryFormatter` about a package; `scratch/` is the verified UI Automation chain that drove GCP. PowerShell because Python cannot load the x86 Extron assemblies without a third-party bridge. | manual |
 
 Experiments live in `experiments/` (NRBF writer, Crestron→ControlScript, missing-Ethernet

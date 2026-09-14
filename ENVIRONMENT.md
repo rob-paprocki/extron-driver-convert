@@ -118,9 +118,10 @@ python -u experiments/skeleton_i20/test_i20_wire.py
 python -u experiments/skeleton_i20/test_i20_cs_wire.py
 python -u experiments/oracle_pairs/test_build_index.py
 python -u experiments/loopback/test_visca_listener.py
+python -u experiments/loopback/test_run_loopback.py
 ```
 
-**576 tests.** `test_pkp_build.py` and `test_pkp_validate.py` walk every sample
+**595 tests.** `test_pkp_build.py` and `test_pkp_validate.py` walk every sample
 package, including a 4.4M-event one — expect roughly 13 and 5 minutes
 respectively, and about 20 minutes for the whole set.
 
