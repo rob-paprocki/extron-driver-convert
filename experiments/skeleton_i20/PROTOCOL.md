@@ -11,7 +11,7 @@
 | 2026-09-10 | `20024` | catalogued, listed as *IV-CAM-I20 v1.2*, assigned to Ethernet Port 1; all **34** commands render with their ranges and enum states | finding 18 §8 |
 | 2026-09-13 | `20024` | installed into a second, separate GC library: catalogued on the first launch, and `DataFile.dat` grew by 5,716 bytes — the same delta as on 09-10 | this page |
 | 2026-09-13 | `20024` | **rebuilt** with two reply-parser fixes (`experiments/loopback/README.md`). Extron's `LoadFromFile` accepts it, and its command surface — script names, display names, attribute bits, parameters, enum states — is identical to the build GC rendered, so only the script and its digest changed. Not yet re-catalogued in GC | this page |
-| 2026-09-14 | `20024` | the rebuilt package (233,969 bytes) replaced the 09-13 build (233,820) in the GC library, with GC closed; the old package, `DataFile.dat` and `DriverLookup.dat` backed up first. Re-catalogues on the next GC start | this page |
+| 2026-09-14 | `20024` | the rebuilt package (233,969 bytes) replaced the 09-13 build (233,820) in the GC library, with GC closed; the old package, `DataFile.dat` and `DriverLookup.dat` backed up first. GC re-catalogued it on the next start: `gc_catalogue.py --has` finds it among 1,880 packages, `DataFile.dat` came out the same size (25,116,011 bytes, as a script-only change predicts) and `DriverLookup.dat` one byte smaller | this page |
 
 **Gates passed:** discovery, catalogue parse, selection, command surface, and
 placing the device in a project. **Gates never tested: Build, Upload, Control.**
