@@ -425,6 +425,12 @@ class DeviceClass:
             out = (out << 4) | (b & 0x0F)
         return out
 
+    def _Signed16(self, value):
+        """Read a 16-bit position the way SetPanTiltAngle writes it (pan & 0xFFFF),
+        so a negative angle reads back as itself. The documentation gives the
+        nibble layout but not the sign convention; the camera's is unmeasured."""
+        return value - 0x10000 if value & 0x8000 else value
+
     def _PresetOpcode(self, preset):
         """Recall a reserved preset. The i20 exposes its auto-switching and
         framing features this way rather than through dedicated opcodes."""
@@ -592,7 +598,8 @@ class DeviceClass:
         if not res:
             return None
         try:
-            return (self._FromNibbles(res[2:6]), self._FromNibbles(res[6:10]))
+            return (self._Signed16(self._FromNibbles(res[2:6])),
+                    self._Signed16(self._FromNibbles(res[6:10])))
         except (KeyError, IndexError):
             self.Error(['%s: Invalid/unexpected response' % command])
             return None
@@ -736,10 +743,11 @@ class DeviceClass:
         res = self.__UpdateHelper('CameraOutput', cmdString, value, qualifier)
         if res:
             try:
-                # The documentation says "see below" for this reply and then
-                # prints no layout. Read on the shape the other c2 inquiries
-                # use (y0 50 <payload> FF). Unverified.
-                value = res[2] & 0x0F
+                # VISCA-Intelligent-Switching-Commands.md, Get Output:
+                #   y0 50 01 0Z FF  switching on,   y0 50 00 0Z FF  switching off
+                # The camera is the second payload byte. Reading the first gave
+                # the switching flag instead (found by experiments/loopback).
+                value = res[3] & 0x0F
                 self.WriteStatus('CameraOutput', value, qualifier)
             except (KeyError, IndexError):
                 self.Error(['CameraOutput: Invalid/unexpected response'])

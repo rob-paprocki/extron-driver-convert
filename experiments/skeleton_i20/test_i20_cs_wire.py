@@ -345,6 +345,31 @@ def test_undocumented_reply_is_an_error():
                                      d2.ReadStatus("TrackingFraming")))
 
 
+def test_position_and_output_feedback():
+    print("\n[10] position and camera-output replies read back as sent")
+    # Pan/tilt are read the way SetPanTiltAngle writes them (pan & 0xFFFF), so a
+    # negative angle must come back negative, not as 63088.
+    for reply, pan, tilt in ((b"\x90\x50\x0F\x06\x07\x00\x0F\x0A\x0F\x00\xFF", -2448, -1296),
+                             (b"\x90\x50\x00\x09\x09\x00\x00\x05\x01\x00\xFF", 2448, 1296)):
+        d = make(unidirectional="False")
+        d._canned = reply
+        d.Update("PanAngleStatus")
+        d.Update("TiltAngleStatus")
+        got = (d.ReadStatus("PanAngleStatus"), d.ReadStatus("TiltAngleStatus"))
+        check("%s -> pan %d, tilt %d" % (hexs(reply), pan, tilt), got == (pan, tilt),
+              "got %r" % (got,))
+
+    # Get Output, VISCA-Intelligent-Switching-Commands.md: y0 50 0S 0Z FF,
+    # S = switching on/off, Z = camera.
+    for reply, camera in ((b"\x90\x50\x01\x03\xFF", 3), (b"\x90\x50\x00\x05\xFF", 5)):
+        d = make(unidirectional="False")
+        d._canned = reply
+        d.Update("CameraOutput")
+        got = d.ReadStatus("CameraOutput")
+        check("%s -> camera %d, not the switching flag" % (hexs(reply), camera),
+              got == camera, "got %r" % (got,))
+
+
 def test_python35_compatible():
     print("\n[8] the module targets Python 3.5 (non-xi processors)")
     check("no f-strings", not re.search(r"""\bf['"]""", SOURCE))
@@ -386,6 +411,7 @@ def main():
                test_public_dispatch,
                test_subscribe_status,
                test_undocumented_reply_is_an_error,
+               test_position_and_output_feedback,
                test_python35_compatible,
                test_emitted_file_is_current):
         fn()

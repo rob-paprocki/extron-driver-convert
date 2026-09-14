@@ -42,7 +42,9 @@ thing entirely, and unaffected by the above.
 - **`extron-driver3/` contains one package we built:** `1bynd_19_20024_v1_0_0.pkp`,
   installed there for the finding 18 GCP test. Everything else is Extron's. Any
   future "externalize the corpus" effort must not silently treat it as vendor
-  material.
+  material. It is the build GC rendered; `experiments/skeleton_i20/out/` has
+  since been rebuilt with two reply-parser fixes, with an identical command
+  surface (`experiments/skeleton_i20/PROTOCOL.md`).
 - **The catalogue files are a point-in-time capture.** They already index
   `1bynd_19_20024`. Both are raw NRBF and parse with `tools/pkp_dump.py` (see
   `tools/gc_catalogue.py`).

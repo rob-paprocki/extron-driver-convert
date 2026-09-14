@@ -10,6 +10,7 @@
 | 2026-09-09 | `20022`, `20023` | load and select in GCP — but render only the donor's **15** commands | finding 18 §1 |
 | 2026-09-10 | `20024` | catalogued, listed as *IV-CAM-I20 v1.2*, assigned to Ethernet Port 1; all **34** commands render with their ranges and enum states | finding 18 §8 |
 | 2026-09-13 | `20024` | installed into a second, separate GC library: catalogued on the first launch, and `DataFile.dat` grew by 5,716 bytes — the same delta as on 09-10 | this page |
+| 2026-09-13 | `20024` | **rebuilt** with two reply-parser fixes (`experiments/loopback/README.md`). Extron's `LoadFromFile` accepts it, and its command surface — script names, display names, attribute bits, parameters, enum states — is identical to the build GC rendered, so only the script and its digest changed. Not yet re-catalogued in GC | this page |
 
 **Gates passed:** discovery, catalogue parse, selection, command surface, and
 placing the device in a project. **Gates never tested: Build, Upload, Control.**
@@ -29,7 +30,7 @@ thing relative to the one above it, so they can still isolate a regression.
 |---|---|---|
 | `1bynd_19_20020_v1_0_0.pkp` | nothing but the filename — the same 321,697-byte NRBF stream as Extron's driver (the gzip wrapper is re-compressed, so the file's own hash differs) | **discovery**: does GC index a file whose name disagrees with its internal id? (yes) |
 | `1bynd_19_20021_v1_0_0.pkp` | model strings → `IV-CAM-I12` / `IV-CAM-I20` | **metadata**: does a renamed model survive the catalogue rebuild? (yes) |
-| `1bynd_19_20022_v1_0_0.pkp` | embedded driver → the i20 command set (37,201 → 70,146 bytes), digest refreshed | **script substitution and integrity** |
+| `1bynd_19_20022_v1_0_0.pkp` | embedded driver → the i20 command set (37,201 → 70,574 bytes), digest refreshed | **script substitution and integrity** |
 | `1bynd_19_20023_v1_0_0.pkp` | both of the above | **selection** — lists as *IV-CAM-I12 v1.1* |
 | `1bynd_19_20024_v1_0_0.pkp` | 19 command assets cloned from the donor's own and added to the graph (15 → 34); model version 1.2 | **command surface — the deliverable** |
 
@@ -220,10 +221,12 @@ has `Load-Package.ps1`.
 - **Status feedback is better founded than it was, but still unmeasured.**
   The tracking poll parses a reply layout Crestron *documents*
   (`y0 50 02 FF` active / `y0 50 03 FF` paused) rather than one we assumed; an
-  undocumented payload raises an error instead of guessing. Two replies are
-  still inferred rather than documented — `CameraOutput` (the docs say "see
-  below" and then print nothing) and the `ZoomPosition` / pan-tilt nibble
-  layouts. Expect those to be where polling breaks first.
+  undocumented payload raises an error instead of guessing. `CameraOutput`'s
+  reply turned out to be documented, on the Intelligent Switching page, as
+  `y0 50 0S 0Z FF`; the parser read the wrong byte until 2026-09-13
+  (`experiments/loopback/README.md`). Still inferred: the `ZoomPosition` and
+  pan-tilt nibble layouts, and whether negative pan/tilt positions come back as
+  two's complement. Expect those to be where polling breaks first.
 - **Rendering in the editor is not a working driver.** Finding 18 took 20024 as
   far as GC's property editor with every command drawn correctly. That proves
   nothing about Build, Upload or Control. Please don't stop at "it showed up".

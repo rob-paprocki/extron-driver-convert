@@ -70,7 +70,7 @@ Command` line in the program log.
 | command | value | qualifier | `Update()` |
 |---|---|---|---|
 | `Power` | `On`, `Off` | — | yes |
-| `Preset` | 0–255, as an `int` (`'1'` raises) | *required* `{'Action': 'Reset'/'Save'/'Recall'}` | — |
+| `Preset` | 0–254, as an `int` (`'1'` raises). The module accepts 255, but that value is VISCA's `FF` terminator, so the camera sees a truncated frame | *required* `{'Action': 'Reset'/'Save'/'Recall'}` | — |
 | `PanTilt` | `Up`, `Down`, `Left`, `Right`, `Up Left`, `Up Right`, `Down Left`, `Down Right`, `Stop`, `Home`, `Reset` | *required* `{'Pan Speed': 1–24, 'Tilt Speed': 1–20}` | — |
 | **`PanTiltAngle`** | **ignored — pass `None`** | ***required* `{'Pan Speed': 1–24, 'Tilt Speed': 1–20, 'Pan': int, 'Tilt': int}`; a missing key is discarded** | **— (use the two below)** |
 | **`PanAngleStatus`, `TiltAngleStatus`** | **feedback only** | **—** | **yes — both send one shared inquiry** |
@@ -132,7 +132,8 @@ Whichever path, these three answers are worth more than everything else:
    `Update('TrackingFraming')`. A poll that follows the camera is a pass; one
    that echoes the last `Set` is not evidence (see the `ReadStatus()` note under
    *Every command*). Polling is the weakest part of this driver: the request bytes are
-   documented, and the reply handling for `CameraOutput` is not.
+   documented, but every reply layout the parsers expect comes from
+   documentation, never from a camera.
 3. **Preset 83.** Start group tracking (`GroupTracking`/`Enable`), then send
    `PresenterTracking`/`Enable`. Does group tracking *stop*, or does presenter
    framing *engage*? Crestron's driver and Crestron's docs disagree, and this

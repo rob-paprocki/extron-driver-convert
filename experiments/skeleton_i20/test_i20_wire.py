@@ -445,6 +445,34 @@ def test_intelligent_switching():
               "got %r" % got)
 
 
+def test_position_and_output_feedback():
+    print("\n[13] position and camera-output replies read back as sent")
+    # Pan/tilt are read the way _cmd_SetPanTiltAngle writes them (pan & 0xFFFF),
+    # so a negative angle must come back negative, not as 63088.
+    for reply, pan, tilt in ((b"\x90\x50\x0F\x06\x07\x00\x0F\x0A\x0F\x00\xFF", -2448, -1296),
+                             (b"\x90\x50\x00\x09\x09\x00\x00\x05\x01\x00\xFF", 2448, 1296)):
+        d = make(unidirectional="False")
+        d.WritePower("On", None, "Live")
+        d._canned = reply
+        d._cmd_UpdatePanAngleStatus(None, None)
+        d._cmd_UpdateTiltAngleStatus(None, None)
+        got = (d.ReadStatusHelper("PanAngleStatus", None, "Live"),
+               d.ReadStatusHelper("TiltAngleStatus", None, "Live"))
+        check("%s -> pan %d, tilt %d" % (hexs(reply), pan, tilt), got == (pan, tilt),
+              "got %r, errors=%r" % (got, d.errors))
+
+    # Get Output, VISCA-Intelligent-Switching-Commands.md: y0 50 0S 0Z FF,
+    # S = switching on/off, Z = camera.
+    for reply, camera in ((b"\x90\x50\x01\x03\xFF", 3), (b"\x90\x50\x00\x05\xFF", 5)):
+        d = make(unidirectional="False")
+        d.WritePower("On", None, "Live")
+        d._canned = reply
+        d._cmd_UpdateCameraOutput(None, None)
+        got = d.ReadStatusHelper("CameraOutput", None, "Live")
+        check("%s -> camera %d, not the switching flag" % (hexs(reply), camera),
+              got == camera, "got %r, errors=%r" % (got, d.errors))
+
+
 def test_python35_compatible():
     print("\n[7] the emitted driver targets Python 3.5 (non-xi processors)")
     builder = pb.PackageBuilder(build_i20.DONOR)
@@ -495,6 +523,7 @@ def main():
                test_tracking_feedback,
                test_reserved_presets_against_documentation,
                test_intelligent_switching,
+               test_position_and_output_feedback,
                test_python35_compatible,
                test_package_reparses):
         fn()

@@ -101,8 +101,8 @@ not a mechanical rewrite, so they are reported as residuals rather than guessed.
    it, it assigns to an Ethernet port, and the editor renders every command with the exact
    decimal ranges and enum states written into the graph — verified by driving GCP over UI
    Automation. What remains is **Build, upload and control**: nothing has run on a processor
-   and no socket has been opened to a camera. GCP's licence counter has read "Expires in 30
-   Days" on four separate days, so no expiry date is known (`ROADMAP.md` D7).
+   and no socket has been opened to a camera. GCP's licence is a rolling 30 days, renewed
+   whenever it starts online (`ROADMAP.md` D7).
 5. **A rendered driver is not a working driver.** Finding 18 got a synthesised package all
    the way into a GCP project with its full command surface drawn correctly. Build, upload
    and control remain unproven, and no i20 has ever been reachable from this project. Same
