@@ -42,7 +42,10 @@ import pkp_asset as pa           # noqa: E402
 
 
 IN_PKG = os.path.join(_HERE, "out", "1bynd_19_20023_v1_0_0.pkp")
-OUT_PKG = os.path.join(_HERE, "out", "1bynd_19_20024_v1_0_0.pkp")
+# 20025 / v1.3 is 20024 with feedback GC can bind. A new file name and version,
+# because a GC project that already holds 20024 v1.2 keeps using that build.
+OUT_PKG = os.path.join(_HERE, "out", "1bynd_19_20025_v1_0_0.pkp")
+MODEL_MINOR = 3
 
 # Attribute bitfields lifted from donor commands of the same character, rather
 # than invented: 51 is a Set+Update command with feedback (Backlight, White
@@ -66,6 +69,24 @@ COND_FOR_ATTR = {ATTR_SET_UPDATE: 3, 59: 3, ATTR_UPDATE_ONLY: 1}
 # cloned from a Value keeps 15, and GC then offers no way to choose it.
 PARAM_VALUE = 15
 PARAM_QUALIFIER = 13
+
+
+def _make_feedback(g, param_id, attrs):
+    """Let GC offer a decimal Value as a status, the way Extron's own do.
+
+    Two members gate it. `_conditionTypes` must be nonzero, and
+    `_validOperators` must carry the condition operators: GC lists a status
+    with `_validOperators` 1 but offers no comparison for it, so a label or
+    monitor still has nothing to bind (2026-09-14, on 20024). Extron's values
+    are the condition operators alone on an Update-only command
+    (pana_19_5702 PanPositionStatus: 282001408) and action | condition on a
+    Set+Update one (ZoomPosition: 7 | 282001408 = 282001415).
+    """
+    g.set_enum_member(param_id, "ParamAssetBase+_conditionTypes", COND_FOR_ATTR[attrs])
+    cond_ops = g.enum_member(param_id, "ParamAssetBase+_conditionOperators")
+    act_ops = g.enum_member(param_id, "ParamAssetBase+_actionOperators")
+    valid = cond_ops if attrs == ATTR_UPDATE_ONLY else (cond_ops | act_ops)
+    g.set_enum_member(param_id, "ParamAssetBase+_validOperators", valid)
 
 
 def simple(donor, name, script, states, attrs, description=None):
@@ -154,7 +175,7 @@ def build():
     # driver name, same two model strings, same version - so Driver Manager
     # would list two entries a person cannot tell apart. Bump the minor so
     # the one with the full command surface is obvious in the UI.
-    _bump_model_version(g, minor=2)
+    _bump_model_version(g, minor=MODEL_MINOR)
 
     after = len(g.commands())
     print("commands in the graph after : %d  (+%d)" % (after, after - before))
@@ -274,6 +295,13 @@ def verify(g, src):
             if pn == "Value" and not cond:
                 problems.append("%s: Value has _conditionTypes 0, so GC offers "
                                 "no status to bind (want %d)" % (sn, want))
+            if pn == "Value":
+                cond_ops = g.enum_member(k, "ParamAssetBase+_conditionOperators")
+                valid = g.enum_member(k, "ParamAssetBase+_validOperators")
+                if valid & cond_ops != cond_ops:
+                    problems.append("%s: Value's _validOperators %d lacks its "
+                                    "condition operators %d, so GC offers no "
+                                    "comparison" % (sn, valid, cond_ops))
             if pn != "Value" and pattr != PARAM_QUALIFIER:
                 problems.append("%s: qualifier %s has _attributes %d, not %d"
                                 % (sn, pn, pattr, PARAM_QUALIFIER))
@@ -320,7 +348,7 @@ def _decimal_command(g, name, script, lo, hi, attrs, desc):
     value = [k for k in g.children(cid) if g.name_of(k) == "Value"][0]
     g.set_range(value, lo, hi)
     if attrs in COND_FOR_ATTR:
-        g.set_enum_member(value, "ParamAssetBase+_conditionTypes", COND_FOR_ATTR[attrs])
+        _make_feedback(g, value, attrs)
     print("   + %-24s %s  (%s-%s)" % (script, name, lo, hi))
 
 
@@ -343,7 +371,7 @@ def _zoom_position(g):
     value = _decimal_value_from_preset(g)
     g.attach(cid, value)
     g.set_range(value, 0, 16384)
-    g.set_enum_member(value, "ParamAssetBase+_conditionTypes", COND_FOR_ATTR[ATTR_SET_UPDATE])
+    _make_feedback(g, value, ATTR_SET_UPDATE)
     print("   + %-24s Zoom Position  (0-16384, composed)" % "ZoomPosition")
 
 

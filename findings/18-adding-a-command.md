@@ -251,7 +251,10 @@ Two techniques worth keeping, both of which turn a trip into seconds:
   so GC rendered the new statuses but offered none of them to a label's Text
   Feedback, and Camera Connection Status offered no camera. Extron's feedback
   values carry 3 (Set+Update) or 1 (Update-only); qualifiers carry
-  `_attributes` 13. See `experiments/skeleton_i20/PROTOCOL.md`, 2026-09-14.
+  `_attributes` 13. That was not enough: GC still offered no comparison until
+  `_validOperators` carried the condition operators too (Extron: the condition
+  operators on an Update-only Value, action | condition on a Set+Update one).
+  See `experiments/skeleton_i20/PROTOCOL.md`, 2026-09-14, and `1bynd_19_20025`.
 - **One package family.** Every clone here is within a single 1 Beyond camera
   package. Cross-package cloning, where class metadata would have to be
   imported too, is untried.
