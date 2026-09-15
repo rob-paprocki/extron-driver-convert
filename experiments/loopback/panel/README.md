@@ -23,6 +23,8 @@ where `retarget.json` is `{"edits":[{"op":"retarget","model":"TLP725M","scale":t
 3. Add the TLP Pro 725M under the controller.
 4. **User Interfaces → Button Actions**, click **Import layout**, and pick
    `i20-loopback.gdl`.
+5. In the page list, pick **i20 Status**. The file also holds the template's own
+   pages. Ignore them.
 
 ## 2. Wire up the buttons
 
