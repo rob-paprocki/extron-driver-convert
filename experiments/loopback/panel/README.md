@@ -63,6 +63,12 @@ Select the label, open **Text Feedback**, and drag the status onto it.
 Only the big `--` labels and the `Cam` labels get feedback. The small grey ones
 are captions.
 
+These statuses need the 20024 build from 2026-09-14 or later. An older build
+shows them in GC but offers nothing to bind (`../../skeleton_i20/PROTOCOL.md`).
+If a project made before the update still offers nothing, remove the i20 device
+and add it again. Zoom Position may also ask for a Speed; any value will do,
+because the status ignores it.
+
 ## 4. Run it
 
 1. On the PC, start the camera:
