@@ -245,6 +245,13 @@ Two techniques worth keeping, both of which turn a trip into seconds:
   parameters, which is the natural reading but not a measured one.
 - **Attribute bitfields were copied, not decoded.** 3 / 51 / 35 were taken
   from donor commands of similar character. The individual bits are not known.
+  **Correction, 2026-09-14:** the command's bits are not the whole contract.
+  Each parameter carries its own `ParamAssetBase+_conditionTypes` and
+  `_attributes`, and cloning a decimal from Preset's Value copied 0 and 15,
+  so GC rendered the new statuses but offered none of them to a label's Text
+  Feedback, and Camera Connection Status offered no camera. Extron's feedback
+  values carry 3 (Set+Update) or 1 (Update-only); qualifiers carry
+  `_attributes` 13. See `experiments/skeleton_i20/PROTOCOL.md`, 2026-09-14.
 - **One package family.** Every clone here is within a single 1 Beyond camera
   package. Cross-package cloning, where class metadata would have to be
   imported too, is untried.

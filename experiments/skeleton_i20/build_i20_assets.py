@@ -52,6 +52,21 @@ ATTR_SET_UPDATE = 51
 ATTR_SET_ONLY = 3
 ATTR_UPDATE_ONLY = 35
 
+# A command's feedback flag is not enough for GC to offer its value as a
+# status: the Value parameter's own ParamAssetBase+_conditionTypes must be
+# nonzero too. Extron's feedback values carry 3 on Set+Update commands and 1
+# on Update-only ones (pana_19_5702 ZoomPosition, PanPositionStatus;
+# 7th_29_17052 PresetResult). Preset's Value, the donor for every decimal
+# here, carries 0 because it is only ever sent, so its clones could be
+# pressed but never shown on a label until this was set.
+COND_FOR_ATTR = {ATTR_SET_UPDATE: 3, 59: 3, ATTR_UPDATE_ONLY: 1}
+
+# ParamAssetBase+_attributes: 15 on a command's Value, 13 on a qualifier
+# (Extron's own Speed and 7th_29_17052 PresetResult's Preset). A qualifier
+# cloned from a Value keeps 15, and GC then offers no way to choose it.
+PARAM_VALUE = 15
+PARAM_QUALIFIER = 13
+
 
 def simple(donor, name, script, states, attrs, description=None):
     """A command whose only parameter is the donor's enum Value, restated."""
@@ -246,6 +261,23 @@ def verify(g, src):
             problems.append("%s: asset offers %s, script accepts %s"
                             % (sn, extra, accepted))
 
+    # Feedback GC can bind: a command flagged for feedback needs a Value that
+    # is condition-capable, and every other parameter must be a qualifier.
+    for sn, cid in sorted(assets.items()):
+        want = COND_FOR_ATTR.get(g.enum_member(cid, "CommandAssetBase+_attributes"))
+        if want is None:
+            continue
+        for k in g.children(cid):
+            pn = g.name_of(k)
+            cond = g.enum_member(k, "ParamAssetBase+_conditionTypes")
+            pattr = g.enum_member(k, "ParamAssetBase+_attributes")
+            if pn == "Value" and not cond:
+                problems.append("%s: Value has _conditionTypes 0, so GC offers "
+                                "no status to bind (want %d)" % (sn, want))
+            if pn != "Value" and pattr != PARAM_QUALIFIER:
+                problems.append("%s: qualifier %s has _attributes %d, not %d"
+                                % (sn, pn, pattr, PARAM_QUALIFIER))
+
     if problems:
         for p in problems:
             print("   VERIFY FAIL  %s" % p)
@@ -287,6 +319,8 @@ def _decimal_command(g, name, script, lo, hi, attrs, desc):
             g.detach(cid, k)
     value = [k for k in g.children(cid) if g.name_of(k) == "Value"][0]
     g.set_range(value, lo, hi)
+    if attrs in COND_FOR_ATTR:
+        g.set_enum_member(value, "ParamAssetBase+_conditionTypes", COND_FOR_ATTR[attrs])
     print("   + %-24s %s  (%s-%s)" % (script, name, lo, hi))
 
 
@@ -309,6 +343,7 @@ def _zoom_position(g):
     value = _decimal_value_from_preset(g)
     g.attach(cid, value)
     g.set_range(value, 0, 16384)
+    g.set_enum_member(value, "ParamAssetBase+_conditionTypes", COND_FOR_ATTR[ATTR_SET_UPDATE])
     print("   + %-24s Zoom Position  (0-16384, composed)" % "ZoomPosition")
 
 
@@ -385,6 +420,7 @@ def _camera_connection_status(g):
     cam = _decimal_value_from_preset(g, name="Camera")
     g.attach(cid, cam)
     g.set_range(cam, 2, 5)
+    g.set_enum_member(cam, "ParamAssetBase+_attributes", PARAM_QUALIFIER)
     print("   + %-24s Camera Connection Status  (composed)" % "CameraConnectionStatus")
 
 

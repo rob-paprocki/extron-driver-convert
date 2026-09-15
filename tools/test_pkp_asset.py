@@ -330,6 +330,29 @@ def test_output_is_a_loadable_package():
           "%s (%s)" % (res.name, res.code))
 
 
+def test_enum_members():
+    print("\n[12] inline enum members read, and write on the copy only")
+    b = pb.PackageBuilder(camera_donor())
+    g = pa.CommandGraph(b)
+    cmds = g.commands()
+    cond, attr = "ParamAssetBase+_conditionTypes", "ParamAssetBase+_attributes"
+    value = [k for k in g.children(cmds["Preset"]) if g.name_of(k) == "Value"][0]
+    speed = [k for k in g.children(cmds["Zoom"]) if g.name_of(k) == "Speed"][0]
+    # Preset's Value is only ever sent, so GC offers it in no condition; a
+    # clone that should be feedback has to be given a nonzero value.
+    check("Preset's Value is not condition-capable", g.enum_member(value, cond) == 0,
+          str(g.enum_member(value, cond)))
+    check("a Value carries attributes 15 and a qualifier 13",
+          (g.enum_member(value, attr), g.enum_member(speed, attr)) == (15, 13),
+          str((g.enum_member(value, attr), g.enum_member(speed, attr))))
+    check("command attributes read through the same path",
+          g.enum_member(cmds["Backlight"], "CommandAssetBase+_attributes") == 51)
+    copy, _ = g.clone_asset(value, name="Value")
+    g.set_enum_member(copy, cond, 3)
+    check("the copy reads back 3", g.enum_member(copy, cond) == 3)
+    check("the donor still reads 0", g.enum_member(value, cond) == 0)
+
+
 def main():
     print("test_pkp_asset.py - offline gate for object-graph synthesis")
     for fn in (test_grammar_covers_every_package,
@@ -342,7 +365,8 @@ def main():
                test_no_new_negative_ids,
                test_guards,
                test_shared_description_not_clobbered,
-               test_output_is_a_loadable_package):
+               test_output_is_a_loadable_package,
+               test_enum_members):
         fn()
     total = len(PASS) + len(FAIL)
     print("\n%d passed, %d failed, %d total" % (len(PASS), len(FAIL), total))
