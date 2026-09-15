@@ -244,7 +244,7 @@ Two techniques worth keeping, both of which turn a trip into seconds:
   `{'Pan': Decimal, 'Tilt': Decimal}`; it is modelled as two decimal
   parameters, which is the natural reading but not a measured one.
 - **Attribute bitfields were copied, not decoded.** 3 / 51 / 35 were taken
-  from donor commands of similar character. The individual bits are not known.
+  from donor commands of similar character. The bits are now decoded from `Extron.Configuration.Contracts` (2026-09-15): 1 ConfigurationVisible, 2 RuntimeVisible, 4 Alias, 8 RequiredPollingCommand, 16 EmulatedStatus, 32 LiveStatus, 64 WriteProtected.
   **Correction, 2026-09-14:** the command's bits are not the whole contract.
   Each parameter carries its own `ParamAssetBase+_conditionTypes` and
   `_attributes`, and cloning a decimal from Preset's Value copied 0 and 15,
@@ -254,7 +254,7 @@ Two techniques worth keeping, both of which turn a trip into seconds:
   `_attributes` 13. That was not enough: GC still offered no comparison until
   `_validOperators` carried the condition operators too (Extron: the condition
   operators on an Update-only Value, action | condition on a Set+Update one).
-  See `experiments/skeleton_i20/PROTOCOL.md`, 2026-09-14, and `1bynd_19_20025`.
+  Even then GC never polled them: each command's own `PollingInterval` parameter must carry `ParamAttributeFlags.Enabled`, and clones of never-polled commands did not (`HasPollingValue`, 2026-09-15). See `experiments/skeleton_i20/PROTOCOL.md` and `1bynd_19_20026`.
 - **One package family.** Every clone here is within a single 1 Beyond camera
   package. Cross-package cloning, where class metadata would have to be
   imported too, is untried.

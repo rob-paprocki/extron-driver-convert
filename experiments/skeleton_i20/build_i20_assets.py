@@ -42,10 +42,18 @@ import pkp_asset as pa           # noqa: E402
 
 
 IN_PKG = os.path.join(_HERE, "out", "1bynd_19_20023_v1_0_0.pkp")
-# 20025 / v1.3 is 20024 with feedback GC can bind. A new file name and version,
-# because a GC project that already holds 20024 v1.2 keeps using that build.
-OUT_PKG = os.path.join(_HERE, "out", "1bynd_19_20025_v1_0_0.pkp")
-MODEL_MINOR = 3
+# Every rebuild GC has seen gets a new file name and model version, because a
+# GC project that already holds an older build keeps using it. 20025 / v1.3
+# made feedback bindable; 20026 / v1.4 makes GC poll it.
+OUT_PKG = os.path.join(_HERE, "out", "1bynd_19_20026_v1_0_0.pkp")
+MODEL_MINOR = 4
+
+# DriverAttributeEnum bit for a live status (Extron.Configuration.Contracts).
+ATTR_LIVE_STATUS = 32
+# ParamAttributeFlags.Enabled.
+PARAM_ENABLED = 1
+# Seconds, as on every command GC polls in the donor and in pana_19_5702.
+POLL_SECONDS = 3
 
 # Attribute bitfields lifted from donor commands of the same character, rather
 # than invented: 51 is a Set+Update command with feedback (Backlight, White
@@ -69,6 +77,33 @@ COND_FOR_ATTR = {ATTR_SET_UPDATE: 3, 59: 3, ATTR_UPDATE_ONLY: 1}
 # cloned from a Value keeps 15, and GC then offers no way to choose it.
 PARAM_VALUE = 15
 PARAM_QUALIFIER = 13
+
+
+def _polling_param(g, command_id):
+    return pb.ref_id(g.objects[command_id]["members"]["PollingInterval"])
+
+
+def _enable_polling(g, command_id, seconds=POLL_SECONDS):
+    """Make GC poll a live status.
+
+    GC's compiler polls a command only if CommandAssetExtensions.HasPollingValue
+    holds: its PollingInterval parameter exists, carries ParamAttributeFlags
+    .Enabled, and has a value (Extron.Configuration.Core, read with ildasm on
+    2026-09-15). Preset, Zoom and ConnectionStatus are never polled, so every
+    status cloned from them had Enabled clear (attributes 12) and the processor
+    never asked for it. Extron's polled statuses carry 13 and 3 seconds.
+    """
+    pid = _polling_param(g, command_id)
+    attr = g.enum_member(pid, "ParamAssetBase+_attributes")
+    g.set_enum_member(pid, "ParamAssetBase+_attributes", attr | PARAM_ENABLED)
+    slots = g.walker.member_slots(pid)
+    for member in ("ParamAssetBase+_value", "ParamAssetBase+_defaultValue"):
+        ev = g.b.trace[slots[member]]
+        if ev["kind"] != "MemberPrimitiveTyped":
+            raise SystemExit("%s of polling interval %d is %s, not a decimal"
+                             % (member, pid, ev["kind"]))
+        ev["value"] = str(seconds)
+    g._reparse()
 
 
 def _make_feedback(g, param_id, attrs):
@@ -175,6 +210,12 @@ def build():
     # driver name, same two model strings, same version - so Driver Manager
     # would list two entries a person cannot tell apart. Bump the minor so
     # the one with the full command surface is obvious in the UI.
+    # Live statuses whose donor was never polled.
+    for sn in ("ZoomPosition", "CameraOutput", "CameraConnectionStatus",
+               "PanAngleStatus", "TiltAngleStatus"):
+        _enable_polling(g, g.commands()[sn])
+        print("   polling %-24s every %ds" % (sn, POLL_SECONDS))
+
     _bump_model_version(g, minor=MODEL_MINOR)
 
     after = len(g.commands())
@@ -281,6 +322,20 @@ def verify(g, src):
         if extra and sn not in ("Power",):
             problems.append("%s: asset offers %s, script accepts %s"
                             % (sn, extra, accepted))
+
+    # Feedback GC polls: HasPollingValue must hold for every live status. The
+    # donor's own ConnectionStatus is answered by the framework, not polled.
+    for sn, cid in sorted(assets.items()):
+        if sn == "ConnectionStatus":
+            continue
+        if not g.enum_member(cid, "CommandAssetBase+_attributes") & ATTR_LIVE_STATUS:
+            continue
+        pid = _polling_param(g, cid)
+        if not g.enum_member(pid, "ParamAssetBase+_attributes") & PARAM_ENABLED:
+            problems.append("%s: a live status whose PollingInterval is not "
+                            "Enabled, so GC never polls it" % sn)
+        if pb.deref(g.objects, g.objects[pid]["members"]["ParamAssetBase+_value"]) is None:
+            problems.append("%s: PollingInterval has no value" % sn)
 
     # Feedback GC can bind: a command flagged for feedback needs a Value that
     # is condition-capable, and every other parameter must be a qualifier.

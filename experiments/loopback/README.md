@@ -62,13 +62,13 @@ monitor"*, and a monitor fires *"when all of these conditions are met"* and
 *"re-arms automatically"* when they stop being true. So one monitor can start
 the whole sequence the moment the driver connects to the PC.
 
-1. **Driver.** Install `experiments/skeleton_i20/out/1bynd_19_20025_v1_0_0.pkp`
+1. **Driver.** Install `experiments/skeleton_i20/out/1bynd_19_20026_v1_0_0.pkp`
    into GC's driver library, then restart GC so it catalogues it
    (`experiments/skeleton_i20/PROTOCOL.md`, *Install 20024*, with the new name).
-   20025 is 20024 with feedback GC can bind.
+   20026 is 20024 with feedback GC can bind and polls.
 2. **Project.** In a new Pro project:
    - add the processor as the controller, by its address and web credentials;
-   - on one of its Ethernet ports add *1 Beyond / IV-CAM-I20 v1.3*, addressed to
+   - on one of its Ethernet ports add *1 Beyond / IV-CAM-I20 v1.4*, addressed to
      the PC. The package pins TCP 5500.
 3. **Macro** `i20 T3`, from the device's commands, in this order:
 
