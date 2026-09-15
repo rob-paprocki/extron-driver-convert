@@ -66,7 +66,7 @@ are captions.
 These statuses need **1bynd_19_20026, IV-CAM-I20 v1.4**. The v1.2 driver
 (20024) lists them but offers nothing to bind (`../../skeleton_i20/PROTOCOL.md`,
 2026-09-14). In a project that already has v1.2, remove that device and add
-v1.3. Zoom Position may also ask for a Speed; any value will do, because the
+v1.4. Zoom Position may also ask for a Speed; any value will do, because the
 status ignores it.
 
 ## 4. Run it
