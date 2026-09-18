@@ -129,10 +129,10 @@ respectively, and about 20 minutes for the whole set.
 
 ```
 <PS32> -ExecutionPolicy Bypass -File experiments/gcp_harness/Load-Package.ps1
-    -Path experiments/skeleton_i20/out/1bynd_19_20026_v1_0_0.pkp -Commands
+    -Path experiments/skeleton_i20/out/1bynd_19_20027_v1_0_0.pkp -Commands
 ```
 
-**34 commands on each of `IV-CAM-I12` and `IV-CAM-I20`, exit 0** means the
+**33 commands on each of `IV-CAM-I12` and `IV-CAM-I20`, exit 0** means the
 workstation can read what this project builds.
 
 ## Troubleshooting

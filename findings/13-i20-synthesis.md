@@ -253,6 +253,14 @@ does not. Both readings emit the same byte, so the driver is correct either way
 Not resolved here, and deliberately not guessed. `PROTOCOL.md` section T3b is a
 three-step sequence that settles it on hardware.
 
+**Update, 2026-09-18 (`20027`):** the two commands are now one, `TrackingMode`,
+valued `Group` (0x52) and `Presenter` (0x53) — because they are one setting on
+the camera, and as two Enable-only commands neither could be switched off. That
+does **not** resolve the disagreement: the value names were chosen as the
+reading both sources support, since pausing group tracking and engaging
+presenter tracking describe the same resulting frame. T3b still settles which
+label is right.
+
 ## 8. The status-feedback caveat was a real defect
 
 Finding 13's first draft said status feedback was "provisional". It was worse

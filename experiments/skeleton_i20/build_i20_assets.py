@@ -44,12 +44,16 @@ import pkp_asset as pa           # noqa: E402
 IN_PKG = os.path.join(_HERE, "out", "1bynd_19_20023_v1_0_0.pkp")
 # Every rebuild GC has seen gets a new file name and model version, because a
 # GC project that already holds an older build keeps using it. 20025 / v1.3
-# made feedback bindable; 20026 / v1.4 makes GC poll it.
-OUT_PKG = os.path.join(_HERE, "out", "1bynd_19_20026_v1_0_0.pkp")
-MODEL_MINOR = 4
+# made feedback bindable; 20026 / v1.4 makes GC poll it; 20027 / v1.5 tidies
+# the command surface (one Tracking Mode instead of two enable-only commands,
+# Camera Output 1-5 rather than 0-5).
+OUT_PKG = os.path.join(_HERE, "out", "1bynd_19_20027_v1_0_0.pkp")
+MODEL_MINOR = 5
 
-# DriverAttributeEnum bit for a live status (Extron.Configuration.Contracts).
+# DriverAttributeEnum bits for a live and an emulated status
+# (Extron.Configuration.Contracts).
 ATTR_LIVE_STATUS = 32
+ATTR_EMULATED_STATUS = 16
 # ParamAttributeFlags.Enabled.
 PARAM_ENABLED = 1
 # Seconds, as on every command GC polls in the donor and in pana_19_5702.
@@ -62,6 +66,12 @@ POLL_SECONDS = 3
 ATTR_SET_UPDATE = 51
 ATTR_SET_ONLY = 3
 ATTR_UPDATE_ONLY = 35
+# 19 is Set-only with an EMULATED status and no live one: the command can be
+# shown on a button that lights, but GC must never poll it, because the script
+# has no Update method to answer. Extron's own example in this package is
+# User Defined String, whose Value carries condition type 2 (Emulation) where
+# a live status carries 1 and a command with both carries 3.
+ATTR_SET_EMULATED = 19
 
 # A command's feedback flag is not enough for GC to offer its value as a
 # status: the Value parameter's own ParamAssetBase+_conditionTypes must be
@@ -70,7 +80,8 @@ ATTR_UPDATE_ONLY = 35
 # 7th_29_17052 PresetResult). Preset's Value, the donor for every decimal
 # here, carries 0 because it is only ever sent, so its clones could be
 # pressed but never shown on a label until this was set.
-COND_FOR_ATTR = {ATTR_SET_UPDATE: 3, 59: 3, ATTR_UPDATE_ONLY: 1}
+COND_FOR_ATTR = {ATTR_SET_UPDATE: 3, 59: 3, ATTR_UPDATE_ONLY: 1,
+                 ATTR_SET_EMULATED: 2}
 
 # ParamAssetBase+_attributes: 15 on a command's Value, 13 on a qualifier
 # (Extron's own Speed and 7th_29_17052 PresetResult's Preset). A qualifier
@@ -106,6 +117,20 @@ def _enable_polling(g, command_id, seconds=POLL_SECONDS):
     g._reparse()
 
 
+def _disable_polling(g, command_id):
+    """Stop GC polling a command the script cannot answer.
+
+    The mirror of the rule above, and it matters as soon as a Set-only command
+    is given an emulated status: once GC can bind it, GC can also poll it, and
+    a clone of a polled donor carries Enabled. The script has no Update method
+    for such a command, so the poll would raise on the processor. Extron's own
+    attributes-19 command, User Defined String, carries 12 - not Enabled.
+    """
+    pid = _polling_param(g, command_id)
+    attr = g.enum_member(pid, "ParamAssetBase+_attributes")
+    g.set_enum_member(pid, "ParamAssetBase+_attributes", attr & ~PARAM_ENABLED)
+
+
 def _make_feedback(g, param_id, attrs):
     """Let GC offer a decimal Value as a status, the way Extron's own do.
 
@@ -136,12 +161,11 @@ PLAN = [
     simple("Backlight", "Auto Tracking", "TrackingFraming",
            {"On": "Start", "Off": "Stop"}, ATTR_SET_UPDATE,
            "Start or stop automatic subject tracking"),
-    simple("Backlight", "Group Tracking", "GroupTracking",
-           {"On": "Enable"}, ATTR_SET_ONLY,
-           "Track the whole group in frame"),
-    simple("Backlight", "Presenter Tracking", "PresenterTracking",
-           {"On": "Enable"}, ATTR_SET_ONLY,
-           "Track a single presenter"),
+    # One setting, two values. Until 20027 this was two commands with one
+    # value each, so a button could latch either on and release neither.
+    simple("Backlight", "Tracking Mode", "TrackingMode",
+           {"On": "Group", "Off": "Presenter"}, ATTR_SET_EMULATED,
+           "Frame the whole group, or a single presenter"),
     simple("Backlight", "Pan Tilt Home", "PanTiltHome",
            {"On": "Reset"}, ATTR_SET_ONLY,
            "Return the head to its home position"),
@@ -172,8 +196,10 @@ DECIMAL_PLAN = [
      "Select one of the four stored tracking profiles"),
     ("Preset Zone", "PresetZone", 1, 4, ATTR_SET_ONLY,
      "Select one of the four preset zones"),
-    ("Camera Output", "CameraOutput", 0, 5, ATTR_SET_UPDATE,
-     "Select the camera to output; 0 resumes intelligent switching"),
+    # 1, not 0: value 0 sends the same frame as Intelligent Switching Resume,
+    # which already offers it by name.
+    ("Camera Output", "CameraOutput", 1, 5, ATTR_SET_UPDATE,
+     "Select the camera to output"),
 ]
 
 
@@ -215,6 +241,13 @@ def build():
                "PanAngleStatus", "TiltAngleStatus"):
         _enable_polling(g, g.commands()[sn])
         print("   polling %-24s every %ds" % (sn, POLL_SECONDS))
+
+    # Emulated status, no live one: bindable, but GC must never poll it.
+    for sn, cid in sorted(g.commands().items()):
+        attrs = g.enum_member(cid, "CommandAssetBase+_attributes")
+        if attrs & ATTR_EMULATED_STATUS and not attrs & ATTR_LIVE_STATUS:
+            _disable_polling(g, cid)
+            print("   NOT polling %-20s emulated status, no Update method" % sn)
 
     _bump_model_version(g, minor=MODEL_MINOR)
 
@@ -337,6 +370,19 @@ def verify(g, src):
         if pb.deref(g.objects, g.objects[pid]["members"]["ParamAssetBase+_value"]) is None:
             problems.append("%s: PollingInterval has no value" % sn)
 
+    # And the mirror of it. A command with an emulated status but no live one
+    # has no Update method in the script, so a poll would raise on the
+    # processor - and it only became reachable when such a command was first
+    # made bindable, because GC cannot poll what nothing can bind.
+    for sn, cid in sorted(assets.items()):
+        attrs = g.enum_member(cid, "CommandAssetBase+_attributes")
+        if not (attrs & ATTR_EMULATED_STATUS and not attrs & ATTR_LIVE_STATUS):
+            continue
+        pid = _polling_param(g, cid)
+        if g.enum_member(pid, "ParamAssetBase+_attributes") & PARAM_ENABLED:
+            problems.append("%s: an emulated status GC could poll, but the "
+                            "script has no Update method for it" % sn)
+
     # Feedback GC can bind: a command flagged for feedback needs a Value that
     # is condition-capable, and every other parameter must be a qualifier.
     for sn, cid in sorted(assets.items()):
@@ -391,6 +437,15 @@ def _simple_command(g, spec):
         for sid in states:
             if g.name_of(sid) != keep:
                 g.detach(value_id, sid)
+    # The Backlight donor is a Set+Update command, so its Value already carries
+    # the condition type and operators a live status needs, and the Set+Update
+    # clones inherit them correctly. An emulated-only status is the one shape
+    # the donor cannot supply: it needs condition type 2 (Emulation) where the
+    # donor has 3. Only that case is rewritten, so every command that already
+    # works on hardware keeps the exact members it has today.
+    if spec["attrs"] == ATTR_SET_EMULATED:
+        value_id = _states_of(g, cid)[0]
+        _make_feedback(g, value_id, spec["attrs"])
     print("   + %-24s %s" % (spec["script"], spec["name"]))
 
 

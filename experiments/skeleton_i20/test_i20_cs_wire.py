@@ -163,8 +163,8 @@ def test_same_bytes_as_the_pkp_driver():
         # (command, args)                                  both drivers get these
         ("TrackingFraming",      ("Start", None)),
         ("TrackingFraming",      ("Stop", None)),
-        ("GroupTracking",        ("Enable", None)),
-        ("PresenterTracking",    ("Enable", None)),
+        ("TrackingMode",         ("Group", None)),
+        ("TrackingMode",         ("Presenter", None)),
         ("Menu",                 ("Toggle", None)),
         ("Reboot",               ("Reboot", None)),
         ("Identify",             ("Identify", None)),
@@ -375,9 +375,12 @@ def test_python35_compatible():
     check("no f-strings", not re.search(r"""\bf['"]""", SOURCE))
     check("no walrus operator", ":=" not in SOURCE)
     check("compiles", _compiles(SOURCE))
-    check("imports only extronlib, re and struct",
+    # time is [PATCH C6], for the rate-limited pan/tilt query. The .pkp driver
+    # already imports it; this list is the standard library a processor has, so
+    # the point of the check is that nothing NEW is needed to run the module.
+    check("imports only extronlib, re, struct and time",
           set(re.findall(r"^(?:from|import) +([A-Za-z_][\w.]*)", SOURCE, re.M))
-          <= {"extronlib.interface", "re", "struct"},
+          <= {"extronlib.interface", "re", "struct", "time"},
           repr(set(re.findall(r"^(?:from|import) +([A-Za-z_][\w.]*)",
                               SOURCE, re.M))))
 

@@ -26,8 +26,8 @@ T3 = [
     ('Set', 'CameraOutput', 2, None, 'T3 14'),
     ('Set', 'IntelligentSwitching', 'Resume', None, 'T3 15'),
     ('Set', 'IntelligentSwitching', 'Pause', None, 'T3 16'),
-    ('Set', 'GroupTracking', 'Enable', None, 'T3b 1'),
-    ('Set', 'PresenterTracking', 'Enable', None, 'T3b 2'),
+    ('Set', 'TrackingMode', 'Group', None, 'T3b 1'),
+    ('Set', 'TrackingMode', 'Presenter', None, 'T3b 2'),
 ]
 
 # The composed commands at the ends of the ranges GC renders, then read back.
@@ -80,8 +80,8 @@ GC_MACRO = [
     ('Camera Output', 'Value 2', 'Set', 'CameraOutput', 2, None),
     ('Intelligent Switching', 'Value Resume', 'Set', 'IntelligentSwitching', 'Resume', None),
     ('Intelligent Switching', 'Value Pause', 'Set', 'IntelligentSwitching', 'Pause', None),
-    ('Group Tracking', 'Value Enable', 'Set', 'GroupTracking', 'Enable', None),
-    ('Presenter Tracking', 'Value Enable', 'Set', 'PresenterTracking', 'Enable', None),
+    ('Tracking Mode', 'Value Group', 'Set', 'TrackingMode', 'Group', None),
+    ('Tracking Mode', 'Value Presenter', 'Set', 'TrackingMode', 'Presenter', None),
     ('Pan Tilt Angle', 'Pan -2448, Tilt -1296, Pan Speed 1, Tilt Speed 1', 'Set',
      'PanTiltAngle', None, {'Pan Speed': 1, 'Tilt Speed': 1, 'Pan': -2448, 'Tilt': -1296}),
     ('Pan Tilt Angle', 'Pan 2448, Tilt 1296, Pan Speed 24, Tilt Speed 20', 'Set',

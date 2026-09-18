@@ -132,13 +132,30 @@ def patch_transport(src):
 
 
 # --------------------------------------------------------------------------
+# C6 - import time
+# --------------------------------------------------------------------------
+def patch_import_time(src):
+    """The shared pan/tilt query is rate limited, so it needs a clock.
+
+    The .pkp driver already imports time; this module does not, so the one
+    import is added here rather than reaching for a second mechanism.
+    """
+    anchor = "from struct import pack"
+    _once(src, anchor, "C6 import time")
+    nl = _newline(src)
+    return src.replace(
+        anchor,
+        _relf("# [PATCH C6] for the rate-limited pan/tilt query below.\n"
+              "import time\n" + anchor, nl), 1)
+
+
+# --------------------------------------------------------------------------
 # C3 - Commands table
 # --------------------------------------------------------------------------
 NEW_COMMANDS = """,
             # [PATCH C3] i20 command set.
             'TrackingFraming': {'Status': {}},
-            'GroupTracking': {'Status': {}},
-            'PresenterTracking': {'Status': {}},
+            'TrackingMode': {'Status': {}},
             'TrackingProfile': {'Status': {}},
             'TrackingShot': {'Status': {}},
             'PresetZone': {'Status': {}},
@@ -262,31 +279,28 @@ NEW_METHODS = r'''
             except (KeyError, IndexError):
                 self.Error(['TrackingFraming: Invalid/unexpected response'])
 
-    # Reserved preset 82.
-    def SetGroupTracking(self, value, qualifier):
-
-        if value == 'Enable':
-            cmdString = self._PresetOpcode(0x52)
-            self.__SetHelper('GroupTracking', cmdString, value, qualifier)
-            self.WriteStatus('GroupTracking', value, qualifier)
-        else:
-            self.Discard('Invalid Command for SetGroupTracking')
-
-    # Reserved preset 83.
+    # Reserved presets 82 and 83 - one setting, two values.
     #
-    # !! CONTESTED BYTE !! Crestron's driver names this EnablePresenterTracking;
+    # !! CONTESTED BYTE !! Crestron's driver names 0x53 EnablePresenterTracking;
     # Crestron's Reserved-Presets documentation names preset 83 "Pause Group
     # Tracking". Five other reserved presets agree between the two sources;
-    # this is the only one that does not. The driver's name is used here, but
-    # that is a choice - PROTOCOL.md section T3b settles it on hardware.
-    def SetPresenterTracking(self, value, qualifier):
+    # this is the only one that does not. The value names used here are the
+    # reading both sources support - 0x52 frames the group, 0x53 frames one
+    # presenter - so the merge does not decide it. PROTOCOL.md section T3b
+    # still settles it on hardware.
+    def SetTrackingMode(self, value, qualifier):
 
-        if value == 'Enable':
-            cmdString = self._PresetOpcode(0x53)
-            self.__SetHelper('PresenterTracking', cmdString, value, qualifier)
-            self.WriteStatus('PresenterTracking', value, qualifier)
+        ValueStateValues = {
+            'Group':     0x52,
+            'Presenter': 0x53
+        }
+
+        if value in ValueStateValues:
+            cmdString = self._PresetOpcode(ValueStateValues[value])
+            self.__SetHelper('TrackingMode', cmdString, value, qualifier)
+            self.WriteStatus('TrackingMode', value, qualifier)
         else:
-            self.Discard('Invalid Command for SetPresenterTracking')
+            self.Discard('Invalid Command for SetTrackingMode')
 
     # Reserved presets 105-108 = Tracking Profile 1-4. I20 only.
     def SetTrackingProfile(self, value, qualifier):
@@ -385,30 +399,44 @@ NEW_METHODS = r'''
     # One inquiry, two commands. The .pkp form has to split this because a GC
     # command carries a single Value; this module mirrors the split so both
     # emitters expose the same surface.
+    #
+    # Rate limited the way Extron rate limit pana_19_5702: one query per window
+    # answers both statuses, so two bound labels cost one frame rather than
+    # two. A failed query caches nothing, so a poll that got no reply is
+    # retried rather than remembered.
+    PANTILT_QUERY_WINDOW = 1.0
+    _lastPanTiltAngle = None
+    _lastPanTiltTime = 0.0
+
     def _PanTiltAngleInquiry(self, command, value, qualifier):
 
+        now = time.monotonic()
+        if (self._lastPanTiltAngle is not None
+                and now - self._lastPanTiltTime < self.PANTILT_QUERY_WINDOW):
+            return self._lastPanTiltAngle
         cmdString = pack('>5B', self.DeviceID, 0x09, 0x06, 0x12, 0xFF)
         res = self.__UpdateHelper(command, cmdString, value, qualifier)
         if not res:
             return None
         try:
-            return (self._Signed16(self._FromNibbles(res[2:6])),
-                    self._Signed16(self._FromNibbles(res[6:10])))
+            pos = (self._Signed16(self._FromNibbles(res[2:6])),
+                   self._Signed16(self._FromNibbles(res[6:10])))
         except (KeyError, IndexError):
             self.Error(['%s: Invalid/unexpected response' % command])
             return None
+        self._lastPanTiltAngle = pos
+        self._lastPanTiltTime = now
+        self.WriteStatus('PanAngleStatus', pos[0], qualifier)
+        self.WriteStatus('TiltAngleStatus', pos[1], qualifier)
+        return pos
 
     def UpdatePanAngleStatus(self, value, qualifier):
 
-        pos = self._PanTiltAngleInquiry('PanAngleStatus', value, qualifier)
-        if pos is not None:
-            self.WriteStatus('PanAngleStatus', pos[0], qualifier)
+        self._PanTiltAngleInquiry('PanAngleStatus', value, qualifier)
 
     def UpdateTiltAngleStatus(self, value, qualifier):
 
-        pos = self._PanTiltAngleInquiry('TiltAngleStatus', value, qualifier)
-        if pos is not None:
-            self.WriteStatus('TiltAngleStatus', pos[1], qualifier)
+        self._PanTiltAngleInquiry('TiltAngleStatus', value, qualifier)
 
     # PanTiltReset: 81 01 06 05 FF
     def SetPanTiltHome(self, value, qualifier):
@@ -519,10 +547,14 @@ NEW_METHODS = r'''
     # main and lightbar command sets.
     ######################################################
 
-    # Call Camera Output: 81 c2 01 08 0Z ff   (Z = 1..5; 0 resumes switching)
+    # Call Camera Output: 81 c2 01 08 0Z ff   (Z = 1..5)
+    #
+    # 0 also resumes intelligent switching, but that is byte-for-byte what
+    # SetIntelligentSwitching('Resume') sends, so it is reachable by name and
+    # not offered twice. The range starts at 1.
     def SetCameraOutput(self, value, qualifier):
 
-        if 0 <= int(value) <= 5:
+        if 1 <= int(value) <= 5:
             cmdString = pack('>6B', self.DeviceID, 0xC2, 0x01, 0x08,
                              int(value), 0xFF)
             self.__SetHelper('CameraOutput', cmdString, value, qualifier)
@@ -596,8 +628,8 @@ def patch_methods(src):
 
 def derive(donor_source):
     src = donor_source
-    for fn in (patch_header, patch_transport, patch_commands_table,
-               patch_zoom, patch_methods):
+    for fn in (patch_header, patch_transport, patch_import_time,
+               patch_commands_table, patch_zoom, patch_methods):
         src = fn(src)
     return src
 

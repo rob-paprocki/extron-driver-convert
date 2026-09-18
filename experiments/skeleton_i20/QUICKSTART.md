@@ -84,8 +84,7 @@ Command` line in the program log.
 | `AutoExposure` | `Full Auto`, `Manual`, `Shutter Priority`, `Iris Priority`, `Bright` | — | yes |
 | `ConnectionStatus` | feedback only — written by the module as polls succeed or time out | — | — |
 | **`TrackingFraming`** | **`Start`, `Stop`** | **—** | **yes** |
-| **`GroupTracking`** | **`Enable`** | **—** | **—** |
-| **`PresenterTracking`** | **`Enable`** | **—** | **—** |
+| **`TrackingMode`** | **`Group`, `Presenter`** | **—** | **—** |
 | **`TrackingProfile`** | **1–4** | **—** | **—** |
 | **`TrackingShot`** | **`Home`, `Tracking`** | **—** | **—** |
 | **`PresetZone`** | **1–4** | **—** | **—** |
@@ -100,7 +99,7 @@ Command` line in the program log.
 else — `PanTiltAngle` and `ConnectionStatus` included — raises `AttributeError`.
 
 **`ReadStatus()` straight after a `Set` proves nothing.** For `TrackingFraming`,
-`GroupTracking`, `PresenterTracking`, `TrackingProfile`, `ZoomPosition`,
+`TrackingMode`, `TrackingProfile`, `ZoomPosition`,
 `PanTiltAngle`, `FreezeFrame`, `IndicatorLight`, `CameraOutput` and
 `IntelligentSwitching`, `Set` writes the value it *sent* into the status without
 waiting for the camera. Only a poll whose reply parses overwrites it; a timeout
@@ -134,8 +133,8 @@ Whichever path, these three answers are worth more than everything else:
    *Every command*). Polling is the weakest part of this driver: the request bytes are
    documented, but every reply layout the parsers expect comes from
    documentation, never from a camera.
-3. **Preset 83.** Start group tracking (`GroupTracking`/`Enable`), then send
-   `PresenterTracking`/`Enable`. Does group tracking *stop*, or does presenter
+3. **Preset 83.** Start group tracking (`TrackingMode`/`Group`), then send
+   `TrackingMode`/`Presenter`. Does group tracking *stop*, or does presenter
    framing *engage*? Crestron's driver and Crestron's docs disagree, and this
    settles it. See `PROTOCOL.md` §T3b.
 

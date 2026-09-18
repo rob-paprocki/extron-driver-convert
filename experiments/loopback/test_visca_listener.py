@@ -159,9 +159,9 @@ EXPECTED_DECODE = {
     "81 C2 01 08 02 FF": ("command", "CameraOutput", "2"),
     "81 C2 01 08 00 FF": ("command", "CameraOutput", "0 = IntelligentSwitching Resume"),
     "81 C2 01 0B 00 FF": ("command", "IntelligentSwitching", "Pause"),
-    "81 01 04 3F 02 52 FF": ("command", "Preset", "Recall 82 = GroupTracking Enable"),
+    "81 01 04 3F 02 52 FF": ("command", "Preset", "Recall 82 = TrackingMode Group"),
     "81 01 04 3F 02 53 FF": ("command", "Preset",
-                             "Recall 83 = PresenterTracking Enable (docs: Pause Group Tracking)"),
+                             "Recall 83 = TrackingMode Presenter (docs: Pause Group Tracking)"),
 }
 
 
@@ -206,8 +206,8 @@ def every_call():
         for preset in (0, 1, 128, 254):
             S("Preset", preset, {"Action": action})
     for command, values in (("TrackingFraming", ("Start", "Stop")),
-                            ("GroupTracking", ("Enable",)),
-                            ("PresenterTracking", ("Enable",)),
+                            ("TrackingMode", ("Group",)),
+                            ("TrackingMode", ("Presenter",)),
                             ("TrackingShot", ("Home", "Tracking")),
                             ("IntelligentSwitching", ("Resume", "Pause"))):
         for value in values:
@@ -215,7 +215,9 @@ def every_call():
     for n in range(1, 5):
         S("TrackingProfile", n)
         S("PresetZone", n)
-    for n in range(0, 6):
+    # 1..5: CameraOutput 0 was dropped in 20027 because it is byte-for-byte
+    # IntelligentSwitching Resume, which is driven just above.
+    for n in range(1, 6):
         S("CameraOutput", n)
     for zoom, speed in ((0, 0), (6699, 3), (16384, 7)):
         S("ZoomPosition", zoom, {"Speed": speed})

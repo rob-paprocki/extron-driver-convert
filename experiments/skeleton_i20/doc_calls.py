@@ -107,8 +107,8 @@ def main():
     run("14 CameraOutput 2", lambda: S("CameraOutput", 2))
     run("15 IntelligentSwitching Resume", lambda: S("IntelligentSwitching", "Resume"))
     run("16 IntelligentSwitching Pause", lambda: S("IntelligentSwitching", "Pause"))
-    run("T3b GroupTracking Enable", lambda: S("GroupTracking", "Enable"))
-    run("T3b PresenterTracking Enable", lambda: S("PresenterTracking", "Enable"))
+    run("T3b TrackingMode Group", lambda: S("TrackingMode", "Group"))
+    run("T3b TrackingMode Presenter", lambda: S("TrackingMode", "Presenter"))
 
     print("--- QUICKSTART 'required' qualifiers, left out")
     run("PanTilt Home, no qualifier", lambda: S("PanTilt", "Home"))

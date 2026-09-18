@@ -37,7 +37,7 @@ Cheapest failure first. Each session should capture **raw reply bytes**, because
 | zoom position | `81 09 04 47 FF`, stepping through optical **and digital** zoom | nibble layout; reply vs. displayed ratio for 16384–31424 | ZoomPosition parser; finding 09's FAILED digital `ZoomPositionToLevel` |
 | pan/tilt | `81 09 06 12 FF`, including at a negative pan and tilt | nibble layout, and whether negatives come back as two's complement (the parser assumes so since 2026-09-13) | `PanAngleStatus` / `TiltAngleStatus` (one shared inquiry) |
 | camera output | `81 C2 09 08 FF` | documented after all, on the Intelligent Switching page: `y0 50 0S 0Z FF` (S switching, Z camera). The parser read S until 2026-09-13; confirm Z on the camera | CameraOutput parser |
-| c2 custom inquiries | `{Header} c2 09 06 FF`, `{Header} c2 09 07 FF` | any stable reply | lets GroupTracking / TrackingProfile poll (2 of the 12 emulated commands) |
+| c2 custom inquiries | `{Header} c2 09 06 FF`, `{Header} c2 09 07 FF` | any stable reply | lets TrackingMode / TrackingProfile poll (2 of the 12 emulated commands) |
 | zoom speed | `81 01 04 07 25 FF` from the derived driver, then Extron's stock PTZ-IP driver | derived zooms faster | Extron's speed-0 defect ([PATCH E2]); so far seen only in source |
 | preset 83 (T3b) | `81 01 04 3F 02 52 FF`, then `… 53 FF` | group tracking pauses (docs) **or** presenter framing engages (Crestron driver); record the firmware version | control label |
 | lightbar | `81 C1 0D 0D 0D 0D FF`, `81 C1 00 04 04 00 FF`, `81 C1 00 00 00 00 FF`; half-width both ways (`03 0F 0F 03` vs `00 0F 0F 00`) | segments light as intended | 0xC1 payload; the off-segment conflict (the i20 build follows the doc, finding 09 prefers the driver) |

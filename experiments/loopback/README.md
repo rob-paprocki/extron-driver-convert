@@ -10,7 +10,7 @@ things:
 
 | | Path A — ControlScript | Path B — Global Configurator |
 |---|---|---|
-| driver under test | `onebynd_camera_IV_CAM_I20_v1_0_0_0.py` | `1bynd_19_20024`, the synthesised `.pkp` |
+| driver under test | `onebynd_camera_IV_CAM_I20_v1_0_0_0.py` | `1bynd_19_20027`, the synthesised `.pkp` |
 | who sends commands | this PC, through a console the program serves | a GC macro, started by a monitor |
 | checks | every step's wire *and* read, against the module run locally | every wire string, against the macro's expected bytes |
 | needs | the ControlScript Deployment Utility and a **certified** project | Global Configurator Pro; no panel, no certification |
@@ -62,13 +62,14 @@ monitor"*, and a monitor fires *"when all of these conditions are met"* and
 *"re-arms automatically"* when they stop being true. So one monitor can start
 the whole sequence the moment the driver connects to the PC.
 
-1. **Driver.** Install `experiments/skeleton_i20/out/1bynd_19_20026_v1_0_0.pkp`
+1. **Driver.** Install `experiments/skeleton_i20/out/1bynd_19_20027_v1_0_0.pkp`
    into GC's driver library, then restart GC so it catalogues it
    (`experiments/skeleton_i20/PROTOCOL.md`, *Install 20024*, with the new name).
-   20026 is 20024 with feedback GC can bind and polls.
+   20027 is 20024 with feedback GC can bind and polls, one Tracking Mode
+   command in place of two enable-only ones, and Camera Output 1-5.
 2. **Project.** In a new Pro project:
    - add the processor as the controller, by its address and web credentials;
-   - on one of its Ethernet ports add *1 Beyond / IV-CAM-I20 v1.4*, addressed to
+   - on one of its Ethernet ports add *1 Beyond / IV-CAM-I20 v1.5*, addressed to
      the PC. The package pins TCP 5500.
 3. **Macro** `i20 T3`, from the device's commands, in this order:
 
@@ -89,8 +90,8 @@ the whole sequence the moment the driver connects to the PC.
    | 13 | Camera Output | Value 2 | `81 C2 01 08 02 FF` |
    | 14 | Intelligent Switching | Value Resume | `81 C2 01 08 00 FF` |
    | 15 | Intelligent Switching | Value Pause | `81 C2 01 0B 00 FF` |
-   | 16 | Group Tracking | Value Enable | `81 01 04 3F 02 52 FF` |
-   | 17 | Presenter Tracking | Value Enable | `81 01 04 3F 02 53 FF` |
+   | 16 | Tracking Mode | Value Group | `81 01 04 3F 02 52 FF` |
+   | 17 | Tracking Mode | Value Presenter | `81 01 04 3F 02 53 FF` |
    | 18 | Pan Tilt Angle | Pan -2448, Tilt -1296, Pan Speed 1, Tilt Speed 1 | `81 01 06 02 01 01 0F 06 07 00 0F 0A 0F 00 FF` |
    | 19 | Pan Tilt Angle | Pan 2448, Tilt 1296, Pan Speed 24, Tilt Speed 20 | `81 01 06 02 18 14 00 09 09 00 00 05 01 00 FF` |
    | 20 | Zoom Position | Value 16384, Speed 7 | `81 01 04 47 07 04 00 00 00 FF` |

@@ -150,8 +150,7 @@ NEW_COMMANDS = """,
             # [PATCH E3] i20 command set. Bytes resolved from Crestron's
             # SchemaVersion 2.0 definition by resolve_visca.py.
             'TrackingFraming':      {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
-            'GroupTracking':        {'Set': True,   'Update': False,    'Live': False,  'Emulated': True,                                               'Status': {}},
-            'PresenterTracking':    {'Set': True,   'Update': False,    'Live': False,  'Emulated': True,                                               'Status': {}},
+            'TrackingMode':         {'Set': True,   'Update': False,    'Live': False,  'Emulated': True,                                               'Status': {}},
             'ZoomPosition':         {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,   'Parameters': ['Speed'],                    'Status': {}},
             'PanTiltAngle':         {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,  'Parameters': ['Pan Speed', 'Tilt Speed', 'Pan', 'Tilt'],   'Status': {}},
             'PanAngleStatus':       {'Set': False,  'Update': True,     'Live': True,   'Emulated': False,                              'Status': {}},
@@ -273,33 +272,19 @@ NEW_METHODS = r'''
     def ReadTrackingFraming(self, qualifier, context):
         return self.ReadStatusHelper('TrackingFraming', qualifier, context)
 
-    # Begin GroupTracking
+    # Begin TrackingMode
     ####################################################################################################################
-    # Crestron IV-CAM-I20_IP: EnableGroupTracking -> reserved preset 0x52
-    def _cmd_SetGroupTracking(self, value, qualifier):
-        """Set Group Tracking
-        value: Enum ('Enable')
-        qualifier: None
-        """
-        if value == 'Enable':
-            cmdString = self._PresetOpcode(0x52)
-            if self.__SafeToSet('GroupTracking'):
-                self.WriteGroupTracking(value, qualifier, 'Emulated')
-                self.__SetHelper('GroupTracking', cmdString, value, qualifier, 3)
-        else:
-            self.Discard('Invalid Command')
-
-    def WriteGroupTracking(self, value, qualifier, context):
-        self.WriteStatusHelper('GroupTracking', value, qualifier, context)
-
-    def ReadGroupTracking(self, qualifier, context):
-        return self.ReadStatusHelper('GroupTracking', qualifier, context)
-
-    # Begin PresenterTracking
-    ####################################################################################################################
-    # Crestron IV-CAM-I20_IP: EnablePresenterTracking -> reserved preset 0x53
+    # Crestron IV-CAM-I20_IP: EnableGroupTracking     -> reserved preset 0x52
+    #                         EnablePresenterTracking -> reserved preset 0x53
     #
-    # !! DOCS AND IMPLEMENTATION DISAGREE ON THIS BYTE !!
+    # These were two commands until 20027, one value each, so GC could switch
+    # either ON and neither OFF - a latching button with no release, and an
+    # emulated status that could never go back. They are one setting on the
+    # camera: Crestron's Presenter Tracking Settings page describes Group Track
+    # as a toggle, "when disabled, the camera only tracks one presenter at a
+    # time". So one command with two values, which is what the hardware has.
+    #
+    # !! DOCS AND IMPLEMENTATION DISAGREE ON 0x53 !!
     # Crestron's own driver names preset 0x53 "EnablePresenterTracking".
     # Crestron's own documentation (COMMANDS.md section 10, from the
     # Reserved-Presets page) names preset 83 decimal - the same byte -
@@ -307,29 +292,36 @@ NEW_METHODS = r'''
     # between the two sources (0x50, 0x51, 0x52, 0x5F, 0x63); this is the
     # only one that does not.
     #
-    # The name here follows the driver, because a shipped driver is the more
-    # specific artefact - but that is a choice, not a finding. Step 7 of
-    # PROTOCOL.md is designed to settle it on hardware: start group tracking
+    # The value names here are deliberately the one reading BOTH sources
+    # support: 0x52 selects group framing, 0x53 selects single-presenter
+    # framing - whether you reach it by "enabling presenter tracking" or by
+    # "pausing group tracking". So merging does not decide the open question.
+    # Step 7 of PROTOCOL.md still settles it on hardware: start group tracking
     # with 0x52, then send 0x53, and observe whether group tracking PAUSES
     # (documentation is right) or presenter mode ENGAGES (driver is right).
-    def _cmd_SetPresenterTracking(self, value, qualifier):
-        """Set Presenter Tracking
-        value: Enum ('Enable')
+    def _cmd_SetTrackingMode(self, value, qualifier):
+        """Set Tracking Mode
+        value: Enum ('Group'/'Presenter')
         qualifier: None
         """
-        if value == 'Enable':
-            cmdString = self._PresetOpcode(0x53)
-            if self.__SafeToSet('PresenterTracking'):
-                self.WritePresenterTracking(value, qualifier, 'Emulated')
-                self.__SetHelper('PresenterTracking', cmdString, value, qualifier, 3)
+        ValueStateValues = {
+            'Group':     0x52,
+            'Presenter': 0x53
+        }
+
+        if value in ValueStateValues:
+            cmdString = self._PresetOpcode(ValueStateValues[value])
+            if self.__SafeToSet('TrackingMode'):
+                self.WriteTrackingMode(value, qualifier, 'Emulated')
+                self.__SetHelper('TrackingMode', cmdString, value, qualifier, 3)
         else:
             self.Discard('Invalid Command')
 
-    def WritePresenterTracking(self, value, qualifier, context):
-        self.WriteStatusHelper('PresenterTracking', value, qualifier, context)
+    def WriteTrackingMode(self, value, qualifier, context):
+        self.WriteStatusHelper('TrackingMode', value, qualifier, context)
 
-    def ReadPresenterTracking(self, qualifier, context):
-        return self.ReadStatusHelper('PresenterTracking', qualifier, context)
+    def ReadTrackingMode(self, qualifier, context):
+        return self.ReadStatusHelper('TrackingMode', qualifier, context)
 
     # Begin ZoomPosition
     ####################################################################################################################
@@ -421,29 +413,53 @@ NEW_METHODS = r'''
     # same way in pana_19_5702 (PanPositionStatus / TiltPositionStatus), so the
     # split is their pattern rather than our invention.
     #
+    # Extron also solves the COST of that split, and this follows them. In
+    # pana_19_5702, _cmd_UpdatePanPositionStatus queries at most once every
+    # three seconds and writes every position the reply carries, so a bound Pan
+    # and a bound Tilt cost one query between them instead of two. Measured on
+    # 20026 before this change: two identical 81 09 06 12 FF per poll cycle,
+    # the second reply used for its tilt half alone.
+    #
+    # The window is deliberately shorter than the poll interval. The two
+    # updates in one polling pass arrive milliseconds apart, so the second
+    # always reuses the first; the next pass is seconds away, so no pass can
+    # be swallowed. These are class attributes rather than __init__ lines to
+    # keep this patch additive - each instance shadows them on first query.
+    #
     # Crestron IV-CAM-I20_IP: GetPanTiltAngle -> 81 09 06 12 FF
     #   reply  y0 50 0p0q0r0s 0t0u0v0w FF
+    PANTILT_QUERY_WINDOW = 1.0
+    _lastPanTiltAngle = None
+    _lastPanTiltTime = 0.0
+
     def _PanTiltAngleInquiry(self, command, value, qualifier):
-        """Send the shared inquiry; return (pan, tilt) or None."""
+        """Query at most once per window; write both statuses from one reply."""
+        now = time.monotonic()
+        if (self._lastPanTiltAngle is not None
+                and now - self._lastPanTiltTime < self.PANTILT_QUERY_WINDOW):
+            return self._lastPanTiltAngle
         cmdString = pack('>5B', self.DeviceID, 0x09, 0x06, 0x12, 0xFF)
         res = self.__UpdateHelper(command, cmdString, value, qualifier)
         if not res:
             return None
         try:
-            return (self._Signed16(self._FromNibbles(res[2:6])),
-                    self._Signed16(self._FromNibbles(res[6:10])))
+            pos = (self._Signed16(self._FromNibbles(res[2:6])),
+                   self._Signed16(self._FromNibbles(res[6:10])))
         except (KeyError, IndexError):
             self.Error(['%s: Invalid/unexpected response' % command])
             return None
+        self._lastPanTiltAngle = pos
+        self._lastPanTiltTime = now
+        self.WritePanAngleStatus(pos[0], qualifier, 'Live')
+        self.WriteTiltAngleStatus(pos[1], qualifier, 'Live')
+        return pos
 
     def _cmd_UpdatePanAngleStatus(self, value, qualifier):
         """Update Pan Angle Status
         value: Decimal
         qualifier: None
         """
-        pos = self._PanTiltAngleInquiry('PanAngleStatus', value, qualifier)
-        if pos is not None:
-            self.WritePanAngleStatus(pos[0], qualifier, 'Live')
+        self._PanTiltAngleInquiry('PanAngleStatus', value, qualifier)
 
     def WritePanAngleStatus(self, value, qualifier, context):
         self.WriteStatusHelper('PanAngleStatus', value, qualifier, context)
@@ -456,9 +472,7 @@ NEW_METHODS = r'''
         value: Decimal
         qualifier: None
         """
-        pos = self._PanTiltAngleInquiry('TiltAngleStatus', value, qualifier)
-        if pos is not None:
-            self.WriteTiltAngleStatus(pos[1], qualifier, 'Live')
+        self._PanTiltAngleInquiry('TiltAngleStatus', value, qualifier)
 
     def WriteTiltAngleStatus(self, value, qualifier, context):
         self.WriteStatusHelper('TiltAngleStatus', value, qualifier, context)
@@ -704,12 +718,17 @@ NEW_METHODS = r'''
     ####################################################################################################################
     # Call Camera Output:            8x c2 01 08 0Z ff   (Z = 1..5)
     # Resume Intelligent Switching:  8x c2 01 08 00 ff
+    #
+    # Value 0 is the SAME frame Intelligent Switching sends for Resume, so
+    # until 20027 two commands could put one byte sequence on the wire and a
+    # capture could not tell which had been used. Intelligent Switching already
+    # offers Resume by name, so this range starts at 1 and the overlap is gone.
     def _cmd_SetCameraOutput(self, value, qualifier):
         """Set Camera Output
-        value: Decimal (1 - 5), or 0 to resume intelligent switching
+        value: Decimal (1 - 5)
         qualifier: None
         """
-        if 0 <= int(value) <= 5:
+        if 1 <= int(value) <= 5:
             cmdString = pack('>6B', self.DeviceID, 0xC2, 0x01, 0x08,
                              int(value), 0xFF)
             if self.__SafeToSet('CameraOutput'):

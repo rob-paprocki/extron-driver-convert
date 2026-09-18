@@ -18,7 +18,7 @@ where `retarget.json` is `{"edits":[{"op":"retarget","model":"TLP725M","scale":t
 ## 1. Set up the project in GC
 
 1. New project. Add the IPCP Pro 360 as the controller.
-2. On one of its Ethernet ports, add **1 Beyond / IV-CAM-I20 v1.4**. Set its
+2. On one of its Ethernet ports, add **1 Beyond / IV-CAM-I20 v1.5**. Set its
    address to the PC. It uses port 5500.
 3. Add the TLP Pro 725M under the controller.
 4. **User Interfaces → Button Actions**, click **Import layout**, and pick
@@ -78,10 +78,10 @@ the command instances in the project — panel feedback, monitors, macros — so
 status no page binds is never asked for, however the package is built. Leave a
 label unbound and its inquiry simply never goes out.
 
-These statuses need **1bynd_19_20026, IV-CAM-I20 v1.4**. The v1.2 driver
+These statuses need **1bynd_19_20027, IV-CAM-I20 v1.5**. The v1.2 driver
 (20024) lists them but offers nothing to bind (`../../skeleton_i20/PROTOCOL.md`,
 2026-09-14). In a project that already has v1.2, remove that device and add
-v1.4. Zoom Position may also ask for a Speed; any value will do, because the
+v1.5. Zoom Position may also ask for a Speed; any value will do, because the
 status ignores it.
 
 ## 4. Run it

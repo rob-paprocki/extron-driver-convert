@@ -4,7 +4,7 @@ visca_listener.py - stand in for the i20 on the network, and say what arrived.
 
 Point a driver at this machine instead of a camera - an Extron processor running
 the ControlScript module, or a Global Configurator project built with
-1bynd_19_20024 - and this records every VISCA frame the processor sends, decodes
+1bynd_19_20027 - and this records every VISCA frame the processor sends, decodes
 it against the i20 command set, and can answer the way the camera's
 documentation says the camera would.
 
@@ -28,7 +28,8 @@ Run:
 While it runs, type to change what the "camera" reports - the camera-side
 change the feedback test needs:
     state | tracking start|stop | power on|off | freeze on|off | zoom N
-    output N | switching on|off | camera N connected|disconnected
+    pan N | tilt N | output N | switching on|off
+    camera N connected|disconnected
 """
 
 import argparse
@@ -65,8 +66,8 @@ def _reserved_presets():
     """Recalled presets the i20 module uses as feature switches (finding 13)."""
     r = {0x00: "TrackingShot Home", 0x01: "TrackingShot Tracking",
          0x50: "TrackingFraming Start", 0x51: "TrackingFraming Stop",
-         0x52: "GroupTracking Enable",
-         0x53: "PresenterTracking Enable (docs: Pause Group Tracking)",
+         0x52: "TrackingMode Group",
+         0x53: "TrackingMode Presenter (docs: Pause Group Tracking)",
          0x5F: "Menu", 0x63: "Reboot"}
     for i in range(1, 5):
         r[0x64 + i] = "PresetZone %d" % i
@@ -96,8 +97,8 @@ EXPECTED_T3 = [
     ("T3 14", "Camera Output 2", "81 C2 01 08 02 FF"),
     ("T3 15", "Intelligent Switching Resume", "81 C2 01 08 00 FF"),
     ("T3 16", "Intelligent Switching Pause", "81 C2 01 0B 00 FF"),
-    ("T3b 1", "Group Tracking Enable", "81 01 04 3F 02 52 FF"),
-    ("T3b 2", "Presenter Tracking Enable", "81 01 04 3F 02 53 FF"),
+    ("T3b 1", "Tracking Mode Group", "81 01 04 3F 02 52 FF"),
+    ("T3b 2", "Tracking Mode Presenter", "81 01 04 3F 02 53 FF"),
 ]
 
 # README Path B's Global Configurator macro (controlscript/loopback_steps.py
@@ -119,8 +120,8 @@ EXPECTED_GC_MACRO = [
     ("GC 13", "Camera Output 2", "81 C2 01 08 02 FF"),
     ("GC 14", "Intelligent Switching Resume", "81 C2 01 08 00 FF"),
     ("GC 15", "Intelligent Switching Pause", "81 C2 01 0B 00 FF"),
-    ("GC 16", "Group Tracking Enable", "81 01 04 3F 02 52 FF"),
-    ("GC 17", "Presenter Tracking Enable", "81 01 04 3F 02 53 FF"),
+    ("GC 16", "Tracking Mode Group", "81 01 04 3F 02 52 FF"),
+    ("GC 17", "Tracking Mode Presenter", "81 01 04 3F 02 53 FF"),
     ("GC 18", "Pan Tilt Angle -2448 / -1296", "81 01 06 02 01 01 0F 06 07 00 0F 0A 0F 00 FF"),
     ("GC 19", "Pan Tilt Angle 2448 / 1296", "81 01 06 02 18 14 00 09 09 00 00 05 01 00 FF"),
     ("GC 20", "Zoom Position 16384, Speed 7", "81 01 04 47 07 04 00 00 00 FF"),

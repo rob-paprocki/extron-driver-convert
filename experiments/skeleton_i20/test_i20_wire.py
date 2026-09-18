@@ -175,8 +175,8 @@ def test_i20_set_commands():
     cases = [
         ("_cmd_SetTrackingFraming",  ("Start", None),  "81 01 04 3F 02 50 FF"),
         ("_cmd_SetTrackingFraming",  ("Stop", None),   "81 01 04 3F 02 51 FF"),
-        ("_cmd_SetGroupTracking",    ("Enable", None), "81 01 04 3F 02 52 FF"),
-        ("_cmd_SetPresenterTracking", ("Enable", None), "81 01 04 3F 02 53 FF"),
+        ("_cmd_SetTrackingMode",     ("Group", None),  "81 01 04 3F 02 52 FF"),
+        ("_cmd_SetTrackingMode",     ("Presenter", None), "81 01 04 3F 02 53 FF"),
         ("_cmd_SetMenu",             ("Toggle", None), "81 01 04 3F 02 5F FF"),
         ("_cmd_SetReboot",           ("Reboot", None), "81 01 04 3F 02 63 FF"),
         ("_cmd_SetIdentify",         ("Identify", None), "81 C2 01 01 0A FF"),
@@ -377,7 +377,7 @@ def test_reserved_presets_against_documentation():
         ("_cmd_SetTrackingShot",   ("Tracking", None), 1,   "Tracking Shot"),
         ("_cmd_SetTrackingFraming", ("Start", None),   80,  "Start Tracking"),
         ("_cmd_SetTrackingFraming", ("Stop", None),    81,  "Pause Tracking"),
-        ("_cmd_SetGroupTracking",  ("Enable", None),   82,  "Start Group Tracking"),
+        ("_cmd_SetTrackingMode",   ("Group", None),    82,  "Start Group Tracking"),
         ("_cmd_SetMenu",           ("Toggle", None),   95,  "OSD Menu Toggle"),
         ("_cmd_SetReboot",         ("Reboot", None),   99,  "Reboot"),
     ]
@@ -402,7 +402,7 @@ def test_reserved_presets_against_documentation():
     # The one byte the two sources disagree about. Both readings are the same
     # wire byte, so the driver is correct either way - only the label is at
     # stake. Asserting the byte keeps that explicit.
-    got = drive(d, "_cmd_SetPresenterTracking", "Enable", None)
+    got = drive(d, "_cmd_SetTrackingMode", "Presenter", None)
     check("preset  83 CONTESTED (driver: presenter tracking / docs: pause group)"
           " -> 81 01 04 3F 02 53 FF",
           got is not None and hexs(got) == "81 01 04 3F 02 53 FF",
@@ -415,7 +415,6 @@ def test_intelligent_switching():
     cases = [
         ("_cmd_SetCameraOutput",         (1, None),         "81 C2 01 08 01 FF"),
         ("_cmd_SetCameraOutput",         (5, None),         "81 C2 01 08 05 FF"),
-        ("_cmd_SetCameraOutput",         (0, None),         "81 C2 01 08 00 FF"),
         ("_cmd_SetIntelligentSwitching", ("Pause", None),   "81 C2 01 0B 00 FF"),
         ("_cmd_SetIntelligentSwitching", ("Resume", None),  "81 C2 01 08 00 FF"),
     ]
@@ -424,6 +423,13 @@ def test_intelligent_switching():
         check("%-28s %-8s -> %s" % (method[len("_cmd_Set"):], args[0], expect),
               got is not None and hexs(got) == expect,
               "got %s" % (hexs(got) if got else "<nothing sent>"))
+
+    # Camera Output 0 is the same frame as Intelligent Switching Resume, just
+    # above. Two commands, one byte sequence, and a capture cannot tell them
+    # apart - so from 20027 the range starts at 1 and Resume is the only way
+    # to send it. Extron's own range check refuses anything outside.
+    check("CameraOutput 0 is refused: Resume already sends that frame",
+          drive(d, "_cmd_SetCameraOutput", 0, None) is None)
 
     du = make(unidirectional="False")
     du.WritePower("On", None, "Live")
@@ -471,6 +477,39 @@ def test_position_and_output_feedback():
         got = d.ReadStatusHelper("CameraOutput", None, "Live")
         check("%s -> camera %d, not the switching flag" % (hexs(reply), camera),
               got == camera, "got %r, errors=%r" % (got, d.errors))
+
+    # One query answers both statuses. On 20026 a poll cycle carried two
+    # identical 81 09 06 12 FF and used half of each reply; from 20027 the
+    # second update inside the window reuses the first reply, the way Extron
+    # rate limit pana_19_5702.
+    d = make(unidirectional="False")
+    d.WritePower("On", None, "Live")
+    d._canned = b"\x90\x50\x00\x03\x0E\x08\x0F\x0E\x00\x0C\xFF"
+    d.sent = []
+    d._cmd_UpdatePanAngleStatus(None, None)
+    d._cmd_UpdateTiltAngleStatus(None, None)
+    check("two bound position statuses cost ONE 81 09 06 12 FF, not two",
+          len(d.sent) == 1, "sent %d frames: %s" % (len(d.sent),
+                                                    [hexs(f) for f in d.sent]))
+    check("and both are written from that one reply",
+          (d.ReadStatusHelper("PanAngleStatus", None, "Live"),
+           d.ReadStatusHelper("TiltAngleStatus", None, "Live")) == (1000, -500))
+
+    # The window must not swallow the NEXT polling pass.
+    d._lastPanTiltTime -= d.PANTILT_QUERY_WINDOW
+    d.sent = []
+    d._cmd_UpdatePanAngleStatus(None, None)
+    check("once the window passes, the next poll queries again", len(d.sent) == 1)
+
+    # A query that got no reply caches nothing, so it is retried not remembered.
+    d = make(unidirectional="False")
+    d.WritePower("On", None, "Live")
+    d._canned = b""
+    d.sent = []
+    d._cmd_UpdatePanAngleStatus(None, None)
+    d._cmd_UpdateTiltAngleStatus(None, None)
+    check("a failed query is retried, not cached", len(d.sent) == 2,
+          "sent %d frames" % len(d.sent))
 
 
 def test_python35_compatible():
