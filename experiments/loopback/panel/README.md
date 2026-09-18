@@ -68,8 +68,10 @@ right.** *Connection Status* is the device's own; *Camera Connection Status*
 takes a Camera qualifier. Bound to the first, all four Cam labels read
 Connected and never move, because they are reporting the processor's socket.
 That is what the first run of this page did (`../../skeleton_i20/PROTOCOL.md`,
-2026-09-18). Two ways to tell them apart: the right one makes you pick a
-camera, and only the wrong one changes when you stop the listener.
+2026-09-18); rebinding to the right one made the processor poll each camera
+separately, with no change to the package. Two ways to tell them apart: the
+right one makes you pick a camera, and only the wrong one changes when you
+stop the listener.
 
 **A status is polled only if something binds it.** GC builds the poll list from
 the command instances in the project — panel feedback, monitors, macros — so a
