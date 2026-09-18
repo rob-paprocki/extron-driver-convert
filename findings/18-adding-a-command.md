@@ -254,7 +254,13 @@ Two techniques worth keeping, both of which turn a trip into seconds:
   `_attributes` 13. That was not enough: GC still offered no comparison until
   `_validOperators` carried the condition operators too (Extron: the condition
   operators on an Update-only Value, action | condition on a Set+Update one).
-  Even then GC never polled them: each command's own `PollingInterval` parameter must carry `ParamAttributeFlags.Enabled`, and clones of never-polled commands did not (`HasPollingValue`, 2026-09-15). See `experiments/skeleton_i20/PROTOCOL.md` and `1bynd_19_20026`.
+  Even then GC never polled them: each command's own `PollingInterval` parameter must carry `ParamAttributeFlags.Enabled`, and clones of never-polled commands did not (`HasPollingValue`, 2026-09-15). With that set, the readouts follow a
+  processor's polls on hardware (2026-09-18). **The package is only half of it:**
+  `SystemCompiler._BuildPollingDriver` builds the poll list from the command
+  *instances* a project contains — panel feedback, monitors, macros — plus any
+  command flagged `RequiredPollingCommand` (bit 8) regardless of bindings. The
+  qualifier comes from the binding's own parameter values, so a qualified status
+  nothing binds is never polled however the package is built. See `experiments/skeleton_i20/PROTOCOL.md` and `1bynd_19_20026`.
 - **One package family.** Every clone here is within a single 1 Beyond camera
   package. Cross-package cloning, where class metadata would have to be
   imported too, is untried.

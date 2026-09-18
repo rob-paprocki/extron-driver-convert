@@ -398,7 +398,7 @@ class CameraModel(object):
                     s["tracking"] = {"start": 0x02, "stop": 0x03}[words[1]]
                 elif w in ("power", "freeze"):
                     s[w] = {"on": 0x02, "off": 0x03}[words[1]]
-                elif w in ("zoom", "output"):
+                elif w in ("zoom", "output", "pan", "tilt"):
                     s[w] = int(words[1])
                 elif w == "switching":
                     s["switching"] = {"on": True, "off": False}[words[1]]

@@ -327,6 +327,10 @@ def part4():
           and R("81 09 08 01 FF") == ["90 50 02 FF"])
     check("nonsense at the console is refused",
           m.control("tracking sideways").startswith("could not parse"))
+    m.control("pan 1000")
+    m.control("tilt -500")
+    check("pan and tilt can be set from the console, like zoom and output",
+          R("81 09 06 12 FF") == ["90 50 00 03 0E 08 0F 0E 00 0C FF"])
 
 
 # ---------------------------------------------------------------------------

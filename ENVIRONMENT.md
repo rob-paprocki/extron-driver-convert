@@ -121,7 +121,7 @@ python -u experiments/loopback/test_visca_listener.py
 python -u experiments/loopback/test_run_loopback.py
 ```
 
-**623 tests.** `test_pkp_build.py` and `test_pkp_validate.py` walk every sample
+**624 tests.** `test_pkp_build.py` and `test_pkp_validate.py` walk every sample
 package, including a 4.4M-event one — expect roughly 13 and 5 minutes
 respectively, and about 20 minutes for the whole set.
 

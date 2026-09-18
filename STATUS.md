@@ -54,7 +54,7 @@ described in `ENVIRONMENT.md`.**
 | `tools/gc_catalogue.py` | **What Global Configurator catalogued.** Reads `DriverLookup.dat` (raw NRBF); `--against` compares it with a driver folder. Failing the catalogue-parse gate shows only as absence — this measures it. | 14 |
 | `experiments/skeleton_i20/` | **i20 driver, both forms.** `.pkp` transplant + standalone ControlScript module, held to identical bytes. | 86 + 57 |
 | `experiments/oracle_pairs/` | **Finding 14's pair index and scorecard.** `build_index.py` now reproduces the committed pair set exactly (314 packages, 352 pairs) from `corpus/`; its join previously depended on directory order. | 11 |
-| `experiments/loopback/` | **A processor drives the i20 module at a PC.** A command console on the processor, a VISCA listener playing the camera, and an orchestrator checking every step's frames and reads against the module run locally. Rehearsed end to end offline. Path A (ControlScript) needs the Deployment Utility and a certified project; Path B drives the synthesised 20024 from a Global Configurator macro. Found two reply-parser bugs before any hardware. | 73 + 19 |
+| `experiments/loopback/` | **A processor drives the i20 module at a PC.** A command console on the processor, a VISCA listener playing the camera, and an orchestrator checking every step's frames and reads against the module run locally. Rehearsed end to end offline. Path A (ControlScript) needs the Deployment Utility and a certified project; Path B drives the synthesised 20026 from a Global Configurator macro. Found two reply-parser bugs before any hardware. | 74 + 19 |
 | `experiments/gcp_harness/` | **Windows-only.** `Load-Package.ps1` asks Extron's own `LoadFromFile`/`BinaryFormatter` about a package; `scratch/` is the verified UI Automation chain that drove GCP. PowerShell because Python cannot load the x86 Extron assemblies without a third-party bridge. | manual |
 
 Experiments live in `experiments/` (NRBF writer, Crestron→ControlScript, missing-Ethernet
@@ -101,13 +101,18 @@ not a mechanical rewrite, so they are reported as residuals rather than guessed.
    `1bynd_19_20024` carries 34 command assets where the donor had 15; Driver Manager lists
    it, it assigns to an Ethernet port, and the editor renders every command with the exact
    decimal ranges and enum states written into the graph — verified by driving GCP over UI
-   Automation. What remains is **Build, upload and control**: nothing has run on a processor
-   and no socket has been opened to a camera. GCP's licence is a rolling 30 days, renewed
-   whenever it starts online (`ROADMAP.md` D7).
-5. **A rendered driver is not a working driver.** Finding 18 got a synthesised package all
-   the way into a GCP project with its full command surface drawn correctly. Build, upload
-   and control remain unproven, and no i20 has ever been reachable from this project. Same
-   "necessary but not sufficient" trap as the wire table, one gate further along.
+   Automation. Since closed further: `20025` **built and uploaded** to an IPCP Pro 360 and
+   drove a PC playing the camera, and `20026` closed the feedback half — a panel's readouts
+   follow statuses the synthesised assets added (2026-09-18). **What remains is a real i20:**
+   no socket has been opened to a camera, so every reply parsed came from the documentation.
+   GCP's licence is a rolling 30 days, renewed whenever it starts online (`ROADMAP.md` D7).
+5. **A rendered command is not a polled one.** A package can render, build, upload and send
+   correctly and still never be *asked* anything, because polling is gated twice: the
+   command's `PollingInterval` must carry `Enabled` (`1bynd_19_20026`), **and** the project
+   must contain an instance of it — GC compiles its poll list from panel feedback, monitors
+   and macros, not from the driver's command list. Both gates were hit in turn, each looking
+   like the package was wrong. Same "necessary but not sufficient" trap as the wire table,
+   two gates further along.
 
 6. **Emulated feedback where the device publishes nothing.** 7 of the 19 added i20 commands
    poll a real VISCA inquiry; 12 are emulated because the documented 47-inquiry set has

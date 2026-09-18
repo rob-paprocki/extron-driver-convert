@@ -58,10 +58,23 @@ Select the label, open **Text Feedback**, and drag the status onto it.
 | Pan Angle | Pan Angle Status |
 | Tilt Angle | Tilt Angle Status |
 | Camera Output | Camera Output |
-| Cam 2 … Cam 5 | Camera Connection Status, Camera 2 … 5 |
+| Cam 2 … Cam 5 | **Camera** Connection Status, Camera 2 … 5 |
 
 Only the big `--` labels and the `Cam` labels get feedback. The small grey ones
 are captions.
+
+**The two connection statuses are easy to confuse, and the wrong one looks
+right.** *Connection Status* is the device's own; *Camera Connection Status*
+takes a Camera qualifier. Bound to the first, all four Cam labels read
+Connected and never move, because they are reporting the processor's socket.
+That is what the first run of this page did (`../../skeleton_i20/PROTOCOL.md`,
+2026-09-18). Two ways to tell them apart: the right one makes you pick a
+camera, and only the wrong one changes when you stop the listener.
+
+**A status is polled only if something binds it.** GC builds the poll list from
+the command instances in the project — panel feedback, monitors, macros — so a
+status no page binds is never asked for, however the package is built. Leave a
+label unbound and its inquiry simply never goes out.
 
 These statuses need **1bynd_19_20026, IV-CAM-I20 v1.4**. The v1.2 driver
 (20024) lists them but offers nothing to bind (`../../skeleton_i20/PROTOCOL.md`,
@@ -80,14 +93,21 @@ status ignores it.
 4. Press every button once. Each press prints a decoded line on the PC, and the
    button should light.
 5. Change the "camera" from the listener window. Type a line and press Enter:
-   `power off`, `freeze on`, `tracking start`, `zoom 8000`, `output 3`,
-   `camera 2 connected`, or `state` to show everything. The matching button or
-   label should follow.
+   `power off`, `freeze on`, `tracking start`, `zoom 8000`, `pan 1000`,
+   `tilt -500`, `output 3`, `camera 2 connected`, or `state` to show
+   everything. The matching button or label should follow within one poll.
+
+   This is the half a button press cannot test: the panel can only show what
+   the camera reports, so a readout that follows `pan 1000` proves the poll,
+   the reply and the parse. `power off` stops the rest from updating — the
+   driver discards status updates while the device reports itself off — so
+   leave it until last.
 
 Note what lit, what did not, and how long it took. The capture file the
 listener names on exit holds every byte both ways.
 
 ## What this does not cover
 
-Pan and Tilt have no buttons here. Their labels only change when something
-moves the camera, such as the Path B macro in `../README.md`.
+Pan and Tilt have no buttons here, so nothing on this page moves the camera.
+Their labels change only when something else does: the Path B macro in
+`../README.md`, or `pan` / `tilt` at the listener console.
