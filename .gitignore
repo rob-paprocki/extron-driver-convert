@@ -30,3 +30,7 @@ venv/
 # private/ = claude/ (session records) + app-settings/ (GCP, Crestron and ControlScript
 # tool settings; the GCP config carries licence data). On Z:, never pushed.
 private/
+
+# Extron's loader unpacks a package into a .ptmp<hex>/ folder beside it and
+# does not always remove it (one was committed under skeleton_i20/out/).
+.ptmp*/

@@ -273,7 +273,7 @@
           "value_maps": {},
           "slots": [
             "self.AccessToken",
-            "OPAQUE:self.ReadMultiviewString"
+            "OPAQUE:self._emulated_status.get"
           ],
           "opaque": 1,
           "notes": []

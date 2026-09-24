@@ -188,7 +188,11 @@ downstream check will.
 
 `experiments/skeleton_i20/build_i20_assets.py` produces
 **`1bynd_19_20024`** — 32 commands in the graph, matching the script's 31 plus
-`ConnectionStatus`.
+`ConnectionStatus`. *(Superseded by §8 below: GCP's own command-surface count
+for this package is 34, not 32 — see the "command surface renders" row. The
+package has since moved on again: 20025 (built and uploaded to an IPCP Pro
+360) → 20026 (feedback polling) → 20027, 33 commands per model, where Group
+Tracking and Presenter Tracking merged into one Tracking Mode command.)*
 
 Measured on the output:
 
@@ -229,22 +233,85 @@ Two techniques worth keeping, both of which turn a trip into seconds:
 - **`LoadFromFile` through reflection** answers "will GC accept this file?"
 - **UIA over GCP** answers "will GC *render* it?"
 
+## 9. Three contract bugs on the way to 34 commands (commit `86c5acb`, 2026-09-10; recorded here 2026-09-23)
+
+The 34-command result in §8 was not the first attempt at those commands.
+Commit `86c5acb` ("i20 renders in Global Configurator: 34 commands, verified
+by driving GCP") found and fixed three contract bugs on the way — **none of
+which the suite's 39 passing tests could see, for the same reason as §6: a
+test and the parser share one model of the format.**
+
+1. **`PanTiltAngle` read the wrong half of the contract.** The command read
+   `value['Pan']`/`value['Tilt']`, but GC routes every non-`Value` parameter
+   through the *qualifier*, not `value`. Extron's own `pana_19_5702` settles
+   the shape: `PanTiltAbsolutePosition` is `Pan(Decimal)|Tilt(Decimal)`, no
+   `Value`, Set-only, with position feedback split into separate status
+   commands — copied rather than guessed a second time, hence the
+   `PanAngleStatus`/`TiltAngleStatus` split (one VISCA inquiry behind two GC
+   commands). This is the bug already flagged as "partly superseded" under
+   "What this does NOT show" below; it is the same fix, recorded here at its
+   source commit.
+2. **The lightbar enum states were invented.** The asset offered `Blue`,
+   `Cyan`, `Magenta`, `Low` and `High`; the script only knows
+   `Green`/`Red`/`Yellow` and `Off`/`Dim`/`Medium`/`Bright`. Selecting any of
+   the five invented options would have silently `Discard`ed. Fixed by
+   reading the names from the driver's own `_LIGHTBAR_COLOURS`/
+   `_LIGHTBAR_BRIGHTNESS` instead of inventing them.
+3. **`set_range` and `set_attributes` left the object model stale** after
+   mutating the trace — a bookkeeping bug in the asset-graph tooling itself,
+   not in the i20 package's content.
+
+`build_i20_assets.py` now **refuses to emit unless the graph and the script
+agree on every command, parameter name and enum state** (its new `verify()`
+step), rather than relying on a downstream check to catch a mismatch like #2.
+Source: commit `86c5acb`'s message and diff (`git show 86c5acb`).
+
 ## What this does NOT show
 
 - **GC has not rendered these commands.** Everything above is measured on the
   file. Validation covers only the packaged resources (finding 16), so a
   structurally wrong graph still returns `Valid` — the check that matters is
   GC's UI, and that is a hardware gate. **This is the same trap as the wire
-  table: necessary, not sufficient.**
+  table: necessary, not sufficient.** *(Superseded by §8 above, written after
+  this bullet: GC does render them, all 34, verified by driving GCP over UI
+  Automation on 2026-09-10.)*
 - **Nothing has driven a camera.** No i20 has been reachable from this project
-  at any point.
+  at any point. *(Still true. The processor half has since been done, against
+  a PC playing the camera — `experiments/skeleton_i20/PROTOCOL.md`, 09-14 to
+  09-18.)*
 - **The parameter widgets are unverified.** Ranges, intervals and enum orders
   were set from the script's docstrings, not from anything GC has confirmed.
 - **`PanTiltAngle`'s value shape is a guess.** The script documents
   `{'Pan': Decimal, 'Tilt': Decimal}`; it is modelled as two decimal
-  parameters, which is the natural reading but not a measured one.
+  parameters, which is the natural reading but not a measured one. *(Partly
+  superseded by commit `86c5acb`: the original guess routed Pan/Tilt through
+  `value`, which GC cannot express — GC routes every non-`Value` parameter
+  through the qualifier. Copied Extron's own `pana_19_5702` shape instead:
+  `PanTiltAbsolutePosition` is `Pan(Decimal)|Tilt(Decimal)` with no `Value`,
+  Set-only, feedback split into separate status commands — hence
+  `PanAngleStatus`/`TiltAngleStatus`. The shape is now Extron's own rather
+  than a guess. Still unmeasured: whether GC actually delivers
+  `qualifier['Pan']` / `['Tilt']` to the script — the processor runs of
+  09-14 to 09-18 never sent `PanTiltAngle` (ROADMAP H1L) — and whether a real
+  camera behaves this way (H3/H4).)*
 - **Attribute bitfields were copied, not decoded.** 3 / 51 / 35 were taken
-  from donor commands of similar character. The individual bits are not known.
+  from donor commands of similar character. The bits are now decoded from `Extron.Configuration.Contracts` (2026-09-15): 1 ConfigurationVisible, 2 RuntimeVisible, 4 Alias, 8 RequiredPollingCommand, 16 EmulatedStatus, 32 LiveStatus, 64 WriteProtected.
+  **Correction, 2026-09-14:** the command's bits are not the whole contract.
+  Each parameter carries its own `ParamAssetBase+_conditionTypes` and
+  `_attributes`, and cloning a decimal from Preset's Value copied 0 and 15,
+  so GC rendered the new statuses but offered none of them to a label's Text
+  Feedback, and Camera Connection Status offered no camera. Extron's feedback
+  values carry 3 (Set+Update) or 1 (Update-only); qualifiers carry
+  `_attributes` 13. That was not enough: GC still offered no comparison until
+  `_validOperators` carried the condition operators too (Extron: the condition
+  operators on an Update-only Value, action | condition on a Set+Update one).
+  Even then GC never polled them: each command's own `PollingInterval` parameter must carry `ParamAttributeFlags.Enabled`, and clones of never-polled commands did not (`HasPollingValue`, 2026-09-15). With that set, the readouts follow a
+  processor's polls on hardware (2026-09-18). **The package is only half of it:**
+  `SystemCompiler._BuildPollingDriver` builds the poll list from the command
+  *instances* a project contains — panel feedback, monitors, macros — plus any
+  command flagged `RequiredPollingCommand` (bit 8) regardless of bindings. The
+  qualifier comes from the binding's own parameter values, so a qualified status
+  nothing binds is never polled however the package is built. See `experiments/skeleton_i20/PROTOCOL.md` and `1bynd_19_20026`.
 - **One package family.** Every clone here is within a single 1 Beyond camera
   package. Cross-package cloning, where class metadata would have to be
   imported too, is untried.

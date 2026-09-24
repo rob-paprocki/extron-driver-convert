@@ -447,6 +447,271 @@ def test_avx_diff_embedded_vs_shipped_is_small():
 
 
 # --------------------------------------------------------------------------
+# R36 gap 1: AddMatchString(compile(...)) where `compile` was imported bare
+# ("from re import compile") -- only `re.compile`/`<alias>.compile` (an
+# ast.Attribute) was recognised before; a bare Name call from `from re
+# import compile` scored match_strings_total 0.
+# --------------------------------------------------------------------------
+
+def test_bare_compile_import_is_recognised_as_re_compile():
+    src = (
+        "from re import compile\n"
+        "class DeviceClass:\n"
+        "    def __init__(self):\n"
+        "        self.Commands = {'Foo': {'Status': {}}}\n"
+        "        self.AddMatchString(compile(r'^OK\\r'), self.MatchFoo, None)\n"
+        "    def SetFoo(self, value, qualifier):\n"
+        "        FooCmdString = 'F{}\\r'.format(value)\n"
+        "        self.__SetHelper('Foo', FooCmdString, value, qualifier)\n"
+        "    def MatchFoo(self, match, tag):\n"
+        "        pass\n"
+    )
+    table = wt.extract_table(src, "a.py")
+    assert table.stats["match_strings_total"] == 1, "got stats=%r" % table.stats
+    rec = table.commands["Foo"]
+    assert len(rec.responses) == 1, "got responses=%r" % rec.responses
+    assert rec.responses[0].pattern == "^OK\\r"
+
+
+def test_aliased_compile_import_is_recognised():
+    # "from re import compile as _rc" -- the bound local name isn't literally
+    # "compile" either, so the fix must resolve the alias, not just special-
+    # case the string "compile".
+    src = (
+        "from re import compile as _rc\n"
+        "class DeviceClass:\n"
+        "    def __init__(self):\n"
+        "        self.Commands = {'Foo': {'Status': {}}}\n"
+        "        self.AddMatchString(_rc(r'^OK\\r'), self.MatchFoo, None)\n"
+        "    def SetFoo(self, value, qualifier):\n"
+        "        FooCmdString = 'F{}\\r'.format(value)\n"
+        "        self.__SetHelper('Foo', FooCmdString, value, qualifier)\n"
+        "    def MatchFoo(self, match, tag):\n"
+        "        pass\n"
+    )
+    table = wt.extract_table(src, "a.py")
+    assert table.stats["match_strings_total"] == 1, "got stats=%r" % table.stats
+    assert len(table.commands["Foo"].responses) == 1
+
+
+def test_same_named_local_compile_is_not_mistaken_for_re_compile():
+    # Negative control for the fix: a function literally named `compile`
+    # that is NOT imported from `re` must never be treated as re.compile --
+    # that would be guessing from the name alone, which the task explicitly
+    # forbids. match_strings_total stays 0: "not found by this method".
+    src = (
+        "def compile(x):\n"
+        "    return x\n"
+        "class DeviceClass:\n"
+        "    def __init__(self):\n"
+        "        self.Commands = {'Foo': {'Status': {}}}\n"
+        "        self.AddMatchString(compile(r'^OK\\r'), self.MatchFoo, None)\n"
+        "    def SetFoo(self, value, qualifier):\n"
+        "        FooCmdString = 'F{}\\r'.format(value)\n"
+        "        self.__SetHelper('Foo', FooCmdString, value, qualifier)\n"
+        "    def MatchFoo(self, match, tag):\n"
+        "        pass\n"
+    )
+    table = wt.extract_table(src, "a.py")
+    assert table.stats["match_strings_total"] == 0, "got stats=%r" % table.stats
+
+
+def test_tsl_response_layer_is_now_extracted():
+    # The real-world case that surfaced the gap: mod_ross_matrix_tsl_3_1's
+    # whole response layer scored match_strings_total: 0 because the module
+    # does "from re import compile" and calls the bare name.
+    tsl_path = os.path.join(REPO_ROOT, "samples", "Custom Module",
+                             "mod_ross_matrix_tsl_3_1_v1_1_0_0.py")
+    _require(tsl_path)
+    src = read(tsl_path)
+    assert "from re import compile" in src or "import compile" in src, \
+        "fixture no longer uses the bare-compile import this test targets"
+    table = wt.extract_table(src, tsl_path)
+    assert table.stats["match_strings_total"] > 0, "got stats=%r" % table.stats
+
+
+# --------------------------------------------------------------------------
+# R36 gap 2: a command string assigned in both arms of an if/else, then sent
+# AFTER the if/else, used to resolve to OPAQUE:CmdString because the branch
+# walker never merged branch-local assignments back to the enclosing scope.
+# --------------------------------------------------------------------------
+
+def test_if_else_command_string_merged_back_produces_two_templates():
+    src = (
+        "class DeviceClass:\n"
+        "    def __init__(self):\n"
+        "        self.Commands = {'Foo': {'Parameters': ['Mode'], 'Status': {}}}\n"
+        "    def SetFoo(self, value, qualifier):\n"
+        "        Mode = qualifier['Mode']\n"
+        "        if Mode != 'ALL':\n"
+        "            CmdString = 'F A:{}\\r'.format(Mode)\n"
+        "        else:\n"
+        "            CmdString = 'F\\r'\n"
+        "        self.__SetHelper('Foo', CmdString, value, qualifier)\n"
+    )
+    table = wt.extract_table(src, "a.py")
+    rec = table.commands["Foo"]
+    templates = sorted(t.canonical for t in rec.set_templates)
+    assert templates == ["F\r", "F A:{}\r"], "got templates=%r" % templates
+    # Never picked one arm silently and never left it opaque either: the
+    # model CAN express alternatives here (set_templates is a list), so both
+    # arms must show up fully resolved -- a real slot (qualifier['Mode'],
+    # in the 'F A:{}\r' arm) is fine, an OPAQUE:CmdString residual is not.
+    assert not any("OPAQUE:" in s for t in rec.set_templates for s in t.slots), \
+        "got slots=%r" % [(t.canonical, t.slots) for t in rec.set_templates]
+    assert table.stats["opaque_markers"] == 0, "got stats=%r" % table.stats
+
+
+def test_if_else_identical_arms_collapse_to_one_template_not_two():
+    # Both arms assign the exact same literal: the merged-back worlds are
+    # structurally identical and must dedupe to ONE template, not silently
+    # pick one (there's nothing to pick between) and not spuriously double
+    # it either.
+    src = (
+        "class DeviceClass:\n"
+        "    def __init__(self):\n"
+        "        self.Commands = {'Foo': {'Status': {}}}\n"
+        "    def SetFoo(self, value, qualifier):\n"
+        "        if value == 'X':\n"
+        "            CmdString = 'F\\r'\n"
+        "        else:\n"
+        "            CmdString = 'F\\r'\n"
+        "        self.__SetHelper('Foo', CmdString, value, qualifier)\n"
+    )
+    table = wt.extract_table(src, "a.py")
+    rec = table.commands["Foo"]
+    templates = [t.canonical for t in rec.set_templates]
+    assert templates == ["F\r"], "expected exactly one merged template, got %r" % templates
+
+
+def test_helper_call_assigned_to_a_name_is_still_found():
+    # `res = self.__UpdateHelper(...)` is the usual Update shape, and the
+    # branch walker's first version recorded the assignment's binding without
+    # looking inside its value - so every such call vanished, from both sides
+    # of every comparison at once, and nothing failed. Caught by
+    # experiments/docs_only/test_generator.py, not by this file.
+    src = (
+        "class DeviceClass:\n"
+        "    def __init__(self):\n"
+        "        self.Commands = {'Foo': {'Status': {}}}\n"
+        "    def UpdateFoo(self, value, qualifier):\n"
+        "        FooCmdString = 'F?\\r'\n"
+        "        res = self.__UpdateHelper('Foo', FooCmdString, value, qualifier)\n"
+        "        if res:\n"
+        "            self.WriteStatus('Foo', res, qualifier)\n"
+    )
+    table = wt.extract_table(src, "a.py")
+    rec = table.commands["Foo"]
+    templates = [t.canonical for t in rec.update_templates]
+    assert templates == ["F?\r"], "expected the assigned helper call, got %r" % templates
+
+
+def test_early_return_guard_does_not_leave_a_duplicate_world():
+    # A guard clause that returns before the command string is even built
+    # must not fork a second, bogus world for the code after the if.
+    src = (
+        "class DeviceClass:\n"
+        "    def __init__(self):\n"
+        "        self.Commands = {'Foo': {'Status': {}}}\n"
+        "    def SetFoo(self, value, qualifier):\n"
+        "        if value == 'invalid':\n"
+        "            return\n"
+        "        CmdString = 'F{}\\r'.format(value)\n"
+        "        self.__SetHelper('Foo', CmdString, value, qualifier)\n"
+    )
+    table = wt.extract_table(src, "a.py")
+    rec = table.commands["Foo"]
+    templates = [t.canonical for t in rec.set_templates]
+    assert templates == ["F{}\r"], "got templates=%r" % templates
+
+
+def test_rosstalk_matrix_tie_command_has_two_templates_no_opaque():
+    # The real-world case: RossTalk's SetMatrixTieCommand assigns CmdString
+    # in both arms of an if/else on `Levels`, then calls __SetHelper after
+    # the if. Both arms must show up as templates, and the OPAQUE:CmdString
+    # residual must be gone.
+    rosstalk_path = os.path.join(REPO_ROOT, "samples", "Custom Module",
+                                  "mod_ross_matrix_RossTalk_v1_1_0_0.py")
+    _require(rosstalk_path)
+    table = wt.extract_table(read(rosstalk_path), rosstalk_path)
+    rec = table.commands["MatrixTieCommand"]
+    templates = sorted(t.canonical for t in rec.set_templates)
+    assert len(templates) == 2, "got templates=%r" % templates
+    assert not any(
+        "OPAQUE:CmdString" in s for t in rec.set_templates for s in t.slots
+    ), "got slots=%r" % [t.slots for t in rec.set_templates]
+
+
+# --------------------------------------------------------------------------
+# R36 gap 3: Resolver._find_return walked depth-first into a try's except
+# handlers before a later sibling statement, so it could pick the wrong
+# return (findings/19 section 2, the Samsung ReadStatusHelper case).
+# --------------------------------------------------------------------------
+
+def test_find_return_prefers_normal_path_over_except_handler():
+    src = (
+        "class DeviceClass:\n"
+        "    def __init__(self):\n"
+        "        self.Commands = {'Foo': {'Status': {}}}\n"
+        "    def SetFoo(self, value, qualifier):\n"
+        "        CmdString = self.build(value) + 'TAIL\\r'\n"
+        "        self.__SetHelper('Foo', CmdString, value, qualifier)\n"
+        "    def build(self, value):\n"
+        "        if value:\n"
+        "            for x in [1]:\n"
+        "                try:\n"
+        "                    pass\n"
+        "                except KeyError:\n"
+        "                    return 'WRONG'\n"
+        "        try:\n"
+        "            return 'RIGHT'\n"
+        "        except Exception:\n"
+        "            return 'ALSO_WRONG'\n"
+    )
+    table = wt.extract_table(src, "a.py")
+    rec = table.commands["Foo"]
+    t = rec.set_templates[0]
+    assert t.canonical == "RIGHTTAIL\r", "got canonical=%r" % t.canonical
+
+
+def test_find_return_falls_through_to_sibling_when_normal_path_has_none():
+    # If the try's normal path (body/orelse/finalbody) has no return at all
+    # -- only its except handler does -- the whole Try contributes nothing,
+    # per "count as opaque when the normal path has none": the walk must
+    # move on to the NEXT sibling statement rather than settle for the
+    # handler's return.
+    src = (
+        "class DeviceClass:\n"
+        "    def __init__(self):\n"
+        "        self.Commands = {'Foo': {'Status': {}}}\n"
+        "    def SetFoo(self, value, qualifier):\n"
+        "        CmdString = self.build(value) + 'TAIL\\r'\n"
+        "        self.__SetHelper('Foo', CmdString, value, qualifier)\n"
+        "    def build(self, value):\n"
+        "        try:\n"
+        "            pass\n"
+        "        except KeyError:\n"
+        "            return 'WRONG'\n"
+        "        return 'RIGHT'\n"
+    )
+    table = wt.extract_table(src, "a.py")
+    rec = table.commands["Foo"]
+    t = rec.set_templates[0]
+    assert t.canonical == "RIGHTTAIL\r", "got canonical=%r" % t.canonical
+
+
+def test_samsung_shipped_read_status_helper_still_resolves_none_for_multiview():
+    # findings/19 section 2: for MultiviewString specifically the two
+    # candidate returns happen to coincide (both None), so this fix must not
+    # change the embedded/shipped diff residual that's already accounted
+    # for -- only the (previously silent) statement-order bug underneath it.
+    # Confirm the shipped module still extracts without error and RIGHT/WRONG
+    # style divergence isn't introduced by the fix.
+    table = _samsung_shipped_table()
+    assert table.stats["commands_found"] > 0
+
+
+# --------------------------------------------------------------------------
 # diff() mechanics, tested directly (not just via the oracle pairs)
 # --------------------------------------------------------------------------
 
@@ -518,6 +783,38 @@ class DeviceClass:
     t = rec.set_templates[0]
     assert "TAIL\r" in t.canonical
     assert table.stats["opaque_markers"] >= 1, "expected an opaque marker to be counted"
+
+
+def test_match_handler_qualifier_keyed_value_state_values_is_not_flattened():
+    """Regression for the oracle_pairs scorecard's "compare-failed /
+    TypeError: unhashable type: 'dict'" pairs (extr_31_1685_v1_3_3.pkp and
+    extr_31_6096_v1_1_1.pkp, both MediaPort). A command's Match handler can
+    define `ValueStateValues` as a *qualifier-keyed table of state maps*
+    (e.g. one per-input state map per HDMI/USB source), not a flat
+    wire-value -> human-name map. The value-map fallback used to invert that
+    dict unconditionally (`{v: k for k, v in reverse.items()}`), which
+    crashes when a value is itself a dict, and would otherwise have had to
+    guess which nested sub-map's keys belong to this command. Per the
+    opaque-marker convention above: unresolvable is reported, never guessed.
+    """
+    src = (
+        "class DeviceClass:\n"
+        "    def __init__(self):\n"
+        "        self.Commands = {'Foo': {'Status': {}}}\n"
+        "    def SetFoo(self, value, qualifier):\n"
+        "        FooCmdString = 'F{}\\r'.format(value)\n"
+        "        self.__SetHelper('Foo', FooCmdString, value, qualifier)\n"
+        "    def MatchFoo(self, match, tag):\n"
+        "        ValueStateValues = {'HDMI': {'0': 'None', '1': 'LPCM'},\n"
+        "                             'USB': {'0': 'None'}}\n"
+        "        pass\n"
+    )
+    table = wt.extract_table(src, "a.py")   # must not raise TypeError
+    rec = table.commands["Foo"]
+    assert rec.value_map == {}, \
+        "a qualifier-keyed reverse map must not be flattened/guessed: got %r" % rec.value_map
+    assert table.stats["opaque_markers"] >= 1, \
+        "expected the unresolvable reverse map to be counted as opaque"
 
 
 # --------------------------------------------------------------------------

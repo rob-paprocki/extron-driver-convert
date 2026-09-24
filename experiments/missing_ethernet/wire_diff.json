@@ -18,12 +18,14 @@
   ],
   "differences": {
     "MultiviewCommand": {
-      "set_templates": {
+      "set_template_slot_sources": {
         "a": [
-          "url={'jsonrpc': 2.0, 'method': multiviewControl, 'params': {'AccessToken': {}, 'multiviewMode': None}, 'id': 1}"
+          "OPAQUE:Status[context]",
+          "self.AccessToken"
         ],
         "b": [
-          "url={'jsonrpc': 2.0, 'method': multiviewControl, 'params': {'AccessToken': {}, 'multiviewMode': {}}, 'id': 1}"
+          "OPAQUE:self._emulated_status.get",
+          "self.AccessToken"
         ]
       }
     }

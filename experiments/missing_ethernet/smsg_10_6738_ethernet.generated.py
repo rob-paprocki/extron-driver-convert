@@ -5,6 +5,7 @@ import base64
 import urllib.error
 import urllib.request
 import json
+import time
 
 class DeviceClass:
     def __init__(self, ipAddress, port, deviceUsername, devicePassword, SSLVerifyMode):
@@ -29,6 +30,7 @@ class DeviceClass:
         self.RootURL = 'https://{0}:{1}/'.format(ipAddress, port)
         self.Opener = urllib.request.build_opener(urllib.request.HTTPBasicAuthHandler(), urllib.request.HTTPSHandler(context=self._context))
 
+        self._emulated_status = {}
         self.Models = {}
 
         self.Commands = {
@@ -185,6 +187,12 @@ class DeviceClass:
             except (ValueError, IndexError, AttributeError):
                 self.Error(['Volume: Invalid/unexpected response'])
 
+    def WriteMultiviewString(self, value, qualifier, context):
+        self._emulated_status['MultiviewString'] = value
+
+    def ReadMultiviewString(self, qualifier, context):
+        return self._emulated_status.get('MultiviewString')
+
     def __CheckResponseForErrors(self, sourceCmdName, response):
         try:
             res = json.loads(response.read().decode())
@@ -251,12 +259,6 @@ class DeviceClass:
             return res
         else:
             self.Discard('Inappropriate Command')
-
-    def OnConnected(self):
-        pass
-
-    def OnDisconnected(self):
-        self.__ResetLiveStatus()
 
     def OnConnected(self):
         self.connectionFlag = True

@@ -8,6 +8,11 @@ in-page relative links inside `Whats-New/Whats-New.htm`, which names every API c
 firmware releases). 40 pages found and fetched; 0 pages failed. No 404s encountered among the URLs listed
 below — all links tried against the live site resolved.
 
+*(2026-09-23: 11 more API-Reference pages were fetched after this harvest and committed without this index
+being updated — see "Added after the first harvest" below. The directory now holds 51 `.md` files under
+`reference/automate-vx-api/` by direct count, INDEX.md and ENDPOINTS.md excluded — not 40. See the
+correction after step 5 below for what that means for the completeness claim.)*
+
 Local layout mirrors the site's own topic folders under this directory (`Quick-Start/`, `API-Reference/`,
 `Whats-New/`, `Support/`, plus `Home.md` at the root). Every local file's first line is `Source: <url>`.
 
@@ -27,6 +32,9 @@ Local layout mirrors the site's own topic folders under this directory (`Quick-S
 | `Quick-Start/Make-API-Calls.md` | https://sdkcon78221.crestron.com/sdk/Automate-VX-API/Content/Topics/Automate-API/Quick-Start/Make-API-Calls.htm |
 
 ## API Reference (index + 32 endpoint pages)
+
+*(2026-09-23: 11 more endpoint pages were fetched after this harvest; see "Added after the first harvest"
+below rather than this table — the heading and table here are left as originally written.)*
 
 | Local file | Source URL |
 |---|---|
@@ -95,12 +103,51 @@ Local layout mirrors the site's own topic folders under this directory (`Quick-S
    exactly matches the 32 identical endpoint strings independently observed shared between the Extron
    ControlScript module and the Extron .pkp (findings/07), this is treated as strong (not absolute)
    evidence the API-Reference page set is complete.
+
+   *(2026-09-23 correction: this convergence check was wrong on its own terms. `RecordStatus-API.htm`
+   — one of the ten plausible names this step says returned zero new pages — exists on the site; it was
+   fetched directly by URL (not found by the `brightdata search` method used here) in commit aa75c40,
+   along with `AutoSwitchStatus`, `GetLayouts`, `GetRoomConfigs`, `LayoutStatus`, `OutputStatus`,
+   `RoomConfigStatus`, `StartAutoSwitch` and `Wake`; `ChangeRoomConfiguration` and `StopAutoSwitch` were
+   added separately in commit ad9899e — eleven pages in total that this enumeration missed. The "exactly matches
+   32" agreement with findings/07 was true of the page count at the time and is coincidental, not
+   corroborating: findings/07 counts endpoint strings observed in the Extron driver/pkp, not pages on this
+   site, and the two numbers no longer match (see the note above step 1 and "Added after the first harvest"
+   below). The search-engine method under-enumerated; it is not that the 11 pages did not exist, only that
+   this method did not find them — a negative result from this method, not evidence of absence.)*
 6. Confidence caveat: this is search-engine + in-page-link enumeration of a site with no accessible
    sitemap, TOC JSON, or robots.txt (all three checked and 404). A page that is orphaned (no in-page link
    to it and not indexed by Google) would not be found by this method. The `GetAllStatus` example response
    names 8 further sub-API call names with no page of their own at all (see `ENDPOINTS.md`, "Undocumented
    sub-APIs") — these are documented evidence that server-side APIs can exist with zero dedicated page, which
    is the one concrete reason to hold the "32 is complete" conclusion as strong rather than certain.
+
+## Added after the first harvest
+
+Eleven more API-Reference pages were fetched and committed after this index and `ENDPOINTS.md` were first
+written (2026-09-07), without either being updated at the time. `ENDPOINTS.md`'s endpoint table and this
+index's convergence check (step 5 above) were stale from that point until 2026-09-23, when both were
+corrected in place.
+
+| Local file | Source URL | Added |
+|---|---|---|
+| `API-Reference/AutoSwitchStatus-API.md` | https://sdkcon78221.crestron.com/sdk/Automate-VX-API/Content/Topics/Automate-API/API-Reference/AutoSwitchStatus-API.htm | aa75c40 |
+| `API-Reference/ChangeRoomConfiguration-API.md` | https://sdkcon78221.crestron.com/sdk/Automate-VX-API/Content/Topics/Automate-API/API-Reference/ChangeRoomConfig-API.htm | ad9899e |
+| `API-Reference/GetLayouts-API.md` | https://sdkcon78221.crestron.com/sdk/Automate-VX-API/Content/Topics/Automate-API/API-Reference/GetLayouts-API.htm | aa75c40 |
+| `API-Reference/GetRoomConfigs-API.md` | https://sdkcon78221.crestron.com/sdk/Automate-VX-API/Content/Topics/Automate-API/API-Reference/GetRoomConfigs-API.htm | aa75c40 |
+| `API-Reference/LayoutStatus-API.md` | https://sdkcon78221.crestron.com/sdk/Automate-VX-API/Content/Topics/Automate-API/API-Reference/LayoutStatus-API.htm | aa75c40 |
+| `API-Reference/OutputStatus-API.md` | https://sdkcon78221.crestron.com/sdk/Automate-VX-API/Content/Topics/Automate-API/API-Reference/OutputStatus-API.htm | aa75c40 |
+| `API-Reference/RecordStatus-API.md` | https://sdkcon78221.crestron.com/sdk/Automate-VX-API/Content/Topics/Automate-API/API-Reference/RecordStatus-API.htm | aa75c40 |
+| `API-Reference/RoomConfigStatus-API.md` | https://sdkcon78221.crestron.com/sdk/Automate-VX-API/Content/Topics/Automate-API/API-Reference/RoomConfigStatus-API.htm | aa75c40 |
+| `API-Reference/StartAutoSwitch-API.md` | https://sdkcon78221.crestron.com/sdk/Automate-VX-API/Content/Topics/Automate-API/API-Reference/StartAutoSwitch-API.htm | aa75c40 |
+| `API-Reference/StopAutoSwitch-API.md` | https://sdkcon78221.crestron.com/sdk/Automate-VX-API/Content/Topics/Automate-API/API-Reference/StopAutoSwitch.htm | ad9899e |
+| `API-Reference/Wake-API.md` | https://sdkcon78221.crestron.com/sdk/Automate-VX-API/Content/Topics/Automate-API/API-Reference/Wake-API.htm | aa75c40 |
+
+Note the source URL for `StopAutoSwitch-API.md` is `StopAutoSwitch.htm` (no `-API` suffix on the site,
+unlike every sibling page) and the source URL for `ChangeRoomConfiguration-API.md` is
+`ChangeRoomConfig-API.htm` (the site's own filename is the shorter `ChangeRoomConfig`, not the longer name
+used in that page's own `<h1>` and in this local filename) — both cited verbatim from each file's first
+line, not normalized.
 
 ## Deprecated endpoint noted but not fetched
 

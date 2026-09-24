@@ -109,10 +109,10 @@ class StubBaseDriver(object):
 def load_driver_class(source, class_name):
     """Execute the derived driver in a namespace shaped like GC's.
 
-    ExtronTime is supplied here because the driver uses it 7 times as a bare
-    name with no import - the host populates the module globals beyond the
-    driver's own import list. That is a real property of the runtime, and a
-    from-scratch emitter needs to know it.
+    Only Extron2.BaseDriver is supplied. ExtronTime used to be injected here
+    on the belief that the host provides it; the script defines it itself, at
+    module level after the class (finding 13 section 5, corrected 2026-09-23),
+    so nothing but the import the script names is stubbed.
     """
     pkg = types.ModuleType("Extron2")
     mod = types.ModuleType("Extron2.BaseDriver")
@@ -121,7 +121,7 @@ def load_driver_class(source, class_name):
     sys.modules["Extron2"] = pkg
     sys.modules["Extron2.BaseDriver"] = mod
 
-    ns = {"__name__": "derived_i20", "ExtronTime": lambda t: t}
+    ns = {"__name__": "derived_i20"}
     exec(compile(source, "<derived_i20>", "exec"), ns)
     return ns[class_name]
 
@@ -158,6 +158,34 @@ def drive(d, method, *args):
     return d.sent[0]
 
 
+def age_inquiry_cache(d):
+    """Move every cached shared inquiry past its window, as the next poll would."""
+    for k, (t, v) in list((d._inquiryCache or {}).items()):
+        d._inquiryCache[k] = (t - d.INQUIRY_WINDOW, v)
+
+
+def polling(unidirectional="False"):
+    """A driver ready to poll: Extron's __UpdateHelper refuses while Live power
+    is unknown, so power is established first (see test [4])."""
+    d = make(unidirectional=unidirectional)
+    d.WritePower("On", None, "Live")
+    return d
+
+
+def template_regex(template):
+    """Crestron's resolved template as a regex over our hex frames: the header
+    is 81, every other {placeholder} one byte, every literal itself."""
+    out = []
+    for tok in template.replace("{:hex}", " ").split():
+        if tok == "{Header}":
+            out.append("81")
+        elif tok.startswith("{"):
+            out.append("[0-9A-F]{2}")
+        else:
+            out.append(tok.upper())
+    return "^" + " ".join(out) + "$"
+
+
 # ---------------------------------------------------------------------------
 
 def test_driver_loads():
@@ -175,8 +203,8 @@ def test_i20_set_commands():
     cases = [
         ("_cmd_SetTrackingFraming",  ("Start", None),  "81 01 04 3F 02 50 FF"),
         ("_cmd_SetTrackingFraming",  ("Stop", None),   "81 01 04 3F 02 51 FF"),
-        ("_cmd_SetGroupTracking",    ("Enable", None), "81 01 04 3F 02 52 FF"),
-        ("_cmd_SetPresenterTracking", ("Enable", None), "81 01 04 3F 02 53 FF"),
+        ("_cmd_SetTrackingMode",     ("Group", None),  "81 01 04 3F 02 52 FF"),
+        ("_cmd_SetTrackingMode",     ("Presenter", None), "81 01 04 3F 02 53 FF"),
         ("_cmd_SetMenu",             ("Toggle", None), "81 01 04 3F 02 5F FF"),
         ("_cmd_SetReboot",           ("Reboot", None), "81 01 04 3F 02 63 FF"),
         ("_cmd_SetIdentify",         ("Identify", None), "81 C2 01 01 0A FF"),
@@ -377,7 +405,7 @@ def test_reserved_presets_against_documentation():
         ("_cmd_SetTrackingShot",   ("Tracking", None), 1,   "Tracking Shot"),
         ("_cmd_SetTrackingFraming", ("Start", None),   80,  "Start Tracking"),
         ("_cmd_SetTrackingFraming", ("Stop", None),    81,  "Pause Tracking"),
-        ("_cmd_SetGroupTracking",  ("Enable", None),   82,  "Start Group Tracking"),
+        ("_cmd_SetTrackingMode",   ("Group", None),    82,  "Start Group Tracking"),
         ("_cmd_SetMenu",           ("Toggle", None),   95,  "OSD Menu Toggle"),
         ("_cmd_SetReboot",         ("Reboot", None),   99,  "Reboot"),
     ]
@@ -402,7 +430,7 @@ def test_reserved_presets_against_documentation():
     # The one byte the two sources disagree about. Both readings are the same
     # wire byte, so the driver is correct either way - only the label is at
     # stake. Asserting the byte keeps that explicit.
-    got = drive(d, "_cmd_SetPresenterTracking", "Enable", None)
+    got = drive(d, "_cmd_SetTrackingMode", "Presenter", None)
     check("preset  83 CONTESTED (driver: presenter tracking / docs: pause group)"
           " -> 81 01 04 3F 02 53 FF",
           got is not None and hexs(got) == "81 01 04 3F 02 53 FF",
@@ -415,7 +443,6 @@ def test_intelligent_switching():
     cases = [
         ("_cmd_SetCameraOutput",         (1, None),         "81 C2 01 08 01 FF"),
         ("_cmd_SetCameraOutput",         (5, None),         "81 C2 01 08 05 FF"),
-        ("_cmd_SetCameraOutput",         (0, None),         "81 C2 01 08 00 FF"),
         ("_cmd_SetIntelligentSwitching", ("Pause", None),   "81 C2 01 0B 00 FF"),
         ("_cmd_SetIntelligentSwitching", ("Resume", None),  "81 C2 01 08 00 FF"),
     ]
@@ -424,6 +451,13 @@ def test_intelligent_switching():
         check("%-28s %-8s -> %s" % (method[len("_cmd_Set"):], args[0], expect),
               got is not None and hexs(got) == expect,
               "got %s" % (hexs(got) if got else "<nothing sent>"))
+
+    # Camera Output 0 is the same frame as Intelligent Switching Resume, just
+    # above. Two commands, one byte sequence, and a capture cannot tell them
+    # apart - so from 20027 the range starts at 1 and Resume is the only way
+    # to send it. Extron's own range check refuses anything outside.
+    check("CameraOutput 0 is refused: Resume already sends that frame",
+          drive(d, "_cmd_SetCameraOutput", 0, None) is None)
 
     du = make(unidirectional="False")
     du.WritePower("On", None, "Live")
@@ -443,6 +477,224 @@ def test_intelligent_switching():
         got = dd_.ReadCameraConnectionStatus({"Camera": 2}, "Live")
         check("%s -> %s" % (hexs(reply), expect), got == expect,
               "got %r" % got)
+
+
+def test_position_and_output_feedback():
+    print("\n[13] position and camera-output replies read back as sent")
+    # Pan/tilt are read the way _cmd_SetPanTiltAngle writes them (pan & 0xFFFF),
+    # so a negative angle must come back negative, not as 63088.
+    for reply, pan, tilt in ((b"\x90\x50\x0F\x06\x07\x00\x0F\x0A\x0F\x00\xFF", -2448, -1296),
+                             (b"\x90\x50\x00\x09\x09\x00\x00\x05\x01\x00\xFF", 2448, 1296)):
+        d = make(unidirectional="False")
+        d.WritePower("On", None, "Live")
+        d._canned = reply
+        d._cmd_UpdatePanAngleStatus(None, None)
+        d._cmd_UpdateTiltAngleStatus(None, None)
+        got = (d.ReadStatusHelper("PanAngleStatus", None, "Live"),
+               d.ReadStatusHelper("TiltAngleStatus", None, "Live"))
+        check("%s -> pan %d, tilt %d" % (hexs(reply), pan, tilt), got == (pan, tilt),
+              "got %r, errors=%r" % (got, d.errors))
+
+    # Get Output, VISCA-Intelligent-Switching-Commands.md: y0 50 0S 0Z FF,
+    # S = switching on/off, Z = camera.
+    for reply, camera in ((b"\x90\x50\x01\x03\xFF", 3), (b"\x90\x50\x00\x05\xFF", 5)):
+        d = make(unidirectional="False")
+        d.WritePower("On", None, "Live")
+        d._canned = reply
+        d._cmd_UpdateCameraOutput(None, None)
+        got = d.ReadStatusHelper("CameraOutput", None, "Live")
+        check("%s -> camera %d, not the switching flag" % (hexs(reply), camera),
+              got == camera, "got %r, errors=%r" % (got, d.errors))
+
+    # One query answers both statuses. On 20026 a poll cycle carried two
+    # identical 81 09 06 12 FF and used half of each reply; from 20027 the
+    # second update inside the window reuses the first reply, the way Extron
+    # rate limit pana_19_5702.
+    d = make(unidirectional="False")
+    d.WritePower("On", None, "Live")
+    d._canned = b"\x90\x50\x00\x03\x0E\x08\x0F\x0E\x00\x0C\xFF"
+    d.sent = []
+    d._cmd_UpdatePanAngleStatus(None, None)
+    d._cmd_UpdateTiltAngleStatus(None, None)
+    check("two bound position statuses cost ONE 81 09 06 12 FF, not two",
+          len(d.sent) == 1, "sent %d frames: %s" % (len(d.sent),
+                                                    [hexs(f) for f in d.sent]))
+    check("and both are written from that one reply",
+          (d.ReadStatusHelper("PanAngleStatus", None, "Live"),
+           d.ReadStatusHelper("TiltAngleStatus", None, "Live")) == (1000, -500))
+
+    # The window must not swallow the NEXT polling pass.
+    age_inquiry_cache(d)
+    d.sent = []
+    d._cmd_UpdatePanAngleStatus(None, None)
+    check("once the window passes, the next poll queries again", len(d.sent) == 1)
+
+    # A query that got no reply caches nothing, so it is retried not remembered.
+    d = make(unidirectional="False")
+    d.WritePower("On", None, "Live")
+    d._canned = b""
+    d.sent = []
+    d._cmd_UpdatePanAngleStatus(None, None)
+    d._cmd_UpdateTiltAngleStatus(None, None)
+    check("a failed query is retried, not cached", len(d.sent) == 2,
+          "sent %d frames" % len(d.sent))
+
+
+def test_parity_commands():
+    print("\n[14] v1.6 parity commands emit Crestron's own templates")
+    d = make()
+    # (method, args, frame, Crestron command whose template it must fit)
+    sets = [
+        ("_cmd_SetExposureCompensationMode", ("On", None),  "81 01 04 3E 02 FF",
+         "SetExposureCompensationMode"),
+        ("_cmd_SetExposureCompensationMode", ("Off", None), "81 01 04 3E 03 FF",
+         "SetExposureCompensationMode"),
+        ("_cmd_SetExposureCompensation", (0, None),  "81 01 04 4E 00 00 00 00 FF",
+         "SetExposureCompensation"),
+        ("_cmd_SetExposureCompensation", (7, None),  "81 01 04 4E 00 00 00 07 FF",
+         "SetExposureCompensation"),
+        ("_cmd_SetExposureCompensation", (14, None), "81 01 04 4E 00 00 00 0E FF",
+         "SetExposureCompensation"),
+        ("_cmd_SetFocusPosition", (12224, None), "81 01 04 48 02 0F 0C 00 FF",
+         "SetFocusPosition"),
+        ("_cmd_SetFocusPosition", (20664, None), "81 01 04 48 05 00 0B 08 FF",
+         "SetFocusPosition"),
+        ("_cmd_SetOnePushAutoFocus", ("Trigger", None), "81 01 04 18 01 FF",
+         "OnePushAutoFocus"),
+        ("_cmd_SetAutoFocusBehavior", ("Global", None), "81 C2 01 02 00 FF",
+         "SetAutoFocusBehavior"),
+        ("_cmd_SetAutoFocusBehavior", ("Center", None), "81 C2 01 02 01 FF",
+         "SetAutoFocusBehavior"),
+        ("_cmd_SetAutoFocusBehavior", ("Face", None),   "81 C2 01 02 04 FF",
+         "SetAutoFocusBehavior"),
+        ("_cmd_SetAutoFocusSensitivity", (1, None), "81 C2 01 03 01 FF",
+         "SetAutoFocusSensitivity"),
+        ("_cmd_SetAutoFocusSensitivity", (3, None), "81 C2 01 03 03 FF",
+         "SetAutoFocusSensitivity"),
+        ("_cmd_SetAutoPrivacyMode", ("On", None),  "81 01 0E 24 26 00 01 FF",
+         "SetAutoPrivacyMode"),
+        ("_cmd_SetAutoPrivacyMode", ("Off", None), "81 01 0E 24 26 00 00 FF",
+         "SetAutoPrivacyMode"),
+        ("_cmd_SetAutoSoftwareUpdate", ("On", None),  "81 C2 01 04 01 FF",
+         "SetAutoSoftwareUpdate"),
+        ("_cmd_SetAutoSoftwareUpdate", ("Off", None), "81 C2 01 04 00 FF",
+         "SetAutoSoftwareUpdate"),
+    ]
+    dd = resolve_visca.load(CRESTRON_PKG) if os.path.exists(CRESTRON_PKG) else None
+    for method, args, expect, crestron in sets:
+        got = drive(d, method, *args)
+        check("%-28s %-8s -> %s" % (method[len("_cmd_Set"):], args[0], expect),
+              got is not None and hexs(got) == expect,
+              "got %s" % (hexs(got) if got else "<nothing sent>"))
+        if dd is not None:
+            rx = template_regex(resolve_visca.resolve(dd, crestron))
+            check("    fits Crestron's %s template" % crestron,
+                  re.match(rx, expect) is not None, rx)
+
+    # Out of range is refused, not clamped: Extron's own convention.
+    for method, v in (("_cmd_SetExposureCompensation", 15),
+                      ("_cmd_SetFocusPosition", 12223),
+                      ("_cmd_SetFocusPosition", 20665),
+                      ("_cmd_SetAutoFocusSensitivity", 0),
+                      ("_cmd_SetAutoFocusSensitivity", 4)):
+        check("%s(%d) is refused" % (method[len("_cmd_Set"):], v),
+              drive(d, method, v, None) is None)
+
+    du = polling()
+    du._canned = b""
+    inquiries = [
+        ("_cmd_UpdateTrackingMode",             "81 C2 09 06 FF", "GetGroupTracking"),
+        ("_cmd_UpdateTrackingProfile",          "81 C2 09 07 FF", "GetTrackingFramingProfile"),
+        ("_cmd_UpdateIntelligentSwitching",     "81 C2 09 08 FF", None),
+        ("_cmd_UpdateExposureCompensationMode", "81 09 04 3E FF", "GetExposureCompensationMode"),
+        ("_cmd_UpdateExposureCompensation",     "81 09 04 4E FF", "GetExposureCompensation"),
+        ("_cmd_UpdateFocusPosition",            "81 09 04 48 FF", "GetFocusPosition"),
+        ("_cmd_UpdateAutoFocusBehavior",        "81 C2 09 02 FF", "GetAutoFocusBehavior"),
+        ("_cmd_UpdateAutoFocusSensitivity",     "81 C2 09 03 FF", "GetAutoFocusSensitivity"),
+        ("_cmd_UpdateAutoPrivacyMode",          "81 09 0E 24 26 FF", "GetAutoPrivacyMode"),
+        ("_cmd_UpdateAutoSoftwareUpdate",       "81 C2 09 04 FF", "GetAutoSoftwareUpdate"),
+        ("_cmd_UpdateDeviceModel",              "81 09 00 02 FF", "GetDeviceInformation"),
+        ("_cmd_UpdateRomVersion",               "81 09 00 02 FF", "GetDeviceInformation"),
+        ("_cmd_UpdatePanSpeedMaxStatus",        "81 09 06 11 FF", "GetPanTiltSpeedMax"),
+        ("_cmd_UpdateTiltSpeedMaxStatus",       "81 09 06 11 FF", "GetPanTiltSpeedMax"),
+    ]
+    for method, expect, crestron in inquiries:
+        du.sent = []
+        getattr(du, method)(None, None)
+        got = du.sent[0] if du.sent else None
+        check("%-28s -> %s" % (method[len("_cmd_Update"):], expect),
+              got is not None and hexs(got) == expect,
+              "got %s" % (hexs(got) if got else "<nothing sent>"))
+        if dd is not None and crestron:
+            rx = template_regex(resolve_visca.resolve(dd, crestron))
+            check("    fits Crestron's %s template" % crestron,
+                  re.match(rx, expect) is not None, rx)
+
+
+def test_live_statuses():
+    print("\n[15] v1.6 statuses parse Crestron's reply rules")
+    # (update method, reply, status, expected) - each reply is one Crestron's
+    # Responses entry matches (CRESTRON_PARITY.md, Task A).
+    cases = [
+        ("_cmd_UpdateTrackingMode", b"\x90\x50\x00\x01\xFF", "TrackingMode", "Group"),
+        ("_cmd_UpdateTrackingMode", b"\x90\x50\x00\x00\xFF", "TrackingMode", "Presenter"),
+        ("_cmd_UpdateTrackingProfile", b"\x90\x50\x06\x09\xFF", "TrackingProfile", 1),
+        ("_cmd_UpdateTrackingProfile", b"\x90\x50\x06\x0C\xFF", "TrackingProfile", 4),
+        ("_cmd_UpdateExposureCompensationMode", b"\x90\x50\x02\xFF",
+         "ExposureCompensationMode", "On"),
+        ("_cmd_UpdateExposureCompensationMode", b"\x90\x50\x03\xFF",
+         "ExposureCompensationMode", "Off"),
+        ("_cmd_UpdateExposureCompensation", b"\x90\x50\x00\x00\x00\x07\xFF",
+         "ExposureCompensation", 7),
+        ("_cmd_UpdateFocusPosition", b"\x90\x50\x03\x00\x00\x00\xFF", "FocusPosition", 0x3000),
+        ("_cmd_UpdateAutoFocusBehavior", b"\x90\x50\x00\x04\xFF", "AutoFocusBehavior", "Face"),
+        ("_cmd_UpdateAutoFocusSensitivity", b"\x90\x50\x00\x02\xFF", "AutoFocusSensitivity", 2),
+        ("_cmd_UpdateAutoPrivacyMode", b"\x90\x50\x00\x01\xFF", "AutoPrivacyMode", "On"),
+        ("_cmd_UpdateAutoSoftwareUpdate", b"\x90\x50\x00\x00\xFF", "AutoSoftwareUpdate", "Off"),
+    ]
+    for method, reply, status, expect in cases:
+        d = polling()
+        d._canned = reply
+        getattr(d, method)(None, None)
+        got = d.ReadStatusHelper(status, None, "Live")
+        check("%-34s -> %s %r" % (hexs(reply), status, expect), got == expect,
+              "got %r, errors=%r" % (got, d.errors))
+
+    # A reply outside Crestron's rule writes nothing and reports an error.
+    d = polling()
+    d._canned = b"\x90\x50\x06\x08\xFF"
+    d._cmd_UpdateTrackingProfile(None, None)
+    check("TrackingProfile 06 08 (preset 0x68, not a profile) is refused",
+          d.ReadStatusHelper("TrackingProfile", None, "Live") is None and d.errors)
+
+    # Shared replies: one frame writes every status it carries.
+    shared = [
+        ("Get Output",  ("_cmd_UpdateCameraOutput", "_cmd_UpdateIntelligentSwitching"),
+         b"\x90\x50\x01\x03\xFF", {"CameraOutput": 3, "IntelligentSwitching": "Resume"}),
+        ("Get Output",  ("_cmd_UpdateIntelligentSwitching", "_cmd_UpdateCameraOutput"),
+         b"\x90\x50\x00\x05\xFF", {"CameraOutput": 5, "IntelligentSwitching": "Pause"}),
+        ("Version",     ("_cmd_UpdateDeviceModel", "_cmd_UpdateRomVersion"),
+         b"\x90\x50\x00\x01\x05\x05\x12\x34\x01\xFF",
+         {"DeviceModel": "IV-CAM-I20", "RomVersion": 0x1234}),
+        ("Version",     ("_cmd_UpdateRomVersion", "_cmd_UpdateDeviceModel"),
+         b"\x90\x50\x00\x01\x05\x06\x00\x02\x02\xFF",
+         {"DeviceModel": "IV-CAM-I12", "RomVersion": 2}),
+        ("Version",     ("_cmd_UpdateDeviceModel",),
+         b"\x90\x50\x00\x01\x07\x07\x00\x01\x01\xFF",
+         {"DeviceModel": "Unknown"}),
+        ("Speed max",   ("_cmd_UpdatePanSpeedMaxStatus", "_cmd_UpdateTiltSpeedMaxStatus"),
+         b"\x90\x50\x18\x14\xFF", {"PanSpeedMaxStatus": 0x18, "TiltSpeedMaxStatus": 0x14}),
+    ]
+    for label, methods, reply, expect in shared:
+        d = polling()
+        d._canned = reply
+        d.sent = []
+        for m in methods:
+            getattr(d, m)(None, None)
+        got = {k: d.ReadStatusHelper(k, None, "Live") for k in expect}
+        check("%-9s %s -> %s in %d frame(s)" % (label, hexs(reply), got, len(d.sent)),
+              got == expect and len(d.sent) == 1,
+              "want %r, errors=%r" % (expect, d.errors))
 
 
 def test_python35_compatible():
@@ -495,6 +747,9 @@ def main():
                test_tracking_feedback,
                test_reserved_presets_against_documentation,
                test_intelligent_switching,
+               test_position_and_output_feedback,
+               test_parity_commands,
+               test_live_statuses,
                test_python35_compatible,
                test_package_reparses):
         fn()

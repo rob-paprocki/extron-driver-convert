@@ -69,6 +69,50 @@ DEFAULT_G = _REPO_G if os.path.isdir(_REPO_G) else _INSTALL_G
 # pkp vendor prefix -> GS module vendor prefix, where the two libraries differ.
 VENDOR_ALIAS = {"1bynd": "onebynd"}
 
+# Pairs the rule gets wrong, corrected by hand with the evidence that decides
+# each (experiments/oracle_pairs/JOIN_RULE.md section 5). Every one is the same
+# shape: the model name is a substring of more than one same-vendor module, and
+# "first in sorted order" picks a sibling product or an older version. Two
+# rule changes were measured instead and both broke more pairs than they fixed,
+# so the rule stays and these five are named. (package, model) -> (module, why).
+OVERRIDES = {
+    ("extr_18_39_v1_1_1.pkp", "Annotator"):
+        ("extr_sp_annotator_v1_0_0_1.py",
+         "the model is the Annotator; the rule chose the Annotator 300 module"),
+    ("extr_20_14_v1_1_0.pkp", "MLA VC10"):
+        ("extr_controller_MLAVC10_v1_0_2_0.py",
+         "MLA VC10 has its own module; the rule gave it the VC10 Plus one, "
+         "which the package's MLA VC10 Plus model already pairs with"),
+    ("extr_25_5_v1_5_12.pkp", "DMP 128"):
+        ("extr_dsp_DMP128_Series_v1_5_11_0.py",
+         "package v1.5.12 against DMP128_Series v1.5.11; the rule chose the "
+         "DMP 128 FlexPlus module, v1.0.9, a different product"),
+    ("wolf_44_2101_v1_18_4.pkp", "Cynap"):
+        ("wolf_cs_cynap_v1_18_4_0.py",
+         "package v1.18.4 against cynap v1.18.4.0; the rule chose the "
+         "Cynap Core/Pure/Pro module, v1.1.1"),
+    ("entt_13_2531_v1_3_1.pkp", "Ethergate MK3"):
+        ("entt_lc_DIN_ODE_POE_Mk2_Ethergate_MK3_v1_3_1_0.py",
+         "package v1.3.1 against the v1.3.1.0 module that names Ethergate MK3; "
+         "the rule chose the v1.1.1.2 one"),
+}
+
+
+def apply_overrides(pkp, tight):
+    """The rule's matches for one package, with OVERRIDES applied.
+
+    An overridden match keeps its model and records why in `override`, so the
+    scorecard can tell a corrected pair from one the rule found.
+    """
+    out = []
+    for m in tight:
+        fix = OVERRIDES.get((pkp, m["model"]))
+        if fix is None:
+            out.append(m)
+        else:
+            out.append({"model": m["model"], "module": fix[0], "override": fix[1]})
+    return out
+
 
 def norm(s):
     return re.sub(r"[^a-z0-9]", "", s.lower())
@@ -195,6 +239,11 @@ def main():
         vendor = f.split("_")[0].lower()
         vendor = VENDOR_ALIAS.get(vendor, vendor)
         tight, loose = match_models(names, vendor, modules, mod_vendor)
+        tight = apply_overrides(f, tight)
+        for m in tight:
+            if m["module"] not in modules:
+                raise SystemExit("override for %s names %s, which is not in %s"
+                                 % (f, m["module"], gs))
         rows.append({"pkp": f, "models": sorted(names),
                      "vendor_consistent": tight, "vendor_mismatch": loose})
         if tight:

@@ -20,6 +20,15 @@ PKG_PATH = os.path.normpath(os.path.join(
     _HERE, "..", "..", "samples", "Samsung QNxxLS03DAFXZA", "Crestron", "IP",
     "FlatPanelDisplay_Samsung_QN43LS03DAFXZA_IP.pkg"))
 
+# The two Crestron SDK V2 (Entity Model) 1 Beyond camera drivers -- findings/07
+# and findings/08's "IL-only residue" packages. Same engine, one model apart.
+I20_PKG_PATH = os.path.normpath(os.path.join(
+    _HERE, "..", "..", "samples", "Crestron 1 Beyond IV-CAM-i12_i20", "Crestron",
+    "Camera_Crestron-1-Beyond_IV-CAM-I20_IP.pkg"))
+P20_PKG_PATH = os.path.normpath(os.path.join(
+    _HERE, "..", "..", "samples", "Crestron 1 Beyond IV-CAM-p12_p20", "Crestron",
+    "Camera_Crestron-1-Beyond_IV-CAM-P20_IP.pkg"))
+
 
 class TestBraceCollapse(unittest.TestCase):
     def test_leaves_a_real_token_untouched(self):
@@ -165,6 +174,120 @@ class TestFullGeneration(unittest.TestCase):
         # both commands' set request uses the identical method + param keys
         for name in ("Power", "Volume"):
             self.assertNotIn("parameters", d["differences"].get(name, {}))
+
+
+class TestUndeclaredTransformations(unittest.TestCase):
+    """Package-level diagnostic (ROADMAP R31): every Transformation name a
+    driver references anywhere minus what it declares in Transformations[]
+    -- the IL-only residue findings/07 and findings/08 describe for
+    Crestron V2 Entity Model drivers. Checked against both findings'
+    packages plus the one JSON LegacyWrappers package the translator has
+    actually run on (Samsung), to confirm the scan finds nothing there."""
+
+    def test_samsung_json_legacywrappers_has_zero_undeclared(self):
+        # Regression check: a fully-declarative JSON-engine driver (no
+        # compiled IL residue at all) must report nothing undeclared.
+        doc = pkg_dump.process_pkg(PKG_PATH)
+        idx = c2c.TemplateIndex(doc["driver_definition"])
+        report = idx.undeclared_transformations()
+        self.assertEqual(report.undeclared, [])
+        self.assertEqual(report.referenced, sorted(report.referenced))
+        self.assertGreater(len(report.referenced), 0)
+
+    def test_p20_matches_finding_08_exactly(self):
+        # findings/08: "Its Rules reference 39 distinct Transformation
+        # names; 27 are declared... Of the 12 undeclared, only 5 have
+        # driver-local IL -- FormatRomVersion, ParseDecimal,
+        # ZoomLevelToPosition, ZoomPositionToLevel, ApplyZoomPositionStep
+        # -- plus OverridePolynomial... The remaining undeclared names are
+        # supplied by the SDK framework itself."
+        # (OverridePolynomial is an override hook "never called by literal
+        # name" -- findings/08 found it via IL disassembly, not JSON text,
+        # so it cannot appear in a referenced-name scan and is correctly
+        # absent from this package-level pass's output.)
+        if not os.path.exists(P20_PKG_PATH):
+            self.skipTest("P20 sample package not present")
+        doc = pkg_dump.process_pkg(P20_PKG_PATH)
+        idx = c2c.TemplateIndex(doc["driver_definition"])
+        report = idx.undeclared_transformations()
+        self.assertEqual(len(report.referenced), 39)
+        self.assertEqual(len(report.declared), 27)
+        self.assertEqual(len(report.undeclared), 12)
+        self.assertEqual(report.undeclared, [
+            "ApplyZoomPositionStep", "Divide", "FormatRomVersion", "Identity",
+            "ParseDecimal", "Product", "Subtract", "Sum",
+            "ViscaAssemble4LowerNibbles", "ViscaExtractNibbles",
+            "ZoomLevelToPosition", "ZoomPositionToLevel",
+        ])
+        # findings/08's "5 driver-local + OverridePolynomial" family, minus
+        # OverridePolynomial (IL-only, never named in the JSON -- see above):
+        driver_local = {
+            "FormatRomVersion", "ParseDecimal", "ZoomLevelToPosition",
+            "ZoomPositionToLevel", "ApplyZoomPositionStep",
+        }
+        self.assertTrue(driver_local.issubset(set(report.undeclared)))
+
+    def test_i20_does_not_match_findings_07s_six_undercount(self):
+        # findings/07 lists exactly six names it says "the JSON's own
+        # Rules invoke" with no declarative definition: FormatRomVersion,
+        # ParseDecimal, ViscaAssemble2LowerNibbles, ZoomLevelToPosition,
+        # ZoomPositionToLevel, ApplyZoomPositionStep. That is finding/07's
+        # phase-1 pass; it turns out to be an UNDERCOUNT (see the module
+        # docstring on TemplateIndex.undeclared_transformations and the
+        # summary this test file's docstring points to): it only surveyed
+        # the driver-local-IL family, and missed the SDK-framework-supplied
+        # names (Identity/Sum/Subtract/Product/Divide) and the OTHER Visca
+        # nibble-transform names that findings/08's own P20 methodology --
+        # applied identically here -- also finds referenced in I20's own
+        # Responses[] decoders. Applying findings/08's exact method (whole
+        # document, not just Rules[]) to I20 reproduces the SAME total
+        # referenced-name count as P20 (39, same shared engine) and gives
+        # 13 undeclared, not 6 -- one more than P20's 12, because I20's
+        # JSON additionally names ViscaAssemble2LowerNibbles (I20's own
+        # nibble-assembly variant) alongside the ViscaAssemble4LowerNibbles/
+        # ViscaExtractNibbles pair P20 also references.
+        if not os.path.exists(I20_PKG_PATH):
+            self.skipTest("I20 sample package not present")
+        doc = pkg_dump.process_pkg(I20_PKG_PATH)
+        idx = c2c.TemplateIndex(doc["driver_definition"])
+        report = idx.undeclared_transformations()
+        self.assertEqual(len(report.referenced), 39)
+        self.assertEqual(len(report.declared), 26)
+        self.assertEqual(len(report.undeclared), 13)
+        self.assertNotEqual(len(report.undeclared), 6)
+        expected = {
+            "ApplyZoomPositionStep", "Divide", "FormatRomVersion", "Identity",
+            "ParseDecimal", "Product", "Subtract", "Sum",
+            "ViscaAssemble2LowerNibbles", "ViscaAssemble4LowerNibbles",
+            "ViscaExtractNibbles", "ZoomLevelToPosition", "ZoomPositionToLevel",
+        }
+        self.assertEqual(set(report.undeclared), expected)
+        # findings/07's own six ARE all present (it wasn't wrong about
+        # those six -- it just didn't find the rest):
+        findings_07_six = {
+            "FormatRomVersion", "ParseDecimal", "ViscaAssemble2LowerNibbles",
+            "ZoomLevelToPosition", "ZoomPositionToLevel", "ApplyZoomPositionStep",
+        }
+        self.assertTrue(findings_07_six.issubset(expected))
+
+    def test_find_undeclared_transformations_entry_point(self):
+        # The module-level convenience wrapper (loads the .pkg itself, for
+        # the --list-il-only CLI path) agrees with the TemplateIndex method.
+        report = c2c.find_undeclared_transformations(PKG_PATH)
+        self.assertEqual(report.undeclared, [])
+
+    def test_never_raises_on_undeclared_names(self):
+        # This is a diagnostic pass, not a translation step: an undeclared
+        # Transformation is exactly the thing it reports, never something
+        # it raises CrestronTemplateError over (unlike resolve_slot, which
+        # DOES raise when translating a command that needs one).
+        if not os.path.exists(I20_PKG_PATH):
+            self.skipTest("I20 sample package not present")
+        try:
+            c2c.find_undeclared_transformations(I20_PKG_PATH)
+        except c2c.CrestronTemplateError:
+            self.fail("undeclared_transformations() must not raise for a "
+                      "driver that merely has undeclared names")
 
 
 if __name__ == "__main__":

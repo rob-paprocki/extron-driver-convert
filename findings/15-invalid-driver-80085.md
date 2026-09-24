@@ -128,9 +128,17 @@ only remaining work is synthesising `DriverCommandAsset` subtrees.
 
 - **`80085` is undecoded.** The command/asset mismatch is the leading
   hypothesis because it is the one structural inconsistency we introduced, but
-  the code has not been traced to a cause in Extron's code.
+  the code has not been traced to a cause in Extron's code. *(Superseded —
+  see finding 16: `80085` is `DriverAssetValidator.ErrorCode.MismatchHash`, a
+  SHA-256 mismatch on a packaged resource, not a command/asset mismatch.
+  Extron's validator was decoded and reimplemented in pure Python.)*
 - **Nothing has driven a camera.** All four packages were tested through GC
   only; gates beyond selection (place, build, upload, control) remain
-  untouched.
+  untouched. *(Place, build, upload and panel control have since been done
+  with `20024`–`20026`, 2026-09-10 to 09-18, against a PC playing the camera —
+  `experiments/skeleton_i20/PROTOCOL.md`. Still no real camera.)*
 - **The ladder is unrun.** `20030`/`20031`/`20032` are built and await
-  hardware.
+  hardware. *(Superseded — see finding 16, which fixes `pkp_build.py`'s
+  digest and confirms `20022`/`20023` now load and can be selected in GCP
+  (finding 18 §1); the ladder's question was answered directly rather than by
+  running it.)*

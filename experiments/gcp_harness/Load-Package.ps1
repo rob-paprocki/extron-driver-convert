@@ -18,6 +18,18 @@
                 ScriptMethodName, display name, attribute bits, parameters and
                 enum states, plus the command count per SupportedModel.
 
+    -Protocol   ROADMAP R16/R26: for every SupportedModel, walk its Protocols
+                collection (DriverModelAsset.Protocols, an IAsset<IProtocolAsset>)
+                and print each protocol asset's simple-valued properties
+                (Port, OutputPort, Compatibility, ProtocolSubType, ...) via
+                reflection - Extron's own object model's reading of the same
+                fields tools/pkp_dump.py reads off the raw NRBF graph. Also
+                prints the full name<->value mapping of the
+                ProtocolCompatibilityFlags and EthernetTypeEnum enums
+                (`[Enum]::GetNames`), which is how R16's "not determined"
+                _compatibility flags get real names instead of guesses.
+                Additive: does not change default output.
+
     Exit code 1 if any package fails LoadFromFile.
 
 .EXAMPLE
@@ -32,8 +44,17 @@ param(
     [Parameter(Mandatory = $true)][string[]]$Path,
     [switch]$Deserialize,
     [switch]$Commands,
+    [switch]$Protocol,
     [string]$GcpDir = 'C:\Program Files (x86)\Extron\GCP'
 )
+
+# Property types worth printing for -Protocol: simple values only (enum,
+# primitive, string, Guid). Everything else on an IProtocolAsset (nested
+# asset references, credentials, collections, ISite, ...) is not part of
+# "what port/compatibility does Extron's object model see" and is noise.
+function Is-SimpleValueType([Type]$t) {
+    return $t.IsEnum -or $t.IsPrimitive -or $t -eq [string] -or $t -eq [decimal] -or $t -eq [guid]
+}
 
 . (Join-Path $PSScriptRoot 'lib\Extron.ps1')
 $asm = Import-ExtronAssemblies -GcpDir $GcpDir
@@ -85,6 +106,41 @@ foreach ($p in $Path) {
                 Write-Output ("  Deserialize  : [{0}] {1}: {2}" -f $depth, $e.GetType().FullName, $e.Message)
                 $e = $e.InnerException
                 $depth++
+            }
+        }
+    }
+
+    if ($Protocol -and $r -ne $null) {
+        $compatType = $asm['Extron.Configuration.Contracts'].GetType(
+            'Extron.Configuration.Contracts.Enumeration.ProtocolCompatibilityFlags')
+        $legend = @($compatType.GetEnumNames() | ForEach-Object {
+            '{0}={1}' -f $_, [int][Enum]::Parse($compatType, $_)
+        }) -join ', '
+        Write-Output ("  ProtocolCompatibilityFlags: {0}" -f $legend)
+
+        $subType = $asm['Extron.Configuration.Contracts'].GetType(
+            'Extron.Configuration.Contracts.Enumeration.EthernetTypeEnum')
+        $subLegend = @($subType.GetEnumNames() | ForEach-Object {
+            '{0}={1}' -f $_, [int][Enum]::Parse($subType, $_)
+        }) -join ', '
+        Write-Output ("  EthernetTypeEnum: {0}" -f $subLegend)
+
+        foreach ($m in $r.SupportedModels) {
+            $protos = @($m.Protocols)
+            foreach ($pa in $protos) {
+                $shortClass = $pa.GetType().Name
+                $fields = @()
+                foreach ($prop in $pa.GetType().GetProperties()) {
+                    if (-not (Is-SimpleValueType $prop.PropertyType)) { continue }
+                    if ($prop.GetIndexParameters().Count -gt 0) { continue }
+                    try { $val = $prop.GetValue($pa, $null) } catch { $val = "<error>" }
+                    if ($prop.PropertyType.IsEnum -and $prop.PropertyType -eq $compatType) {
+                        $fields += ('{0}={1}({2})' -f $prop.Name, $val, [int]$val)
+                    } else {
+                        $fields += ('{0}={1}' -f $prop.Name, $val)
+                    }
+                }
+                Write-Output ("  Protocol model={0} class={1} {2}" -f $m.Name, $shortClass, ($fields -join ' '))
             }
         }
     }

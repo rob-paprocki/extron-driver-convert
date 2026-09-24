@@ -6,12 +6,14 @@ The problem, measured
 ---------------------
 `build_i20.py` produced `1bynd_19_20023`, which loads in Global Configurator
 and validates against Extron's own `DriverAssetValidator`. It shows 15
-commands. Its embedded script declares 31. GC renders a driver's command
+commands. Its embedded script declares 45. GC renders a driver's command
 surface from `DriverCommandAsset` objects in the NRBF object graph and never
 asks the script what it can do (finding 15, confirmed by GCP screenshot
-2026-09-09), so the 17 i20 commands were unreachable code inside a valid file.
+2026-09-09), so the 30 i20 commands were unreachable code inside a valid file.
 
-This script adds the missing 17 assets, so that the graph and the script agree.
+This script adds the missing 30 assets, so that the graph and the script agree,
+and gives each model the commands it supports: the IV-CAM-I12 does not get the
+three that only the I20 has.
 
 How each command is built
 -------------------------
@@ -42,7 +44,33 @@ import pkp_asset as pa           # noqa: E402
 
 
 IN_PKG = os.path.join(_HERE, "out", "1bynd_19_20023_v1_0_0.pkp")
-OUT_PKG = os.path.join(_HERE, "out", "1bynd_19_20024_v1_0_0.pkp")
+# Every rebuild GC has seen gets a new file name and model version, because a
+# GC project that already holds an older build keeps using it. 20025 / v1.3
+# made feedback bindable; 20026 / v1.4 makes GC poll it; 20027 / v1.5 tidies
+# the command surface (one Tracking Mode instead of two enable-only commands,
+# Camera Output 1-5 rather than 0-5); 20028 / v1.6 adds the commands Crestron's
+# driver has and ours did not, makes Tracking Mode, Tracking Profile and
+# Intelligent Switching report live status, and stops offering the IV-CAM-I12
+# the three commands only the I20 has.
+OUT_PKG = os.path.join(_HERE, "out", "1bynd_19_20028_v1_0_0.pkp")
+MODEL_MINOR = 6
+
+# DriverAttributeEnum bits for a live and an emulated status
+# (Extron.Configuration.Contracts).
+ATTR_LIVE_STATUS = 32
+ATTR_EMULATED_STATUS = 16
+# ParamAttributeFlags.Enabled.
+PARAM_ENABLED = 1
+# Seconds, as on every command GC polls in the donor and in pana_19_5702.
+POLL_SECONDS = 3
+# For what barely changes: the model, the ROM version, the speed limits, the
+# update setting. Crestron polls Auto Software Update every 30 s, its slowest.
+SLOW_POLL_SECONDS = 30
+
+# Commands the I20 has and the IV-CAM-I12 does not: reserved presets 82/83
+# (Tracking Mode), 105-108 (Tracking Profile) and 101-104 (Preset Zone) are
+# scoped to the I20 alone in Crestron's preset table. See I12_VS_I20.md.
+I20_ONLY = ("TrackingMode", "TrackingProfile", "PresetZone")
 
 # Attribute bitfields lifted from donor commands of the same character, rather
 # than invented: 51 is a Set+Update command with feedback (Backlight, White
@@ -51,6 +79,87 @@ OUT_PKG = os.path.join(_HERE, "out", "1bynd_19_20024_v1_0_0.pkp")
 ATTR_SET_UPDATE = 51
 ATTR_SET_ONLY = 3
 ATTR_UPDATE_ONLY = 35
+# 19 is Set-only with an EMULATED status and no live one: the command can be
+# shown on a button that lights, but GC must never poll it, because the script
+# has no Update method to answer. Extron's own example in this package is
+# User Defined String, whose Value carries condition type 2 (Emulation) where
+# a live status carries 1 and a command with both carries 3.
+ATTR_SET_EMULATED = 19
+
+# A command's feedback flag is not enough for GC to offer its value as a
+# status: the Value parameter's own ParamAssetBase+_conditionTypes must be
+# nonzero too. Extron's feedback values carry 3 on Set+Update commands and 1
+# on Update-only ones (pana_19_5702 ZoomPosition, PanPositionStatus;
+# 7th_29_17052 PresetResult). Preset's Value, the donor for every decimal
+# here, carries 0 because it is only ever sent, so its clones could be
+# pressed but never shown on a label until this was set.
+COND_FOR_ATTR = {ATTR_SET_UPDATE: 3, 59: 3, ATTR_UPDATE_ONLY: 1,
+                 ATTR_SET_EMULATED: 2}
+
+# ParamAssetBase+_attributes: 15 on a command's Value, 13 on a qualifier
+# (Extron's own Speed and 7th_29_17052 PresetResult's Preset). A qualifier
+# cloned from a Value keeps 15, and GC then offers no way to choose it.
+PARAM_VALUE = 15
+PARAM_QUALIFIER = 13
+
+
+def _polling_param(g, command_id):
+    return pb.ref_id(g.objects[command_id]["members"]["PollingInterval"])
+
+
+def _enable_polling(g, command_id, seconds=POLL_SECONDS):
+    """Make GC poll a live status.
+
+    GC's compiler polls a command only if CommandAssetExtensions.HasPollingValue
+    holds: its PollingInterval parameter exists, carries ParamAttributeFlags
+    .Enabled, and has a value (Extron.Configuration.Core, read with ildasm on
+    2026-09-15). Preset, Zoom and ConnectionStatus are never polled, so every
+    status cloned from them had Enabled clear (attributes 12) and the processor
+    never asked for it. Extron's polled statuses carry 13 and 3 seconds.
+    """
+    pid = _polling_param(g, command_id)
+    attr = g.enum_member(pid, "ParamAssetBase+_attributes")
+    g.set_enum_member(pid, "ParamAssetBase+_attributes", attr | PARAM_ENABLED)
+    slots = g.walker.member_slots(pid)
+    for member in ("ParamAssetBase+_value", "ParamAssetBase+_defaultValue"):
+        ev = g.b.trace[slots[member]]
+        if ev["kind"] != "MemberPrimitiveTyped":
+            raise SystemExit("%s of polling interval %d is %s, not a decimal"
+                             % (member, pid, ev["kind"]))
+        ev["value"] = str(seconds)
+    g._reparse()
+
+
+def _disable_polling(g, command_id):
+    """Stop GC polling a command the script cannot answer.
+
+    The mirror of the rule above, and it matters as soon as a Set-only command
+    is given an emulated status: once GC can bind it, GC can also poll it, and
+    a clone of a polled donor carries Enabled. The script has no Update method
+    for such a command, so the poll would raise on the processor. Extron's own
+    attributes-19 command, User Defined String, carries 12 - not Enabled.
+    """
+    pid = _polling_param(g, command_id)
+    attr = g.enum_member(pid, "ParamAssetBase+_attributes")
+    g.set_enum_member(pid, "ParamAssetBase+_attributes", attr & ~PARAM_ENABLED)
+
+
+def _make_feedback(g, param_id, attrs):
+    """Let GC offer a decimal Value as a status, the way Extron's own do.
+
+    Two members gate it. `_conditionTypes` must be nonzero, and
+    `_validOperators` must carry the condition operators: GC lists a status
+    with `_validOperators` 1 but offers no comparison for it, so a label or
+    monitor still has nothing to bind (2026-09-14, on 20024). Extron's values
+    are the condition operators alone on an Update-only command
+    (pana_19_5702 PanPositionStatus: 282001408) and action | condition on a
+    Set+Update one (ZoomPosition: 7 | 282001408 = 282001415).
+    """
+    g.set_enum_member(param_id, "ParamAssetBase+_conditionTypes", COND_FOR_ATTR[attrs])
+    cond_ops = g.enum_member(param_id, "ParamAssetBase+_conditionOperators")
+    act_ops = g.enum_member(param_id, "ParamAssetBase+_actionOperators")
+    valid = cond_ops if attrs == ATTR_UPDATE_ONLY else (cond_ops | act_ops)
+    g.set_enum_member(param_id, "ParamAssetBase+_validOperators", valid)
 
 
 def simple(donor, name, script, states, attrs, description=None):
@@ -65,12 +174,12 @@ PLAN = [
     simple("Backlight", "Auto Tracking", "TrackingFraming",
            {"On": "Start", "Off": "Stop"}, ATTR_SET_UPDATE,
            "Start or stop automatic subject tracking"),
-    simple("Backlight", "Group Tracking", "GroupTracking",
-           {"On": "Enable"}, ATTR_SET_ONLY,
-           "Track the whole group in frame"),
-    simple("Backlight", "Presenter Tracking", "PresenterTracking",
-           {"On": "Enable"}, ATTR_SET_ONLY,
-           "Track a single presenter"),
+    # One setting, two values. Until 20027 this was two commands with one
+    # value each, so a button could latch either on and release neither.
+    # 20027 gave it an emulated status; 20028 polls it (GetGroupTracking).
+    simple("Backlight", "Tracking Mode", "TrackingMode",
+           {"On": "Group", "Off": "Presenter"}, ATTR_SET_UPDATE,
+           "Frame the whole group, or a single presenter"),
     simple("Backlight", "Pan Tilt Home", "PanTiltHome",
            {"On": "Reset"}, ATTR_SET_ONLY,
            "Return the head to its home position"),
@@ -86,24 +195,71 @@ PLAN = [
     simple("Backlight", "Tracking Shot", "TrackingShot",
            {"On": "Home", "Off": "Tracking"}, ATTR_SET_ONLY,
            "Choose the shot the tracker returns to"),
+    # Its status is the switching flag in Get Output's reply (20028).
     simple("Backlight", "Intelligent Switching", "IntelligentSwitching",
-           {"On": "Resume", "Off": "Pause"}, ATTR_SET_ONLY,
+           {"On": "Resume", "Off": "Pause"}, ATTR_SET_UPDATE,
            "Resume or pause the camera's internal auto-switching"),
     simple("Backlight", "Reboot", "Reboot",
            {"On": "Reboot"}, ATTR_SET_ONLY,
            "Reboot the camera"),
+    # Parity with Crestron's I20 driver (20028).
+    simple("Backlight", "Exposure Compensation Mode", "ExposureCompensationMode",
+           {"On": "On", "Off": "Off"}, ATTR_SET_UPDATE,
+           "Turn exposure compensation on or off (auto exposure only)"),
+    simple("Backlight", "One Push Auto Focus", "OnePushAutoFocus",
+           {"On": "Trigger"}, ATTR_SET_ONLY,
+           "Focus once, then hold"),
+    simple("Backlight", "Auto Privacy Mode", "AutoPrivacyMode",
+           {"On": "On", "Off": "Off"}, ATTR_SET_UPDATE,
+           "The camera's privacy mode; it answers no command while in it"),
+    simple("Backlight", "Auto Software Update", "AutoSoftwareUpdate",
+           {"On": "On", "Off": "Off"}, ATTR_SET_UPDATE,
+           "Let the camera update its own firmware"),
+]
+
+# Enum commands with more than two states, cloned from White Balance (six).
+ENUM_PLAN = [
+    ("Auto Focus Behavior", "AutoFocusBehavior", ["Global", "Center", "Face"],
+     "Where auto focus looks: the whole frame, its centre, or faces"),
 ]
 
 # Commands whose value is a number, built from Preset (enum Action + decimal
 # Value) by dropping the Action.
 DECIMAL_PLAN = [
-    ("Tracking Profile", "TrackingProfile", 1, 4, ATTR_SET_ONLY,
+    # Polled from 20028 (GetTrackingFramingProfile).
+    ("Tracking Profile", "TrackingProfile", 1, 4, ATTR_SET_UPDATE,
      "Select one of the four stored tracking profiles"),
     ("Preset Zone", "PresetZone", 1, 4, ATTR_SET_ONLY,
      "Select one of the four preset zones"),
-    ("Camera Output", "CameraOutput", 0, 5, ATTR_SET_UPDATE,
-     "Select the camera to output; 0 resumes intelligent switching"),
+    # 1, not 0: value 0 sends the same frame as Intelligent Switching Resume,
+    # which already offers it by name.
+    ("Camera Output", "CameraOutput", 1, 5, ATTR_SET_UPDATE,
+     "Select the camera to output"),
+    # Parity with Crestron's I20 driver (20028). Ranges are the Min/Max of
+    # Crestron's own controllers. Focus position is per model in Crestron's
+    # driver (I20 12224-17114, I12 15084-20664); this script is not told its
+    # model, so both models get the union.
+    ("Exposure Compensation", "ExposureCompensation", 0, 14, ATTR_SET_UPDATE,
+     "Compensation level, 0-14; 7 is 0 EV (auto exposure only)"),
+    ("Focus Position", "FocusPosition", 12224, 20664, ATTR_SET_UPDATE,
+     "Drive the lens to an absolute focus position (manual focus only)"),
+    ("Auto Focus Sensitivity", "AutoFocusSensitivity", 1, 3, ATTR_SET_UPDATE,
+     "How readily auto focus reacts, 1-3"),
 ]
+
+# Update-only numbers, each half of a reply that carries two (see the script's
+# _SharedInquiry): the ROM version beside the model, and the two speed limits.
+STATUS_PLAN = [
+    ("ROM Version", "RomVersion", 0, 65535,
+     "The camera's ROM version, as the 16-bit number it reports"),
+    ("Pan Speed Max Status", "PanSpeedMaxStatus", 0, 255,
+     "The fastest pan speed the camera accepts"),
+    ("Tilt Speed Max Status", "TiltSpeedMaxStatus", 0, 255,
+     "The fastest tilt speed the camera accepts"),
+]
+
+# The models GetDeviceInformation can report (Crestron's MapModelCodeToModel).
+DEVICE_MODELS = ["IV-CAM-I20", "IV-CAM-I12", "IV-CAM-P20", "IV-CAM-P12", "Unknown"]
 
 
 def build():
@@ -118,6 +274,9 @@ def build():
     for spec in PLAN:
         _simple_command(g, spec)
 
+    for name, script, states, desc in ENUM_PLAN:
+        _enum_command(g, name, script, states, ATTR_SET_UPDATE, desc)
+
     for name, script, lo, hi, attrs, desc in DECIMAL_PLAN:
         _decimal_command(g, name, script, lo, hi, attrs, desc)
 
@@ -126,6 +285,7 @@ def build():
     _pan_tilt_angle(g)
     _indicator_light(g, script_src)
     _camera_connection_status(g)
+    _device_model(g)
 
     # Position feedback, split in two because one VISCA inquiry returns both
     # numbers and a GC command carries one Value. Extron does the same in
@@ -134,12 +294,36 @@ def build():
                            ("Tilt Angle Status", "TiltAngleStatus", -1296, 1296)):
         _decimal_command(g, nm, sn, lo, hi, ATTR_UPDATE_ONLY,
                          "Current absolute position reported by the camera")
+    for nm, sn, lo, hi, desc in STATUS_PLAN:
+        _decimal_command(g, nm, sn, lo, hi, ATTR_UPDATE_ONLY, desc)
 
     # 20023 and 20024 are otherwise identical in identity - same internal
     # driver name, same two model strings, same version - so Driver Manager
     # would list two entries a person cannot tell apart. Bump the minor so
     # the one with the full command surface is obvious in the UI.
-    _bump_model_version(g, minor=2)
+    # Live statuses whose donor was never polled. Enum clones of Backlight and
+    # White Balance inherit a polled PollingInterval; clones of Preset, Zoom
+    # and ConnectionStatus do not.
+    for sn in ("ZoomPosition", "CameraOutput", "CameraConnectionStatus",
+               "PanAngleStatus", "TiltAngleStatus", "TrackingProfile",
+               "ExposureCompensation", "FocusPosition", "AutoFocusSensitivity"):
+        _enable_polling(g, g.commands()[sn])
+        print("   polling %-24s every %ds" % (sn, POLL_SECONDS))
+    for sn in ("AutoSoftwareUpdate", "DeviceModel", "RomVersion",
+               "PanSpeedMaxStatus", "TiltSpeedMaxStatus"):
+        _enable_polling(g, g.commands()[sn], SLOW_POLL_SECONDS)
+        print("   polling %-24s every %ds" % (sn, SLOW_POLL_SECONDS))
+
+    _trim_model(g, "IV-CAM-I12", I20_ONLY)
+
+    # Emulated status, no live one: bindable, but GC must never poll it.
+    for sn, cid in sorted(g.commands().items()):
+        attrs = g.enum_member(cid, "CommandAssetBase+_attributes")
+        if attrs & ATTR_EMULATED_STATUS and not attrs & ATTR_LIVE_STATUS:
+            _disable_polling(g, cid)
+            print("   NOT polling %-20s emulated status, no Update method" % sn)
+
+    _bump_model_version(g, minor=MODEL_MINOR)
 
     after = len(g.commands())
     print("commands in the graph after : %d  (+%d)" % (after, after - before))
@@ -246,11 +430,84 @@ def verify(g, src):
             problems.append("%s: asset offers %s, script accepts %s"
                             % (sn, extra, accepted))
 
+    # Feedback GC polls: HasPollingValue must hold for every live status. The
+    # donor's own ConnectionStatus is answered by the framework, not polled.
+    for sn, cid in sorted(assets.items()):
+        if sn == "ConnectionStatus":
+            continue
+        if not g.enum_member(cid, "CommandAssetBase+_attributes") & ATTR_LIVE_STATUS:
+            continue
+        pid = _polling_param(g, cid)
+        if not g.enum_member(pid, "ParamAssetBase+_attributes") & PARAM_ENABLED:
+            problems.append("%s: a live status whose PollingInterval is not "
+                            "Enabled, so GC never polls it" % sn)
+        if pb.deref(g.objects, g.objects[pid]["members"]["ParamAssetBase+_value"]) is None:
+            problems.append("%s: PollingInterval has no value" % sn)
+
+    # And the mirror of it. A command with an emulated status but no live one
+    # has no Update method in the script, so a poll would raise on the
+    # processor - and it only became reachable when such a command was first
+    # made bindable, because GC cannot poll what nothing can bind.
+    for sn, cid in sorted(assets.items()):
+        attrs = g.enum_member(cid, "CommandAssetBase+_attributes")
+        if not (attrs & ATTR_EMULATED_STATUS and not attrs & ATTR_LIVE_STATUS):
+            continue
+        pid = _polling_param(g, cid)
+        if g.enum_member(pid, "ParamAssetBase+_attributes") & PARAM_ENABLED:
+            problems.append("%s: an emulated status GC could poll, but the "
+                            "script has no Update method for it" % sn)
+
+    # Feedback GC can bind: a command flagged for feedback needs a Value that
+    # is condition-capable, and every other parameter must be a qualifier.
+    for sn, cid in sorted(assets.items()):
+        want = COND_FOR_ATTR.get(g.enum_member(cid, "CommandAssetBase+_attributes"))
+        if want is None:
+            continue
+        for k in g.children(cid):
+            pn = g.name_of(k)
+            cond = g.enum_member(k, "ParamAssetBase+_conditionTypes")
+            pattr = g.enum_member(k, "ParamAssetBase+_attributes")
+            if pn == "Value" and not cond:
+                problems.append("%s: Value has _conditionTypes 0, so GC offers "
+                                "no status to bind (want %d)" % (sn, want))
+            if pn == "Value":
+                cond_ops = g.enum_member(k, "ParamAssetBase+_conditionOperators")
+                valid = g.enum_member(k, "ParamAssetBase+_validOperators")
+                if valid & cond_ops != cond_ops:
+                    problems.append("%s: Value's _validOperators %d lacks its "
+                                    "condition operators %d, so GC offers no "
+                                    "comparison" % (sn, valid, cond_ops))
+            if pn != "Value" and pattr != PARAM_QUALIFIER:
+                problems.append("%s: qualifier %s has _attributes %d, not %d"
+                                % (sn, pn, pattr, PARAM_QUALIFIER))
+
+    # Per-model lists: every model offers only commands in the pool, the I12
+    # offers none of the I20-only ones, and every other command is offered on
+    # every model - a list that silently lost one would be the same "valid
+    # and short" failure finding 18 is about, one level down.
+    pool = set(assets.values())
+    lists = _model_command_lists(g)
+    if sorted(lists) != ["IV-CAM-I12", "IV-CAM-I20"]:
+        problems.append("model command lists %s, expected IV-CAM-I12 and IV-CAM-I20"
+                        % sorted(lists))
+    for model, lst in sorted(lists.items()):
+        have = set(g.children(lst))
+        if have - pool:
+            problems.append("%s lists commands outside the pool: %s" % (model, sorted(have - pool)))
+        want = pool - ({assets[sn] for sn in I20_ONLY} if model == "IV-CAM-I12" else set())
+        if have != want:
+            names = {v: k for k, v in assets.items()}
+            problems.append("%s offers %s, missing %s"
+                            % (model, sorted(names[x] for x in have - want),
+                               sorted(names[x] for x in want - have)))
+
     if problems:
         for p in problems:
             print("   VERIFY FAIL  %s" % p)
         raise SystemExit("%d contract mismatch(es); refusing to emit" % len(problems))
-    print("   verify: graph and script agree on %d commands" % len(assets))
+    print("   verify: graph and script agree on %d commands; models %s"
+          % (len(assets), ", ".join("%s %d" % (m, len(g.children(l)))
+                                    for m, l in sorted(lists.items()))))
 
 
 # -- builders ---------------------------------------------------------------
@@ -276,6 +533,15 @@ def _simple_command(g, spec):
         for sid in states:
             if g.name_of(sid) != keep:
                 g.detach(value_id, sid)
+    # The Backlight donor is a Set+Update command, so its Value already carries
+    # the condition type and operators a live status needs, and the Set+Update
+    # clones inherit them correctly. An emulated-only status is the one shape
+    # the donor cannot supply: it needs condition type 2 (Emulation) where the
+    # donor has 3. Only that case is rewritten, so every command that already
+    # works on hardware keeps the exact members it has today.
+    if spec["attrs"] == ATTR_SET_EMULATED:
+        value_id = _states_of(g, cid)[0]
+        _make_feedback(g, value_id, spec["attrs"])
     print("   + %-24s %s" % (spec["script"], spec["name"]))
 
 
@@ -287,6 +553,8 @@ def _decimal_command(g, name, script, lo, hi, attrs, desc):
             g.detach(cid, k)
     value = [k for k in g.children(cid) if g.name_of(k) == "Value"][0]
     g.set_range(value, lo, hi)
+    if attrs in COND_FOR_ATTR:
+        _make_feedback(g, value, attrs)
     print("   + %-24s %s  (%s-%s)" % (script, name, lo, hi))
 
 
@@ -309,6 +577,7 @@ def _zoom_position(g):
     value = _decimal_value_from_preset(g)
     g.attach(cid, value)
     g.set_range(value, 0, 16384)
+    _make_feedback(g, value, ATTR_SET_UPDATE)
     print("   + %-24s Zoom Position  (0-16384, composed)" % "ZoomPosition")
 
 
@@ -385,7 +654,83 @@ def _camera_connection_status(g):
     cam = _decimal_value_from_preset(g, name="Camera")
     g.attach(cid, cam)
     g.set_range(cam, 2, 5)
+    g.set_enum_member(cam, "ParamAssetBase+_attributes", PARAM_QUALIFIER)
     print("   + %-24s Camera Connection Status  (composed)" % "CameraConnectionStatus")
+
+
+def _enum_command(g, name, script, states, attrs, desc):
+    """An enum command with up to six states, cloned from White Balance.
+
+    Backlight, the donor of every two-state command, cannot supply a third
+    state; White Balance carries six, and like Backlight it is a Set+Update
+    command GC polls, so its clone inherits a live status's members.
+    """
+    cid = g.clone_command("WhiteBalance", name, script,
+                          description=desc, attributes=attrs)
+    value_id, have = _states_of(g, cid)
+    if len(states) > len(have):
+        raise SystemExit("%s needs %d states, White Balance has %d"
+                         % (script, len(states), len(have)))
+    for sid, new_name in zip(have, states):
+        g.rename_asset(sid, new_name)
+    for sid in have[len(states):]:
+        g.detach(value_id, sid)
+    print("   + %-24s %s %s" % (script, name, states))
+
+
+def _device_model(g):
+    """The model the camera reports, an Update-only enum.
+
+    Cloned from ConnectionStatus, Extron's own Update-only enum, and grown
+    from its two states to the five GetDeviceInformation can report.
+    """
+    cid = g.clone_command("ConnectionStatus", "Device Model", "DeviceModel",
+                          description="The model the camera reports itself as",
+                          attributes=ATTR_UPDATE_ONLY)
+    value_id, have = _states_of(g, cid)
+    for sid, new_name in zip(have, DEVICE_MODELS):
+        g.rename_asset(sid, new_name)
+    for new_name in DEVICE_MODELS[len(have):]:
+        extra, _ = g.clone_asset(have[0], name=new_name)
+        g.attach(value_id, extra)
+    print("   + %-24s Device Model %s" % ("DeviceModel", DEVICE_MODELS))
+
+
+def _model_command_lists(g):
+    """{model name: that model's own command-list asset}.
+
+    A package keeps one pool of commands (DriverCommands) and, per model, a
+    list of references into it whose parent is the model asset. Extron's
+    donor already gives its two models separate lists; `clone_command`
+    appends every new command to all of them.
+    """
+    out = {}
+    for oid, v in g.objects.items():
+        c = pa._cls(v)
+        if not c or "IDriverCommandAsset" not in c:
+            continue
+        if not c.startswith("Extron.Configuration.Core.Assets.AssetBase"):
+            continue
+        parent = pb.ref_id(v["members"].get("AssetBase+_parentAsset"))
+        if parent is None:
+            continue
+        pv = g.objects.get(parent)
+        if isinstance(pv, dict) and pv.get("class", "").split(",")[0] \
+                == "Extron.Configuration.Drivers.DriverModelAsset":
+            out[g.name_of(parent)] = oid
+    return out
+
+
+def _trim_model(g, model, scripts):
+    """Take commands off one model's list, leaving the pool and other models."""
+    lists = _model_command_lists(g)
+    if model not in lists:
+        raise SystemExit("no command list for model %r (have %s)"
+                         % (model, sorted(lists)))
+    assets = g.commands()
+    for sn in scripts:
+        g.detach(lists[model], assets[sn])
+        print("   - %-24s not offered on %s" % (sn, model))
 
 
 if __name__ == "__main__":

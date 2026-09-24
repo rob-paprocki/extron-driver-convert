@@ -1,0 +1,367 @@
+{
+ "pairs": [
+  {
+   "name": "PTZ-IP12_IP20",
+   "pkp": "samples/1 Beyond Cameras/PTZ-IP12_IP20/pkp/1bynd_19_4743_v1_0_1.pkp",
+   "module": "samples/1 Beyond Cameras/PTZ-IP12_IP20/Controlscript/onebynd_camera_PTZ_IP12_IP20_v1_0_0_0.py",
+   "jobs": 1,
+   "residuals": 32,
+   "residual_reasons": {
+    "model-declares-multiple-transports": 1,
+    "extron-editorial-omission": 2,
+    "gc-config-parsing-dropped": 6,
+    "gc-dual-status-emulated-prewrite-dropped": 5,
+    "gc-dual-status-no-target": 10,
+    "gc-sethelper-updatehelper-fixed-template": 2,
+    "helper-signature-carried": 1,
+    "gc-onconnected-ondisconnected-superseded": 2,
+    "onconnected-ondisconnected-synthesized": 1,
+    "serial-over-ethernet-mixin-generalised": 1,
+    "unassigned-self-attribute": 1
+   },
+   "residual_detail": [
+    {
+     "reason": "model-declares-multiple-transports",
+     "detail": "declares both a SerialProtocolAsset and an EthernetProtocolAsset (['Extron.Configuration.Core.Assets.Protocols.EthernetProtocolAsset', 'Extron.Configuration.Core.Assets.Protocols.SerialProtocolAsset']); both EthernetClass/SSHClass and SerialClass/SerialOverEthernetClass wiring classes are emitted below so neither connection option is silently dropped, but this is evidenced only by the 1 Beyond PTZ-IP12/IP20 donor -- verify by hand that the shared command logic is genuinely transport-agnostic for any other package this fires on"
+    },
+    {
+     "reason": "extron-editorial-omission",
+     "detail": "dropped command 'UserDefinedCommand': consistently absent from shipped ControlScript modules despite being present in the .pkp's file- and model-level command registries; not derivable, treated as an Extron omission"
+    },
+    {
+     "reason": "extron-editorial-omission",
+     "detail": "dropped command 'UserDefinedString': consistently absent from shipped ControlScript modules despite being present in the .pkp's file- and model-level command registries; not derivable, treated as an Extron omission"
+    },
+    {
+     "reason": "gc-config-parsing-dropped",
+     "detail": "__init__: dropped GC configs[...]/initError statement: initError = []"
+    },
+    {
+     "reason": "gc-config-parsing-dropped",
+     "detail": "__init__: dropped GC configs[...]/initError statement: try:"
+    },
+    {
+     "reason": "gc-config-parsing-dropped",
+     "detail": "__init__: dropped GC configs[...]/initError statement: try:"
+    },
+    {
+     "reason": "gc-config-parsing-dropped",
+     "detail": "__init__: dropped GC configs[...]/initError statement: try:"
+    },
+    {
+     "reason": "gc-config-parsing-dropped",
+     "detail": "__init__: dropped GC configs[...]/initError statement: try:"
+    },
+    {
+     "reason": "gc-config-parsing-dropped",
+     "detail": "__init__: dropped GC configs[...]/initError statement: if initError:"
+    },
+    {
+     "reason": "gc-dual-status-emulated-prewrite-dropped",
+     "detail": "SetAutoExposure: dropped Emulated pre-write WriteAutoExposure(...)"
+    },
+    {
+     "reason": "gc-dual-status-emulated-prewrite-dropped",
+     "detail": "SetAutoFocus: dropped Emulated pre-write WriteAutoFocus(...)"
+    },
+    {
+     "reason": "gc-dual-status-emulated-prewrite-dropped",
+     "detail": "SetBacklight: dropped Emulated pre-write WriteBacklight(...)"
+    },
+    {
+     "reason": "gc-dual-status-emulated-prewrite-dropped",
+     "detail": "SetPower: dropped Emulated pre-write WritePower(...)"
+    },
+    {
+     "reason": "gc-dual-status-emulated-prewrite-dropped",
+     "detail": "SetWhiteBalance: dropped Emulated pre-write WriteWhiteBalance(...)"
+    },
+    {
+     "reason": "gc-dual-status-no-target",
+     "detail": "dropped __SafeToSet (GC dual-status construct with no ControlScript target)"
+    },
+    {
+     "reason": "gc-sethelper-updatehelper-fixed-template",
+     "detail": "__SetHelper: replaced GC's body with the fixed, evidence-backed serial-dialect boilerplate instead of transforming it, dropping GC BaseDriver runtime API (QueryDelayTimerIsRunning/StartQueryDelayTimer/ReadPower-power-gate) with no ControlScript equivalent"
+    },
+    {
+     "reason": "helper-signature-carried",
+     "detail": "__SetHelper: kept the source's extra parameter(s) queryDisallowTime=0.1 in the fixed template's signature, accepted and ignored, as Extron's shipped modules with this signature do"
+    },
+    {
+     "reason": "gc-sethelper-updatehelper-fixed-template",
+     "detail": "__UpdateHelper: replaced GC's body with the fixed, evidence-backed serial-dialect boilerplate instead of transforming it, dropping GC BaseDriver runtime API (QueryDelayTimerIsRunning/StartQueryDelayTimer/ReadPower-power-gate) with no ControlScript equivalent"
+    },
+    {
+     "reason": "gc-onconnected-ondisconnected-superseded",
+     "detail": "OnConnected: GC's own definition contained only boilerplate already covered by the synthesized fixed template; dropped entirely (emit() always supplies its own OnConnected/OnDisconnected -- see onconnected-ondisconnected-synthesized)"
+    },
+    {
+     "reason": "gc-dual-status-no-target",
+     "detail": "OnDisconnected: dropped self.__ResetLiveStatus() call (GC dual-status construct with no ControlScript target)"
+    },
+    {
+     "reason": "gc-onconnected-ondisconnected-superseded",
+     "detail": "OnDisconnected: GC's own definition contained only boilerplate already covered by the synthesized fixed template; dropped entirely (emit() always supplies its own OnConnected/OnDisconnected -- see onconnected-ondisconnected-synthesized)"
+    },
+    {
+     "reason": "gc-dual-status-no-target",
+     "detail": "dropped WriteStatusHelper (GC dual-status construct with no ControlScript target)"
+    },
+    {
+     "reason": "gc-dual-status-no-target",
+     "detail": "dropped ReadStatusHelper (GC dual-status construct with no ControlScript target)"
+    },
+    {
+     "reason": "gc-dual-status-no-target",
+     "detail": "dropped __StatusItems (references Mutex()/PostNewStatusEx/ExtronTime, no ControlScript target)"
+    },
+    {
+     "reason": "gc-dual-status-no-target",
+     "detail": "dropped _cmd_SetSyncEmulatedStatus (GC dual-status construct with no ControlScript target)"
+    },
+    {
+     "reason": "gc-dual-status-no-target",
+     "detail": "dropped StatusRefresh (GC dual-status construct with no ControlScript target)"
+    },
+    {
+     "reason": "gc-dual-status-no-target",
+     "detail": "dropped __ResetLiveStatus (GC dual-status construct with no ControlScript target)"
+    },
+    {
+     "reason": "gc-dual-status-no-target",
+     "detail": "dropped SendAndWait (GC dual-status construct with no ControlScript target)"
+    },
+    {
+     "reason": "gc-dual-status-no-target",
+     "detail": "dropped Send (GC dual-status construct with no ControlScript target)"
+    },
+    {
+     "reason": "onconnected-ondisconnected-synthesized",
+     "detail": "OnConnected/OnDisconnected are the minimal fixed template; any device-specific state reset a hand-authored shipped module might add there was not derived (not part of the wire-string acceptance surface)"
+    },
+    {
+     "reason": "serial-over-ethernet-mixin-generalised",
+     "detail": "SerialOverEthernetClass is only evidenced by the single Samsung oracle; emitting it for every 'serial' dialect job is a generalisation, not independently confirmed"
+    },
+    {
+     "reason": "unassigned-self-attribute",
+     "detail": "generated module reads self.DeviceID, which nothing in the generated classes assigns; the line that reads it would raise AttributeError at runtime. Why: the source assigns it in code the translation dropped."
+    }
+   ],
+   "generated_written_to": "<tmp>/onebeyond_gen/PTZ-IP12_IP20.generated.py (not committed)",
+   "dangling_self_calls": [],
+   "status": "compared",
+   "gen_cmds": 13,
+   "ship_cmds": 13,
+   "only_generated": [],
+   "only_shipped": [],
+   "shared": [
+    "AutoExposure",
+    "AutoFocus",
+    "Backlight",
+    "ConnectionStatus",
+    "Focus",
+    "Gain",
+    "Iris",
+    "PanTilt",
+    "Power",
+    "Preset",
+    "Shutter",
+    "WhiteBalance",
+    "Zoom"
+   ],
+   "differing": [],
+   "differences_detail": {},
+   "diff_kinds": []
+  },
+  {
+   "name": "AutoTracker3",
+   "pkp": "samples/1 Beyond Cameras/AutoTracker3/pkp/1bynd_19_4741_v1_0_1.pkp",
+   "module": "samples/1 Beyond Cameras/AutoTracker3/Controlscript/onebynd_camera_AutoTracker_3_v1_0_1_1.py",
+   "jobs": 1,
+   "residuals": 31,
+   "residual_reasons": {
+    "model-declares-multiple-transports": 1,
+    "extron-editorial-omission": 2,
+    "gc-config-parsing-dropped": 6,
+    "gc-dual-status-emulated-prewrite-dropped": 4,
+    "gc-dual-status-no-target": 10,
+    "gc-sethelper-updatehelper-fixed-template": 2,
+    "helper-signature-carried": 1,
+    "gc-onconnected-ondisconnected-superseded": 2,
+    "onconnected-ondisconnected-synthesized": 1,
+    "serial-over-ethernet-mixin-generalised": 1,
+    "unassigned-self-attribute": 1
+   },
+   "residual_detail": [
+    {
+     "reason": "model-declares-multiple-transports",
+     "detail": "declares both a SerialProtocolAsset and an EthernetProtocolAsset (['Extron.Configuration.Core.Assets.Protocols.EthernetProtocolAsset', 'Extron.Configuration.Core.Assets.Protocols.SerialProtocolAsset']); both EthernetClass/SSHClass and SerialClass/SerialOverEthernetClass wiring classes are emitted below so neither connection option is silently dropped, but this is evidenced only by the 1 Beyond PTZ-IP12/IP20 donor -- verify by hand that the shared command logic is genuinely transport-agnostic for any other package this fires on"
+    },
+    {
+     "reason": "extron-editorial-omission",
+     "detail": "dropped command 'UserDefinedCommand': consistently absent from shipped ControlScript modules despite being present in the .pkp's file- and model-level command registries; not derivable, treated as an Extron omission"
+    },
+    {
+     "reason": "extron-editorial-omission",
+     "detail": "dropped command 'UserDefinedString': consistently absent from shipped ControlScript modules despite being present in the .pkp's file- and model-level command registries; not derivable, treated as an Extron omission"
+    },
+    {
+     "reason": "gc-config-parsing-dropped",
+     "detail": "__init__: dropped GC configs[...]/initError statement: initError = []"
+    },
+    {
+     "reason": "gc-config-parsing-dropped",
+     "detail": "__init__: dropped GC configs[...]/initError statement: try:"
+    },
+    {
+     "reason": "gc-config-parsing-dropped",
+     "detail": "__init__: dropped GC configs[...]/initError statement: try:"
+    },
+    {
+     "reason": "gc-config-parsing-dropped",
+     "detail": "__init__: dropped GC configs[...]/initError statement: try:"
+    },
+    {
+     "reason": "gc-config-parsing-dropped",
+     "detail": "__init__: dropped GC configs[...]/initError statement: try:"
+    },
+    {
+     "reason": "gc-config-parsing-dropped",
+     "detail": "__init__: dropped GC configs[...]/initError statement: if initError:"
+    },
+    {
+     "reason": "gc-dual-status-emulated-prewrite-dropped",
+     "detail": "SetAutoExposure: dropped Emulated pre-write WriteAutoExposure(...)"
+    },
+    {
+     "reason": "gc-dual-status-emulated-prewrite-dropped",
+     "detail": "SetBacklight: dropped Emulated pre-write WriteBacklight(...)"
+    },
+    {
+     "reason": "gc-dual-status-emulated-prewrite-dropped",
+     "detail": "SetFocusMode: dropped Emulated pre-write WriteFocusMode(...)"
+    },
+    {
+     "reason": "gc-dual-status-emulated-prewrite-dropped",
+     "detail": "SetPower: dropped Emulated pre-write WritePower(...)"
+    },
+    {
+     "reason": "gc-dual-status-no-target",
+     "detail": "dropped __SafeToSet (GC dual-status construct with no ControlScript target)"
+    },
+    {
+     "reason": "gc-sethelper-updatehelper-fixed-template",
+     "detail": "__SetHelper: replaced GC's body with the fixed, evidence-backed serial-dialect boilerplate instead of transforming it, dropping GC BaseDriver runtime API (QueryDelayTimerIsRunning/StartQueryDelayTimer/ReadPower-power-gate) with no ControlScript equivalent"
+    },
+    {
+     "reason": "helper-signature-carried",
+     "detail": "__SetHelper: kept the source's extra parameter(s) queryDisallowTime=0.1 in the fixed template's signature, accepted and ignored, as Extron's shipped modules with this signature do"
+    },
+    {
+     "reason": "gc-sethelper-updatehelper-fixed-template",
+     "detail": "__UpdateHelper: replaced GC's body with the fixed, evidence-backed serial-dialect boilerplate instead of transforming it, dropping GC BaseDriver runtime API (QueryDelayTimerIsRunning/StartQueryDelayTimer/ReadPower-power-gate) with no ControlScript equivalent"
+    },
+    {
+     "reason": "gc-onconnected-ondisconnected-superseded",
+     "detail": "OnConnected: GC's own definition contained only boilerplate already covered by the synthesized fixed template; dropped entirely (emit() always supplies its own OnConnected/OnDisconnected -- see onconnected-ondisconnected-synthesized)"
+    },
+    {
+     "reason": "gc-dual-status-no-target",
+     "detail": "OnDisconnected: dropped self.__ResetLiveStatus() call (GC dual-status construct with no ControlScript target)"
+    },
+    {
+     "reason": "gc-onconnected-ondisconnected-superseded",
+     "detail": "OnDisconnected: GC's own definition contained only boilerplate already covered by the synthesized fixed template; dropped entirely (emit() always supplies its own OnConnected/OnDisconnected -- see onconnected-ondisconnected-synthesized)"
+    },
+    {
+     "reason": "gc-dual-status-no-target",
+     "detail": "dropped WriteStatusHelper (GC dual-status construct with no ControlScript target)"
+    },
+    {
+     "reason": "gc-dual-status-no-target",
+     "detail": "dropped ReadStatusHelper (GC dual-status construct with no ControlScript target)"
+    },
+    {
+     "reason": "gc-dual-status-no-target",
+     "detail": "dropped __StatusItems (references Mutex()/PostNewStatusEx/ExtronTime, no ControlScript target)"
+    },
+    {
+     "reason": "gc-dual-status-no-target",
+     "detail": "dropped _cmd_SetSyncEmulatedStatus (GC dual-status construct with no ControlScript target)"
+    },
+    {
+     "reason": "gc-dual-status-no-target",
+     "detail": "dropped StatusRefresh (GC dual-status construct with no ControlScript target)"
+    },
+    {
+     "reason": "gc-dual-status-no-target",
+     "detail": "dropped __ResetLiveStatus (GC dual-status construct with no ControlScript target)"
+    },
+    {
+     "reason": "gc-dual-status-no-target",
+     "detail": "dropped SendAndWait (GC dual-status construct with no ControlScript target)"
+    },
+    {
+     "reason": "gc-dual-status-no-target",
+     "detail": "dropped Send (GC dual-status construct with no ControlScript target)"
+    },
+    {
+     "reason": "onconnected-ondisconnected-synthesized",
+     "detail": "OnConnected/OnDisconnected are the minimal fixed template; any device-specific state reset a hand-authored shipped module might add there was not derived (not part of the wire-string acceptance surface)"
+    },
+    {
+     "reason": "serial-over-ethernet-mixin-generalised",
+     "detail": "SerialOverEthernetClass is only evidenced by the single Samsung oracle; emitting it for every 'serial' dialect job is a generalisation, not independently confirmed"
+    },
+    {
+     "reason": "unassigned-self-attribute",
+     "detail": "generated module reads self.DeviceID, which nothing in the generated classes assigns; the line that reads it would raise AttributeError at runtime. Why: the source assigns it in code the translation dropped."
+    }
+   ],
+   "generated_written_to": "<tmp>/onebeyond_gen/AutoTracker3.generated.py (not committed)",
+   "dangling_self_calls": [],
+   "status": "compared",
+   "gen_cmds": 16,
+   "ship_cmds": 16,
+   "only_generated": [],
+   "only_shipped": [],
+   "shared": [
+    "AutoExposure",
+    "AutoTracking",
+    "Backlight",
+    "ConnectionStatus",
+    "Focus",
+    "FocusMode",
+    "Home",
+    "Iris",
+    "PanTilt",
+    "PanTiltReset",
+    "Power",
+    "PresetRecall",
+    "PresetReset",
+    "PresetSave",
+    "Shutter",
+    "Zoom"
+   ],
+   "differing": [],
+   "differences_detail": {},
+   "diff_kinds": []
+  }
+ ],
+ "zoom_speed_check": [
+  {
+   "pair": "PTZ-IP12_IP20",
+   "zoom_in_shared": true,
+   "zoom_in_differing": false,
+   "zoom_diff_detail": null
+  },
+  {
+   "pair": "AutoTracker3",
+   "zoom_in_shared": true,
+   "zoom_in_differing": false,
+   "zoom_diff_detail": null
+  }
+ ]
+}

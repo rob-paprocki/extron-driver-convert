@@ -124,3 +124,6 @@ Three dimensions (`crestron-serial-vs-ip`, `extron-samsung`, `crestron-emission`
 returned stubs or crashed and are being re-run. The synthesist worked around the
 first two by doing the analysis directly, which is why the corrections above are
 sound; `crestron-emission` remains the real gap.
+*(`crestron-emission` closed by finding 06 — "Emitting a Crestron driver:
+strategy A works, and was demonstrated," executed end-to-end against the real
+Samsung Serial DLL.)*

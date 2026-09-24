@@ -689,7 +689,8 @@
    },
    {
     "model": "Ethergate MK3",
-    "module": "entt_lc_DINODE_EthergateMK3_v1_1_1_2.py"
+    "module": "entt_lc_DIN_ODE_POE_Mk2_Ethergate_MK3_v1_3_1_0.py",
+    "override": "package v1.3.1 against the v1.3.1.0 module that names Ethergate MK3; the rule chose the v1.1.1.2 one"
    }
   ]
  },
@@ -918,7 +919,8 @@
   "matches": [
    {
     "model": "Annotator",
-    "module": "extr_sp_Annotator300_v1_2_1_0.py"
+    "module": "extr_sp_annotator_v1_0_0_1.py",
+    "override": "the model is the Annotator; the rule chose the Annotator 300 module"
    }
   ]
  },
@@ -1021,7 +1023,8 @@
   "matches": [
    {
     "model": "MLA VC10",
-    "module": "extr_controller_MLAVC10Plus_v1_0_2_0.py"
+    "module": "extr_controller_MLAVC10_v1_0_2_0.py",
+    "override": "MLA VC10 has its own module; the rule gave it the VC10 Plus one, which the package's MLA VC10 Plus model already pairs with"
    },
    {
     "model": "MLA VC10 Plus",
@@ -1151,7 +1154,8 @@
   "matches": [
    {
     "model": "DMP 128",
-    "module": "extr_dsp_DMP128_FlexPlus_v1_0_9_0.py"
+    "module": "extr_dsp_DMP128_Series_v1_5_11_0.py",
+    "override": "package v1.5.12 against DMP128_Series v1.5.11; the rule chose the DMP 128 FlexPlus module, v1.0.9, a different product"
    }
   ]
  },
@@ -2874,7 +2878,8 @@
   "matches": [
    {
     "model": "Cynap",
-    "module": "wolf_cs_Cynap_Core_Pure_Pro_v1_1_1_0.py"
+    "module": "wolf_cs_cynap_v1_18_4_0.py",
+    "override": "package v1.18.4 against cynap v1.18.4.0; the rule chose the Cynap Core/Pure/Pro module, v1.1.1"
    }
   ]
  },

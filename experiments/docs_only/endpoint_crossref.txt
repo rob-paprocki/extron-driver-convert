@@ -1,5 +1,10 @@
+=== reference/automate-vx-api/API-Reference/ harvest, as scanned today ===
+dedicated-page endpoints found: 43
+sub-APIs promoted from example-only to dedicated-page by this harvest (7): ['api/AutoSwitchStatus', 'api/GetLayouts', 'api/GetRoomConfigs', 'api/LayoutStatus', 'api/OutputStatus', 'api/RecordStatus', 'api/RoomConfigStatus']
+sub-APIs still example-only (named in ENDPOINTS.md, no page found) (2): ['api/CopyStatus', 'api/ISORecordStatus']
+
 === generated module: endpoint URIs referenced ===
-  api/AutoSwitchStatus EXAMPLE_ONLY
+  api/AutoSwitchStatus OFFICIAL
   api/CallCameraPreset OFFICIAL
   api/CameraStatus OFFICIAL
   api/ChangeLayout OFFICIAL
@@ -9,21 +14,21 @@
   api/GetActiveTalkers OFFICIAL
   api/GetAllStatus OFFICIAL
   api/GetCameras OFFICIAL
-  api/GetLayouts EXAMPLE_ONLY
-  api/GetRoomConfigs EXAMPLE_ONLY
+  api/GetLayouts OFFICIAL
+  api/GetRoomConfigs OFFICIAL
   api/GetScenarios OFFICIAL
   api/GoHome OFFICIAL
   api/GoToScenario OFFICIAL
   api/ISORecordStatus EXAMPLE_ONLY
   api/ImportCameraPresets OFFICIAL
-  api/LayoutStatus EXAMPLE_ONLY
+  api/LayoutStatus OFFICIAL
   api/Macro OFFICIAL
   api/ManualSwitchCamera OFFICIAL
-  api/OutputStatus EXAMPLE_ONLY
-  api/RecordStatus EXAMPLE_ONLY
+  api/OutputStatus OFFICIAL
+  api/RecordStatus OFFICIAL
   api/RecordingSpaceAvail OFFICIAL
   api/Restart OFFICIAL
-  api/RoomConfigStatus EXAMPLE_ONLY
+  api/RoomConfigStatus OFFICIAL
   api/SaveCameraPreset OFFICIAL
   api/ScenarioStatus OFFICIAL
   api/ShotStatus OFFICIAL
@@ -43,30 +48,30 @@
 count: 41
 
 === Extron shipped module: endpoint URIs referenced ===
-  api/AutoSwitchStatus EXAMPLE_ONLY
+  api/AutoSwitchStatus OFFICIAL
   api/CallCameraPreset OFFICIAL
   api/CameraStatus OFFICIAL
   api/ChangeLayout OFFICIAL
-  api/ChangeRoomConfiguration DOC_GAP
+  api/ChangeRoomConfiguration OFFICIAL
   api/ForceChangeRoomConfig OFFICIAL
   api/GoHome OFFICIAL
   api/GoToScenario OFFICIAL
   api/ISORecordStatus EXAMPLE_ONLY
   api/ManualSwitchCamera OFFICIAL
-  api/OutputStatus EXAMPLE_ONLY
-  api/RecordStatus EXAMPLE_ONLY
-  api/RoomConfigStatus EXAMPLE_ONLY
+  api/OutputStatus OFFICIAL
+  api/RecordStatus OFFICIAL
+  api/RoomConfigStatus OFFICIAL
   api/SaveCameraPreset OFFICIAL
   api/ScenarioStatus OFFICIAL
   api/Sleep OFFICIAL
-  api/StartAutoSwitch DOC_GAP
+  api/StartAutoSwitch OFFICIAL
   api/StartISORecord DOC_GAP
   api/StartOutput OFFICIAL
   api/StartPT OFFICIAL
   api/StartRecord OFFICIAL
   api/StartStream OFFICIAL
   api/StartZ OFFICIAL
-  api/StopAutoSwitch DOC_GAP
+  api/StopAutoSwitch OFFICIAL
   api/StopISORecord DOC_GAP
   api/StopOutput OFFICIAL
   api/StopPT OFFICIAL
@@ -74,35 +79,35 @@ count: 41
   api/StopStream OFFICIAL
   api/StopZ OFFICIAL
   api/StreamStatus OFFICIAL
-  api/Wake DOC_GAP
+  api/Wake OFFICIAL
   get-token OFFICIAL
 count: 33
 
 === classification of the diff ===
 -- in Extron shipped but NOT in generated (by URI) --
-  api/ChangeRoomConfiguration DOC_GAP
-  api/StartAutoSwitch DOC_GAP
+  api/ChangeRoomConfiguration OFFICIAL
+  api/StartAutoSwitch OFFICIAL
   api/StartISORecord DOC_GAP
-  api/StopAutoSwitch DOC_GAP
+  api/StopAutoSwitch OFFICIAL
   api/StopISORecord DOC_GAP
-  api/Wake DOC_GAP
+  api/Wake OFFICIAL
 -- in generated but NOT in Extron shipped (by URI) --
   api/CopyFiles OFFICIAL
   api/CopyStatus EXAMPLE_ONLY
   api/GetActiveTalkers OFFICIAL
   api/GetAllStatus OFFICIAL
   api/GetCameras OFFICIAL
-  api/GetLayouts EXAMPLE_ONLY
-  api/GetRoomConfigs EXAMPLE_ONLY
+  api/GetLayouts OFFICIAL
+  api/GetRoomConfigs OFFICIAL
   api/GetScenarios OFFICIAL
   api/ImportCameraPresets OFFICIAL
-  api/LayoutStatus EXAMPLE_ONLY
+  api/LayoutStatus OFFICIAL
   api/Macro OFFICIAL
   api/RecordingSpaceAvail OFFICIAL
   api/Restart OFFICIAL
   api/ShotStatus OFFICIAL
 -- in both (by URI) --
-  api/AutoSwitchStatus EXAMPLE_ONLY
+  api/AutoSwitchStatus OFFICIAL
   api/CallCameraPreset OFFICIAL
   api/CameraStatus OFFICIAL
   api/ChangeLayout OFFICIAL
@@ -111,9 +116,9 @@ count: 33
   api/GoToScenario OFFICIAL
   api/ISORecordStatus EXAMPLE_ONLY
   api/ManualSwitchCamera OFFICIAL
-  api/OutputStatus EXAMPLE_ONLY
-  api/RecordStatus EXAMPLE_ONLY
-  api/RoomConfigStatus EXAMPLE_ONLY
+  api/OutputStatus OFFICIAL
+  api/RecordStatus OFFICIAL
+  api/RoomConfigStatus OFFICIAL
   api/SaveCameraPreset OFFICIAL
   api/ScenarioStatus OFFICIAL
   api/Sleep OFFICIAL
@@ -130,6 +135,8 @@ count: 33
   api/StreamStatus OFFICIAL
   get-token OFFICIAL
 
-official endpoint coverage: both=22, extron-only=0, generated-only(unimplemented-by-extron)=10, total-official=32
-sub-api (example-only) coverage: both=5, generated-only=4, total-listed=9
-DOC GAP (Extron calls, appears nowhere in corpus): ['api/ChangeRoomConfiguration', 'api/StartAutoSwitch', 'api/StartISORecord', 'api/StopAutoSwitch', 'api/StopISORecord', 'api/Wake']
+official endpoint coverage: both=26, extron-only=4, generated-only(unimplemented-by-extron)=13, total-official=43
+sub-api (example-only) coverage: both=1, generated-only=1, total-listed=9
+DOC GAP (Extron calls, appears nowhere in corpus): ['api/StartISORecord', 'api/StopISORecord']
+
+finding-08-style headline: Extron calls 33 endpoint URIs; 30 have a dedicated page, 2 do not -- ['api/StartISORecord', 'api/StopISORecord']

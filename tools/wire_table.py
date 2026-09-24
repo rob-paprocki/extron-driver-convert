@@ -34,6 +34,7 @@ import ast
 import json
 import re
 import sys
+from collections.abc import Hashable
 from dataclasses import dataclass, field, asdict
 from typing import Any, Optional
 
@@ -367,6 +368,24 @@ class Resolver:
 
     @staticmethod
     def _find_return(stmts):
+        """Find 'the' return statement for a helper method being inlined,
+        walking statements in source order.
+
+        A `Try`'s `except` handlers are deliberately never consulted here.
+        A handler's `return` only executes on the path where the try body
+        raised -- something this best-effort, non-executing walk cannot
+        know happened -- so treating it as *the* return would be a guess
+        the opaque-marker convention elsewhere in this module forbids.
+        Only the try's own normal-path substructure (`body`, then `orelse`,
+        then `finalbody` -- covered by the same generic attr walk used for
+        `if`/`for`/`while`, since `Try` carries all three) is searched. If
+        none of those has a return, the whole `Try` contributes nothing and
+        the walk moves on to the next sibling statement, same as any other
+        statement with no return inside it. That was the bug: the old code
+        dove into a Try's handlers *before* checking a later sibling
+        statement in the same block, so a handler's return could shadow the
+        normal-path return that actually runs (findings/19 section 2, the
+        Samsung ReadStatusHelper case)."""
         for stmt in stmts:
             if isinstance(stmt, ast.Return):
                 return stmt
@@ -374,11 +393,6 @@ class Resolver:
                 sub = getattr(stmt, attr, None)
                 if sub:
                     found = Resolver._find_return(sub)
-                    if found is not None:
-                        return found
-            if isinstance(stmt, ast.Try):
-                for h in stmt.handlers:
-                    found = Resolver._find_return(h.body)
                     if found is not None:
                         return found
         return None
@@ -613,52 +627,133 @@ def _find_commands_dict(cls: ast.ClassDef) -> Optional[ast.Dict]:
     return None
 
 
+def _env_sig(env: dict) -> tuple:
+    """A structural signature for an env dict, for deduplicating branch
+    worlds that ended up identical (same names bound to the same source
+    expression) -- e.g. an if/else that doesn't touch the variable a later
+    call actually uses, or assigns it the same literal on both arms."""
+    return tuple(sorted((k, ast.dump(v)) for k, v in env.items()))
+
+
+def _dedup_envs(envs: list) -> list:
+    seen = set()
+    out = []
+    for e in envs:
+        sig = _env_sig(e)
+        if sig in seen:
+            continue
+        seen.add(sig)
+        out.append(e)
+    return out
+
+
+# Cap on live branch worlds, purely as a safety net against pathological
+# nesting in a method this walker hasn't been run against; every real sample
+# module in this repo stays in the single digits.
+_MAX_BRANCH_WORLDS = 64
+
+
 def _find_helper_calls_in_method(func: ast.FunctionDef, resolver: Resolver):
     """Yield (kind, call_node, env) for every __SetHelper/__UpdateHelper call
-    in `func`, each with the name->AST env visible at that call site (branch
-    arms get their own env, so an if/else with two different CmdStrings
-    yields two entries)."""
+    in `func`, each with the name->AST env visible at that call site.
+
+    This threads a *list* of live envs ("worlds") through the statement
+    sequence, one per branch alternative still reachable at that point,
+    rather than a single env copied-and-discarded per branch. An if/else
+    that assigns the SAME variable differently in each arm splits the
+    world in two, and -- unlike a single-env walk that starts a fresh copy
+    per branch and throws it away when the branch ends -- both worlds
+    survive past the `if` and are still live for a helper call that comes
+    AFTER it, each carrying its own arm's binding. That is what lets a
+    command string assigned in both arms of an if/else and sent after it
+    (RossTalk's SetMatrixTieCommand) resolve to two templates -- one per
+    arm -- instead of the merge silently getting dropped and the call
+    resolving the variable as opaque. Worlds that end up structurally
+    identical (`_dedup_envs`) collapse back into one, so a branch that
+    doesn't affect the eventual command string doesn't fork it for no
+    reason, and a `return`/`raise`/`break`/`continue` terminates whichever
+    world reached it, so an early-return guard clause doesn't leave behind
+    a bogus duplicate world downstream of the value it never let execute."""
     results = []
 
-    def walk_stmts(stmts, env):
-        env = dict(env)
+    def branch_envs(stmts, envs):
         for stmt in stmts:
+            if not envs:
+                break
             if isinstance(stmt, ast.Assign) and len(stmt.targets) == 1 \
                     and isinstance(stmt.targets[0], ast.Name):
-                env[stmt.targets[0].id] = stmt.value
-            if isinstance(stmt, ast.If):
-                for node in ast.walk(stmt.test):
-                    kind = _is_helper_call(node)
-                    if kind:
-                        results.append((kind, node, dict(env)))
-                walk_stmts(stmt.body, env)
-                walk_stmts(stmt.orelse, env)
+                name = stmt.targets[0].id
+                for env in envs:
+                    # The value is evaluated before the name is bound, so a
+                    # helper call inside it - `res = self.__UpdateHelper(...)`,
+                    # the usual Update shape - is recorded with the env as it
+                    # stood before this statement.
+                    for node in ast.walk(stmt.value):
+                        kind = _is_helper_call(node)
+                        if kind:
+                            results.append((kind, node, dict(env)))
+                    env[name] = stmt.value
                 continue
-            if isinstance(stmt, (ast.For, ast.While)):
-                if isinstance(stmt, ast.While):
+            if isinstance(stmt, ast.If):
+                for env in envs:
                     for node in ast.walk(stmt.test):
                         kind = _is_helper_call(node)
                         if kind:
                             results.append((kind, node, dict(env)))
-                walk_stmts(stmt.body, env)
-                walk_stmts(stmt.orelse, env)
+                body_envs = branch_envs(stmt.body, [dict(e) for e in envs])
+                orelse_envs = branch_envs(stmt.orelse, [dict(e) for e in envs]) \
+                    if stmt.orelse else [dict(e) for e in envs]
+                envs = _dedup_envs(body_envs + orelse_envs)[:_MAX_BRANCH_WORLDS]
+                continue
+            if isinstance(stmt, (ast.For, ast.While)):
+                if isinstance(stmt, ast.While):
+                    for env in envs:
+                        for node in ast.walk(stmt.test):
+                            kind = _is_helper_call(node)
+                            if kind:
+                                results.append((kind, node, dict(env)))
+                # A loop body may run zero or more times: the "didn't run"
+                # world (the incoming envs, unchanged) and the "ran >=1
+                # times" world (envs after one pass of the body) are both
+                # live afterward.
+                body_envs = branch_envs(stmt.body, [dict(e) for e in envs])
+                after_envs = _dedup_envs(body_envs + [dict(e) for e in envs])[:_MAX_BRANCH_WORLDS]
+                envs = branch_envs(stmt.orelse, after_envs) if stmt.orelse else after_envs
                 continue
             if isinstance(stmt, ast.Try):
-                walk_stmts(stmt.body, env)
+                # Normal path: body, then orelse (only reached if body
+                # didn't raise/return), then finalbody (always). Each
+                # handler is an alternate world starting from the envs
+                # BEFORE the try, since an exception can interrupt the
+                # body at any point; finalbody still applies to those too.
+                normal_envs = branch_envs(stmt.body, [dict(e) for e in envs])
+                if stmt.orelse:
+                    normal_envs = branch_envs(stmt.orelse, normal_envs)
+                handler_envs = []
                 for h in stmt.handlers:
-                    walk_stmts(h.body, env)
-                walk_stmts(stmt.orelse, env)
-                walk_stmts(stmt.finalbody, env)
+                    handler_envs += branch_envs(h.body, [dict(e) for e in envs])
+                merged = _dedup_envs(normal_envs + handler_envs)[:_MAX_BRANCH_WORLDS]
+                envs = branch_envs(stmt.finalbody, merged) if stmt.finalbody else merged
                 continue
             if isinstance(stmt, ast.With):
-                walk_stmts(stmt.body, env)
+                envs = branch_envs(stmt.body, envs)
                 continue
-            for node in ast.walk(stmt):
-                kind = _is_helper_call(node)
-                if kind:
-                    results.append((kind, node, dict(env)))
+            if isinstance(stmt, (ast.Return, ast.Raise, ast.Continue, ast.Break)):
+                for env in envs:
+                    for node in ast.walk(stmt):
+                        kind = _is_helper_call(node)
+                        if kind:
+                            results.append((kind, node, dict(env)))
+                envs = []
+                continue
+            for env in envs:
+                for node in ast.walk(stmt):
+                    kind = _is_helper_call(node)
+                    if kind:
+                        results.append((kind, node, dict(env)))
+        return envs
 
-    walk_stmts(func.body, {})
+    branch_envs(func.body, [{}])
     return results
 
 
@@ -727,9 +822,34 @@ def _extract_template_from_helper_call(call: ast.Call, env: dict, params: set,
                      value_maps=maps, slots=slots, opaque=0)
 
 
-def _collect_add_match_strings(cls: ast.ClassDef):
+def _collect_re_compile_aliases(tree: ast.Module) -> set:
+    """Return the set of bare names bound to `re.compile` by a module-level
+    `from re import compile` (optionally `as X`), e.g. `{'compile'}` for
+    `from re import compile` or `{'_rc'}` for `from re import compile as _rc`.
+
+    Only names actually imported from the `re` module qualify: a same-named
+    local function or a `compile` bound some other way is never treated as
+    `re.compile` -- that would be guessing, not resolving. `re.compile(...)`
+    and `<alias>.compile(...)` (e.g. `import re as r`) are recognised
+    separately, as any Attribute call named `compile`, and don't need this."""
+    names = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and node.module == "re":
+            for alias in node.names:
+                if alias.name == "compile":
+                    names.add(alias.asname or alias.name)
+    return names
+
+
+def _collect_add_match_strings(cls: ast.ClassDef, re_compile_names: Optional[set] = None):
     """Return list of dict(pattern, is_bytes, handler, tag) for every
-    self.AddMatchString(re.compile(pattern), self.<handler>, tag) call."""
+    self.AddMatchString(re.compile(pattern), self.<handler>, tag) call.
+
+    The pattern-compiling call is recognised either as `<expr>.compile(...)`
+    (`re.compile`, or `<alias>.compile` for `import re as <alias>`) or as a
+    bare name call whose name is in `re_compile_names` (`from re import
+    compile[ as <alias>]`)."""
+    re_compile_names = re_compile_names or set()
     out = []
     for func in cls.body:
         if not isinstance(func, ast.FunctionDef):
@@ -748,8 +868,14 @@ def _collect_add_match_strings(cls: ast.ClassDef):
 
             pattern = None
             is_bytes = False
-            if isinstance(pattern_arg, ast.Call) and isinstance(pattern_arg.func, ast.Attribute) \
-                    and pattern_arg.func.attr == "compile" and pattern_arg.args:
+            is_compile_call = False
+            if isinstance(pattern_arg, ast.Call) and pattern_arg.args:
+                pfn = pattern_arg.func
+                if isinstance(pfn, ast.Attribute) and pfn.attr == "compile":
+                    is_compile_call = True
+                elif isinstance(pfn, ast.Name) and pfn.id in re_compile_names:
+                    is_compile_call = True
+            if is_compile_call:
                 try:
                     raw = ast.literal_eval(pattern_arg.args[0])
                     if isinstance(raw, bytes):
@@ -815,7 +941,8 @@ def extract_table(source: str, filename: str = "<string>") -> WireTable:
                             params = []
             parameters[name] = params
 
-    match_strings = _collect_add_match_strings(cls)
+    re_compile_names = _collect_re_compile_aliases(tree)
+    match_strings = _collect_add_match_strings(cls, re_compile_names)
 
     resolver = Resolver(methods)
     records: dict[str, CommandRecord] = {}
@@ -848,8 +975,6 @@ def extract_table(source: str, filename: str = "<string>") -> WireTable:
                     rec.update_templates.append(tmpl)
 
         records[name] = rec
-
-    total_opaque = resolver.opaque_count
 
     # value maps: prefer the Set-direction 'ValueStateValues' map (user->wire).
     # Fall back to inverting a Match-handler's reverse map (wire->user), and
@@ -895,7 +1020,22 @@ def extract_table(source: str, filename: str = "<string>") -> WireTable:
                 if "ValueStateValues" in menv and isinstance(menv["ValueStateValues"], ast.Dict):
                     reverse = Resolver._literal_dict(menv["ValueStateValues"])
                     if reverse:
-                        primary_map = {v: k for k, v in reverse.items()}
+                        # A Match handler's ValueStateValues is normally a
+                        # flat wire-value -> human-name map, invertible into
+                        # the user->wire map this fallback wants. But it is
+                        # sometimes a *qualifier-keyed table* of per-input
+                        # state maps instead (e.g. one map per HDMI/USB
+                        # source), where the dict's values are themselves
+                        # dicts. That shape can't be inverted into a single
+                        # scalar map without guessing which sub-map's keys
+                        # apply here, and a naive `{v: k ...}` inversion
+                        # crashes on the unhashable dict value besides.
+                        # Per the opaque-marker convention: leave it
+                        # unresolved and counted, never guessed.
+                        if all(isinstance(v, Hashable) for v in reverse.values()):
+                            primary_map = {v: k for k, v in reverse.items()}
+                        else:
+                            resolver.opaque_count += 1
         if not primary_map:
             for tmpl in rec.update_templates:
                 if tmpl.value_maps:
@@ -903,6 +1043,8 @@ def extract_table(source: str, filename: str = "<string>") -> WireTable:
                     primary_map = tmpl.value_maps[first_key]
                     break
         rec.value_map = primary_map
+
+    total_opaque = resolver.opaque_count
 
     stats = {
         "commands_found": len(records),

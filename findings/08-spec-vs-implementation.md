@@ -80,8 +80,13 @@ read with that caveat.
 
 # Finding 08 — could you generate a driver from the vendor's API docs?
 
-**No. Documentation is necessary but not sufficient — and we can now say by exactly
-how much.**
+**Mostly not — documentation is necessary but not sufficient, and we can now
+say by exactly how much.** *(First written as a flat "No." The header's
+correction narrows it: 29 of the 32 endpoints Extron's driver actually calls
+turn out to have their own documentation page, not the ~69% first counted —
+see "Extron implements 22 of the 32 documented endpoints" below. What
+survives is 3 genuinely undocumented endpoints, the whole ISO-record family,
+plus the wrong parameter types.)*
 
 The Automate VX API is publicly documented, and we hold three implementations that
 demonstrably work against the real device. That makes this the only case in the
@@ -92,6 +97,14 @@ endpoints tabulated in `ENDPOINTS.md`.
 **24 confirmed, 6 overstated, 5 refuted** — the refutations are folded in below.
 
 ## Extron implements 22 of the 32 documented endpoints (69%)
+
+*(This counts against the endpoint list as first tabulated, which the
+Wake/StartAutoSwitch/StopAutoSwitch harvest gap did not touch — none of those
+three were in this "documented" list either way, so the 10-ignored /
+2-genuine-gap breakdown below is unaffected. The number that the header's
+correction actually moves is the different question below: of the 32
+endpoints Extron's driver calls, how many are documented — corrected from
+~69% to 29/32, 91%.)*
 
 The 10 it ignores are mostly defensible: `CopyFiles`, `GetCameras`, `GetScenarios`,
 `ImportCameraPresets`, `RecordingSpaceAvail`, `Restart` are installer-time or
@@ -123,9 +136,18 @@ StartAutoSwitch   StopAutoSwitch   StartISORecord   StopISORecord   Wake
 undocumented; a verifier found it does appear once, in a cURL example on the
 Macro API page. Corrected.)*
 
-**`Sleep` is documented. `Wake` is not.** A driver generated from the docs could
-put the device to sleep and never wake it up. That single pair is the whole
-finding in miniature.
+*(Corrected by the header, second pass: `StartAutoSwitch`, `StopAutoSwitch`
+and `Wake` are all documented too — found by probing `<Name>-API.htm` and,
+for `StopAutoSwitch`, the no-`-API`-suffix variant. Only `StartISORecord` and
+`StopISORecord` survive as genuinely undocumented, the ISO-record family.)*
+
+**`Sleep` is documented. `Wake` is not.** *(Corrected: `Wake` **is**
+documented, at `.../API-Reference/Wake-API.htm` — first written as
+undocumented from a harvest that hadn't tried that URL directly. See the
+header.)* A driver generated from the docs could put the device to sleep and
+never wake it up — first thought to be the whole finding in miniature; the
+surviving miniature is the ISO-record family, undocumented for a plausible
+reason (deprecation) rather than a missed harvest.
 
 ## And the types are wrong
 
@@ -137,8 +159,14 @@ right and the document is wrong.
 ## What this means for the project
 
 A doc-driven generator would produce something that looks complete and is not: it
-would get the auth flow right, get ~69% of the surface right, silently omit five
-endpoints a real driver needs, never discover five more hidden in an example, and
+would get the auth flow right, get ~69% of the surface right (first count;
+corrected below to 29 of 32 endpoints actually documented, 91%), silently omit
+two endpoints a real driver needs (`StartISORecord`, `StopISORecord` — first
+counted as five, before the header's correction found `Wake`,
+`StartAutoSwitch` and `StopAutoSwitch` documented after all), never discover
+one more hidden in an example (`ISORecordStatus` — first counted as five,
+before `AutoSwitchStatus`, `OutputStatus`, `RecordStatus` and
+`RoomConfigStatus` turned out to have first-class pages of their own), and
 emit three parameters with wrong JSON types.
 
 **This is the same lesson the Samsung case taught, from the opposite direction.**

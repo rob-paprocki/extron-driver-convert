@@ -8,7 +8,10 @@ human-written.**
 - `samples/Custom Module/` — the RossTalk and TSL 3.1 modules an integrator
   wrote by hand for a real project, about three years earlier.
 - `ross_ultrix_generated_by_pkp2cs.py` — what `tools/pkp2cs.py` produces from
-  Extron's package, generated 2026-09-09.
+  Extron's package, generated 2026-09-09. Kept as the snapshot finding 17
+  compared; it predates the 2026-09-23 translator fixes (the source's own
+  imports and module-level definitions carried, decorators kept), so
+  regenerate it before executing it (ROADMAP R13).
 
 Regenerate with:
 
@@ -33,7 +36,7 @@ is an open item in `ROADMAP.md`.
 
 ## template_splice/ — finding 17 §2's evidence
 
-Moved from `C:\Users\robp\AppData\Local\Temp\`. How "the boilerplate is
+Recovered from scratch space during the 2026-09 pack-up. How "the boilerplate is
 Extron's; the device is theirs" was measured:
 
 | file | content |

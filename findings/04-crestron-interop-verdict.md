@@ -3,7 +3,8 @@
 From a 20-agent research pass with adversarial per-claim verification
 (43 confirmed, 9 overstated, 5 refuted), **plus direct inspection of three real
 Crestron packages**. See the caveat at the bottom: part of that dossier failed
-and is being re-run.
+and is being re-run. *(Re-run completed — see "Re-run results: the four weak
+dimensions" below.)*
 
 ## Answer
 
@@ -44,6 +45,8 @@ too. The wrapper classes ship in the public DevKit's
 **The name "LegacyWrappers" is a warning** that Crestron may be migrating away
 from this form. Whether it is legacy-and-retiring or current-but-undocumented is
 being researched — it decides whether building on this format is smart or doomed.
+*(Resolved below — see "V1 is not being retired": `LegacyWrappers` names a
+hosting layer, not a doomed one.)*
 
 ## Crestron-IN
 

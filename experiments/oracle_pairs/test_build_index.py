@@ -54,6 +54,7 @@ def strict_pairs(rows, module_files):
         vendor = r["pkp"].split("_")[0].lower()
         vendor = bi.VENDOR_ALIAS.get(vendor, vendor)
         tight, _loose = bi.match_models(set(r["models"]), vendor, modules, vendors)
+        tight = bi.apply_overrides(r["pkp"], tight)
         if tight:
             out.append({"pkp": r["pkp"], "matches": tight})
     return out
@@ -143,13 +144,38 @@ def test_which_packages_pair_does_not_depend_on_order():
               "missing %s extra %s" % (sorted(base - got)[:3], sorted(got - base)[:3]))
 
 
+def test_overrides_are_corrections():
+    print("\n[6] every override corrects a pair the rule actually makes")
+    files = real_module_files()
+    if files is None:
+        print("  skip corpus/extron-gs-modules not present")
+        return
+    rows = {r["pkp"]: r for r in committed_rows()}
+    modules, vendors = modules_of(files)
+    for (pkp, model), (module, why) in sorted(bi.OVERRIDES.items()):
+        r = rows.get(pkp)
+        if r is None:
+            check("%s is in the pair index" % pkp, False)
+            continue
+        vendor = bi.VENDOR_ALIAS.get(pkp.split("_")[0].lower(), pkp.split("_")[0].lower())
+        tight, _ = bi.match_models(set(r["models"]), vendor, modules, vendors)
+        ruled = {m["model"]: m["module"] for m in tight}
+        check("%s / %s: the rule pairs it, with a different module" % (pkp, model),
+              model in ruled and ruled[model] != module,
+              "rule gives %r" % ruled.get(model))
+        check("    and the override's module exists and shares the vendor",
+              module in modules and vendors[module] == vendor, module)
+        check("    and says why", bool(why.strip()))
+
+
 def main():
     print("test_build_index.py - finding 14's oracle-pair join")
     for fn in (test_foreign_module_first_does_not_hide_own_vendor,
                test_foreign_only_match_is_rejected,
                test_short_names_are_not_joined,
                test_reproduces_committed_pairs,
-               test_which_packages_pair_does_not_depend_on_order):
+               test_which_packages_pair_does_not_depend_on_order,
+               test_overrides_are_corrections):
         fn()
     total = len(PASS) + len(FAIL)
     print("\n%d passed, %d failed, %d total" % (len(PASS), len(FAIL), total))

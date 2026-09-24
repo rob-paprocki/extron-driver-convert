@@ -73,3 +73,6 @@ error-code table, and the heartbeat rides on `ExecutiveMode`. A non-SIS device
 cannot use that template.
 
 The Samsung sample (see finding 03) is the test of this, and is under analysis.
+*(Analysis complete: see finding 05 — the Samsung cross-vendor result. 6 of 8
+shared capability families match byte-for-byte, checksum included, confirming
+that the runtime shell is the SIS-specific part, not the command-block rules.)*

@@ -97,6 +97,9 @@ That is now three independent confirmations of the same pattern:
 
 1. **Samsung** — two vendors encoded the same *undocumented firmware bug*.
 2. **Automate VX** — Extron calls five endpoints with no doc trace, incl. `Wake`.
+   *(Retracted: see finding 08's header — `Wake` is documented at
+   `Wake-API.htm`, along with `StartAutoSwitch` and `StopAutoSwitch`. Only
+   `StartISORecord`/`StopISORecord` survive as genuinely undocumented.)*
 3. **1 Beyond** — a whole undocumented command family, plus a documented table
    the driver contradicts.
 
@@ -119,3 +122,8 @@ declared set, before trusting a doc on the undeclared one.**
 
 *(The full NextGen Cameras doc set is being harvested separately; if it carries
 the digital-zoom position range, the two FAILED verdicts may improve.)*
+*(Harvest complete: see `reference/crestron-nextgen-cameras/ZOOM.md` §4 — no
+digital zoom is documented anywhere in the 71-page set. Every Specs page states
+only the optical ratio, and the 16-bit Zoom Position range `0x0000`–`0x4000`
+appears to span the optical range end to end. The two FAILED verdicts do not
+improve.)*

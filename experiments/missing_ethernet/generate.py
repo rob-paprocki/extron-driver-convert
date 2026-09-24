@@ -44,7 +44,10 @@ def main():
     eth_job = eth_jobs[0]
 
     # Save the raw embedded ethernet script verbatim, for the wire_table oracle run.
-    with open(OUT_EMBEDDED, "w", encoding="utf-8") as f:
+    # newline="" on every write here: the embedded script already carries the
+    # package's CRLF, and text-mode translation on Windows turned it into CRLF
+    # CR LF - every regeneration silently corrupted the file (found 2026-09-23).
+    with open(OUT_EMBEDDED, "w", encoding="utf-8", newline="") as f:
         f.write(eth_job.source)
     print("wrote embedded ethernet script -> %s (%d bytes)"
           % (OUT_EMBEDDED, len(eth_job.source)))
@@ -57,7 +60,7 @@ def main():
         sys.exit(1)
 
     print("dialect detected: %s" % result["dialect"])
-    with open(OUT_MODULE, "w", encoding="utf-8") as f:
+    with open(OUT_MODULE, "w", encoding="utf-8", newline="") as f:
         f.write(result["source"])
     print("wrote generated ControlScript module -> %s (%d bytes)"
           % (OUT_MODULE, len(result["source"])))
@@ -80,13 +83,13 @@ def main():
     table_gen = wire_table.extract_table(gen_src, OUT_MODULE)
     table_emb = wire_table.extract_table(emb_src, OUT_EMBEDDED)
 
-    with open(OUT_TABLE_GEN, "w", encoding="utf-8") as f:
+    with open(OUT_TABLE_GEN, "w", encoding="utf-8", newline="") as f:
         json.dump(table_gen.to_dict(), f, indent=2, default=str)
-    with open(OUT_TABLE_EMB, "w", encoding="utf-8") as f:
+    with open(OUT_TABLE_EMB, "w", encoding="utf-8", newline="") as f:
         json.dump(table_emb.to_dict(), f, indent=2, default=str)
 
     diff = wire_table.diff_tables(table_emb, table_gen)
-    with open(OUT_DIFF, "w", encoding="utf-8") as f:
+    with open(OUT_DIFF, "w", encoding="utf-8", newline="") as f:
         json.dump(diff, f, indent=2, default=str)
 
     print("\n=== SCORECARD ===")

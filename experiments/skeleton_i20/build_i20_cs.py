@@ -100,9 +100,10 @@ initially documenting UDP. [PATCH C2] changes this module's EthernetClass
 default from UDP to TCP accordingly; the module predates Extron's own
 correction. Serial is 9600 bps.
 
-UNVERIFIED ON HARDWARE. No i20 was available to this repo. Commands are
-transcriptions of Crestron's declarative spec, checked byte-for-byte offline
-against it, never observed on a wire.
+NOT YET RUN ON A PROCESSOR OR AGAINST AN I20. Commands are transcriptions of
+Crestron's declarative spec, checked byte-for-byte offline against it. The
+.pkp form of the same driver has run on an IPCP Pro 360 against a PC playing
+the camera; this module has not.
 """
 '''
 
@@ -132,13 +133,30 @@ def patch_transport(src):
 
 
 # --------------------------------------------------------------------------
+# C6 - import time
+# --------------------------------------------------------------------------
+def patch_import_time(src):
+    """The shared pan/tilt query is rate limited, so it needs a clock.
+
+    The .pkp driver already imports time; this module does not, so the one
+    import is added here rather than reaching for a second mechanism.
+    """
+    anchor = "from struct import pack"
+    _once(src, anchor, "C6 import time")
+    nl = _newline(src)
+    return src.replace(
+        anchor,
+        _relf("# [PATCH C6] for the rate-limited shared queries below.\n"
+              "import time\n" + anchor, nl), 1)
+
+
+# --------------------------------------------------------------------------
 # C3 - Commands table
 # --------------------------------------------------------------------------
 NEW_COMMANDS = """,
             # [PATCH C3] i20 command set.
             'TrackingFraming': {'Status': {}},
-            'GroupTracking': {'Status': {}},
-            'PresenterTracking': {'Status': {}},
+            'TrackingMode': {'Status': {}},
             'TrackingProfile': {'Status': {}},
             'TrackingShot': {'Status': {}},
             'PresetZone': {'Status': {}},
@@ -154,7 +172,20 @@ NEW_COMMANDS = """,
             'IndicatorLight': {'Parameters': ['Color', 'Brightness'], 'Status': {}},
             'CameraOutput': {'Status': {}},
             'IntelligentSwitching': {'Status': {}},
-            'CameraConnectionStatus': {'Parameters': ['Camera'], 'Status': {}}"""
+            'CameraConnectionStatus': {'Parameters': ['Camera'], 'Status': {}},
+            # [PATCH C7] Parity with Crestron's I20 driver (v1.6).
+            'ExposureCompensationMode': {'Status': {}},
+            'ExposureCompensation': {'Status': {}},
+            'FocusPosition': {'Status': {}},
+            'OnePushAutoFocus': {'Status': {}},
+            'AutoFocusBehavior': {'Status': {}},
+            'AutoFocusSensitivity': {'Status': {}},
+            'AutoPrivacyMode': {'Status': {}},
+            'AutoSoftwareUpdate': {'Status': {}},
+            'DeviceModel': {'Status': {}},
+            'RomVersion': {'Status': {}},
+            'PanSpeedMaxStatus': {'Status': {}},
+            'TiltSpeedMaxStatus': {'Status': {}}"""
 
 
 def patch_commands_table(src):
@@ -219,10 +250,43 @@ NEW_METHODS = r'''
             out = (out << 4) | (b & 0x0F)
         return out
 
+    def _Signed16(self, value):
+        """Read a 16-bit position the way SetPanTiltAngle writes it (pan & 0xFFFF),
+        so a negative angle reads back as itself. The documentation gives the
+        nibble layout but not the sign convention; the camera's is unmeasured."""
+        return value - 0x10000 if value & 0x8000 else value
+
     def _PresetOpcode(self, preset):
         """Recall a reserved preset. The i20 exposes its auto-switching and
         framing features this way rather than through dedicated opcodes."""
         return pack('>7B', self.DeviceID, 0x01, 0x04, 0x3F, 0x02, preset, 0xFF)
+
+    # Some replies carry more than one status: pan and tilt, the camera output
+    # and the switching flag, the model and the ROM version, the two maximum
+    # speeds. Rate limited the way Extron rate limit pana_19_5702: one query
+    # per window answers every status the reply carries. A failed query caches
+    # nothing, so a poll that got no reply is retried rather than remembered.
+    INQUIRY_WINDOW = 1.0
+    _inquiryCache = None
+
+    def _SharedInquiry(self, command, cmdString, value, qualifier, parse):
+
+        if self._inquiryCache is None:
+            self._inquiryCache = {}
+        now = time.monotonic()
+        hit = self._inquiryCache.get(cmdString)
+        if hit is not None and now - hit[0] < self.INQUIRY_WINDOW:
+            return hit[1]
+        res = self.__UpdateHelper(command, cmdString, value, qualifier)
+        if not res:
+            return None
+        try:
+            parsed = parse(res, qualifier)
+        except (KeyError, IndexError):
+            self.Error(['%s: Invalid/unexpected response' % command])
+            return None
+        self._inquiryCache[cmdString] = (now, parsed)
+        return parsed
 
     # Reserved presets 80/81. Documented as Start/Pause Tracking.
     def SetTrackingFraming(self, value, qualifier):
@@ -256,31 +320,46 @@ NEW_METHODS = r'''
             except (KeyError, IndexError):
                 self.Error(['TrackingFraming: Invalid/unexpected response'])
 
-    # Reserved preset 82.
-    def SetGroupTracking(self, value, qualifier):
-
-        if value == 'Enable':
-            cmdString = self._PresetOpcode(0x52)
-            self.__SetHelper('GroupTracking', cmdString, value, qualifier)
-            self.WriteStatus('GroupTracking', value, qualifier)
-        else:
-            self.Discard('Invalid Command for SetGroupTracking')
-
-    # Reserved preset 83.
+    # Reserved presets 82 and 83 - one setting, two values.
     #
-    # !! CONTESTED BYTE !! Crestron's driver names this EnablePresenterTracking;
+    # !! CONTESTED BYTE !! Crestron's driver names 0x53 EnablePresenterTracking;
     # Crestron's Reserved-Presets documentation names preset 83 "Pause Group
     # Tracking". Five other reserved presets agree between the two sources;
-    # this is the only one that does not. The driver's name is used here, but
-    # that is a choice - PROTOCOL.md section T3b settles it on hardware.
-    def SetPresenterTracking(self, value, qualifier):
+    # this is the only one that does not. The value names used here are the
+    # reading both sources support - 0x52 frames the group, 0x53 frames one
+    # presenter - so the merge does not decide it. PROTOCOL.md section T3b
+    # still settles it on hardware.
+    def SetTrackingMode(self, value, qualifier):
 
-        if value == 'Enable':
-            cmdString = self._PresetOpcode(0x53)
-            self.__SetHelper('PresenterTracking', cmdString, value, qualifier)
-            self.WriteStatus('PresenterTracking', value, qualifier)
+        ValueStateValues = {
+            'Group':     0x52,
+            'Presenter': 0x53
+        }
+
+        if value in ValueStateValues:
+            cmdString = self._PresetOpcode(ValueStateValues[value])
+            self.__SetHelper('TrackingMode', cmdString, value, qualifier)
+            self.WriteStatus('TrackingMode', value, qualifier)
         else:
-            self.Discard('Invalid Command for SetPresenterTracking')
+            self.Discard('Invalid Command for SetTrackingMode')
+
+    # GetGroupTracking: 81 C2 09 06 FF -> y0 50 00 0v FF, 01 group, 00 not.
+    # Crestron derives presenter tracking as the inverse of that one flag.
+    def UpdateTrackingMode(self, value, qualifier):
+
+        ValueStateValues = {
+            0x01: 'Group',
+            0x00: 'Presenter'
+        }
+
+        cmdString = pack('>5B', self.DeviceID, 0xC2, 0x09, 0x06, 0xFF)
+        res = self.__UpdateHelper('TrackingMode', cmdString, value, qualifier)
+        if res:
+            try:
+                value = ValueStateValues[res[3]]
+                self.WriteStatus('TrackingMode', value, qualifier)
+            except (KeyError, IndexError):
+                self.Error(['TrackingMode: Invalid/unexpected response'])
 
     # Reserved presets 105-108 = Tracking Profile 1-4. I20 only.
     def SetTrackingProfile(self, value, qualifier):
@@ -291,6 +370,22 @@ NEW_METHODS = r'''
             self.WriteStatus('TrackingProfile', value, qualifier)
         else:
             self.Discard('Invalid Command for SetTrackingProfile')
+
+    # GetTrackingFramingProfile: 81 C2 09 07 FF -> y0 50 06 0x FF, x = 9..C.
+    # The two nibbles assemble most-significant first into preset 0x69-0x6C,
+    # the only order Crestron's reply rule and preset map both admit.
+    def UpdateTrackingProfile(self, value, qualifier):
+
+        cmdString = pack('>5B', self.DeviceID, 0xC2, 0x09, 0x07, 0xFF)
+        res = self.__UpdateHelper('TrackingProfile', cmdString, value, qualifier)
+        if res:
+            try:
+                preset = self._FromNibbles(res[2:4])
+                if not 0x69 <= preset <= 0x6C:
+                    raise KeyError(preset)
+                self.WriteStatus('TrackingProfile', preset - 0x68, qualifier)
+            except (KeyError, IndexError):
+                self.Error(['TrackingProfile: Invalid/unexpected response'])
 
     # Reserved presets 101-104 = Preset Zone 1-4. I20 only.
     def SetPresetZone(self, value, qualifier):
@@ -379,29 +474,30 @@ NEW_METHODS = r'''
     # One inquiry, two commands. The .pkp form has to split this because a GC
     # command carries a single Value; this module mirrors the split so both
     # emitters expose the same surface.
+    #
+    # One query answers both statuses (_SharedInquiry above), so two bound
+    # labels cost one frame rather than two.
     def _PanTiltAngleInquiry(self, command, value, qualifier):
 
         cmdString = pack('>5B', self.DeviceID, 0x09, 0x06, 0x12, 0xFF)
-        res = self.__UpdateHelper(command, cmdString, value, qualifier)
-        if not res:
-            return None
-        try:
-            return (self._FromNibbles(res[2:6]), self._FromNibbles(res[6:10]))
-        except (KeyError, IndexError):
-            self.Error(['%s: Invalid/unexpected response' % command])
-            return None
+        return self._SharedInquiry(command, cmdString, value, qualifier,
+                                   self._ParsePanTiltAngle)
+
+    def _ParsePanTiltAngle(self, res, qualifier):
+
+        pos = (self._Signed16(self._FromNibbles(res[2:6])),
+               self._Signed16(self._FromNibbles(res[6:10])))
+        self.WriteStatus('PanAngleStatus', pos[0], qualifier)
+        self.WriteStatus('TiltAngleStatus', pos[1], qualifier)
+        return pos
 
     def UpdatePanAngleStatus(self, value, qualifier):
 
-        pos = self._PanTiltAngleInquiry('PanAngleStatus', value, qualifier)
-        if pos is not None:
-            self.WriteStatus('PanAngleStatus', pos[0], qualifier)
+        self._PanTiltAngleInquiry('PanAngleStatus', value, qualifier)
 
     def UpdateTiltAngleStatus(self, value, qualifier):
 
-        pos = self._PanTiltAngleInquiry('TiltAngleStatus', value, qualifier)
-        if pos is not None:
-            self.WriteStatus('TiltAngleStatus', pos[1], qualifier)
+        self._PanTiltAngleInquiry('TiltAngleStatus', value, qualifier)
 
     # PanTiltReset: 81 01 06 05 FF
     def SetPanTiltHome(self, value, qualifier):
@@ -512,10 +608,14 @@ NEW_METHODS = r'''
     # main and lightbar command sets.
     ######################################################
 
-    # Call Camera Output: 81 c2 01 08 0Z ff   (Z = 1..5; 0 resumes switching)
+    # Call Camera Output: 81 c2 01 08 0Z ff   (Z = 1..5)
+    #
+    # 0 also resumes intelligent switching, but that is byte-for-byte what
+    # SetIntelligentSwitching('Resume') sends, so it is reachable by name and
+    # not offered twice. The range starts at 1.
     def SetCameraOutput(self, value, qualifier):
 
-        if 0 <= int(value) <= 5:
+        if 1 <= int(value) <= 5:
             cmdString = pack('>6B', self.DeviceID, 0xC2, 0x01, 0x08,
                              int(value), 0xFF)
             self.__SetHelper('CameraOutput', cmdString, value, qualifier)
@@ -524,19 +624,27 @@ NEW_METHODS = r'''
             self.Discard('Invalid Command for SetCameraOutput')
 
     # Get Output: 81 C2 09 08 FF
-    def UpdateCameraOutput(self, value, qualifier):
+    #   VISCA-Intelligent-Switching-Commands.md:
+    #     y0 50 01 0Z FF  switching on,   y0 50 00 0Z FF  switching off
+    # The camera is the second payload byte (found by experiments/loopback);
+    # the first is Intelligent Switching's status, so one reply answers both.
+    def _OutputInquiry(self, command, value, qualifier):
 
         cmdString = pack('>5B', self.DeviceID, 0xC2, 0x09, 0x08, 0xFF)
-        res = self.__UpdateHelper('CameraOutput', cmdString, value, qualifier)
-        if res:
-            try:
-                # The documentation says "see below" for this reply and then
-                # prints no layout. Read on the shape the other c2 inquiries
-                # use (y0 50 <payload> FF). Unverified.
-                value = res[2] & 0x0F
-                self.WriteStatus('CameraOutput', value, qualifier)
-            except (KeyError, IndexError):
-                self.Error(['CameraOutput: Invalid/unexpected response'])
+        return self._SharedInquiry(command, cmdString, value, qualifier,
+                                   self._ParseOutput)
+
+    def _ParseOutput(self, res, qualifier):
+
+        camera = res[3] & 0x0F
+        self.WriteStatus('CameraOutput', camera, qualifier)
+        switching = {0x01: 'Resume', 0x00: 'Pause'}[res[2]]
+        self.WriteStatus('IntelligentSwitching', switching, qualifier)
+        return camera, switching
+
+    def UpdateCameraOutput(self, value, qualifier):
+
+        self._OutputInquiry('CameraOutput', value, qualifier)
 
     # Pause: 81 c2 01 0B 00 ff    Resume: 81 c2 01 08 00 ff
     def SetIntelligentSwitching(self, value, qualifier):
@@ -551,6 +659,11 @@ NEW_METHODS = r'''
 
         self.__SetHelper('IntelligentSwitching', cmdString, value, qualifier)
         self.WriteStatus('IntelligentSwitching', value, qualifier)
+
+    # Get Output's first payload byte, shared with Camera Output above.
+    def UpdateIntelligentSwitching(self, value, qualifier):
+
+        self._OutputInquiry('IntelligentSwitching', value, qualifier)
 
     # Check Connection Status: 81 c2 09 0d 0Z ff
     #   Disconnect: 90 50 00 00 FF     Connect: 90 50 00 01 FF
@@ -574,6 +687,285 @@ NEW_METHODS = r'''
                 self.WriteStatus('CameraConnectionStatus', value, qualifier)
             except (KeyError, IndexError):
                 self.Error(['CameraConnectionStatus: Invalid/unexpected response'])
+
+    ######################################################
+    # [PATCH C7] PARITY WITH CRESTRON'S I20 DRIVER (v1.6)
+    #
+    # The same commands and bytes as build_i20.py's E7; requests, reply rules
+    # and ranges are Crestron's (experiments/skeleton_i20/CRESTRON_PARITY.md).
+    # Left out on purpose: Privacy (driver behaviour, not a camera command),
+    # the press-and-hold menu (Zoom and Pan Tilt bytes), Field Of View (its
+    # polynomial is IL only), PTZ Super Operation (codes undeclared) and the
+    # Exposure Compensation Up/Down steps (the level is set directly).
+    ######################################################
+
+    # SetExposureCompensationMode: 81 01 04 3E {On 02 / Off 03} FF
+    def SetExposureCompensationMode(self, value, qualifier):
+
+        ValueStateValues = {
+            'On':  0x02,
+            'Off': 0x03
+        }
+
+        if value in ValueStateValues:
+            cmdString = pack('>6B', self.DeviceID, 0x01, 0x04, 0x3E,
+                             ValueStateValues[value], 0xFF)
+            self.__SetHelper('ExposureCompensationMode', cmdString, value, qualifier)
+            self.WriteStatus('ExposureCompensationMode', value, qualifier)
+        else:
+            self.Discard('Invalid Command for SetExposureCompensationMode')
+
+    # GetExposureCompensationMode: 81 09 04 3E FF -> y0 50 02/03 FF
+    def UpdateExposureCompensationMode(self, value, qualifier):
+
+        ValueStateValues = {
+            0x02: 'On',
+            0x03: 'Off'
+        }
+
+        cmdString = pack('>5B', self.DeviceID, 0x09, 0x04, 0x3E, 0xFF)
+        res = self.__UpdateHelper('ExposureCompensationMode', cmdString, value, qualifier)
+        if res:
+            try:
+                value = ValueStateValues[res[2]]
+                self.WriteStatus('ExposureCompensationMode', value, qualifier)
+            except (KeyError, IndexError):
+                self.Error(['ExposureCompensationMode: Invalid/unexpected response'])
+
+    # SetExposureCompensation: 81 01 04 4E 00 00 0p 0q FF, 0-14 (0x07 = 0 EV)
+    def SetExposureCompensation(self, value, qualifier):
+
+        if 0 <= int(value) <= 14:
+            cmdString = pack('>9B', self.DeviceID, 0x01, 0x04, 0x4E, 0x00, 0x00,
+                             *(self._Nibbles(value, 2) + [0xFF]))
+            self.__SetHelper('ExposureCompensation', cmdString, value, qualifier)
+            self.WriteStatus('ExposureCompensation', value, qualifier)
+        else:
+            self.Discard('Invalid Command for SetExposureCompensation')
+
+    # GetExposureCompensation: 81 09 04 4E FF -> y0 50 00 00 0p 0q FF
+    def UpdateExposureCompensation(self, value, qualifier):
+
+        cmdString = pack('>5B', self.DeviceID, 0x09, 0x04, 0x4E, 0xFF)
+        res = self.__UpdateHelper('ExposureCompensation', cmdString, value, qualifier)
+        if res:
+            try:
+                value = self._FromNibbles(res[2:6])
+                if not 0 <= value <= 14:
+                    raise KeyError(value)
+                self.WriteStatus('ExposureCompensation', value, qualifier)
+            except (KeyError, IndexError):
+                self.Error(['ExposureCompensation: Invalid/unexpected response'])
+
+    # SetFocusPosition: 81 01 04 48 0p 0q 0r 0s FF. Crestron's ranges are
+    # I20 12224-17114 and I12 15084-20664; the module accepts the union.
+    def SetFocusPosition(self, value, qualifier):
+
+        if 12224 <= int(value) <= 20664:
+            cmdString = pack('>9B', self.DeviceID, 0x01, 0x04, 0x48,
+                             *(self._Nibbles(value, 4) + [0xFF]))
+            self.__SetHelper('FocusPosition', cmdString, value, qualifier)
+            self.WriteStatus('FocusPosition', value, qualifier)
+        else:
+            self.Discard('Invalid Command for SetFocusPosition')
+
+    # GetFocusPosition: 81 09 04 48 FF -> y0 50 0p 0q 0r 0s FF
+    def UpdateFocusPosition(self, value, qualifier):
+
+        cmdString = pack('>5B', self.DeviceID, 0x09, 0x04, 0x48, 0xFF)
+        res = self.__UpdateHelper('FocusPosition', cmdString, value, qualifier)
+        if res:
+            try:
+                value = self._FromNibbles(res[2:6])
+                self.WriteStatus('FocusPosition', value, qualifier)
+            except (KeyError, IndexError):
+                self.Error(['FocusPosition: Invalid/unexpected response'])
+
+    # OnePushAutoFocus: 81 01 04 18 01 FF
+    def SetOnePushAutoFocus(self, value, qualifier):
+
+        cmdString = pack('>6B', self.DeviceID, 0x01, 0x04, 0x18, 0x01, 0xFF)
+        self.__SetHelper('OnePushAutoFocus', cmdString, value, qualifier)
+
+    # SetAutoFocusBehavior: 81 C2 01 02 {Global 00 / Center 01 / Face 04} FF
+    def SetAutoFocusBehavior(self, value, qualifier):
+
+        ValueStateValues = {
+            'Global': 0x00,
+            'Center': 0x01,
+            'Face':   0x04
+        }
+
+        if value in ValueStateValues:
+            cmdString = pack('>6B', self.DeviceID, 0xC2, 0x01, 0x02,
+                             ValueStateValues[value], 0xFF)
+            self.__SetHelper('AutoFocusBehavior', cmdString, value, qualifier)
+            self.WriteStatus('AutoFocusBehavior', value, qualifier)
+        else:
+            self.Discard('Invalid Command for SetAutoFocusBehavior')
+
+    # GetAutoFocusBehavior: 81 C2 09 02 FF -> y0 50 00 0v FF
+    def UpdateAutoFocusBehavior(self, value, qualifier):
+
+        ValueStateValues = {
+            0x00: 'Global',
+            0x01: 'Center',
+            0x04: 'Face'
+        }
+
+        cmdString = pack('>5B', self.DeviceID, 0xC2, 0x09, 0x02, 0xFF)
+        res = self.__UpdateHelper('AutoFocusBehavior', cmdString, value, qualifier)
+        if res:
+            try:
+                value = ValueStateValues[res[3]]
+                self.WriteStatus('AutoFocusBehavior', value, qualifier)
+            except (KeyError, IndexError):
+                self.Error(['AutoFocusBehavior: Invalid/unexpected response'])
+
+    # SetAutoFocusSensitivity: 81 C2 01 03 {1-3} FF
+    def SetAutoFocusSensitivity(self, value, qualifier):
+
+        if 1 <= int(value) <= 3:
+            cmdString = pack('>6B', self.DeviceID, 0xC2, 0x01, 0x03, int(value), 0xFF)
+            self.__SetHelper('AutoFocusSensitivity', cmdString, value, qualifier)
+            self.WriteStatus('AutoFocusSensitivity', value, qualifier)
+        else:
+            self.Discard('Invalid Command for SetAutoFocusSensitivity')
+
+    # GetAutoFocusSensitivity: 81 C2 09 03 FF -> y0 50 00 0v FF
+    def UpdateAutoFocusSensitivity(self, value, qualifier):
+
+        cmdString = pack('>5B', self.DeviceID, 0xC2, 0x09, 0x03, 0xFF)
+        res = self.__UpdateHelper('AutoFocusSensitivity', cmdString, value, qualifier)
+        if res:
+            try:
+                value = res[3]
+                if not 1 <= value <= 3:
+                    raise KeyError(value)
+                self.WriteStatus('AutoFocusSensitivity', value, qualifier)
+            except (KeyError, IndexError):
+                self.Error(['AutoFocusSensitivity: Invalid/unexpected response'])
+
+    # SetAutoPrivacyMode: 81 01 0E 24 26 00 {On 01 / Off 00} FF
+    # The camera answers no VISCA command while in privacy mode.
+    def SetAutoPrivacyMode(self, value, qualifier):
+
+        ValueStateValues = {
+            'On':  0x01,
+            'Off': 0x00
+        }
+
+        if value in ValueStateValues:
+            cmdString = pack('>8B', self.DeviceID, 0x01, 0x0E, 0x24, 0x26, 0x00,
+                             ValueStateValues[value], 0xFF)
+            self.__SetHelper('AutoPrivacyMode', cmdString, value, qualifier)
+            self.WriteStatus('AutoPrivacyMode', value, qualifier)
+        else:
+            self.Discard('Invalid Command for SetAutoPrivacyMode')
+
+    # GetAutoPrivacyMode: 81 09 0E 24 26 FF -> y0 50 00 0v FF
+    def UpdateAutoPrivacyMode(self, value, qualifier):
+
+        ValueStateValues = {
+            0x01: 'On',
+            0x00: 'Off'
+        }
+
+        cmdString = pack('>6B', self.DeviceID, 0x09, 0x0E, 0x24, 0x26, 0xFF)
+        res = self.__UpdateHelper('AutoPrivacyMode', cmdString, value, qualifier)
+        if res:
+            try:
+                value = ValueStateValues[res[3]]
+                self.WriteStatus('AutoPrivacyMode', value, qualifier)
+            except (KeyError, IndexError):
+                self.Error(['AutoPrivacyMode: Invalid/unexpected response'])
+
+    # SetAutoSoftwareUpdate: 81 C2 01 04 {On 01 / Off 00} FF
+    def SetAutoSoftwareUpdate(self, value, qualifier):
+
+        ValueStateValues = {
+            'On':  0x01,
+            'Off': 0x00
+        }
+
+        if value in ValueStateValues:
+            cmdString = pack('>6B', self.DeviceID, 0xC2, 0x01, 0x04,
+                             ValueStateValues[value], 0xFF)
+            self.__SetHelper('AutoSoftwareUpdate', cmdString, value, qualifier)
+            self.WriteStatus('AutoSoftwareUpdate', value, qualifier)
+        else:
+            self.Discard('Invalid Command for SetAutoSoftwareUpdate')
+
+    # GetAutoSoftwareUpdate: 81 C2 09 04 FF -> y0 50 00 0v FF
+    def UpdateAutoSoftwareUpdate(self, value, qualifier):
+
+        ValueStateValues = {
+            0x01: 'On',
+            0x00: 'Off'
+        }
+
+        cmdString = pack('>5B', self.DeviceID, 0xC2, 0x09, 0x04, 0xFF)
+        res = self.__UpdateHelper('AutoSoftwareUpdate', cmdString, value, qualifier)
+        if res:
+            try:
+                value = ValueStateValues[res[3]]
+                self.WriteStatus('AutoSoftwareUpdate', value, qualifier)
+            except (KeyError, IndexError):
+                self.Error(['AutoSoftwareUpdate: Invalid/unexpected response'])
+
+    # GetDeviceInformation: 81 09 00 02 FF -> y0 50 00 01 mn pq rs tu vw FF
+    # Model code mn pq through Crestron's MapModelCodeToModel; the ROM version
+    # rs tu as the 16-bit number it is (FormatRomVersion is IL only).
+    _MODEL_CODES = {
+        (0x05, 0x05): 'IV-CAM-I20',
+        (0x05, 0x06): 'IV-CAM-I12',
+        (0x05, 0x07): 'IV-CAM-P20',
+        (0x05, 0x08): 'IV-CAM-P12'
+    }
+
+    def _VersionInquiry(self, command, value, qualifier):
+
+        cmdString = pack('>5B', self.DeviceID, 0x09, 0x00, 0x02, 0xFF)
+        return self._SharedInquiry(command, cmdString, value, qualifier,
+                                   self._ParseVersion)
+
+    def _ParseVersion(self, res, qualifier):
+
+        model = self._MODEL_CODES.get((res[4], res[5]), 'Unknown')
+        rom = (res[6] << 8) | res[7]
+        self.WriteStatus('DeviceModel', model, qualifier)
+        self.WriteStatus('RomVersion', rom, qualifier)
+        return model, rom
+
+    def UpdateDeviceModel(self, value, qualifier):
+
+        self._VersionInquiry('DeviceModel', value, qualifier)
+
+    def UpdateRomVersion(self, value, qualifier):
+
+        self._VersionInquiry('RomVersion', value, qualifier)
+
+    # GetPanTiltSpeedMax: 81 09 06 11 FF -> y0 50 ww zz FF, one byte per axis
+    def _SpeedMaxInquiry(self, command, value, qualifier):
+
+        cmdString = pack('>5B', self.DeviceID, 0x09, 0x06, 0x11, 0xFF)
+        return self._SharedInquiry(command, cmdString, value, qualifier,
+                                   self._ParseSpeedMax)
+
+    def _ParseSpeedMax(self, res, qualifier):
+
+        speeds = (res[2], res[3])
+        self.WriteStatus('PanSpeedMaxStatus', speeds[0], qualifier)
+        self.WriteStatus('TiltSpeedMaxStatus', speeds[1], qualifier)
+        return speeds
+
+    def UpdatePanSpeedMaxStatus(self, value, qualifier):
+
+        self._SpeedMaxInquiry('PanSpeedMaxStatus', value, qualifier)
+
+    def UpdateTiltSpeedMaxStatus(self, value, qualifier):
+
+        self._SpeedMaxInquiry('TiltSpeedMaxStatus', value, qualifier)
 '''
 
 
@@ -588,8 +980,8 @@ def patch_methods(src):
 
 def derive(donor_source):
     src = donor_source
-    for fn in (patch_header, patch_transport, patch_commands_table,
-               patch_zoom, patch_methods):
+    for fn in (patch_header, patch_transport, patch_import_time,
+               patch_commands_table, patch_zoom, patch_methods):
         src = fn(src)
     return src
 

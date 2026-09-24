@@ -1,6 +1,10 @@
 # Finding 13 — synthesising a Crestron-device driver for an Extron processor
 
 **Status: built and verified offline; UNVERIFIED on hardware.** 2026-09-08.
+*(2026-09-23: the `.pkp` form has since built, uploaded and run on an IPCP Pro
+360, controlled from a TLP Pro 725M against a PC playing the camera —
+`experiments/skeleton_i20/PROTOCOL.md` run log, 09-14 to 09-18. It has still
+never been on a wire to a real i20.)*
 
 This is the first finding in the **Crestron device → Extron processor**
 direction. Findings 04 and 06 went the other way, and STATUS.md's open items 1
@@ -176,6 +180,19 @@ devices that are certainly TCP (HTTPS on 4443, SSH on 22), so the field is
 plainly finer-grained than a two-way transport switch — but no sample here
 settles what it distinguishes.
 
+*(Settled 2026-09-23, from Extron's own enum rather than by inference:
+`_compatibility` is `Extron.Configuration.Contracts.Enumeration.
+ProtocolCompatibilityFlags`, a flags enum read by reflection
+(`Load-Package.ps1 -Protocol`). **16 `Ethernet_Telnet`, 32 `Ethernet_UDP`,
+64 `Ethernet_HTTP`, 512 `Ethernet_SSH`**, plus 1024 `Ethernet_Dante` and 2048
+`Ethernet_RoomScheduling`, which the corpus uses on port 0 only; serial values
+combine bits (10 = RS-232 | RS-485). So "16 = TCP" above is right in effect but
+names the raw-socket case. The survey of all 1,854 corpus packages is
+`experiments/protocol_assets/SURVEY.md`. It also shows `_udpOutputPort` is
+not as tidy as the two ClockAudio packages suggested: nonzero only on UDP, but
+of 224 UDP models it mirrors the port on 144, is 0 on 62 and differs on 18.
+ROADMAP R16.)*
+
 Ports and lock state across the sample set:
 
 | package | port | `_canEditPort` |
@@ -211,6 +228,17 @@ uses `ExtronTime` **7 times as a bare name**. The GC runtime populates the
 module globals beyond the driver's own import list. Static analysis of these
 drivers will therefore report false undefined-name errors, and a synthesised
 driver may rely on the same injection.
+
+*(Wrong, corrected 2026-09-23. `ExtronTime` is defined in the script itself:
+`class ExtronTime(float)` at module level after the driver class (line 2164 of
+`experiments/skeleton_i20/out/driver_i20.py`), which the methods resolve at
+call time. The corpus sweep found the same in every script that uses it, and no
+bare global injected by the runtime in any of 2,081 embedded scripts — the 27
+bare names it did find are typos and missing imports in shipped drivers
+(`experiments/corpus_sweep/SWEEP.md`). The test harness's injected `ExtronTime`
+was never needed; the script's own definition overwrites it. The error was
+reading the import list and the class body without reading to the end of the
+file.)*
 
 ## 6. The lightbar packing is derivable, and the docs corroborate the presets
 
@@ -253,6 +281,14 @@ does not. Both readings emit the same byte, so the driver is correct either way
 Not resolved here, and deliberately not guessed. `PROTOCOL.md` section T3b is a
 three-step sequence that settles it on hardware.
 
+**Update, 2026-09-18 (`20027`):** the two commands are now one, `TrackingMode`,
+valued `Group` (0x52) and `Presenter` (0x53) — because they are one setting on
+the camera, and as two Enable-only commands neither could be switched off. That
+does **not** resolve the disagreement: the value names were chosen as the
+reading both sources support, since pausing group tracking and engaging
+presenter tracking describe the same resulting frame. T3b still settles which
+label is right.
+
 ## 8. The status-feedback caveat was a real defect
 
 Finding 13's first draft said status feedback was "provisional". It was worse
@@ -271,18 +307,68 @@ from a new direction: **a guess that scores well is worse than a recorded gap.**
 This one passed every offline check the suite had, because the suite only tested
 requests. It took writing the reply test to expose it.
 
+## 9. Crestron's reply rules, read (2026-09-23, `20028` / v1.6)
+
+The first build polled 7 of its 19 added commands and emulated 12, on the
+premise that the documented inquiry set had nothing to read for the rest. That
+premise was measured against the documentation, not against Crestron's driver,
+which declares 18 inquiries with a `Responses` rule for 17 of them
+(`experiments/skeleton_i20/CRESTRON_PARITY.md`, each byte marked READ,
+DOCUMENTED or UNKNOWN). Three findings came out of reading them:
+
+- **Most "emulated" statuses were not device limits.** Tracking Mode has a
+  group-tracking flag (`c2 09 06`), Tracking Profile an inquiry of its own
+  (`c2 09 07`), and Intelligent Switching's state is the first byte of the Get
+  Output reply the driver was already receiving — and discarding. `20028` polls
+  all three, and adds eleven more statuses from the same rules. Of its 30 added
+  commands, 21 report live status; only the lightbar is emulated, because
+  neither vendor's driver nor the documentation has an inquiry for it.
+- **Two layouts this finding called inferred are Crestron's own.**
+  `GetZoomPosition` matches `[90-F0] 50 [00-0F]{4} FF` and `GetPanTiltAngle`
+  `[00-0F]{8}`, both assembled from low nibbles, and Crestron converts pan and
+  tilt with a **signed** big-endian read — the two's-complement reading the
+  driver adopted on 2026-09-13 (`experiments/loopback/README.md`). That settles
+  what Crestron's driver assumes, not what the camera sends.
+- **An IL-only transform can be pinned without the IL.** Tracking Profile's
+  reply is assembled by `ViscaAssemble2LowerNibbles`, which exists only as
+  compiled code. But Crestron's reply rule admits exactly `06 09`–`06 0C`, and
+  its preset map's domain is `0x69`–`0x6C`; only the most-significant-first
+  assembly lands one in the other. The declarative half fixes the behaviour of
+  the undeclarative half — the same move as §6's lightbar packing.
+
+One reply is the exception: Crestron declares **no rule for `GetFreezeFrame`**,
+so that status still rests on VISCA's `02`/`03` convention alone.
+
+Reading the model scoping the same way (`I12_VS_I20.md`) showed the package
+offered the IV-CAM-I12 three commands built from I20-only presets. A `.pkp`
+gives each model its own list over a shared pool — Extron's donor already does —
+so `20028` drops them from the I12's list, and Extron's loader reads 42 commands
+for the I12 and 45 for the I20. It also surfaced the reverse question: Crestron's
+**I20** driver has no intelligent-switching commands at all, and only the I12's
+spec sheet lists the feature. Whether an I20 answers `c2 09 08` is a hardware
+question (ROADMAP H3).
+
 ## What this does NOT show
 
 - **Nothing has run on hardware.** No i20 was available to this repo. The wire
   bytes are verified against Crestron's spec offline (39 checks in
   `experiments/skeleton_i20/test_i20_wire.py`), never observed on a wire.
+  *(Since 2026-09-14 the bytes have been observed on a wire — sent by a
+  processor to a PC playing the camera, and matching — but never answered by
+  an i20.)*
 - **Three reply layouts are still inferred.** `TrackingFraming` and
   `CameraConnectionStatus` now parse documented layouts. `CameraOutput` does not:
   the documentation says "see below" for that reply and then prints nothing.
+  *(Found after all on 2026-09-13: Crestron's Intelligent Switching page
+  documents `y0 50 0S 0Z FF`. The parser had been reading S, the switching
+  flag; it now reads Z, the camera — `experiments/loopback/README.md`.)*
   `ZoomPosition` and `PanTiltAngle` nibble layouts follow the general VISCA
   pattern rather than a printed one. Those three are where polling should be
-  expected to break.
+  expected to break. *(2026-09-23, §9: both layouts are Crestron's own reply
+  rules, including a signed read for pan and tilt.)*
 - **Catalogue acceptance is still not a working driver.** Finding 12's caveat
   stands unchanged: gates 2–5 (place, build, upload, control) remain untested by
   this project. `experiments/skeleton_i20/PROTOCOL.md` is the instrument for
-  measuring them.
+  measuring them. *(Place, build and upload were done by 2026-09-14 —
+  `20024` placed on 09-10, `20025` built and uploaded — and control from a touch panel against a PC playing the camera —
+  see that run log. Control of a real camera remains.)*

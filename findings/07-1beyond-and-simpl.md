@@ -1,7 +1,20 @@
 # Finding 07 — the 1 Beyond drivers, and what a SIMPL macro really is
 
+**Carries a correction, 2026-09-23** — see "Correction, 2026-09-23" below the
+`.cmc`/dangling-pointer section: with real `.usp` source in hand for two
+vendors, the `.usp` turns out to be a second dispatcher, not where the
+protocol lives, and the "untestable" verdict on Extron-vs-Crestron wire
+convergence is now tested. Read the correction alongside the original text,
+not instead of it.
+
 Phase 1 of the unattended session. **40 confirmed, 4 overstated, 2 refuted.**
-(`oneb-p20-dll` returned a placeholder stub and is being re-run.)
+(`oneb-p20-dll` returned a placeholder stub and is being re-run.) *(Re-run
+completed — see finding 08 "The IL-only residue is bounded and reusable":
+IV-CAM-P20 is the same engine as I20, sharing the same driver-local IL family
+(`FormatRomVersion`, `ParseDecimal`, `ZoomLevelToPosition`,
+`ZoomPositionToLevel`, `ApplyZoomPositionStep`, `OverridePolynomial`); where
+I20 adds `ViscaAssemble2LowerNibbles`, P20 instead calls a 4-nibble variant
+and a separate nibble-extraction helper.)*
 
 ## The 1 Beyond camera driver is NOT a JSON shell — but the gap is *named*
 
@@ -31,6 +44,16 @@ definition:**
 FormatRomVersion        ParseDecimal            ViscaAssemble2LowerNibbles
 ZoomLevelToPosition     ZoomPositionToLevel     ApplyZoomPositionStep
 ```
+
+*(Recounted 2026-09-23 with a whole-document scan — Commands, Responses and
+Rules, the method that reproduces finding 08's P20 figures exactly
+(`crestron2cs.py --list-il-only`, ROADMAP R31): the I20 references **39**
+Transformation names, declares **26**, leaves **13** undeclared. The six above
+are all among them; the other seven are the SDK's generic `Identity`, `Sum`,
+`Subtract`, `Product` and `Divide`, and the nibble helpers
+`ViscaAssemble4LowerNibbles` and `ViscaExtractNibbles`, which the I20's
+Responses name as well. So the six are the driver-local family, not the whole
+undeclared set.)*
 
 Their behaviour exists only as ~5.9 KB of compiled IL in matching Factory classes
 registered via `[ImplementationProviderAttribute]` — binary protocol assembly
@@ -73,6 +96,52 @@ wiring and interface shell; the protocol logic lives in a companion `.usp`/`.csp
 shipped alongside. **It is not merely unreachable logic — it is an I/O contract
 plus a pointer to logic that is absent.**
 
+### Correction, 2026-09-23 — the `.usp` is a dispatcher, not the logic
+
+Source: `tools/out/verdicts/heldout_synthesis.md` §4 ("The SIMPL answer —
+correcting finding 07"), written once real `.usp` source was in hand for two
+vendors (Clock Audio, Biamp).
+
+**The first half of the claim above is confirmed and now generalises; the
+second half is wrong.** The companion module is *not* where the protocol
+lives. Every `.usp` in both suites is itself a second dispatcher:
+`Clock Audio Device v3.4.1.usp:80` declares
+`#USER_SIMPLSHARP_LIBRARY "Clock Audio"` and calls `device.SetLedState(...)`;
+`Biamp Tesira Comm v3.3.usp:52` declares
+`#USER_SIMPLSHARP_LIBRARY "BiampTesiraLib3"` and calls `tesira.Connect()`.
+Neither contains a single literal wire token. The real chain is
+`.umc → .usp → compiled SimplSharp .NET assembly`, so this finding's
+structural claim should read: *a Crestron module is an I/O contract plus a
+pointer to logic in a compiled assembly, and the `.usp` is part of the
+contract, not the logic.*
+
+**The "untestable, not refuted" verdict below is now testable, and it was
+tested. Wire strings are fully recoverable** from the assembly's ECMA-335
+`#US` heap — `BiampTesiraLib3.clz` is a ZIP containing `BiampTesiraLib3.dll`;
+`Clock Audio.dll` sits uncompressed under `SPlsWork/`. Finding 05's
+two-vendor convergence result reproduces, but not uniformly:
+
+- **Clock Audio: yes, strongly.** 19 of the 20 command tokens Extron's 1777
+  driver uses appear in Clock Audio's own SimplSharp library (the one miss is
+  `ON`, a value, not a verb). Response formats are structurally identical
+  modulo named-vs-anonymous capture groups.
+- **Biamp: partially — convergence at the grammar level, not byte level.**
+  Both sides speak the same Tesira Text Protocol grammar (`DEVICE get
+  version\n`, `SESSION set verbose true`, `(set|get|subscribe)`), but two
+  systematic divergences hold throughout: Biamp's library always quotes the
+  instance tag where Extron never does, and Biamp terminates with bare `\n`
+  where Extron mostly uses `\r\n`. *(Measured 2026-09-23, and narrower than
+  the synthesis says: on the **send** side Extron's shipped Tesira module ends
+  all 73 of its command templates in bare `\n` and none in `\r\n`; its 44
+  `\r\n` literals are reply patterns. So both vendors send `\n`, and the one
+  exception, `DeviceFaultList` in the `.pkp`, is an artifact — finding 11,
+  `experiments/tesira_terminator/RESULT.md`.)*
+
+So cross-vendor corroboration is strong enough to *adjudicate* a disputed
+string (see finding 11), and not strong enough to *generate* one — Samsung's
+verbatim-string convergence is not the general case; Clock Audio reproduces it
+at the token/format level, Biamp only at the grammar level.
+
 ## Automate VX: convergence confirmed on one axis, blocked on the other
 
 Not the Samsung result, and the distinction matters.
@@ -84,7 +153,11 @@ Not the Samsung result, and the distinction matters.
   corroboration.
 - **Extron vs Crestron: untestable, not refuted.** The `.cmc` contains none of
   those wire strings because it contains no wire strings at all. The artifact
-  needed for the comparison — the `.csp` — is missing.
+  needed for the comparison — the `.csp` — is missing. *(Correction,
+  2026-09-23: this is no longer untestable — see the correction section
+  above. With the compiled SimplSharp assembly in hand for Clock Audio and
+  Biamp, the comparison was made, and it converges at the token level for one
+  vendor and the grammar level for the other.)*
 
 What *is* confirmed is **semantic parity at the command level**: every Extron
 capability (AutoSwitch, CameraPresetRecall, PanTilt/Zoom, Layout A–Z,

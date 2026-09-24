@@ -345,20 +345,38 @@ class CommandGraph(object):
         self._reparse()
 
     def set_attributes(self, command_id, value):
-        """Rewrite a command's DriverAttributeEnum bitfield.
+        """Rewrite a command's DriverAttributeEnum bitfield."""
+        self.set_enum_member(command_id, "CommandAssetBase+_attributes", value)
 
-        The enum is an inline value type: a ClassWithId immediately followed by
-        one Primitive carrying the bits.
+    def _enum_slot(self, asset_id, member):
+        """Index of the Primitive carrying an inline enum member's bits.
+
+        A boxed enum is written inline: a class record (ClassWithId, or one of
+        the ClassWith*Members* records the first time the type appears)
+        immediately followed by one Primitive. A MemberReference would mean
+        the value is shared with another asset, and writing it would change
+        both, so that is refused.
         """
-        slots = self.walker.member_slots(command_id)
-        i = slots["CommandAssetBase+_attributes"]
+        slots = self.walker.member_slots(asset_id)
+        i = slots[member]
         ev = self.b.trace[i]
-        if ev["kind"] != "ClassWithId":
-            raise AssetError("attributes member is %s, not an inline enum" % ev["kind"])
-        nxt = self.b.trace[i + 1]
-        if nxt["kind"] != "Primitive":
-            raise AssetError("attributes enum is not followed by a value")
-        nxt["value"] = int(value)
+        if ev["kind"] not in ("ClassWithId", "ClassWithMembers",
+                              "ClassWithMembersAndTypes", "SystemClassWithMembers",
+                              "SystemClassWithMembersAndTypes"):
+            raise AssetError("%s of asset %d is %s, not an inline enum"
+                             % (member, asset_id, ev["kind"]))
+        if self.b.trace[i + 1]["kind"] != "Primitive":
+            raise AssetError("%s of asset %d is not followed by a value"
+                             % (member, asset_id))
+        return i + 1
+
+    def enum_member(self, asset_id, member):
+        """Read an inline enum member, e.g. ParamAssetBase+_conditionTypes."""
+        return int(self.b.trace[self._enum_slot(asset_id, member)]["value"])
+
+    def set_enum_member(self, asset_id, member, value):
+        """Rewrite an inline enum member's bits."""
+        self.b.trace[self._enum_slot(asset_id, member)]["value"] = int(value)
         self._reparse()
 
     # -- internals --------------------------------------------------------

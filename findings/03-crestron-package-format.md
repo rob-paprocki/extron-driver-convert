@@ -38,6 +38,10 @@ The DLL's metadata names `Crestron.DeviceDrivers.Core.LegacyWrappers`, and the
 JSON carries `"Type": "Simpl"` — consistent with the DLL being a thin shell
 around the JSON rather than hand-written device logic. **The IR package having
 no DLL at all is the strongest evidence for that reading.** (Under verification.)
+*(Confirmed: see finding 04 — both non-IR Samsung DLLs are, byte for byte
+apart from the driver name, the same ~16 KB shell; and finding 05 — the
+Crestron DLL is "not code in any meaningful sense": two TypeDefs, one
+MethodDef, zero fields.)*
 
 ## The command model is declarative and composable
 
@@ -90,7 +94,16 @@ smsg_display_QNxxLS03DAFXZA_Series_v1_0_0_0.py:204` and `:211`.
 ## Open, under verification
 
 - Is the DLL genuinely a thin wrapper, or is behaviour hidden in IL?
+  *(Confirmed thin wrapper — see finding 04's cross-package DLL comparison
+  and finding 05's IL-level walk: two TypeDefs, one MethodDef, zero fields.)*
 - Is a `.pkg` signed / certified before a processor will load it? **This single
   answer decides whether emitting Crestron drivers is possible at all.**
+  *(Researched in depth in finding 04: the DLL carries a self-signed
+  Authenticode signature and nothing in the documented load path checks it —
+  but whether a processor actually enforces it is still unmeasured on
+  hardware; see STATUS.md open item 1 and ROADMAP H8.)*
 - Does the byte-level correspondence hold across the *full* command set, or only
-  the commands checked so far?
+  the commands checked so far? *(Answered, partly: finding 05 measured
+  byte-for-byte agreement on 6 of 8 shared capability families, with
+  ChannelStep as a known divergence and Crestron carrying 8 families Extron
+  lacks. Full-catalogue correspondence remains unmeasured, see ROADMAP D3.)*

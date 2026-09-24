@@ -22,6 +22,7 @@ Pipeline
 Python 3 standard library only.
 """
 import ast
+import collections
 import copy
 import os
 import re
@@ -92,22 +93,121 @@ def unwrap_generic_wrapper(objs, node, _depth=0):
     return node
 
 
-def find_protocol_asset(objs, model):
-    """A DriverModelAsset owns exactly one ProtocolAsset child (per
-    findings/06). Return its concrete (unwrapped) dict, or None."""
+def find_protocol_assets(objs, model):
+    """Every concrete ProtocolAsset* dict declared under `model`, in wrapper
+    discovery order.
+
+    findings/06 established "a DriverModelAsset owns exactly one ProtocolAsset
+    child" and the original `find_protocol_asset` (singular, below) assumed
+    it structurally: `unwrap_generic_wrapper` requires a wrapper's child
+    collection to hold exactly one item, returning None otherwise. That
+    assumption is false for a package where one model is wired for more than
+    one physical connection -- evidenced directly by this repo's own
+    `samples/1 Beyond Cameras/PTZ-IP12_IP20/pkp/1bynd_19_4743_v1_0_1.pkp`:
+    both its models' single `AssetBase\\`1[[IProtocolAsset]]` wrapper holds
+    TWO concrete children (an EthernetProtocolAsset AND a
+    SerialProtocolAsset -- an IP/serial-selectable camera), not one. Against
+    that shape the old function silently returned None, which is one
+    confirmed, reproduced cause of ROADMAP R17's "3,455 of 8,027 models
+    resolve to no protocol asset" finding (experiments/protocol_assets/
+    SURVEY.md) despite no package lacking one. This function does not share
+    the single-child assumption: it walks every wrapper's children, however
+    many, drilling through any further nested generic wrapper, and returns
+    every concrete node whose class ends in "ProtocolAsset". A model that
+    genuinely declares none returns []."""
+    out = []
     for wrapper in child_collection_items(objs, model):
-        concrete = unwrap_generic_wrapper(objs, wrapper)
-        if isinstance(concrete, dict) and concrete.get("class", "").endswith("ProtocolAsset"):
-            return concrete
+        if not (isinstance(wrapper, dict) and wrapper.get("class", "").startswith(
+                "Extron.Configuration.Core.Assets.AssetBase`1[[")):
+            continue
+        for kid in child_collection_items(objs, wrapper):
+            concrete = kid
+            if isinstance(concrete, dict) and concrete.get("class", "").startswith(
+                    "Extron.Configuration.Core.Assets.AssetBase`1[["):
+                concrete = unwrap_generic_wrapper(objs, concrete)
+            if isinstance(concrete, dict) and concrete.get("class", "").endswith("ProtocolAsset"):
+                out.append(concrete)
+    return out
+
+
+def find_protocol_asset(objs, model):
+    """Back-compat single-asset accessor: the first concrete protocol asset
+    declared under `model` (see find_protocol_assets), or None if the model
+    declares none at all. Existing single-protocol-per-model callers (most
+    of the corpus) see no change; a model declaring more than one asset now
+    resolves to its first one instead of silently None."""
+    assets = find_protocol_assets(objs, model)
+    return assets[0] if assets else None
+
+
+def enum_value(objs, ref):
+    """Follow one $ref to an NRBF enum instance (a ClassWithId/
+    ClassWithMembersAndTypes wrapping a single 'value__' member) and return
+    its int, or None if the field is absent, null, or not an enum shape.
+    Same method experiments/protocol_assets/survey.py uses to read
+    `_compatibility`."""
+    obj = deref(objs, ref)
+    if isinstance(obj, dict) and "members" in obj and "value__" in obj.get("members", {}):
+        return obj["members"]["value__"]
     return None
 
 
+# Extron.Configuration.Contracts.Enumeration.ProtocolCompatibilityFlags, read by
+# .NET reflection against the installed Extron.Configuration.Contracts.dll
+# (experiments/protocol_assets/SURVEY.md, `Load-Package.ps1 -Protocol`,
+# 15.45.0.0, 2026-09-23) -- ground truth, not inferred from port numbers or
+# script content. The 4 mapped here are the compatibility values the corpus
+# ever pairs with a real, nonzero socket endpoint (SURVEY.md's `_compatibility`
+# table); 1024 (Ethernet_Dante) and 2048 (Ethernet_RoomScheduling) are
+# deliberately absent -- both are always _port=0 corpus-wide, read there as an
+# auxiliary-feature flag rather than this asset's own wire transport.
+ETHERNET_COMPATIBILITY_PROTOCOL = {
+    16: "TCP",    # Ethernet_Telnet
+    32: "UDP",    # Ethernet_UDP
+    64: "HTTP",   # Ethernet_HTTP (the http dialect's own HTTPDriver detection
+                  # already covers this case end to end; kept here only so
+                  # this table is a complete, honest record of what the enum
+                  # values mean, not because EthernetClass/SSHClass emit it)
+    512: "SSH",   # Ethernet_SSH
+}
+ETHERNET_COMPATIBILITY_NAME = {
+    16: "Ethernet_Telnet", 32: "Ethernet_UDP", 64: "Ethernet_HTTP",
+    512: "Ethernet_SSH", 1024: "Ethernet_Dante", 2048: "Ethernet_RoomScheduling",
+}
+
+
+def ethernet_protocol_info(objs, asset):
+    """For a concrete EthernetProtocolAsset dict (see find_protocol_assets),
+    read `_port` and `_compatibility` and resolve them to
+    (protocol_string_or_None, port_or_None, compatibility_int_or_None).
+    protocol_string is None when `_compatibility` is absent/unrecognised, or
+    is one of the two "no real endpoint" flags (1024/2048 -- see
+    ETHERNET_COMPATIBILITY_PROTOCOL). Returns None outright if `asset` is not
+    an EthernetProtocolAsset at all."""
+    if not (isinstance(asset, dict) and asset.get("class", "").endswith("EthernetProtocolAsset")):
+        return None
+    m = asset.get("members", {})
+    port = m.get("_port")
+    compat = enum_value(objs, m.get("_compatibility"))
+    return ETHERNET_COMPATIBILITY_PROTOCOL.get(compat), port, compat
+
+
 class ModelInfo:
-    def __init__(self, name, script_file_name, script_class_name, protocol_class):
+    def __init__(self, name, script_file_name, script_class_name, protocol_class,
+                 protocol_classes=None, ethernet_info=None):
         self.name = name
         self.script_file_name = script_file_name
         self.script_class_name = script_class_name
-        self.protocol_class = protocol_class
+        self.protocol_class = protocol_class          # first declared asset's class, or None (back-compat)
+        # every declared asset's class (see find_protocol_assets); a caller that only
+        # passes protocol_class (the common case, and every pre-R17 call site) gets a
+        # single-item list built from it rather than losing that evidence to [].
+        self.protocol_classes = protocol_classes if protocol_classes is not None else (
+            [protocol_class] if protocol_class else [])
+        # (protocol_string_or_None, port_or_None, compatibility_int_or_None) from
+        # the model's own EthernetProtocolAsset (see ethernet_protocol_info), or
+        # None if it declares no EthernetProtocolAsset at all.
+        self.ethernet_info = ethernet_info
 
     def __repr__(self):
         return "ModelInfo(%r, %r, %r, %r)" % (
@@ -177,11 +277,19 @@ def discover_jobs(pkp_path):
         name = deref(objs, m.get("AssetBase+_name"))
         sfn = deref(objs, m.get("_scriptFileName"))
         scn = deref(objs, m.get("_scriptClassName"))
-        proto = find_protocol_asset(objs, v)
-        proto_class = proto.get("class") if isinstance(proto, dict) else None
+        protos = find_protocol_assets(objs, v)
+        proto_classes = [p.get("class") for p in protos if isinstance(p, dict) and p.get("class")]
+        proto_class = proto_classes[0] if proto_classes else None
+        eth_info = None
+        for p in protos:
+            info_tuple = ethernet_protocol_info(objs, p)
+            if info_tuple is not None:
+                eth_info = info_tuple
+                break
         if not isinstance(sfn, str):
             continue
-        info = ModelInfo(name, sfn, scn, proto_class)
+        info = ModelInfo(name, sfn, scn, proto_class, protocol_classes=proto_classes,
+                          ethernet_info=eth_info)
         if sfn not in models_by_script:
             models_by_script[sfn] = []
             order.append(sfn)
@@ -323,6 +431,26 @@ class GenericBodyRewriter(ast.NodeTransformer):
             ast.copy_location(new_if, node)
             return new_if
 
+        # if ctime - self.lastXUpdate > 4: <body> [else: self.Discard(...)]
+        # -- GC's query throttle. Every write of self.last* is dropped below
+        # (gc-scratch-timer-dropped), so the guard was left reading an
+        # attribute nothing sets: an AttributeError on every such Update,
+        # found by executing DSC's generated module (ROADMAP R13). Extron's
+        # shipped DSC keeps only the body. Rewritten only in that exact shape
+        # - a single comparison, with no else or a lone Discard - because any
+        # other else (avr's sequence reset) is real logic; those stay, and
+        # find_unassigned_self_attributes reports them.
+        if (isinstance(node.test, ast.Compare) and _reads_self_last(node.test)
+                and (not node.orelse or (len(node.orelse) == 1
+                                         and isinstance(node.orelse[0], ast.Expr)
+                                         and _call_attr(node.orelse[0].value) == "Discard"))):
+            self.residuals.add(
+                "gc-throttle-guard-dropped",
+                "%s: dropped GC's query throttle 'if %s:' and its Discard, keeping the body "
+                "(the self.last* timer it reads is dropped; matches Extron's shipped DSC)"
+                % (self.current_method_name, ast.unparse(node.test)))
+            return node.body
+
         # if self.RequiredTimer: self.RequiredTimer.DeleteTimer()
         if (_is_self_attr(node.test, "RequiredTimer") and not node.orelse
                 and all(self._is_timer_cleanup(s) for s in node.body)):
@@ -359,6 +487,15 @@ class GenericBodyRewriter(ast.NodeTransformer):
                 self.residuals.add("gc-scratch-timer-dropped",
                                     "%s: dropped self.%s (GC-only staleness/throttle timer)"
                                     % (self.current_method_name, tgt.attr))
+                return None
+            # self.lastXUpdate[channel] = ctime: the same timer, kept per
+            # qualifier. Its dict's initialisation is dropped with the rest,
+            # so the store raised AttributeError (18 of the 314 packages).
+            if isinstance(tgt, ast.Subscript) and _reads_self_last(tgt.value) \
+                    and isinstance(tgt.value, ast.Attribute):
+                self.residuals.add("gc-scratch-timer-dropped",
+                                    "%s: dropped self.%s[...] (GC-only staleness/throttle timer)"
+                                    % (self.current_method_name, tgt.value.attr))
                 return None
         return node
 
@@ -429,10 +566,39 @@ class GenericBodyRewriter(ast.NodeTransformer):
 
     # -- expression-level rules --
 
+    def visit_Attribute(self, node):
+        self.generic_visit(node)
+        # self._cmd_X read as a value, not called: nec's __init__ builds a
+        # dispatch table {'DeviceStatus': self._cmd_UpdateDeviceStatus}. The
+        # def is renamed (_cmd_ stripped) and visit_Call renames calls, but a
+        # reference was left on the old name - an AttributeError while the
+        # class was still being constructed (found by executing it, R13).
+        if (node.attr.startswith("_cmd_") and isinstance(node.value, ast.Name)
+                and node.value.id == "self" and isinstance(node.ctx, ast.Load)):
+            return ast.copy_location(
+                ast.Attribute(value=node.value, attr=node.attr[len("_cmd_"):], ctx=node.ctx),
+                node)
+        return node
+
     def visit_Call(self, node):
         self.generic_visit(node)
 
         attr = _call_attr(node)
+
+        # self.Send(data, pacing=0.1): GC's BaseDriver paces queued sends;
+        # extronlib's Send takes data alone (and SendAndWait only delimiter
+        # keywords), so the call raised TypeError - DTP3's
+        # RefreshMatrixIONames, found by executing it (R13). Extron's shipped
+        # DTP3 sends without it. 5 of the 314 packages pass pacing.
+        if attr in ("Send", "SendAndWait") and isinstance(node.func.value, ast.Name) \
+                and node.func.value.id == "self" \
+                and any(k.arg == "pacing" for k in node.keywords):
+            self.residuals.add(
+                "gc-send-pacing-dropped",
+                "%s: dropped pacing= from self.%s(...) - a GC BaseDriver option extronlib "
+                "does not take; any delay the device needs between these sends is lost"
+                % (self.current_method_name, attr))
+            node.keywords = [k for k in node.keywords if k.arg != "pacing"]
 
         # self.DriverCmd('Name', a, b, ...) -> self.Name(a, b, ...)
         if attr == "DriverCmd" and node.args and isinstance(node.args[0], ast.Constant) \
@@ -580,9 +746,73 @@ def transform_method(func, model_class_to_name, residuals, new_name=None, comman
         _ensure_nonempty_bodies(s)
     if new_name:
         func.name = new_name
-    func.decorator_list = []
+    # Python's own method decorators change how a method is called, so dropping
+    # them is a runtime bug neither the wire table nor the resolvability checks
+    # can see: ktek's DM8000 calls self.__check_instance_tag(tag) on a
+    # @staticmethod, which without the decorator receives self as the tag.
+    # The corpus uses only staticmethod (23 methods in 15 packages) and property
+    # (1); anything else is not evidenced, so it is reported, not kept.
+    kept = []
+    for d in func.decorator_list:
+        if _is_builtin_method_decorator(d):
+            kept.append(d)
+        else:
+            residuals.add("method-decorator-dropped",
+                          "%s: dropped decorator @%s (not one of Python's own method "
+                          "decorators; no rule maps it)" % (name_for_messages, ast.unparse(d)))
+    func.decorator_list = kept
     ast.fix_missing_locations(func)
     return func
+
+
+def _reads_self_last(node):
+    """True if the expression reads a self.last* attribute - GC's scratch
+    timers, every write of which the translation drops."""
+    return any(isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name)
+               and n.value.id == "self" and n.attr.startswith("last")
+               for n in ast.walk(node))
+
+
+def _helper_calls_needing_more(method_defs, name):
+    """{name} if any method calls self.<name>(...) with more than the fixed
+    template's four arguments (or any keyword argument), else an empty set."""
+    for f in method_defs:
+        for n in ast.walk(f):
+            if isinstance(n, ast.Call) and _call_attr(n) == name \
+                    and (len(n.args) > 4 or n.keywords
+                         or any(isinstance(x, ast.Starred) for x in n.args)):
+                return {name}
+    return set()
+
+
+def _extra_helper_params(func):
+    """The parameters a GC __SetHelper/__UpdateHelper declares beyond
+    (self, command, commandstring, value, qualifier), as source text with
+    their defaults: ['queryDisallowTime=0']."""
+    a = func.args
+    pos = a.posonlyargs + a.args
+    first_default = len(pos) - len(a.defaults)
+    out = []
+    for i, p in enumerate(pos[5:], start=5):
+        out.append(p.arg if i < first_default
+                   else "%s=%s" % (p.arg, ast.unparse(a.defaults[i - first_default])))
+    if a.vararg:
+        out.append("*" + a.vararg.arg)
+    elif a.kwonlyargs:
+        out.append("*")
+    for p, d in zip(a.kwonlyargs, a.kw_defaults):
+        out.append(p.arg if d is None else "%s=%s" % (p.arg, ast.unparse(d)))
+    if a.kwarg:
+        out.append("**" + a.kwarg.arg)
+    return out
+
+
+def _is_builtin_method_decorator(d):
+    """staticmethod / classmethod / property, or a property's .setter /
+    .getter / .deleter."""
+    if isinstance(d, ast.Name):
+        return d.id in ("staticmethod", "classmethod", "property")
+    return isinstance(d, ast.Attribute) and d.attr in ("setter", "getter", "deleter")
 
 
 def unparse_method(func, indent=4):
@@ -620,6 +850,44 @@ class Analysis:
         self.ondisconnected_extra_stmts = [] # genuine device-state statements from GC's OnDisconnected
         self.needs_fixed_set_update_helper = False  # __SetHelper/__UpdateHelper replaced by fixed template
         self.http_helper_sig = None    # ('url_kw', 'data_kw') detection aid, unused for now
+        self.needs_dual_transport_mixin = False  # model(s) declare both Serial and Ethernet (R17)
+        self.needs_emulated_scratch_store = False  # a kept Read<X>/Write<X> wrapper needs self._emulated_status
+        # R16: (protocol_string_or_None, port_or_None, compatibility_int_or_None) for the
+        # EthernetClass/SSHClass mixin, or None if no model carries an EthernetProtocolAsset.
+        self.ethernet_info = None
+        # The source's own module-level imports, except the GC framework's
+        # (Extron2.*), as source text: carried into the generated module so the
+        # names they bind - pack, time, a bare `compile` from re - still resolve.
+        self.carried_imports = []
+        # The source's other top-level statements (helper classes, constants,
+        # functions), as (after_driver_class, stmt), in source order. emit()
+        # carries only the ones the generated module reads - see
+        # _module_definitions_needed().
+        self.module_stmts = []
+        # name -> source text of the Extron/Extron2 import that binds it
+        # (never carried), and the names bound only inside a top-level if/try
+        # block (a platform gate, never carried): both explain a NameError
+        # residual rather than resolve it.
+        self.gc_import_names = {}
+        self.conditional_names = set()
+        # (lineno, source) of each __init__ local assignment an AddMatchString
+        # call reads, e.g. `du_talk_status_regex = br'...'`; the registrations
+        # are regenerated, so their locals must be too.
+        self.addmatchstring_prelude = []
+        self.addmatchstring_linenos = []
+        # The driver class's own non-method statements (ktek's
+        # `unwanted_chars = compile(...).search`, read as a later method's
+        # default argument), carried to the top of DeviceClass.
+        self.class_attr_stmts = []
+        # __SetHelper / __UpdateHelper -> the source's parameters beyond
+        # (command, commandstring, value, qualifier), kept in the fixed
+        # template's signature.
+        self.helper_extra_params = {}
+        # Which SIS session flags the source itself sets, and the handshake
+        # strings it sends ('w3cv\r' on some drivers, 'w3cv\r\n' on others).
+        self.uses_echo = False
+        self.uses_verbose = False
+        self.sis_literals = {}
 
 
 def _find_driver_class(tree):
@@ -727,6 +995,25 @@ def _is_write_read_wrapper(func, commands):
     return False
 
 
+def _make_emulated_scratch_wrapper(name, wrapped, kind):
+    """Build the kept, evidence-backed replacement body for a Write<X>/Read<X>
+    wrapper over a Live=False/Emulated=True command that is still referenced
+    from elsewhere (see the gc-emulated-wrapper-kept-as-scratch-store
+    residual). A private per-module dict, keyed by command name, standing in
+    for GC's own dropped WriteStatusHelper/ReadStatusHelper -- never
+    ControlScript's WriteStatus/ReadStatus (the externally-visible Live
+    store, the wrong target for a value GC itself never published)."""
+    if kind == "Write":
+        src = ("def %s(self, value, qualifier, context):\n"
+               "    self._emulated_status[%r] = value\n" % (name, wrapped))
+    else:
+        src = ("def %s(self, qualifier, context):\n"
+               "    return self._emulated_status.get(%r)\n" % (name, wrapped))
+    new_func = ast.parse(src).body[0]
+    ast.fix_missing_locations(new_func)
+    return new_func
+
+
 def _detect_dialect(base_class_name, bases):
     if "HTTPDriver" in bases:
         return "http"
@@ -743,8 +1030,51 @@ def analyse(source, models):
     a.base_class_name = cls.name
     is_http = "HTTPDriver" in bases
 
+    # Module-level imports. The emitted header has always been a fixed list,
+    # so a name the driver imported for itself was simply not there: pack in
+    # every VISCA driver, time in others - a NameError on the processor that
+    # neither the wire table nor the dangling self.X() check can see. Worse,
+    # `from re import compile` was dropped while the calls stayed, so they
+    # reached the builtin compile() instead of re.compile() and registered no
+    # response pattern at all (found by ROADMAP R36). Carry every top-level
+    # import except the GC runtime's own packages (Extron, Extron2), which do
+    # not exist under ControlScript - extronlib replaces them, and carrying
+    # them would trade a NameError for an ImportError. Anything imported
+    # conditionally is reported, not guessed.
     subclasses = _find_subclasses(tree, cls.name)
     a.subclass_names = [s.name for s in subclasses]
+    after_driver = False
+    for node in tree.body:
+        if node is cls:
+            after_driver = True
+            continue
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            mods = ([al.name for al in node.names] if isinstance(node, ast.Import)
+                    else [node.module or ""])
+            if any(m.split(".")[0] in ("Extron", "Extron2") for m in mods):
+                for al in node.names:
+                    bound = al.asname or (al.name.split(".")[0]
+                                          if isinstance(node, ast.Import) else al.name)
+                    a.gc_import_names[bound] = ast.unparse(node)
+                continue
+            a.carried_imports.append(ast.unparse(node))
+        elif isinstance(node, (ast.Try, ast.If)):
+            a.conditional_names.update(_names_bound_by(node))
+            if any(isinstance(n, (ast.Import, ast.ImportFrom)) for n in ast.walk(node)):
+                a.residuals.add("conditional-module-import-not-carried",
+                                "a module-level import sits inside a %s block and was not "
+                                "carried into the generated module" % type(node).__name__)
+        elif isinstance(node, ast.ClassDef) and node in subclasses:
+            continue
+        elif isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant):
+            continue  # a module or section docstring
+        else:
+            # Helper classes (Scroller, Directory), constants (a WebSocket
+            # driver's FIN / OPCODE), module functions (_mask): plain Python the
+            # driver's methods call. They were dropped wholesale, so every such
+            # read became a NameError on the processor. Kept here; emit()
+            # carries the ones the generated module actually reads.
+            a.module_stmts.append((after_driver, node))
     for sub in subclasses:
         extra = [s for s in sub.body if not (
             isinstance(s, ast.FunctionDef) and s.name == "__init__" and
@@ -757,8 +1087,61 @@ def analyse(source, models):
                              "%s: subclass body has content beyond super().__init__(configs); "
                              "only the ModelName stub was generated, extra logic dropped" % sub.name)
 
-    # protocol family, used to pick the mixin template
-    proto_classes = {m.protocol_class for m in models if m.protocol_class}
+    # protocol family, used to pick the mixin template. Union of every
+    # declared asset across every model (find_protocol_assets, R17): a model
+    # can declare more than one (e.g. an IP/serial-selectable camera), and
+    # using only the first-seen asset per model (the old `protocol_class`)
+    # silently lost evidence of the others.
+    proto_classes = {c for m in models for c in m.protocol_classes if c}
+    for m in models:
+        if not m.protocol_classes:
+            a.residuals.add(
+                "model-has-no-protocol-asset",
+                "%s: no ProtocolAsset (Ethernet/Serial/CEC/...) found under this "
+                "DriverModelAsset at all -- not a lookup failure (find_protocol_assets "
+                "walked every declared child), a genuine absence in the package. This "
+                "model's transport cannot be determined from its own graph; any "
+                "dialect below was inferred from its SIBLING models or the script's own "
+                "content instead." % (m.name or m.script_class_name or "<unnamed model>"))
+    eth_infos = [m.ethernet_info for m in models if m.ethernet_info is not None]
+    if eth_infos:
+        a.ethernet_info = eth_infos[0]
+        distinct = {t for t in eth_infos}
+        if len(distinct) > 1:
+            a.residuals.add(
+                "model-ethernet-settings-differ",
+                "this job's models declare different EthernetProtocolAsset "
+                "(protocol, port, compatibility) tuples (%s); the first model's "
+                "(%r) was used for the emitted EthernetClass/SSHClass -- verify "
+                "by hand for any other model in self.Models"
+                % (sorted(str(t) for t in distinct), a.ethernet_info))
+
+    both_serial_and_ethernet = (
+        not is_http
+        and any(p and p.endswith("SerialProtocolAsset") for p in proto_classes)
+        and any(p and p.endswith("EthernetProtocolAsset") for p in proto_classes))
+    a.needs_dual_transport_mixin = both_serial_and_ethernet
+    if both_serial_and_ethernet:
+        # 1 Beyond PTZ-IP12/IP20 shape: one model, one embedded script, but
+        # the script is wired for EITHER a direct IP connection or a direct
+        # serial connection (an EnumParamAsset alongside the two protocol
+        # assets almost certainly selects which). GC's BaseDriver abstracts
+        # the transport behind self.Send()/self.ConnectionType, so the SAME
+        # command logic below is not itself transport-specific -- only
+        # __init__'s wiring class is. ControlScript already has precedent
+        # for shipping more than one wiring class from one module (the
+        # 'serial' dialect's SerialClass + SerialOverEthernetClass, below);
+        # emit BOTH the ethernet and serial wiring classes here on the same
+        # principle, rather than picking one per the old elif precedence and
+        # silently dropping evidence of the other.
+        a.residuals.add(
+            "model-declares-multiple-transports",
+            "declares both a SerialProtocolAsset and an EthernetProtocolAsset "
+            "(%s); both EthernetClass/SSHClass and SerialClass/SerialOverEthernetClass "
+            "wiring classes are emitted below so neither connection option is silently "
+            "dropped, but this is evidenced only by the 1 Beyond PTZ-IP12/IP20 donor -- "
+            "verify by hand that the shared command logic is genuinely transport-agnostic "
+            "for any other package this fires on" % sorted(proto_classes))
     if is_http:
         a.dialect = "http"
     elif any(p and p.endswith("SerialProtocolAsset") for p in proto_classes):
@@ -818,9 +1201,11 @@ def analyse(source, models):
         }
         a.command_order.append(name)
 
-    for call in _collect_addmatchstrings(init_func):
+    matchstring_calls = _collect_addmatchstrings(init_func)
+    for call in matchstring_calls:
         a.addmatchstring_srcs.append("self.AddMatchString(%s)" %
                                       ", ".join(ast.unparse(arg) for arg in call.args))
+        a.addmatchstring_linenos.append(call.lineno)
 
     # classify top-level __init__ statements (outside the Commands assign
     # and the AddMatchString-registration if/elif block)
@@ -863,8 +1248,99 @@ def analyse(source, models):
         # everything else: carried through verbatim (generic transform applied at emit time)
         a.init_extra_stmts.append(stmt)
 
+    # The registrations are regenerated from their calls alone, so a local the
+    # source assigned beside them was lost: ATUC50's
+    # `du_talk_status_regex = br'...'` then `compile(du_talk_status_regex)` - a
+    # NameError in __init__, before the module does anything. Extron's shipped
+    # ATUC50 module keeps the assignment directly above its registration.
+    # Carry each such local assignment (and the locals it reads in turn), in
+    # source order among the calls, unless it already travels with __init__.
+    local_assigns = {}
+    for node in ast.walk(init_func):
+        if isinstance(node, ast.Assign) and all(isinstance(t, ast.Name) for t in node.targets):
+            for t in node.targets:
+                local_assigns.setdefault(t.id, []).append(node)
+    carried_init = {id(n) for s in a.init_extra_stmts for n in ast.walk(s)}
+    prelude = {}
+    todo = [(n.id, call.lineno) for call in matchstring_calls
+            for n in ast.walk(call) if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Load)]
+    while todo:
+        name, before_line = todo.pop()
+        earlier = [s for s in local_assigns.get(name, ()) if s.lineno < before_line]
+        if not earlier:
+            continue
+        stmt = earlier[-1]  # the assignment in force at the reading line
+        if id(stmt) in carried_init or id(stmt) in prelude:
+            continue
+        prelude[id(stmt)] = stmt
+        todo.extend((n.id, stmt.lineno) for n in ast.walk(stmt.value)
+                    if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Load))
+    a.addmatchstring_prelude = sorted((s.lineno, ast.unparse(s)) for s in prelude.values())
+
+    # class-body statements that are not methods: only methods were read, so
+    # these were dropped, and a default argument reading one raised NameError
+    # when the class was defined - the whole module failed to import. Three in
+    # the corpus, all simple assignments; carried first so every def sees them.
+    for s in cls.body:
+        if isinstance(s, (ast.FunctionDef, ast.AsyncFunctionDef)) or _is_docstring_stmt(s):
+            continue
+        a.class_attr_stmts.append(s)
+    if a.class_attr_stmts:
+        a.residuals.add("driver-class-attribute-carried",
+                        "carried %d class-body statement(s) of %s to the top of DeviceClass: %s"
+                        % (len(a.class_attr_stmts), cls.name,
+                           "; ".join(ast.unparse(s).splitlines()[0][:80] for s in a.class_attr_stmts)))
+
+    # The SIS session flags the source sets and the handshake strings it sends,
+    # its own __SetHelper's first - see FIXED_SET_UPDATE_HELPER_SIS_VERBOSE_ONLY.
+    helper = next((s for s in cls.body if isinstance(s, ast.FunctionDef)
+                   and s.name == "__SetHelper"), None)
+    for n in list(ast.walk(helper) if helper else []) + list(ast.walk(cls)):
+        if isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name) \
+                and n.value.id == "self" and isinstance(n.ctx, ast.Store):
+            if n.attr == "EchoDisabled":
+                a.uses_echo = True
+            elif n.attr == "VerboseDisabled":
+                a.uses_verbose = True
+        elif isinstance(n, ast.Constant) and isinstance(n.value, str):
+            for key in ("w3cv", "w0echo"):
+                if key not in a.sis_literals and re.fullmatch(key + r"[\r\n]+", n.value):
+                    a.sis_literals[key] = n.value
+
     # methods
     method_defs = [s for s in cls.body if isinstance(s, ast.FunctionDef) and s.name != "__init__"]
+    # R37: names called as self.<name>(...) from a DIFFERENT method's body than
+    # <name>'s own definition, computed once from the raw (pre-transform) source
+    # so a later per-method deletion decision (_is_write_read_wrapper, below)
+    # can tell whether deleting a wrapper would orphan a live caller. Evidenced
+    # by the Samsung ethernet job: MultiviewCommand's Set body assigns
+    # `mode = self.ReadMultiviewString(qualifier, 'Emulated')`, a value-context
+    # call the generic Emulated-pre-write-statement-drop rule does not touch
+    # (that rule only deletes a *standalone* Expr statement), so the call
+    # itself survives translation even though _is_write_read_wrapper's
+    # structural check says ReadMultiviewString's definition should be deleted
+    # -- an AttributeError at runtime with nothing to catch it beforehand.
+    _referenced_elsewhere = set()
+    for _caller in method_defs:
+        for _node in ast.walk(_caller):
+            if (isinstance(_node, ast.Call) and isinstance(_node.func, ast.Attribute)
+                    and isinstance(_node.func.value, ast.Name) and _node.func.value.id == "self"
+                    and _node.func.attr != _caller.name):
+                _referenced_elsewhere.add(_node.func.attr)
+    # ...and names read as values, not called - yama's __init__ builds a
+    # dispatch table {'FaderLevel': self.WriteFaderLevel, ...}. Deleting the
+    # wrapper left that reference dangling, and the class failed while being
+    # constructed (found by executing it, R13; 3 of the 24 generated modules
+    # that could not be constructed).
+    _referenced_as_value = set()
+    for _caller in method_defs + [init_func]:
+        _call_funcs = {id(n.func) for n in ast.walk(_caller) if isinstance(n, ast.Call)}
+        for _node in ast.walk(_caller):
+            if (isinstance(_node, ast.Attribute) and isinstance(_node.value, ast.Name)
+                    and _node.value.id == "self" and isinstance(_node.ctx, ast.Load)
+                    and id(_node) not in _call_funcs and _node.attr != _caller.name):
+                _referenced_as_value.add(_node.attr)
+    _referenced_elsewhere |= _referenced_as_value
     for func in method_defs:
         name = func.name
         _dropped_cmd_match = re.match(r"^(?:_cmd_Set|_cmd_Update|__Match|Write|Read)([A-Za-z0-9]+)$", name)
@@ -894,6 +1370,23 @@ def analyse(source, models):
                 "instead of transforming it, dropping GC BaseDriver runtime API "
                 "(QueryDelayTimerIsRunning/StartQueryDelayTimer/ReadPower-power-gate) with no "
                 "ControlScript equivalent" % (name, a.dialect))
+            # The body is fixed, the signature is not: ktek's DM8000 declares
+            # __SetHelper(..., qualifier, queryDisallowTime=0) and passes it,
+            # so the four-parameter template raised TypeError on those
+            # commands - 1,143 call sites in 192 of finding 14's 314 packages,
+            # found by executing a module (R13); no static check looked at
+            # argument counts. Extron's shipped modules keep the parameter
+            # (and ignore it) where calls pass it - 36 in the 09/06/2026
+            # shipment - and drop it where none do (DSC, DTP3), so it is
+            # carried only when some call passes more than the four.
+            extra = _extra_helper_params(func)
+            if extra and name in _helper_calls_needing_more(method_defs, name):
+                a.helper_extra_params[name] = extra
+                a.residuals.add(
+                    "helper-signature-carried",
+                    "%s: kept the source's extra parameter(s) %s in the fixed template's "
+                    "signature, accepted and ignored, as Extron's shipped modules with this "
+                    "signature do" % (name, ", ".join(extra)))
             continue
         if name in ("OnConnected", "OnDisconnected"):
             # emit() always supplies its own fixed-template OnConnected/
@@ -971,6 +1464,47 @@ def analyse(source, models):
             wrapped = name[len("Write"):] if name.startswith("Write") else name[len("Read"):]
             spec = a.commands.get(wrapped, {})
             if spec.get("live") is False and spec.get("emulated") is True:
+                if name in _referenced_elsewhere:
+                    # R37: this wrapper's structural shape says "delete" (it
+                    # only calls WriteStatusHelper/ReadStatusHelper, GC dual-
+                    # status machinery with no ControlScript target), but
+                    # another retained method's body still calls it in a
+                    # VALUE context (`mode = self.ReadMultiviewString(...)`),
+                    # which the Emulated-pre-write-statement-drop rule does
+                    # not strip (that rule only deletes a bare Expr
+                    # statement). Deleting the definition anyway would leave
+                    # that call dangling -- AttributeError at runtime, no
+                    # residual to explain it beforehand. Keep it instead,
+                    # backed by a private per-module scratch dict
+                    # (self._emulated_status) rather than GC's own
+                    # WriteStatusHelper/ReadStatusHelper (still dropped, no
+                    # ControlScript target) and rather than ControlScript's
+                    # WriteStatus/ReadStatus (the externally-visible Live
+                    # store -- wrong target: Live=False means GC never
+                    # published this as device status, so routing it through
+                    # WriteStatus/ReadStatus would silently expose a
+                    # never-live value via NewStatus()/SubscribeStatus()).
+                    kind = "Write" if name.startswith("Write") else "Read"
+                    new_func = _make_emulated_scratch_wrapper(name, wrapped, kind)
+                    a.methods[name] = new_func
+                    a.method_order.append((("~emulated_wrapper", wrapped, 0 if kind == "Write" else 1), name))
+                    a.needs_emulated_scratch_store = True
+                    a.residuals.add(
+                        "gc-emulated-wrapper-kept-as-scratch-store",
+                        "%s: command %r is Live=False/Emulated=True and is called from another "
+                        "retained method's body; kept (instead of deleted) as a private "
+                        "self._emulated_status[%r] accessor so that call resolves instead of "
+                        "raising AttributeError. This is NOT GC's own WriteStatusHelper/"
+                        "ReadStatusHelper (Mutex/ExtronTime dual-status machinery, still dropped "
+                        "elsewhere, no ControlScript target) and does NOT use ControlScript's "
+                        "WriteStatus/ReadStatus (Live=False means GC never published this as "
+                        "device status; the externally-visible Live store is the wrong target). "
+                        "If the matching %s<X> wrapper's own call site was itself dropped as a "
+                        "standalone Emulated pre-write elsewhere (see "
+                        "gc-dual-status-emulated-prewrite-dropped), this value is never written "
+                        "and always reads back the scratch default (None) -- verify by hand."
+                        % (name, wrapped, wrapped, "Write" if kind == "Read" else "Read"))
+                    continue
                 # Evidenced identically across two independent packages/
                 # dialects (DTP3's MatrixIONameString/MatrixIONumberSelect,
                 # Samsung ethernet's MultiviewString): a command with
@@ -995,6 +1529,26 @@ def analyse(source, models):
                     "dual-status store); if anything else in this module still calls %s(...), "
                     "that call will surface as dangling-self-call below and needs a hand-verified "
                     "restructuring, not an automatic ReadStatus/WriteStatus bridge" % (name, wrapped, name))
+            elif name.startswith("Write") and name in _referenced_as_value:
+                # An ordinary (Live) command's Write<X> held as a value (a
+                # dispatch table) and called later with a context. Calls
+                # are already rewritten by two rules - 'Live' becomes
+                # WriteStatus, an 'Emulated' pre-write is dropped - so the
+                # kept wrapper is exactly those two rules, applied at call
+                # time instead of at translation time.
+                new_func = ast.parse(
+                    "def %s(self, value, qualifier, context):\n"
+                    "    if context == 'Live':\n"
+                    "        self.WriteStatus(%r, value, qualifier)\n" % (name, wrapped)).body[0]
+                ast.fix_missing_locations(new_func)
+                a.methods[name] = new_func
+                a.method_order.append((("~live_wrapper", wrapped, 0), name))
+                a.residuals.add(
+                    "gc-write-wrapper-kept-for-value-reference",
+                    "%s: referenced as a value (not called) elsewhere, so kept, forwarding a "
+                    "'Live' write to WriteStatus(%r, ...) and dropping an 'Emulated' one - the "
+                    "same two rules applied to direct calls" % (name, wrapped))
+                continue
             continue  # silently deleted per rewrite rules (not a residual: expected deletion)
 
         if name == "__MatchVerboseMode":
@@ -1217,6 +1771,44 @@ FIXED_SET_UPDATE_HELPER_SIS_ETHERNET = '''
                 self.Send(commandstring)
 '''
 
+# sis_ethernet for a driver with the verbose handshake and no echo handshake:
+# the source never sets self.EchoDisabled, so the template above read an
+# attribute nothing assigns - an AttributeError on every Set and Update in 8 of
+# finding 14's 314 packages (found by R13's attribute check). Evidenced by
+# Extron's shipped modules for three of them (AXI 22 AT D Plus, AXI02AT,
+# IPL T CR48): the same template with the echo branches removed.
+FIXED_SET_UPDATE_HELPER_SIS_VERBOSE_ONLY = '''
+    def __SetHelper(self, command, commandstring, value, qualifier):
+        self.Debug = True
+        if self.VerboseDisabled:
+            @Wait(1)
+            def SendVerbose():
+                self.Send('w3cv\\r\\n')
+                self.Send(commandstring)
+        else:
+            self.Send(commandstring)
+
+    def __UpdateHelper(self, command, commandstring, value, qualifier):
+        if self.initializationChk:
+            self.OnConnected()
+            self.initializationChk = False
+
+        self.counter = self.counter + 1
+        if self.counter > self.connectionCounter and self.connectionFlag:
+            self.OnDisconnected()
+
+        if self.Unidirectional == 'True':
+            self.Discard('Inappropriate Command ' + command)
+        else:
+            if self.VerboseDisabled:
+                @Wait(1)
+                def SendVerbose():
+                    self.Send('w3cv\\r\\n')
+                    self.Send(commandstring)
+            else:
+                self.Send(commandstring)
+'''
+
 # serial: evidenced by shipped Samsung
 # (smsg_display_QNxxLS03DAFXZA_Series_v1_0_0_0.py:219-236) -- simpler, no
 # Echo/Verbose branches; only one oracle exists for this dialect (same
@@ -1270,16 +1862,19 @@ FIXED_SET_UPDATE_HELPER_ETHERNET_PLAIN = '''
 
 # Plain (non-SIS) Ethernet transport. Shape copied from the only plain-ethernet
 # oracle, Clock Audio's shipped EthernetClass
-# (clau_dsp_CDT100_v1_0_3_0.py:419-441). Protocol/ServicePort are deliberately the
-# NEUTRAL extronlib defaults ('TCP', 0) taken from EthernetClientInterface's own
-# signature, NOT Clock Audio's UDP/49494 -- baking one device's connection
-# settings into every module would be fabricated configuration. The real values
-# are not recoverable from the package, so a residual says so.
-MIXIN_ETHERNET = '''
+# (clau_dsp_CDT100_v1_0_3_0.py:419-441). `Protocol`/`ServicePort` default to
+# whatever ROADMAP R16 could read off the package's own EthernetProtocolAsset
+# (`_port` + `_compatibility`, see ethernet_protocol_info / emit()'s
+# ethernet-connection-settings-* residuals) -- the NEUTRAL extronlib defaults
+# ('TCP', 0) below are the fallback used only when that data is genuinely
+# absent or unmapped (see ETHERNET_COMPATIBILITY_PROTOCOL), never a
+# fabricated per-device guess.
+def _mixin_ethernet_text(protocol="TCP", port=0):
+    return ('''
 
 class EthernetClass(EthernetClientInterface, DeviceClass):
 
-    def __init__(self, Hostname, IPPort, Protocol='TCP', ServicePort=0, Model=None):
+    def __init__(self, Hostname, IPPort, Protocol=%r, ServicePort=%r, Model=None):
         EthernetClientInterface.__init__(self, Hostname, IPPort, Protocol, ServicePort)
         self.ConnectionType = 'Ethernet'
         DeviceClass.__init__(self)
@@ -1296,7 +1891,7 @@ class EthernetClass(EthernetClientInterface, DeviceClass):
 
     def Discard(self, message):
         self.Error([message])
-'''
+''') % (protocol, port)
 
 FIXED_SET_UPDATE_HELPER = {
     "sis_ethernet": FIXED_SET_UPDATE_HELPER_SIS_ETHERNET,
@@ -1348,6 +1943,19 @@ FIXED_STREAM_TAIL_EXTRA = '''
                    .format(__name__, credential_type, port_info), 'warning')
 '''
 
+# R16 deliberately does NOT thread the resolved `_port` into SSHClass's
+# ServicePort default, unlike EthernetClass below. Evidence: BOTH shipped
+# sis_ethernet oracles -- DSC (extr_scaler_DSC_12G_HD_A_v1_0_0_0.py:1218) and
+# DTP3 (extr_matrix_DTP3_CrossPoint_42_Series_v1_2_0_0.py:1315) -- leave
+# `ServicePort=0` even though their own packages' real `_port` is 22023
+# (confirmed directly: both resolve to _compatibility=Ethernet_SSH(512),
+# _port=22023 via ethernet_protocol_info). extronlib's own
+# EthernetClientInterface(Protocol='SSH', ServicePort=0) auto-selects the
+# standard SSH port, so 0 is Extron's own intentional, oracle-matching
+# value here, not an unresolved gap -- writing 22023 in would DIVERGE from
+# both oracles, not fix anything. No residual: this was never the
+# ethernet-connection-settings-not-recoverable defect (that residual only
+# ever fired for the 'ethernet' dialect's EthernetClass, never sis_ethernet).
 MIXIN_SSH = '''
 class SSHClass(EthernetClientInterface, DeviceClass):
     def __init__(self, Hostname, IPPort, Protocol='SSH', ServicePort=0, Credentials=(None), Model=None):
@@ -1456,7 +2064,12 @@ def _fmt_addmatchstrings(a):
     if not a.addmatchstring_srcs:
         return None
     lines = ["if self.Unidirectional == 'False':"]
-    for src in a.addmatchstring_srcs:
+    calls = list(zip(a.addmatchstring_linenos, a.addmatchstring_srcs)) \
+        if len(a.addmatchstring_linenos) == len(a.addmatchstring_srcs) \
+        else [(0, s) for s in a.addmatchstring_srcs]
+    # the carried locals sort before any call on a later line; a stable sort
+    # keeps the calls' own order where lines tie (or are unknown)
+    for _, src in sorted(a.addmatchstring_prelude + calls, key=lambda ls: ls[0]):
         lines.append("    " + src)
     return "\n".join(lines)
 
@@ -1491,6 +2104,54 @@ def _build_models_block(job, a):
     return "\n".join(lines), stub_methods
 
 
+def _ethernet_settings_unresolved_reason(a):
+    """Why R16's EthernetClass/SSHClass Protocol/ServicePort resolution would
+    fall back to the neutral extronlib defaults, or None when a.ethernet_info
+    carries a genuinely usable (protocol, port) pair. A precise, evidence-keyed
+    reason for every case SURVEY.md's corpus-wide _compatibility read found,
+    not a single generic "not recoverable" message."""
+    info = a.ethernet_info
+    if info is None:
+        return "no EthernetProtocolAsset was found for any model in this job"
+    protocol, port, compat = info
+    if compat is None:
+        return "the package's own _compatibility field is absent or unreadable"
+    if compat in (1024, 2048):
+        return ("_compatibility=%d (%s) is an auxiliary-feature flag with no real socket "
+                "endpoint -- always _port=0 corpus-wide per SURVEY.md, not a distinct wire "
+                "transport" % (compat, ETHERNET_COMPATIBILITY_NAME.get(compat, compat)))
+    if compat == 64:
+        return ("_compatibility=64 (Ethernet_HTTP) is handled end to end by the http "
+                "dialect's own HTTPDriver detection; EthernetClass/SSHClass never carry it")
+    if protocol is None:
+        return "_compatibility=%r has no known EthernetClass/SSHClass protocol mapping" % (compat,)
+    if port is None:
+        return "the package's own _port field is null"
+    return None
+
+
+def _resolve_ethernet_class_defaults(a, secondary=False):
+    """(Protocol, ServicePort) for EthernetClass (TCP/UDP dialects). Falls
+    back to the neutral extronlib defaults ('TCP', 0) and records
+    ethernet-connection-settings-not-recoverable with a precise reason when
+    the package's own EthernetProtocolAsset data can't supply them."""
+    reason = _ethernet_settings_unresolved_reason(a)
+    info = a.ethernet_info
+    if reason is None and info[0] in ("TCP", "UDP"):
+        return info[0], info[1]
+    if reason is None:  # info[0] == "SSH": right data, wrong mixin class
+        reason = ("_compatibility=512 (Ethernet_SSH) resolves to SSHClass for this model, "
+                   "not EthernetClass")
+    a.residuals.add(
+        "ethernet-connection-settings-not-recoverable",
+        "%sEthernetClass emitted with the neutral extronlib defaults (Protocol='TCP', "
+        "ServicePort=0): %s. Note the shipped Biamp module uses SSHClass and the shipped "
+        "Clock Audio module uses Protocol='UDP', ServicePort=49494 -- the correct choice "
+        "is per-device and is not inferable beyond what the package's own _port/"
+        "_compatibility can supply." % ("secondary " if secondary else "", reason))
+    return "TCP", 0
+
+
 def emit(job, a):
     imports_extra = []
     header_lines = ["# Copyright 2026, Extron. All rights reserved."]
@@ -1512,9 +2173,16 @@ def emit(job, a):
             "from extronlib.system import Wait, ProgramLog",
         ]
         init_sig = "def __init__(self):"
+    for line in a.carried_imports:
+        if line not in header_lines:
+            header_lines.append(line)
 
     body = []
     body.append("class DeviceClass:")
+    for stmt in a.class_attr_stmts:
+        body.append(_reindent(ast.unparse(stmt), 4))
+    if a.class_attr_stmts:
+        body.append("")
     body.append("    " + init_sig)
     if a.dialect == "http":
         body.append("")
@@ -1554,6 +2222,9 @@ def emit(job, a):
         body.append("        self.initializationChk = True")
         body.append("        self.Debug = False")
 
+    if a.needs_emulated_scratch_store:
+        body.append("        self._emulated_status = {}")
+
     models_src, model_stub_srcs = _build_models_block(job, a)
     body.append("        " + models_src)
     body.append("")
@@ -1583,7 +2254,30 @@ def emit(job, a):
         body.append("")
 
     if a.needs_fixed_set_update_helper:
-        body.append(FIXED_SET_UPDATE_HELPER[a.dialect].rstrip("\n"))
+        template = FIXED_SET_UPDATE_HELPER[a.dialect]
+        if a.dialect == "sis_ethernet" and not a.uses_echo:
+            template = FIXED_SET_UPDATE_HELPER_SIS_VERBOSE_ONLY
+            a.residuals.add(
+                "sis-verbose-only-template",
+                "the source sets VerboseDisabled but never EchoDisabled, so the SIS template "
+                "without the echo handshake is used (Extron's shipped AXI 22 AT D Plus, "
+                "AXI02AT and IPL T CR48 modules have this shape)")
+        helpers = template.rstrip("\n")
+        if a.dialect == "sis_ethernet":
+            for key, default in (("w3cv", "'w3cv\\r\\n'"), ("w0echo", "'w0echo\\r\\n'")):
+                found = a.sis_literals.get(key)
+                if found and repr(found) != default and default in helpers:
+                    helpers = helpers.replace(default, repr(found))
+                    a.residuals.add(
+                        "sis-handshake-literal-from-source",
+                        "the template's %s is replaced by the source's own %s (the "
+                        "terminator differs between drivers)" % (default, repr(found)))
+        for helper, extra in a.helper_extra_params.items():
+            fixed = "def %s(self, command, commandstring, value, qualifier):" % helper
+            assert fixed in helpers, (helper, a.dialect)
+            helpers = helpers.replace(fixed, "def %s(self, command, commandstring, value, "
+                                             "qualifier, %s):" % (helper, ", ".join(extra)))
+        body.append(helpers)
         body.append("")
 
     # OnConnected / OnDisconnected -- the fixed template, plus whatever
@@ -1603,9 +2297,12 @@ def emit(job, a):
     body.append("        self.connectionFlag = False")
     for stmt in a.ondisconnected_extra_stmts:
         body.append(_reindent(ast.unparse(stmt), 8))
-    if a.has_verbose_echo:
+    if a.has_verbose_echo or a.uses_verbose:
+        # Reset only the session flags the source uses: a verbose-only
+        # driver's shipped OnDisconnected resets VerboseDisabled alone.
         body.append("")
-        body.append("        self.EchoDisabled = True")
+        if a.has_verbose_echo or a.uses_echo:
+            body.append("        self.EchoDisabled = True")
         body.append("        self.VerboseDisabled = True")
     if a.onconnected_extra_stmts or a.ondisconnected_extra_stmts:
         a.residuals.add("onconnected-ondisconnected-synthesized",
@@ -1632,14 +2329,8 @@ def emit(job, a):
     if a.dialect == "sis_ethernet":
         body.append(MIXIN_SSH.rstrip("\n"))
     elif a.dialect == "ethernet":
-        body.append(MIXIN_ETHERNET.rstrip("\n"))
-        a.residuals.add("ethernet-connection-settings-not-recoverable",
-                         "EthernetClass emitted with the neutral extronlib defaults "
-                         "(Protocol='TCP', ServicePort=0). The device's real protocol and port are "
-                         "not recoverable from the package and must be set by hand. Note the "
-                         "shipped Biamp module uses SSHClass and the shipped Clock Audio module "
-                         "uses Protocol='UDP', ServicePort=49494 -- the correct choice is "
-                         "per-device and is not inferable here.")
+        protocol, port = _resolve_ethernet_class_defaults(a)
+        body.append(_mixin_ethernet_text(protocol, port).rstrip("\n"))
     elif a.dialect == "serial":
         body.append(MIXIN_SERIAL.rstrip("\n"))
         a.residuals.add("serial-over-ethernet-mixin-generalised",
@@ -1649,7 +2340,36 @@ def emit(job, a):
     elif a.dialect == "http":
         body.append(MIXIN_HTTP.rstrip("\n"))
 
+    # R17: a model can declare BOTH a Serial and an Ethernet protocol asset
+    # (see needs_dual_transport_mixin above) -- emit the OTHER transport's
+    # wiring class(es) too, alongside whichever one the elif chain above
+    # picked as primary (__SetHelper/__UpdateHelper stay keyed to the
+    # primary dialect; GC's own Send()/ConnectionType abstraction is what
+    # makes one shared command body usable from either).
+    if a.needs_dual_transport_mixin:
+        if a.dialect == "serial":
+            if _source_speaks_sis(job.source):
+                body.append(MIXIN_SSH.rstrip("\n"))
+            else:
+                protocol, port = _resolve_ethernet_class_defaults(a, secondary=True)
+                body.append(_mixin_ethernet_text(protocol, port).rstrip("\n"))
+        elif a.dialect in ("sis_ethernet", "ethernet"):
+            body.append(MIXIN_SERIAL.rstrip("\n"))
+            a.residuals.add("serial-over-ethernet-mixin-generalised",
+                             "secondary SerialClass/SerialOverEthernetClass (this model also "
+                             "declares a SerialProtocolAsset) emitted alongside the primary "
+                             "%s wiring class." % a.dialect)
+
     text = "\n".join(header_lines) + "\n\n" + "\n".join(body) + "\n"
+    before, after = _module_definitions_needed(text, a)
+    if before or after:
+        a.residuals.add(
+            "module-level-definition-carried",
+            "carried the source's top-level %s verbatim: the generated module reads them"
+            % ", ".join(sorted(set().union(*(_module_stmt_binds(s) for s in before + after)))))
+        pre = "".join(ast.unparse(s) + "\n\n" for s in before)
+        post = "".join("\n\n" + ast.unparse(s) for s in after)
+        text = ("\n".join(header_lines) + "\n\n" + pre + "\n".join(body) + post + "\n")
     return text
 
 
@@ -1776,18 +2496,294 @@ def find_dangling_self_calls(module_source):
     status accessor, but it can also be called cross-command from another Set body
     to compose that command's payload. Deleting it then leaves a reference that
     raises AttributeError at runtime -- on a control processor, not here. This is
-    a whole-module check rather than a special case, so it catches any rule that
+    a whole-class check rather than a special case, so it catches any rule that
     removes something still in use.
+
+    Scoped to the classes the translator generates - DeviceClass and the
+    transport classes that derive from it - because only those are rewritten.
+    The source's own helper classes, carried verbatim when the module reads
+    them, call callables held in attributes (`self.entry_function(...)`) and
+    methods inherited from outside the module (a urllib handler's
+    `self.http_error_401(...)`); no rewrite rule touched them, so whatever they
+    call, they called in the source too. A module with no DeviceClass is
+    checked whole, as before.
     """
     tree = ast.parse(module_source)
-    defined = {node.name for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)}
+    classes = [n for n in tree.body if isinstance(n, ast.ClassDef)]
+    generated = [c for c in classes if c.name == "DeviceClass" or any(
+        isinstance(b, ast.Name) and b.id == "DeviceClass" for b in c.bases)]
+    scopes = generated or [tree]
+    defined = {node.name for scope in scopes for node in ast.walk(scope)
+               if isinstance(node, ast.FunctionDef)}
     defined |= EXTRONLIB_PROVIDED
     called = set()
-    for node in ast.walk(tree):
+    for node in (n for scope in scopes for n in ast.walk(scope)):
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute) \
                 and isinstance(node.func.value, ast.Name) and node.func.value.id == "self":
             called.add(node.func.attr)
     return sorted(called - defined)
+
+
+# Attributes the extronlib interface constructors set on the instance, from the
+# ControlScript extension's stubs (EthernetClientInterface, SerialInterface).
+INTERFACE_ATTRIBUTES = frozenset([
+    "Hostname", "IPAddress", "IPPort", "Protocol", "ServicePort", "Credentials",
+    "Host", "Port", "Baud", "Data", "Parity", "Stop", "FlowControl", "CharDelay", "Mode",
+])
+
+
+def _generated_classes(tree):
+    classes = [n for n in tree.body if isinstance(n, ast.ClassDef)]
+    return [c for c in classes if c.name == "DeviceClass" or any(
+        isinstance(b, ast.Name) and b.id == "DeviceClass" for b in c.bases)]
+
+
+def _self_attributes_assigned(nodes):
+    """Names assigned as self.<name> (any store, setattr with a literal) or
+    bound in a class body, anywhere under the given nodes."""
+    out = set()
+    for root in nodes:
+        if isinstance(root, ast.ClassDef):
+            for s in root.body:
+                for t in (s.targets if isinstance(s, ast.Assign) else
+                          [s.target] if isinstance(s, (ast.AnnAssign, ast.AugAssign)) else []):
+                    if isinstance(t, ast.Name):
+                        out.add(t.id)
+        for n in ast.walk(root):
+            if isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name) \
+                    and n.value.id == "self" and isinstance(n.ctx, (ast.Store, ast.Del)):
+                out.add(n.attr)
+            elif isinstance(n, ast.Call) and isinstance(n.func, ast.Name) \
+                    and n.func.id == "setattr" and len(n.args) >= 2 \
+                    and isinstance(n.args[1], ast.Constant):
+                out.add(n.args[1].value)
+    return out
+
+
+def find_unassigned_self_attributes(module_source):
+    """Return sorted names read as self.<name> (not called) in the generated
+    classes that nothing assigns there and no base class provides.
+
+    The attribute-read companion of find_dangling_self_calls, found necessary
+    by executing generated modules (ROADMAP R13): DSC's UpdateLogoAvailability
+    read the GC throttle timer self.lastLogoAvailabilityUpdate, whose every
+    write the translation drops; ktek's login read self.deviceUsername, set
+    only in GC's dropped configs[...] parsing. Neither is a call, so the
+    dangling-call check could not see them. Scoped like that check to
+    DeviceClass and the classes derived from it."""
+    tree = ast.parse(module_source)
+    generated = _generated_classes(tree)
+    if not generated:
+        return []
+    assigned = _self_attributes_assigned(generated)
+    methods = {n.name for c in generated for n in ast.walk(c) if isinstance(n, ast.FunctionDef)}
+    call_funcs = {id(n.func) for c in generated for n in ast.walk(c) if isinstance(n, ast.Call)}
+    read = {n.attr for c in generated for n in ast.walk(c)
+            if isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name)
+            and n.value.id == "self" and isinstance(n.ctx, ast.Load) and id(n) not in call_funcs}
+    known = assigned | methods | EXTRONLIB_PROVIDED | INTERFACE_ATTRIBUTES
+    return sorted(a for a in read
+                  if a not in known and not (a.startswith("__") and a.endswith("__")))
+
+
+def _accepts_call(func, call):
+    """Could `func` (a method definition) bind this `self.<name>(...)` call?"""
+    a = func.args
+    static = any(isinstance(d, ast.Name) and d.id == "staticmethod" for d in func.decorator_list)
+    pos = [p.arg for p in a.posonlyargs + a.args]
+    if not static and pos:
+        pos = pos[1:]                                 # self (or cls)
+    n_pos = len(call.args)
+    if n_pos > len(pos) and a.vararg is None:
+        return False
+    keywords = {k.arg for k in call.keywords}
+    first_default = len(pos) - len(a.defaults)
+    for i, name in enumerate(pos):
+        if i < n_pos:
+            if name in keywords:
+                return False                          # given twice
+        elif i < first_default and name not in keywords:
+            return False                              # required, not given
+    kwonly = {p.arg: d for p, d in zip(a.kwonlyargs, a.kw_defaults)}
+    if any(d is None and name not in keywords for name, d in kwonly.items()):
+        return False
+    allowed = set(pos[n_pos:]) | set(kwonly)
+    return a.kwarg is not None or keywords <= allowed
+
+
+def find_call_arity_mismatches(module_source):
+    """Return sorted (method, arguments given) for self.<method>(...) calls in
+    the generated classes that no definition of <method> there can accept.
+
+    Found necessary by executing generated modules (ROADMAP R13): GC's
+    __SetHelper takes a fifth argument, queryDisallowTime, that the fixed
+    four-parameter template did not, so 1,143 calls in 192 of finding 14's
+    314 packages would have raised TypeError - every name resolved, so no
+    other check could see it. Calls with *args or **kwargs are skipped."""
+    tree = ast.parse(module_source)
+    generated = _generated_classes(tree)
+    defs = collections.defaultdict(list)
+    for c in generated:
+        for n in c.body:
+            if isinstance(n, ast.FunctionDef):
+                defs[n.name].append(n)
+    out = set()
+    for c in generated:
+        for n in ast.walk(c):
+            if not (isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+                    and isinstance(n.func.value, ast.Name) and n.func.value.id == "self"):
+                continue
+            if any(isinstance(x, ast.Starred) for x in n.args) \
+                    or any(k.arg is None for k in n.keywords):
+                continue
+            funcs = defs.get(n.func.attr)
+            if funcs:
+                if not any(_accepts_call(f, n) for f in funcs):
+                    out.add((n.func.attr, len(n.args) + len(n.keywords)))
+            elif n.func.attr in EXTRONLIB_CALL_SIGNATURES:
+                lo, hi, keywords = EXTRONLIB_CALL_SIGNATURES[n.func.attr]
+                if not lo <= len(n.args) <= hi or any(k.arg not in keywords for k in n.keywords):
+                    out.add((n.func.attr, len(n.args) + len(n.keywords)))
+    return sorted(out)
+
+
+# The interface methods generated modules call most, as the ControlScript
+# extension's stubs declare them: (min positional, max positional, keywords).
+EXTRONLIB_CALL_SIGNATURES = {
+    "Send": (1, 1, frozenset()),
+    "SendAndWait": (2, 2, frozenset(["deliLen", "deliTag", "deliRex"])),
+}
+
+
+def find_unresolved_globals(module_source):
+    """Return sorted names read as bare globals that nothing in the module binds.
+
+    The companion of find_dangling_self_calls for module scope: a name the
+    module neither defines, imports, assigns nor gets from builtins raises
+    NameError when the line runs. Scope-insensitive on purpose - a name bound
+    anywhere counts as bound - so this under-reports rather than over-reports.
+    """
+    import builtins
+    tree = ast.parse(module_source)
+    bound = set(dir(builtins))
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            bound.add(node.name)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+            args = node.args
+            for arg in args.posonlyargs + args.args + args.kwonlyargs:
+                bound.add(arg.arg)
+            for arg in (args.vararg, args.kwarg):
+                if arg is not None:
+                    bound.add(arg.arg)
+        elif isinstance(node, ast.Import):
+            bound.update((al.asname or al.name).split(".")[0] for al in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            bound.update(al.asname or al.name for al in node.names)
+        elif isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del)):
+            bound.add(node.id)
+        elif isinstance(node, ast.ExceptHandler) and node.name:
+            bound.add(node.name)
+    read = {node.id for node in ast.walk(tree)
+            if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load)}
+    return sorted(read - bound)
+
+
+def _names_bound_by(stmt):
+    """Names a module-level statement binds: its def/class name, the Name
+    targets of an assignment (tuples unpacked), a for loop's target, anything
+    an import inside it binds. Walks the whole statement, so for an if/try block
+    it is every name bound in any branch."""
+    out = set()
+    for node in ast.walk(stmt):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            out.add(node.name)
+        elif isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):
+            out.add(node.id)
+        elif isinstance(node, ast.Import):
+            out.update((al.asname or al.name).split(".")[0] for al in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            out.update(al.asname or al.name for al in node.names)
+    return out
+
+
+def _module_stmt_binds(stmt):
+    """What a carried top-level statement provides, for the demand closure: a
+    def/class its name, an assignment its Name targets, and any statement the
+    names whose items or attributes it stores into (`EXP_TABLE[i] = ...` in a
+    top-level for loop provides EXP_TABLE's contents). A for loop's own target
+    is deliberately not included: a method-local `i` must never pull in a
+    module-level `for i in ...`."""
+    if isinstance(stmt, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+        return {stmt.name}
+    out = set()
+    if isinstance(stmt, (ast.Assign, ast.AnnAssign, ast.AugAssign)):
+        targets = stmt.targets if isinstance(stmt, ast.Assign) else [stmt.target]
+        for t in targets:
+            for n in ast.walk(t):
+                if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Store):
+                    out.add(n.id)
+    for n in ast.walk(stmt):
+        if isinstance(n, (ast.Subscript, ast.Attribute)) and isinstance(n.ctx, ast.Store):
+            base = n.value
+            while isinstance(base, (ast.Subscript, ast.Attribute)):
+                base = base.value
+            if isinstance(base, ast.Name):
+                out.add(base.id)
+    return out
+
+
+def _module_definitions_needed(text, a):
+    """The source's top-level statements the generated module reads, closed
+    over what they read in turn, as (before, after) lists in source order -
+    before and after the driver class, where the source put them.
+
+    Demand-driven on purpose: nearly every script defines `class
+    ExtronTime(float)` after its driver class, for GC's dual-status machinery
+    that the translation drops, and carrying it everywhere would be noise. A
+    statement that would rebind a name the generated module already defines at
+    top level (DeviceClass, a transport class) is refused, with a residual."""
+    tree = ast.parse(text)
+    defined = {n.name for n in tree.body if isinstance(n, ast.ClassDef)}
+    wanted = set(find_unresolved_globals(text))
+    carried = set()
+    todo = list(wanted)
+    seen = set()
+    while todo:
+        name = todo.pop()
+        if name in seen:
+            continue
+        seen.add(name)
+        for i, (_, stmt) in enumerate(a.module_stmts):
+            if i in carried or name not in _module_stmt_binds(stmt):
+                continue
+            clash = _names_bound_by(stmt) & defined
+            if clash:
+                a.residuals.add(
+                    "module-level-definition-not-carried",
+                    "the source's top-level %s would rebind %s, which the generated module "
+                    "already defines; not carried" % (type(stmt).__name__, sorted(clash)))
+                continue
+            carried.add(i)
+            todo.extend(find_unresolved_globals(ast.unparse(stmt)))
+    before = [s for i, (after, s) in enumerate(a.module_stmts) if i in carried and not after]
+    after = [s for i, (after, s) in enumerate(a.module_stmts) if i in carried and after]
+    return before, after
+
+
+def _unresolved_origin(name, a, source_unresolved):
+    """Why a name the generated module reads is unbound - for the residual."""
+    if name in source_unresolved:
+        return ("it is unbound in the embedded script too: a defect in the package "
+                "itself, carried faithfully")
+    if name in a.gc_import_names:
+        return ("the source binds it only by the GC runtime import `%s`, which does not "
+                "exist under ControlScript; no rule maps its call sites"
+                % a.gc_import_names[name])
+    if name in a.conditional_names:
+        return ("the source binds it only inside a top-level if/try block (a platform "
+                "gate), which is not carried")
+    return "the source binds it in a scope the translation dropped"
 
 
 def translate_job(job):
@@ -1807,6 +2803,39 @@ def translate_job(job):
                       "generated module calls self.%s(...) but never defines it; a rewrite rule "
                       "removed a method that is still referenced. Calling it would raise "
                       "AttributeError at runtime." % name)
+    for name, given in find_call_arity_mismatches(text):
+        residuals.add("call-arity-mismatch",
+                      "generated module calls self.%s(...) with %d argument(s), which no "
+                      "definition of it accepts; the call would raise TypeError at runtime."
+                      % (name, given))
+    unassigned = find_unassigned_self_attributes(text)
+    if unassigned:
+        try:
+            src_tree = ast.parse(job.source)
+            src_cls, _ = _find_driver_class(src_tree)
+            source_assigns = _self_attributes_assigned([src_cls])
+        except (SyntaxError, ValueError):
+            source_assigns = set()
+        for name in unassigned:
+            why = ("the source assigns it in code the translation dropped"
+                   if name in source_assigns else
+                   "the source never assigns it either (GC's runtime may; ControlScript's does not)")
+            residuals.add("unassigned-self-attribute",
+                          "generated module reads self.%s, which nothing in the generated "
+                          "classes assigns; the line that reads it would raise AttributeError "
+                          "at runtime. Why: %s." % (name, why))
+    unresolved = find_unresolved_globals(text)
+    source_unresolved = set()
+    if unresolved:
+        try:
+            source_unresolved = set(find_unresolved_globals(job.source))
+        except SyntaxError:
+            pass
+    for name in unresolved:
+        residuals.add("unresolved-global-name",
+                      "generated module reads %s as a global that nothing binds; the line "
+                      "that reads it would raise NameError at runtime. Why: %s."
+                      % (name, _unresolved_origin(name, a, source_unresolved)))
     return {
         "script_file_name": job.script_file_name,
         "dialect": a.dialect,

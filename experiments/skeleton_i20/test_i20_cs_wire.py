@@ -163,8 +163,8 @@ def test_same_bytes_as_the_pkp_driver():
         # (command, args)                                  both drivers get these
         ("TrackingFraming",      ("Start", None)),
         ("TrackingFraming",      ("Stop", None)),
-        ("GroupTracking",        ("Enable", None)),
-        ("PresenterTracking",    ("Enable", None)),
+        ("TrackingMode",         ("Group", None)),
+        ("TrackingMode",         ("Presenter", None)),
         ("Menu",                 ("Toggle", None)),
         ("Reboot",               ("Reboot", None)),
         ("Identify",             ("Identify", None)),
@@ -182,6 +182,23 @@ def test_same_bytes_as_the_pkp_driver():
         ("Zoom",                 ("Tele", {"Speed": 5})),
         ("Power",                ("On", None)),
         ("Preset",               (3, {"Action": "Recall"})),
+        # v1.6 parity commands
+        ("ExposureCompensationMode", ("On", None)),
+        ("ExposureCompensationMode", ("Off", None)),
+        ("ExposureCompensation", (0, None)),
+        ("ExposureCompensation", (14, None)),
+        ("FocusPosition",        (12224, None)),
+        ("FocusPosition",        (20664, None)),
+        ("OnePushAutoFocus",     ("Trigger", None)),
+        ("AutoFocusBehavior",    ("Global", None)),
+        ("AutoFocusBehavior",    ("Center", None)),
+        ("AutoFocusBehavior",    ("Face", None)),
+        ("AutoFocusSensitivity", (1, None)),
+        ("AutoFocusSensitivity", (3, None)),
+        ("AutoPrivacyMode",      ("On", None)),
+        ("AutoPrivacyMode",      ("Off", None)),
+        ("AutoSoftwareUpdate",   ("On", None)),
+        ("AutoSoftwareUpdate",   ("Off", None)),
     ]
     for command, args in cases:
         a = drive(pkp, "_cmd_Set%s" % command, *args)
@@ -238,7 +255,22 @@ def test_inquiries_match():
                           ("PanAngleStatus", {}),
                           ("TiltAngleStatus", {}),
                           ("FreezeFrame", None),
-                          ("CameraOutput", None)):
+                          ("CameraOutput", None),
+                          # v1.6
+                          ("TrackingMode", None),
+                          ("TrackingProfile", None),
+                          ("IntelligentSwitching", None),
+                          ("ExposureCompensationMode", None),
+                          ("ExposureCompensation", None),
+                          ("FocusPosition", None),
+                          ("AutoFocusBehavior", None),
+                          ("AutoFocusSensitivity", None),
+                          ("AutoPrivacyMode", None),
+                          ("AutoSoftwareUpdate", None),
+                          ("DeviceModel", None),
+                          ("RomVersion", None),
+                          ("PanSpeedMaxStatus", None),
+                          ("TiltSpeedMaxStatus", None)):
         pkp.sent = []
         getattr(pkp, "_cmd_Update%s" % command)(None, qual)
         cs.sent = []
@@ -345,14 +377,85 @@ def test_undocumented_reply_is_an_error():
                                      d2.ReadStatus("TrackingFraming")))
 
 
+def test_position_and_output_feedback():
+    print("\n[10] position and camera-output replies read back as sent")
+    # Pan/tilt are read the way SetPanTiltAngle writes them (pan & 0xFFFF), so a
+    # negative angle must come back negative, not as 63088.
+    for reply, pan, tilt in ((b"\x90\x50\x0F\x06\x07\x00\x0F\x0A\x0F\x00\xFF", -2448, -1296),
+                             (b"\x90\x50\x00\x09\x09\x00\x00\x05\x01\x00\xFF", 2448, 1296)):
+        d = make(unidirectional="False")
+        d._canned = reply
+        d.Update("PanAngleStatus")
+        d.Update("TiltAngleStatus")
+        got = (d.ReadStatus("PanAngleStatus"), d.ReadStatus("TiltAngleStatus"))
+        check("%s -> pan %d, tilt %d" % (hexs(reply), pan, tilt), got == (pan, tilt),
+              "got %r" % (got,))
+
+    # Get Output, VISCA-Intelligent-Switching-Commands.md: y0 50 0S 0Z FF,
+    # S = switching on/off, Z = camera.
+    for reply, camera in ((b"\x90\x50\x01\x03\xFF", 3), (b"\x90\x50\x00\x05\xFF", 5)):
+        d = make(unidirectional="False")
+        d._canned = reply
+        d.Update("CameraOutput")
+        got = d.ReadStatus("CameraOutput")
+        check("%s -> camera %d, not the switching flag" % (hexs(reply), camera),
+              got == camera, "got %r" % (got,))
+
+
+def test_v16_statuses_match():
+    print("\n[11] v1.6 statuses read back the same in both emitters")
+    # One reply per case, fed to both drivers; every status the reply carries
+    # must come out equal and set. The .pkp side is test_i20_wire.py [15]'s
+    # subject, so agreement here is agreement with Crestron's reply rules.
+    builder = pb.PackageBuilder(build_i20.DONOR)
+    slot = builder.scripts()[0]
+    pkp_cls = pkp_tests.load_driver_class(build_i20.derive(slot.source),
+                                          os.path.splitext(slot.key)[0])
+    cases = [
+        ("TrackingMode", b"\x90\x50\x00\x01\xFF", ["TrackingMode"]),
+        ("TrackingProfile", b"\x90\x50\x06\x0B\xFF", ["TrackingProfile"]),
+        ("ExposureCompensationMode", b"\x90\x50\x02\xFF", ["ExposureCompensationMode"]),
+        ("ExposureCompensation", b"\x90\x50\x00\x00\x00\x0B\xFF", ["ExposureCompensation"]),
+        ("FocusPosition", b"\x90\x50\x04\x01\x02\x03\xFF", ["FocusPosition"]),
+        ("AutoFocusBehavior", b"\x90\x50\x00\x01\xFF", ["AutoFocusBehavior"]),
+        ("AutoFocusSensitivity", b"\x90\x50\x00\x03\xFF", ["AutoFocusSensitivity"]),
+        ("AutoPrivacyMode", b"\x90\x50\x00\x00\xFF", ["AutoPrivacyMode"]),
+        ("AutoSoftwareUpdate", b"\x90\x50\x00\x01\xFF", ["AutoSoftwareUpdate"]),
+        ("IntelligentSwitching", b"\x90\x50\x01\x04\xFF",
+         ["IntelligentSwitching", "CameraOutput"]),
+        ("DeviceModel", b"\x90\x50\x00\x01\x05\x06\xAB\xCD\x01\xFF",
+         ["DeviceModel", "RomVersion"]),
+        ("PanSpeedMaxStatus", b"\x90\x50\x18\x14\xFF",
+         ["PanSpeedMaxStatus", "TiltSpeedMaxStatus"]),
+    ]
+    for command, reply, statuses in cases:
+        cfg = dict(pkp_tests.CONFIGS)
+        cfg["Unidirectional"] = "False"
+        pkp = pkp_cls(cfg)
+        pkp.WritePower("On", None, "Live")
+        pkp._canned = reply
+        getattr(pkp, "_cmd_Update%s" % command)(None, None)
+        a = [pkp.ReadStatusHelper(s, None, "Live") for s in statuses]
+
+        cs = make(unidirectional="False")
+        cs._canned = reply
+        cs.Update(command)
+        b = [cs.ReadStatus(s) for s in statuses]
+        check("%-22s %s -> %s" % (command, hexs(reply), b),
+              a == b and None not in b, "pkp=%r  cs=%r" % (a, b))
+
+
 def test_python35_compatible():
     print("\n[8] the module targets Python 3.5 (non-xi processors)")
     check("no f-strings", not re.search(r"""\bf['"]""", SOURCE))
     check("no walrus operator", ":=" not in SOURCE)
     check("compiles", _compiles(SOURCE))
-    check("imports only extronlib, re and struct",
+    # time is [PATCH C6], for the rate-limited pan/tilt query. The .pkp driver
+    # already imports it; this list is the standard library a processor has, so
+    # the point of the check is that nothing NEW is needed to run the module.
+    check("imports only extronlib, re, struct and time",
           set(re.findall(r"^(?:from|import) +([A-Za-z_][\w.]*)", SOURCE, re.M))
-          <= {"extronlib.interface", "re", "struct"},
+          <= {"extronlib.interface", "re", "struct", "time"},
           repr(set(re.findall(r"^(?:from|import) +([A-Za-z_][\w.]*)",
                               SOURCE, re.M))))
 
@@ -386,6 +489,8 @@ def main():
                test_public_dispatch,
                test_subscribe_status,
                test_undocumented_reply_is_an_error,
+               test_position_and_output_feedback,
+               test_v16_statuses_match,
                test_python35_compatible,
                test_emitted_file_is_current):
         fn()

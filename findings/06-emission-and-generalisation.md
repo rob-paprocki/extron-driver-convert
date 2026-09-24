@@ -44,6 +44,14 @@ only a differently-architected equivalent.
 *(Verifier marked UNCERTAIN whether this particular driver is bound by the VS2008
 requirement or falls on the residential/4-Series VS2019 path.)*
 
+*(2026-09-23, `notes/desk-research-2026-09.md` §2: the "mandate" above is
+narrower than written. Crestron's VS2008 requirement is for **SIMPL# Pro
+programs** (Compact Framework 3.5, support answer 1145). The Certified Drivers
+SDK's own Create-a-Project pages, V1 and V2, accept Visual Studio 2019, 2022 or
+2008 with a desktop .NET Framework class library. Which toolchain built *this*
+CF-bound DLL is still open. The claim that the modern path builds RAD-Framework
+drivers rather than LegacyWrappers ones was not re-checked.)*
+
 **Recommendation: strategy A.** The format is nearly trivial and the patch is
 proven. Strategy B is a toolchain archaeology project.
 

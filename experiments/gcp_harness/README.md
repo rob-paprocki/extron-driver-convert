@@ -11,7 +11,7 @@ without a third-party bridge (pythonnet) — and the repo's no-dependency rule
 excludes that. So the harness is PowerShell, and machine-bound, like the GC
 experiments it supports.
 
-## Requirements (measured on the 2026-09 Windows box)
+## Requirements (see `ENVIRONMENT.md` for the current list)
 
 | | |
 |---|---|
@@ -32,7 +32,13 @@ $ps32 = 'C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe'
 & $ps32 -ExecutionPolicy Bypass -File .\Load-Package.ps1 -Path PKG.pkp              # will GC load it?
 & $ps32 -ExecutionPolicy Bypass -File .\Load-Package.ps1 -Path PKG.pkp -Deserialize # if not, why?
 & $ps32 -ExecutionPolicy Bypass -File .\Load-Package.ps1 -Path PKG.pkp -Commands    # what does GC see inside?
+& $ps32 -ExecutionPolicy Bypass -File .\Load-Package.ps1 -Path PKG.pkp -Protocol    # port, compatibility, per model
 ```
+
+`-Protocol` (2026-09-23) prints each model's protocol assets as Extron's object
+model reads them, plus the names of `ProtocolCompatibilityFlags` and
+`EthernetTypeEnum` — which is how `_compatibility` got its real names
+(`experiments/protocol_assets/SURVEY.md`).
 
 Verified 2026-09-11 against the finding 18 probes: `q_POS.pkp` loads and
 deserializes; `q_MIX.pkp` returns `NULL` from `LoadFromFile` and
@@ -46,6 +52,13 @@ and an `AssemblyResolve` handler that maps the assembly versions named inside a
 
 Pair it with `tools/gc_catalogue.py`, which answers *did GC catalogue it?* from
 `DriverLookup.dat` — portable Python, no Windows needed.
+
+**`test_load_package.py` runs it as a test** (ROADMAP R30): every sample
+package as a control, then every package in `experiments/skeleton_i20/out/`,
+each of which must load, deserialize and carry exactly the commands
+`tools/pkp_asset.py` reads from its graph. It skips cleanly anywhere the 32-bit
+PowerShell or the Extron assemblies are missing. 72 checks pass on the 2026-09
+workstation, and pointed at `q_MIX.pkp` it reports the failure above.
 
 ## scratch/ — the UI Automation chain, verbatim
 
@@ -98,10 +111,11 @@ attempts described below.
 
 ## askpass.sh
 
-The workaround for Git Credential Manager hanging on an invisible prompt when
-pushing from this box. Point `GIT_ASKPASS` at it and it answers with
-`gh auth token` — the `rob-paprocki` keyring login — so the token never
-appears in argv or the process table:
+A workaround for Git Credential Manager hanging on an invisible prompt, which
+happens on some machines and not others — if plain `git push` already works, you
+do not need this. Point `GIT_ASKPASS` at it and it answers with `gh auth token`
+for whichever login `gh` is authenticated as, so the token never appears in argv
+or the process table:
 
 ```sh
 GIT_ASKPASS="$PWD/experiments/gcp_harness/askpass.sh" GIT_TERMINAL_PROMPT=0 git push origin main

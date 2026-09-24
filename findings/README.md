@@ -21,6 +21,13 @@ listing three findings that never existed under those names and marking finding
 10-heldout-generalisation.md
 11-spec-as-referee.md
 12-gc-accepts-generated-packages.md
+13-i20-synthesis.md                  a Crestron-device driver for an Extron processor
+14-oracle-pairs-at-scale.md          the translator against third-party pairs
+15-invalid-driver-80085.md           its proposed cause is superseded by 16
+16-the-hash-is-the-gate.md
+17-how-a-human-writes-one.md
+18-adding-a-command.md               the asset tree is the command surface
+19-three-questions.md                crestron2cs, missing_ethernet, docs_only
 ```
 
 Rule for this repo: a claim without evidence is written as a question, not a

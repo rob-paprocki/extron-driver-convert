@@ -38,6 +38,7 @@ import argparse
 import collections
 import json
 import os
+import re
 import sys
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -86,6 +87,19 @@ def main():
         rec["residuals"] = len(residuals)
         rec["residual_reasons"] = dict(collections.Counter(
             r["reason"] for r in residuals if isinstance(r, dict) and "reason" in r))
+        # The names behind the three runtime-failure residuals, so the trap
+        # below can be broken down without translating everything again.
+        raising = collections.defaultdict(set)
+        for r in residuals:
+            if r.get("reason") in ("dangling-self-call", "unassigned-self-attribute",
+                                   "call-arity-mismatch"):
+                m = re.search(r"self\.(\w+)", r["detail"])
+                if m:
+                    raising[r["reason"]].add(m.group(1))
+            elif r.get("reason") == "unresolved-global-name":
+                raising[r["reason"]].add(r["detail"].split()[3])
+        if raising:
+            rec["raising_names"] = {k: sorted(v) for k, v in sorted(raising.items())}
 
         try:
             shipped = open(os.path.join(gs, module), encoding="utf-8",
@@ -146,20 +160,33 @@ def report(rows):
 
     # The point of collecting both: a perfect table does not mean a working
     # module. Cross-reference them rather than reporting them side by side.
-    dangling = {r["pkp"] for r in rows
-                if "dangling-self-call" in (r.get("residual_reasons") or {})}
-    if dangling:
+    def reasons_of(r):
+        return r.get("residual_reasons") or {}
+    dangling = {r["pkp"] for r in rows if "dangling-self-call" in reasons_of(r)}
+    unassigned = {r["pkp"] for r in rows if "unassigned-self-attribute" in reasons_of(r)}
+    unbound = {r["pkp"] for r in rows if "unresolved-global-name" in reasons_of(r)}
+    arity = {r["pkp"] for r in rows if "call-arity-mismatch" in reasons_of(r)}
+    raising = dangling | unassigned | unbound | arity
+    if raising:
         def rate(rs):
             sh = sum(r["shared"] for r in rs)
             df = sum(r["differing"] for r in rs)
             return 100.0 * (sh - df) / max(sh, 1), len(rs)
-        with_d = [r for r in compared if r["pkp"] in dangling]
-        without = [r for r in compared if r["pkp"] not in dangling]
+        with_d = [r for r in compared if r["pkp"] in raising]
+        without = [r for r in compared if r["pkp"] not in raising]
         print("\n-- the trap --")
-        print("  packages that would raise AttributeError at runtime: %d (%.0f%%)"
+        print("  would raise AttributeError, a missing method:     %d (%.0f%%)"
               % (len(dangling), 100.0 * len(dangling) / len(rows)))
-        print("  wire-match WITHOUT dangling calls: %.1f%% (n=%d)" % rate(without))
-        print("  wire-match WITH    dangling calls: %.1f%% (n=%d)" % rate(with_d))
+        print("  would raise AttributeError, an unassigned attribute: %d (%.0f%%)"
+              % (len(unassigned), 100.0 * len(unassigned) / len(rows)))
+        print("  would raise NameError:                            %d (%.0f%%)"
+              % (len(unbound), 100.0 * len(unbound) / len(rows)))
+        print("  would raise TypeError, a wrong argument count:    %d (%.0f%%)"
+              % (len(arity), 100.0 * len(arity) / len(rows)))
+        print("  any of the four:                                  %d (%.0f%%)"
+              % (len(raising), 100.0 * len(raising) / len(rows)))
+        print("  wire-match WITHOUT any: %.1f%% (n=%d)" % rate(without))
+        print("  wire-match WITH    any: %.1f%% (n=%d)" % rate(with_d))
         broken_perfect = [r for r in with_d
                           if r["differing"] == 0 and r["only_shipped"] == 0]
         print("  PERFECT wire table but still raises: %d packages" % len(broken_perfect))

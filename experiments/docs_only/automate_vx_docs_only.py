@@ -196,7 +196,7 @@ class DeviceClass:
 
     def UpdateOutput(self, value, qualifier):
 
-        # status poll -> POST /api/OutputStatus (ENDPOINTS.md (example-only)) -- EXAMPLE-ONLY: OutputStatus has no dedicated doc page, only ENDPOINTS.md's GetAllStatus-sourced sub-API list
+        # status poll -> POST /api/OutputStatus (OutputStatus-API.md) -- OutputStatus-API.md (R32 re-harvest, 2026-09-23; originally missed by the harvest -- see findings/08's correction header)
         ValueStateValues = {
             True: 'On',
             False: 'Off'
@@ -219,7 +219,7 @@ class DeviceClass:
 
     def UpdateRecord(self, value, qualifier):
 
-        # status poll -> POST /api/RecordStatus (ENDPOINTS.md (example-only)) -- EXAMPLE-ONLY: RecordStatus has no dedicated doc page, only ENDPOINTS.md's GetAllStatus-sourced sub-API list
+        # status poll -> POST /api/RecordStatus (RecordStatus-API.md) -- RecordStatus-API.md (R32 re-harvest, 2026-09-23; originally missed by the harvest -- see findings/08's correction header)
         ValueStateValues = {
             True: 'On',
             False: 'Off'
@@ -298,105 +298,173 @@ class DeviceClass:
         # CameraStatus -> POST /api/CameraStatus (CameraStatus-API.md)
         res = self.__UpdateHelper('CameraStatus', value, qualifier, url='api/CameraStatus')
         if res:
-            self.WriteStatus('CameraStatus', res, qualifier)
+            try:
+                self.WriteStatus('CameraStatus', res['address'], qualifier)
+            except KeyError:
+                self.Error(['CameraStatus: Invalid/unexpected response'])
 
     def UpdateGetActiveTalkers(self, value, qualifier):
 
         # GetActiveTalkers -> POST /api/GetActiveTalkers (GetActiveTalkers-API.md)
         res = self.__UpdateHelper('GetActiveTalkers', value, qualifier, url='api/GetActiveTalkers')
         if res:
-            self.WriteStatus('GetActiveTalkers', res, qualifier)
+            try:
+                value = {
+                    'talkers': res['talkers'],
+                    'defaultShot': res['defaultShot'],
+                }
+                self.WriteStatus('GetActiveTalkers', value, qualifier)
+            except KeyError:
+                self.Error(['GetActiveTalkers: Invalid/unexpected response'])
 
     def UpdateGetAllStatus(self, value, qualifier):
 
         # GetAllStatus -> POST /api/GetAllStatus (GetAllStatus-API.md)
+        # NOTE on that page: each api_call_N's response_body 'is of type string
+        # and must be deserialized by the client' -- decode each one below rather
+        # than handing the caller a dict of undecoded JSON strings.
         res = self.__UpdateHelper('GetAllStatus', value, qualifier, url='api/GetAllStatus')
         if res:
-            self.WriteStatus('GetAllStatus', res, qualifier)
+            decoded = {}
+            for key, call in res.items():
+                if not key.startswith('api_call_'):
+                    continue
+                try:
+                    decoded[call['request_api']] = json.loads(call['response_body'])
+                except (KeyError, TypeError, ValueError):
+                    self.Error(['GetAllStatus: could not decode response_body for', key])
+            self.WriteStatus('GetAllStatus', decoded, qualifier)
 
     def UpdateGetCameras(self, value, qualifier):
 
         # GetCameras -> POST /api/GetCameras (GetCameras-API.md)
         res = self.__UpdateHelper('GetCameras', value, qualifier, url='api/GetCameras')
         if res:
-            self.WriteStatus('GetCameras', res, qualifier)
+            try:
+                self.WriteStatus('GetCameras', res['cameras'], qualifier)
+            except KeyError:
+                self.Error(['GetCameras: Invalid/unexpected response'])
 
     def UpdateGetScenarios(self, value, qualifier):
 
         # GetScenarios -> POST /api/GetScenarios (GetScenarios-API.md)
         res = self.__UpdateHelper('GetScenarios', value, qualifier, url='api/GetScenarios')
         if res:
-            self.WriteStatus('GetScenarios', res, qualifier)
+            try:
+                self.WriteStatus('GetScenarios', res['scenarios'], qualifier)
+            except KeyError:
+                self.Error(['GetScenarios: Invalid/unexpected response'])
 
     def UpdateRecordingSpaceAvail(self, value, qualifier):
 
         # RecordingSpaceAvail -> POST /api/RecordingSpaceAvail (RecordingSpaceAvail-API.md)
         res = self.__UpdateHelper('RecordingSpaceAvail', value, qualifier, url='api/RecordingSpaceAvail')
         if res:
-            self.WriteStatus('RecordingSpaceAvail', res, qualifier)
+            try:
+                value = {
+                    'available_gigabytes': res['available_gigabytes'],
+                    'total_gigabytes': res['total_gigabytes'],
+                }
+                self.WriteStatus('RecordingSpaceAvail', value, qualifier)
+            except KeyError:
+                self.Error(['RecordingSpaceAvail: Invalid/unexpected response'])
 
     def UpdateScenarioStatus(self, value, qualifier):
 
         # ScenarioStatus -> POST /api/ScenarioStatus (ScenarioStatus-API.md)
         res = self.__UpdateHelper('ScenarioStatus', value, qualifier, url='api/ScenarioStatus')
         if res:
-            self.WriteStatus('ScenarioStatus', res, qualifier)
+            try:
+                self.WriteStatus('ScenarioStatus', res['scenario'], qualifier)
+            except KeyError:
+                self.Error(['ScenarioStatus: Invalid/unexpected response'])
 
     def UpdateShotStatus(self, value, qualifier):
 
         # ShotStatus -> POST /api/ShotStatus (ShotStatus-API.md)
         res = self.__UpdateHelper('ShotStatus', value, qualifier, url='api/ShotStatus')
         if res:
-            self.WriteStatus('ShotStatus', res, qualifier)
+            try:
+                value = {
+                    'shotname': res['shotname'],
+                    'layout': res['layout'],
+                    'storedLayout': res['storedLayout'],
+                    'cam1': res['cam1'],
+                    'cam2': res['cam2'],
+                }
+                self.WriteStatus('ShotStatus', value, qualifier)
+            except KeyError:
+                self.Error(['ShotStatus: Invalid/unexpected response'])
 
     def UpdateAutoSwitchStatus(self, value, qualifier):
 
-        # AutoSwitchStatus -> POST /api/AutoSwitchStatus (ENDPOINTS.md (example-only)) -- EXAMPLE-ONLY: documented solely inside ENDPOINTS.md's GetAllStatus-sourced sub-API list, no dedicated page or param/response contract of its own
+        # AutoSwitchStatus -> POST /api/AutoSwitchStatus (AutoSwitchStatus-API.md) -- AutoSwitchStatus-API.md: {"status","results":bool,"message"}
         res = self.__UpdateHelper('AutoSwitchStatus', value, qualifier, url='api/AutoSwitchStatus')
         if res:
-            self.WriteStatus('AutoSwitchStatus', res, qualifier)
+            try:
+                self.WriteStatus('AutoSwitchStatus', res['results'], qualifier)
+            except KeyError:
+                self.Error(['AutoSwitchStatus: Invalid/unexpected response'])
 
     def UpdateISORecordStatus(self, value, qualifier):
 
-        # ISORecordStatus -> POST /api/ISORecordStatus (ENDPOINTS.md (example-only)) -- EXAMPLE-ONLY: documented solely inside ENDPOINTS.md's GetAllStatus-sourced sub-API list, no dedicated page or param/response contract of its own
+        # ISORecordStatus -> POST /api/ISORecordStatus (ENDPOINTS.md (example-only)) -- EXAMPLE-ONLY: no dedicated page; GetAllStatus-API.md's api_call_3 example shows {"status","results":bool,"message"} for this sub-API
         res = self.__UpdateHelper('ISORecordStatus', value, qualifier, url='api/ISORecordStatus')
         if res:
-            self.WriteStatus('ISORecordStatus', res, qualifier)
+            try:
+                self.WriteStatus('ISORecordStatus', res['results'], qualifier)
+            except KeyError:
+                self.Error(['ISORecordStatus: Invalid/unexpected response'])
 
     def UpdateCopyStatus(self, value, qualifier):
 
-        # CopyStatus -> POST /api/CopyStatus (ENDPOINTS.md (example-only)) -- EXAMPLE-ONLY: documented solely inside ENDPOINTS.md's GetAllStatus-sourced sub-API list, no dedicated page or param/response contract of its own
+        # CopyStatus -> POST /api/CopyStatus (ENDPOINTS.md (example-only)) -- EXAMPLE-ONLY: no dedicated page; GetAllStatus-API.md's api_call_6 example shows {"status","message","copy_underway":bool} for this sub-API
         res = self.__UpdateHelper('CopyStatus', value, qualifier, url='api/CopyStatus')
         if res:
-            self.WriteStatus('CopyStatus', res, qualifier)
+            try:
+                self.WriteStatus('CopyStatus', res['copy_underway'], qualifier)
+            except KeyError:
+                self.Error(['CopyStatus: Invalid/unexpected response'])
 
     def UpdateGetLayouts(self, value, qualifier):
 
-        # GetLayouts -> POST /api/GetLayouts (ENDPOINTS.md (example-only)) -- EXAMPLE-ONLY: documented solely inside ENDPOINTS.md's GetAllStatus-sourced sub-API list, no dedicated page or param/response contract of its own
+        # GetLayouts -> POST /api/GetLayouts (GetLayouts-API.md) -- GetLayouts-API.md: {"status","message","layouts":[{"id","name"},...]}
         res = self.__UpdateHelper('GetLayouts', value, qualifier, url='api/GetLayouts')
         if res:
-            self.WriteStatus('GetLayouts', res, qualifier)
+            try:
+                self.WriteStatus('GetLayouts', res['layouts'], qualifier)
+            except KeyError:
+                self.Error(['GetLayouts: Invalid/unexpected response'])
 
     def UpdateLayoutStatus(self, value, qualifier):
 
-        # LayoutStatus -> POST /api/LayoutStatus (ENDPOINTS.md (example-only)) -- EXAMPLE-ONLY: documented solely inside ENDPOINTS.md's GetAllStatus-sourced sub-API list, no dedicated page or param/response contract of its own
+        # LayoutStatus -> POST /api/LayoutStatus (LayoutStatus-API.md) -- LayoutStatus-API.md: {"status","message","layout":[{"id","name"}]}
         res = self.__UpdateHelper('LayoutStatus', value, qualifier, url='api/LayoutStatus')
         if res:
-            self.WriteStatus('LayoutStatus', res, qualifier)
+            try:
+                self.WriteStatus('LayoutStatus', res['layout'], qualifier)
+            except KeyError:
+                self.Error(['LayoutStatus: Invalid/unexpected response'])
 
     def UpdateGetRoomConfigs(self, value, qualifier):
 
-        # GetRoomConfigs -> POST /api/GetRoomConfigs (ENDPOINTS.md (example-only)) -- EXAMPLE-ONLY: documented solely inside ENDPOINTS.md's GetAllStatus-sourced sub-API list, no dedicated page or param/response contract of its own
+        # GetRoomConfigs -> POST /api/GetRoomConfigs (GetRoomConfigs-API.md) -- GetRoomConfigs-API.md: {"status","message","roomConfigs":[{"id","name"},...]}
         res = self.__UpdateHelper('GetRoomConfigs', value, qualifier, url='api/GetRoomConfigs')
         if res:
-            self.WriteStatus('GetRoomConfigs', res, qualifier)
+            try:
+                self.WriteStatus('GetRoomConfigs', res['roomConfigs'], qualifier)
+            except KeyError:
+                self.Error(['GetRoomConfigs: Invalid/unexpected response'])
 
     def UpdateRoomConfigStatus(self, value, qualifier):
 
-        # RoomConfigStatus -> POST /api/RoomConfigStatus (ENDPOINTS.md (example-only)) -- EXAMPLE-ONLY: documented solely inside ENDPOINTS.md's GetAllStatus-sourced sub-API list, no dedicated page or param/response contract of its own
+        # RoomConfigStatus -> POST /api/RoomConfigStatus (RoomConfigStatus-API.md) -- RoomConfigStatus-API.md: {"status","message","roomConfigs":[{"id","name"}]} -- NOTE this page's own field is plural 'roomConfigs' (a list), while GetAllStatus-API.md's api_call_12 example for the same sub-API shows a singular 'roomConfig' object instead; trusting this endpoint's own dedicated page per the same policy as the module docstring's type-precedence note
         res = self.__UpdateHelper('RoomConfigStatus', value, qualifier, url='api/RoomConfigStatus')
         if res:
-            self.WriteStatus('RoomConfigStatus', res, qualifier)
+            try:
+                self.WriteStatus('RoomConfigStatus', res['roomConfigs'], qualifier)
+            except KeyError:
+                self.Error(['RoomConfigStatus: Invalid/unexpected response'])
 
     def __CheckResponseForErrors(self, sourceCmdName, response):
 

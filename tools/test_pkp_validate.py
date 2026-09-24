@@ -61,6 +61,30 @@ def all_packages():
     return sorted(out)
 
 
+EXTVAL_MUTANTS = os.path.join(_ROOT, "experiments", "validator_differential",
+                              "extval", "mutants")
+
+# The 8 files Extron's own LoadFromFile refuses before Validate ever runs -
+# status "loadnull", no code - in oracle_mut.tsv / oracle_case.tsv (finding 16
+# section 5b, R38). Two different reasons, both modeled separately below.
+LOADNULL_EXTENSION = [
+    "case_bare_noDOT_xxxeir",   # no extension at all
+    "case_not.eirx",            # extension is .eirx, not .eir
+    "case_weir.weir",           # extension is .weir, not .eir
+]
+LOADNULL_CONTENT = [
+    "empty.pkp",
+    "gzip_garbage.pkp",
+    "notgzip.pkp",
+    "trunc_16.pkp",
+    "trunc_half.pkp",
+]
+
+# Byte-identical-shape siblings that DO load (same trailing "eir", an
+# accepted extension) - these pin the gate to the extension, not the content.
+LOADABLE_EIR_SIBLINGS = ["case_UPPER.EIR", "case_mixed.EiR", "case_clean.eir"]
+
+
 def donor():
     """One mid-sized package to carry the per-branch tests."""
     for p in all_packages():
@@ -98,7 +122,10 @@ def test_enum_mirrors_extron():
           and pv.CODE_NAMES[80085] == "MismatchHash"
           and pv.CODE_NAMES[80086] == "NoHash_NoGuid")
     check("repo-local sentinels are negative, so they cannot collide",
-          pv.UNVERIFIABLE < 0 and pv.UNPARSEABLE < 0)
+          pv.UNVERIFIABLE < 0 and pv.UNPARSEABLE < 0
+          and pv.REFUSED_BEFORE_VALIDATE < 0)
+    check("all three sentinels are distinct",
+          len({pv.UNVERIFIABLE, pv.UNPARSEABLE, pv.REFUSED_BEFORE_VALIDATE}) == 3)
 
 
 def test_every_sample_validates():
@@ -250,6 +277,119 @@ def test_guid_fallback_paths():
           "got %s %s" % (r.name, r.code))
 
 
+def test_load_guid_table():
+    print("\n[9b] load_guid_table() parses the extracted ExtronDH.dat shape")
+    import tempfile
+
+    good_guid = "336EB0EE-5F26-49DC-B374-311BC21C94ED"
+    good_digest = "ab" * 32
+    with tempfile.TemporaryDirectory() as d:
+        p = os.path.join(d, "synthetic.tsv")
+        with open(p, "w", encoding="utf-8") as f:
+            f.write("# guid table entries: 2\n")
+            f.write("\n")  # blank lines are skipped
+            f.write("%s\t%s\n" % (good_guid, good_digest))
+            f.write("# a mid-file comment, also skipped\n")
+            f.write("fe21a427-3347-4871-9f9c-f7153f5c4d34\t%s\n" % ("cd" * 32))
+        table = pv.load_guid_table(p)
+        check("both rows loaded", len(table) == 2, "%d" % len(table))
+        check("guid is lower-cased on the way in",
+              good_guid.lower() in table and good_guid not in table)
+        check("digest decoded to 32 raw bytes",
+              table[good_guid.lower()] == bytes.fromhex(good_digest))
+
+        bad_cases = [
+            ("wrong field count", "only-one-field\n"),
+            ("three fields", "a\tb\tc\n"),
+            ("not hex", "336eb0ee-5f26-49dc-b374-311bc21c94ed\tnothex!!\n"),
+            ("wrong length (16 bytes, not 32)",
+             "336eb0ee-5f26-49dc-b374-311bc21c94ed\t" + "ab" * 16 + "\n"),
+            ("empty guid field", "\t" + "ab" * 32 + "\n"),
+        ]
+        for name, line in bad_cases:
+            bp = os.path.join(d, "bad.tsv")
+            with open(bp, "w", encoding="utf-8") as f:
+                f.write(line)
+            check("rejects: %s" % name,
+                  _raises(ValueError, pv.load_guid_table, bp))
+
+    check("missing file raises (not a silent empty table)",
+          _raises((OSError, IOError), pv.load_guid_table,
+                  os.path.join(_ROOT, "no", "such", "table.tsv")))
+
+    # The real, committed table (finding 16 section 5c / gap 1): 4,775 entries
+    # extracted from experiments/validator_differential/ilres/ExtronDH.dat.
+    real_path = os.path.join(_ROOT, "experiments", "validator_differential",
+                             "guidtable.tsv")
+    if os.path.isfile(real_path):
+        real = pv.load_guid_table(real_path)
+        check("the real ExtronDH.dat-derived table has 4,775 entries",
+              len(real) == 4775, "%d" % len(real))
+        check("every value is a 32-byte digest",
+              all(len(v) == 32 for v in real.values()))
+    else:
+        print("  skip: %s not found" % real_path)
+
+
+def test_guid_dependent_packages_before_and_after():
+    print("\n[9c] the three pre-13.x, Guid-only packages: 80086 without the "
+          "table, Valid with it (finding 16 section 5c, measured against "
+          "Extron's own validator in extval/oracle_plain.tsv / oracle_guid.tsv)")
+    names = ["extr_10_397_v1_0_4.pkp", "extr_1_789_v1_0_2.pkp",
+             "extr_8_89_v1_0_0.pkp"]
+    corpus_dir = os.path.join(_ROOT, "corpus", "extron-driver3")
+    table_path = os.path.join(_ROOT, "experiments", "validator_differential",
+                              "guidtable.tsv")
+    if not (os.path.isdir(corpus_dir) and os.path.isfile(table_path)):
+        print("  skip: corpus/extron-driver3 or guidtable.tsv not present")
+        return
+    table = pv.load_guid_table(table_path)
+    for name in names:
+        p = os.path.join(corpus_dir, name)
+        if not os.path.isfile(p):
+            print("  skip: %s not present" % name)
+            continue
+        without = pv.validate(p)
+        check("%s: 80086 without a Guid table (matches oracle_plain.tsv)"
+              % name, without.code == pv.NO_HASH_NO_GUID,
+              "got %s %s" % (without.name, without.code))
+        with_table = pv.validate(p, guid_hash_table=table)
+        check("%s: Valid with the real Guid table (matches oracle_guid.tsv / "
+              "real_all.txt)" % name, with_table.ok,
+              "got %s %s warnings=%s"
+              % (with_table.name, with_table.code, with_table.warnings))
+
+
+def test_cli_guid_table_flag():
+    print("\n[9d] --guid-table wires the loaded table into every file on the "
+          "command line, and a bad path fails loudly")
+    table_path = os.path.join(_ROOT, "experiments", "validator_differential",
+                              "guidtable.tsv")
+    corpus_dir = os.path.join(_ROOT, "corpus", "extron-driver3")
+    targets = [os.path.join(corpus_dir, n) for n in
+              ("extr_10_397_v1_0_4.pkp", "extr_1_789_v1_0_2.pkp",
+               "extr_8_89_v1_0_0.pkp")]
+    if os.path.isfile(table_path) and all(os.path.isfile(t) for t in targets):
+        check("CLI with --guid-table: all three pass",
+              pv.main(["--guid-table", table_path] + targets) == 0)
+        check("CLI without --guid-table: all three fail (80086)",
+              pv.main(targets) != 0)
+    else:
+        print("  skip: corpus/extron-driver3 or guidtable.tsv not present")
+
+    rc = _cli_exit(["--guid-table", os.path.join(_HERE, "pkp_validate.py"),
+                    donor()])
+    check("CLI rejects an unparseable --guid-table path instead of "
+          "silently validating without it", rc not in (0,))
+
+
+def _cli_exit(argv):
+    try:
+        return pv.main(argv)
+    except SystemExit as e:
+        return e.code if isinstance(e.code, int) else 1
+
+
 def test_unhashable_content_is_not_a_pass():
     print("\n[10] a resource with no embedded bytes is Unverifiable, never Valid")
     objects, root = pv.load_graph(donor())
@@ -326,6 +466,89 @@ def test_bad_input_fails_loudly():
           _raises(pv.PackageError, pv.load_graph, b"garbage" * 100))
 
 
+def test_refused_before_validate():
+    print("\n[12b] LoadFromFile's own refusal, modeled before Validate runs "
+          "(R38, finding 16 section 5b)")
+    if not os.path.isdir(EXTVAL_MUTANTS):
+        print("  skip: %s not present" % EXTVAL_MUTANTS)
+        return
+
+    for name in LOADNULL_EXTENSION:
+        p = os.path.join(EXTVAL_MUTANTS, name)
+        if not os.path.isfile(p):
+            print("  skip: %s not present" % name)
+            continue
+        r = pv.validate(p)
+        check("extension gate refuses: %s" % name,
+              r.code == pv.REFUSED_BEFORE_VALIDATE
+              and r.name == "RefusedBeforeValidate",
+              "got %s %s" % (r.name, r.code))
+        check("  says why: %s" % name, bool(r.warnings) and bool(r.details))
+
+    for name in LOADNULL_CONTENT:
+        p = os.path.join(EXTVAL_MUTANTS, name)
+        if not os.path.isfile(p):
+            print("  skip: %s not present" % name)
+            continue
+        r = pv.validate(p)
+        check("content gate refuses: %s" % name,
+              r.code == pv.REFUSED_BEFORE_VALIDATE
+              and r.name == "RefusedBeforeValidate",
+              "got %s %s" % (r.name, r.code))
+        check("  says why: %s" % name, bool(r.warnings) and bool(r.details))
+
+    for name in LOADABLE_EIR_SIBLINGS:
+        p = os.path.join(EXTVAL_MUTANTS, name)
+        if not os.path.isfile(p):
+            print("  skip: %s not present" % name)
+            continue
+        r = pv.validate(p)
+        check("accepted extension is not refused before Validate: %s" % name,
+              r.code != pv.REFUSED_BEFORE_VALIDATE, "got %s %s" % (r.name, r.code))
+        check("  and Validate's own eir bypass takes it Valid: %s" % name,
+              r.code == pv.VALID and r.bypassed, "got %s %s" % (r.name, r.code))
+
+    check("extension check: .pkp accepted", pv._loadable_extension("x.pkp"))
+    check("extension check: .PKP accepted (case-insensitive)",
+          pv._loadable_extension("x.PKP"))
+    check("extension check: .eir accepted", pv._loadable_extension("x.eir"))
+    check("extension check: .weir refused", not pv._loadable_extension("x.weir"))
+    check("extension check: .eirx refused", not pv._loadable_extension("x.eirx"))
+    check("extension check: no extension at all refused",
+          not pv._loadable_extension("xxxeir"))
+    check("extension check: unknown name is None, not False (skip, not fail)",
+          pv._loadable_extension(None) is None)
+
+    # The gate is the on-disk NAME, not the content: a perfectly valid
+    # package under a refused extension is still refused, and the identical
+    # bytes under an accepted extension validate exactly as before.
+    good_bytes = open(donor(), "rb").read()
+    r = pv.validate(good_bytes, on_disk_name="driver.txt")
+    check("a valid package under a refused extension is still refused",
+          r.code == pv.REFUSED_BEFORE_VALIDATE, "got %s %s" % (r.name, r.code))
+    r2 = pv.validate(good_bytes, on_disk_name="driver.pkp")
+    check("the same bytes under an accepted extension validate normally",
+          r2.code == pv.VALID, "got %s %s" % (r2.name, r2.code))
+
+    # No filename known at all (raw bytes, no path, no on_disk_name): the
+    # extension gate is SKIPPED, not failed - but unreadable content is still
+    # caught by the content gate.
+    r3 = pv.validate(b"not a package")
+    check("no filename known: unreadable content still refused (content "
+          "gate, extension gate skipped)",
+          r3.code == pv.REFUSED_BEFORE_VALIDATE, "got %s %s" % (r3.name, r3.code))
+
+    # A missing file is a filesystem-level failure, not one of the 8 measured
+    # LoadFromFile-refusal shapes: stays Unparseable, unchanged from before.
+    r4 = pv.validate(os.path.join(_ROOT, "no", "such", "file.pkp"))
+    check("a missing file stays Unparseable, not RefusedBeforeValidate",
+          r4.code == pv.UNPARSEABLE, "got %s %s" % (r4.name, r4.code))
+
+    check("ContentUnreadable is a PackageError subclass (existing "
+          "'except PackageError' callers still catch it)",
+          issubclass(pv.ContentUnreadable, pv.PackageError))
+
+
 def _raises(exc, fn, *a, **kw):
     try:
         fn(*a, **kw)
@@ -384,9 +607,13 @@ def main():
                test_first_failure_wins,
                test_no_hash_no_guid_branch,
                test_guid_fallback_paths,
+               test_load_guid_table,
+               test_guid_dependent_packages_before_and_after,
+               test_cli_guid_table_flag,
                test_unhashable_content_is_not_a_pass,
                test_eir_bypass_is_reported_never_silent,
                test_bad_input_fails_loudly,
+               test_refused_before_validate,
                test_accepts_bytes_and_gzip,
                test_digest_is_plain_sha256,
                test_cli):

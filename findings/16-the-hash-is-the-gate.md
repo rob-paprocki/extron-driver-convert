@@ -88,6 +88,16 @@ shipping + 13 built + 53 deliberate mutants): **1,900 exact agreements, 19
 disagreements**, and three of those were real bugs in the reimplementation. Both
 are fixed and re-verified; the third class is Extron's own behaviour.
 
+*(Re-run in full after the fixes, 2026-09-23 —
+`experiments/validator_differential/POSTFIX.md`. Shipping: **1,850 of 1,853**;
+the 3 are the pre-13.x packages of §5a, now reported as `80086` instead of a
+blind `Valid`, and all three agree once the Guid table is supplied
+(`--guid-table`, §5c) — so 1,853 of 1,853. Mutants: **45 of 53**, up from 37;
+the 8 left are files Extron's `LoadFromFile` refuses before `Validate` runs
+(corrupt gzip, truncations, non-`.pkp`/`.eir` extensions), which this tool
+scores instead of refusing. The Extron verdicts for the "13 built" packages
+were not found in the repo, so those 13 were not re-run.)*
+
 ### 5a. It failed open on 3 shipping packages
 
 `extr_10_397_v1_0_4`, `extr_1_789_v1_0_2`, `extr_8_89_v1_0_0` are built against
@@ -144,12 +154,16 @@ labels an `80086` as a prediction rather than a measurement.
   selection — but the third one's cause is integrity, not declaration.
 - **STATUS.md open item 4 narrows again.** A transplanted package with a
   refreshed digest is `Valid` to Extron's own code. What remains untested is a
-  package whose object graph was assembled from scratch.
+  package whose object graph was assembled from scratch. *(STATUS has since
+  been renumbered; that question is now ROADMAP R28.)*
 
 ## What this does NOT show
 
 - **Nothing has run on a processor.** `Valid` means GC will accept the file for
-  use; place, build, upload and control are still untouched.
+  use; place, build, upload and control are still untouched. *(Since done,
+  2026-09-14 to 09-18: `20025`/`20026` placed, built, uploaded to an IPCP Pro
+  360 and controlled from a panel, against a PC playing the camera —
+  `experiments/skeleton_i20/PROTOCOL.md`.)*
 - **The Guid table's contents are not decoded.** 4,775 entries were counted and
   membership tested for the three packages that need it; what else it covers is
   unknown.

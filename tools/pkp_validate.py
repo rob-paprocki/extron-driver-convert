@@ -78,15 +78,26 @@ close it.
       of the sampled resource GUIDs appear among ExtronDH.dat's 4,775 entries.
       It also could not confirm that a DriverValidationService is constructed
       on every path that reaches Validate.
-    NOT RESOLVED. This repo does not ship ExtronDH.dat (it is an embedded
-    resource of a licensed assembly), so we cannot consult the real table.
+    NOT RESOLVED as a question of Extron's internal behaviour, but the real
+    table IS in this repo: `experiments/validator_differential/ilres/ExtronDH.dat`
+    is the actual 534,939-byte resource `LoadDefaultFromResource()` reads out of
+    `Extron.Configuration.Drivers.dll` 15.27.0.0, committed vendor material, and
+    `experiments/validator_differential/guidtable.tsv` is its 4,775 entries
+    extracted to `guid<TAB>sha256hex` (finding 16 section 5c measured that
+    loading it turns exactly the three pre-13.x packages from 80086 to Valid and
+    changes nothing else across the corpus). What is still open is only
+    whether the table is populated on every code path that reaches Validate
+    (decode 2's NullReferenceException concern above) - not whether the table
+    itself is available.
     WHAT THIS FILE DOES: the table is a caller-supplied parameter,
     `guid_hash_table`, defaulting to EMPTY. With it empty, a resource whose Key
     is absent from the package's own dict yields NoHash_NoGuid (80086) - which
     is what decode 3's measurement predicts for any modern package - and the
     Result records `guid_table_consulted=False` plus a warning, so a 80086 from
     this tool is never silently equated with a 80086 from GC. Pass a real table
-    (guid string -> 32 raw bytes) to close the gap for a given package.
+    (guid string -> 32 raw bytes) to close the gap for a given package -
+    `load_guid_table()` reads one out of a `guidtable.tsv`-shaped file, and the
+    CLI's `--guid-table PATH` flag does the same without touching the API.
 
 (2) WHICH `Filename` DOES THE "eir" BYPASS TEST?
     All three decodes agree the literal is the bare 3 characters "eir" (no
@@ -158,12 +169,60 @@ close it.
     this repo settles it - it is, see above. Recorded because the brief asked
     for it explicitly.
 
+(9) `LoadFromFile` REFUSES SOME FILES BEFORE `Validate` EVER RUNS. (R38)
+    `Validate` is not the only gate. `DriverFileAsset.LoadFromFile` - the thing
+    that actually hands Validate its argument - returns null, and Validate is
+    never called, for two measured reasons (oracle_mut.tsv / oracle_case.tsv,
+    `experiments/validator_differential/extval/`, 8 files, all `loadnull`):
+      (a) EXTENSION GATE. The on-disk name's extension must be exactly `.pkp`
+          or `.eir`, case-insensitively. `case_bare_noDOT_xxxeir` (no `.` at
+          all), `case_weir.weir`, and `case_not.eirx` are all refused -
+          measured against three byte-identical siblings (`case_UPPER.EIR`,
+          `case_mixed.EiR`, `case_clean.eir`) that load fine, so it is the
+          extension alone, not the content, that differs. This is a stricter
+          reading of finding 16 section 5b's "accepts only .pkp and .eir" than
+          the "eir"-suffix test Validate itself applies (gap 2 above) - two
+          different checks, at two different layers, that happen to overlap on
+          "eir".
+      (b) CONTENT GATE. Even with an accepted extension, corrupt or truncated
+          bytes never reach Validate either: `empty.pkp`, `gzip_garbage.pkp`,
+          `notgzip.pkp`, `trunc_16.pkp`, `trunc_half.pkp` are all `loadnull`.
+          These are exactly the shapes `load_graph()` already refuses to parse
+          (empty input, a corrupt gzip container, a stream that is not
+          readable NRBF, one that ends before a MessageEnd record) - so this
+          file now tags that same set of parse failures with a distinct
+          sentinel rather than conflating "Extron never looked" with "we could
+          not parse a stream Extron might have accepted."
+    WHAT THIS FILE DOES: `validate()` checks (a) against the on-disk name (the
+    caller's path, or an explicit `on_disk_name`) before ever calling
+    `load_graph()`, and tags (b) by having `load_graph()` raise the new
+    `ContentUnreadable` (a `PackageError` subclass) for exactly the failure
+    shapes above. Either one reports the repo-local sentinel
+    REFUSED_BEFORE_VALIDATE (-3), never a fabricated 0/80085/80086 - this tool
+    reimplements `Validate`, not `LoadFromFile`, so a case `LoadFromFile` never
+    hands to `Validate` has no real Extron code to report. A file that cannot
+    even be OPENED (missing, permission denied) is left as plain
+    UNPARSEABLE (-2), unchanged - that is not one of the measured 8, and a
+    filesystem-level failure is not evidence about what `LoadFromFile` does
+    with readable bytes.
+    NOT RESOLVED, so not implemented: whether a well-formed NRBF stream that
+    deserializes to something other than `DriverFileAsset` also comes back
+    null (plausible, by the same "returns null on failure, swallowing the
+    reason" pattern, but no oracle mutant exercises it - `load_graph()` still
+    raises plain `PackageError`/UNPARSEABLE for "no root object" and "root is
+    not DriverFileAsset", not `ContentUnreadable`); and whether the extension
+    gate is a strict `Path.GetExtension()` equality (what is implemented) or
+    something looser (e.g. tolerating trailing whitespace) - the three
+    negative and three positive case-mutants pin equality, nothing pins the
+    edge cases beyond it.
+
 =============================================================================
 Public API
 =============================================================================
     validate(path_or_bytes, guid_hash_table=None, on_disk_name=None) -> Result
     validate_graph(objects, root, ...) -> Result      # same, over a parsed graph
     load_graph(path_or_bytes) -> (objects, root)      # raises PackageError
+    load_guid_table(path) -> {guid string: 32 raw bytes}  # raises ValueError
 
     Result.code       int   0 / 80085 / 80086, or a repo-local sentinel < 0
     Result.name       str   "Valid" / "MismatchHash" / "NoHash_NoGuid" / ...
@@ -173,10 +232,25 @@ Public API
     Result.verified   bool  True only if every manifest resource was hashed
     Result.ok         bool  code == Valid and verified and no warnings
 
+    Sentinels (never returned by GC; negative so they cannot collide with the
+    real enum): UNVERIFIABLE (-1, gap 3), UNPARSEABLE (-2, unreadable and NOT
+    one of the measured LoadFromFile-refusal shapes), REFUSED_BEFORE_VALIDATE
+    (-3, gap 9 / R38: Extron's own `LoadFromFile` would refuse this file
+    before `Validate` ever runs - a measured claim, not a guess).
+
 CLI:
-    python tools/pkp_validate.py FILE...        # one line per package
-    python tools/pkp_validate.py -v FILE...     # plus a line per resource
+    python tools/pkp_validate.py FILE...                     # one line per package
+    python tools/pkp_validate.py -v FILE...                  # plus a line per resource
+    python tools/pkp_validate.py --guid-table T.tsv FILE...  # consult a Guid table (gap 1)
     exit 0 only if every package is Result.ok.
+
+    `--guid-table` takes a path in the format `load_guid_table()` reads: one
+    `guid<TAB>64-hex-char-sha256` row per line, `#`-prefixed lines and blank
+    lines ignored - exactly the shape of
+    `experiments/validator_differential/guidtable.tsv`, the table extracted from
+    the committed `experiments/validator_differential/ilres/ExtronDH.dat`.
+    Omitting it is unchanged from before this flag existed: the table stays
+    empty and an 80086 is reported as a prediction (gap 1).
 """
 
 import argparse
@@ -203,8 +277,9 @@ NO_HASH_NO_GUID = 80086
 # Repo-local sentinels. These are NOT Extron codes and will never be returned
 # by GC; they exist so this tool can say "I could not establish that" instead
 # of guessing a code. Negative, so they can never collide with the enum.
-UNVERIFIABLE = -1     # a resource could not be hashed at all (see gap 3)
-UNPARSEABLE = -2      # the input is not a readable .pkp
+UNVERIFIABLE = -1             # a resource could not be hashed at all (see gap 3)
+UNPARSEABLE = -2              # unreadable, and not one of the measured shapes below
+REFUSED_BEFORE_VALIDATE = -3  # LoadFromFile refuses it; Validate never runs (gap 9)
 
 CODE_NAMES = {
     VALID: "Valid",
@@ -212,14 +287,41 @@ CODE_NAMES = {
     NO_HASH_NO_GUID: "NoHash_NoGuid",
     UNVERIFIABLE: "Unverifiable",
     UNPARSEABLE: "Unparseable",
+    REFUSED_BEFORE_VALIDATE: "RefusedBeforeValidate",
 }
 
 DRIVER_FILE_ASSET_CLASS = "Extron.Configuration.Drivers.DriverFileAsset"
 MANIFEST_CHILD_NAME = "Manifest"
 
+# The on-disk extensions DriverFileAsset.LoadFromFile accepts (gap 9a,
+# measured: case_UPPER.EIR / case_mixed.EiR / case_clean.eir load,
+# case_bare_noDOT_xxxeir / case_weir.weir / case_not.eirx do not). Compared
+# case-insensitively against the FULL extension - "eirx" and "weir" are not
+# "eir" - which is stricter than the "ends with the 3 characters eir" test
+# Validate itself applies once LoadFromFile has already let a file through
+# (gap 2; the two checks are at different layers and only coincide on "eir").
+LOADABLE_EXTENSIONS = (".pkp", ".eir")
+
 
 class PackageError(Exception):
     """The input could not be read as a .pkp object graph."""
+
+
+class ContentUnreadable(PackageError):
+    """The bytes are not a readable package: empty, a corrupt gzip container,
+    not an NRBF stream at all, or one that ends before a MessageEnd record.
+
+    A PackageError subclass, not a separate exception family, so existing
+    `except PackageError` callers (load_graph's own docstring promise, and
+    test_bad_input_fails_loudly's `_raises(pv.PackageError, ...)`) still catch
+    it. `validate()` distinguishes it from a bare PackageError (e.g. "the file
+    could not even be opened", or "this parsed but the root is not a
+    DriverFileAsset") because these specific shapes are the ones measured
+    against Extron's own `LoadFromFile` (gap 9b / R38,
+    experiments/validator_differential/extval/oracle_mut.tsv: empty.pkp,
+    gzip_garbage.pkp, notgzip.pkp, trunc_16.pkp, trunc_half.pkp are all
+    `loadnull`) - the others are not measured and stay plain UNPARSEABLE.
+    """
 
 
 # --------------------------------------------------------------------------
@@ -428,20 +530,30 @@ class Result(object):
 
 
 def _package_bytes(path_or_bytes):
+    """The raw NRBF bytes, gzip-decompressed if the input is gzipped.
+
+    Splits its failures deliberately: a file that could not be OPENED at all
+    (missing, permission denied) raises plain PackageError - not one of the
+    measured LoadFromFile-refusal shapes (gap 9), so it must not become
+    REFUSED_BEFORE_VALIDATE. A file that opened fine but whose gzip container
+    is corrupt raises ContentUnreadable - it is one of them.
+    """
     if isinstance(path_or_bytes, (bytes, bytearray)):
         data = bytes(path_or_bytes)
-        if data[:2] == b"\x1f\x8b":
-            try:
-                return gzip.decompress(data)
-            except Exception as e:
-                raise PackageError("gzip container is corrupt: %s: %s"
-                                   % (type(e).__name__, e))
-        return data
-    try:
-        return pd.load_bytes(path_or_bytes)
-    except Exception as e:
-        raise PackageError("cannot read %s: %s: %s"
-                           % (path_or_bytes, type(e).__name__, e))
+    else:
+        try:
+            with open(path_or_bytes, "rb") as f:
+                data = f.read()
+        except OSError as e:
+            raise PackageError("cannot open %s: %s: %s"
+                               % (path_or_bytes, type(e).__name__, e))
+    if data[:2] == b"\x1f\x8b":
+        try:
+            return gzip.decompress(data)
+        except Exception as e:
+            raise ContentUnreadable("gzip container is corrupt: %s: %s"
+                                    % (type(e).__name__, e))
+    return data
 
 
 def load_graph(path_or_bytes):
@@ -451,20 +563,28 @@ def load_graph(path_or_bytes):
     NrbfParseError mid-record, or it stops cleanly having never seen the
     MessageEnd record. Silently validating the prefix of a truncated package is
     exactly the failure this guards against.
+
+    The failure shapes measured as Extron's own LoadFromFile refusing the file
+    before Validate ever runs (gap 9b / R38: empty input, a corrupt gzip
+    container, a stream that is not readable NRBF, or one that never reaches a
+    MessageEnd record) raise ContentUnreadable, a PackageError subclass, so
+    validate() can report REFUSED_BEFORE_VALIDATE instead of guessing a code.
+    "No root object" and "wrong root class" are NOT among the measured shapes
+    (gap 9, open question) and stay plain PackageError.
     """
     data = _package_bytes(path_or_bytes)
     if not data:
-        raise PackageError("empty input")
+        raise ContentUnreadable("empty input")
     parser = pd.PkpParser(data)
     try:
         parser.parse()
     except pd.NrbfParseError as e:
-        raise PackageError("not a readable NRBF stream: %s" % (e,))
+        raise ContentUnreadable("not a readable NRBF stream: %s" % (e,))
     except Exception as e:                # a wrong-format file can fail anywhere
-        raise PackageError("not a readable NRBF stream: %s: %s"
-                           % (type(e).__name__, e))
+        raise ContentUnreadable("not a readable NRBF stream: %s: %s"
+                                % (type(e).__name__, e))
     if not parser.message_end_seen:
-        raise PackageError(
+        raise ContentUnreadable(
             "stream ended without an NRBF MessageEnd record after %d of %d bytes "
             "- truncated, or not a .pkp" % (parser.r.tell(), len(data)))
     root = parser.objects.get(parser.root_id)
@@ -474,6 +594,51 @@ def load_graph(path_or_bytes):
         raise PackageError("root is %r, not %s"
                            % (root.get("class"), DRIVER_FILE_ASSET_CLASS))
     return parser.objects, root
+
+
+def load_guid_table(path):
+    """Load a `guid_hash_table` from a TSV file: `guid<TAB>64-hex-char-sha256`
+    per line, matching `experiments/validator_differential/guidtable.tsv` (the
+    4,775 entries extracted from the committed
+    `experiments/validator_differential/ilres/ExtronDH.dat`, gap 1).
+
+    Lines that are empty or start with '#' are skipped (the file's own first
+    line is a '# guid table entries: N' comment). Every other line must be
+    exactly two tab-separated fields, the second a 64-character hex string
+    decoding to 32 bytes; anything else raises ValueError naming the file and
+    line. The guid is lower-cased on the way in, matching the canonical form
+    `guid_string()` produces from the object graph.
+
+    Returns {guid string: 32 raw bytes}. Does not, by itself, change any
+    validate() call's behaviour - the caller must still pass the result as
+    `guid_hash_table`.
+    """
+    table = {}
+    with open(path, "r", encoding="utf-8") as f:
+        for lineno, raw_line in enumerate(f, 1):
+            line = raw_line.rstrip("\r\n")
+            if not line or line.startswith("#"):
+                continue
+            fields = line.split("\t")
+            if len(fields) != 2:
+                raise ValueError(
+                    "%s:%d: expected 'guid<TAB>hexdigest', got %r"
+                    % (path, lineno, line))
+            guid, digest_hex = fields
+            guid = guid.strip().lower()
+            try:
+                digest = bytes.fromhex(digest_hex.strip())
+            except ValueError as e:
+                raise ValueError("%s:%d: bad hex digest %r: %s"
+                                 % (path, lineno, digest_hex, e))
+            if len(digest) != 32:
+                raise ValueError(
+                    "%s:%d: digest %r is %d bytes, want 32 (SHA-256)"
+                    % (path, lineno, digest_hex, len(digest)))
+            if not guid:
+                raise ValueError("%s:%d: empty guid field" % (path, lineno))
+            table[guid] = digest
+    return table
 
 
 def manifest_resources(objects, root):
@@ -532,6 +697,21 @@ def _ends_with_eir(name):
     return isinstance(name, str) and name[-3:].lower() == "eir"
 
 
+def _loadable_extension(name):
+    """Extron's OTHER test (gap 9a): LoadFromFile itself accepts only a name
+    whose extension is exactly '.pkp' or '.eir', case-insensitively - measured
+    against oracle_case.tsv, not the same rule as `_ends_with_eir` (which
+    Validate applies afterward, and which a name like 'x.eirx' or 'xxxeir'
+    with no extension at all never reaches, because LoadFromFile refuses it
+    first). Returns None, not a bool, when `name` isn't a string - "unknown"
+    is a different answer from "no", and callers use that to skip the gate
+    rather than fail it.
+    """
+    if not isinstance(name, str):
+        return None
+    return os.path.splitext(name)[1].lower() in LOADABLE_EXTENSIONS
+
+
 # --------------------------------------------------------------------------
 # the validator
 # --------------------------------------------------------------------------
@@ -549,8 +729,45 @@ def validate(path_or_bytes, guid_hash_table=None, on_disk_name=None):
     path = None if isinstance(path_or_bytes, (bytes, bytearray)) else path_or_bytes
     path = str(path) if path is not None else None
 
+    checked_name = on_disk_name
+    if checked_name is None and path is not None:
+        checked_name = os.path.basename(path)
+
+    # gap 9a: the extension gate. LoadFromFile refuses the file outright -
+    # Validate never runs - so this is checked BEFORE load_graph(), and only
+    # when a name is actually known; bytes with no path and no on_disk_name
+    # carry no filename to test, so the gate is skipped, not failed.
+    ext_ok = _loadable_extension(checked_name)
+    if ext_ok is False:
+        result = Result(REFUSED_BEFORE_VALIDATE, path=path)
+        result.on_disk_name = checked_name
+        msg = (
+            "on-disk name %r does not end in '.pkp' or '.eir' (case-"
+            "insensitive); Extron's DriverFileAsset.LoadFromFile refuses the "
+            "extension outright and returns null - Validate is never called "
+            "(finding 16 section 5b / gap 9a, measured: "
+            "case_bare_noDOT_xxxeir, case_not.eirx and case_weir.weir are all "
+            "loadnull in oracle_case.tsv)." % (checked_name,))
+        result.details.append(msg)
+        result.warnings.append(msg)
+        return result
+
     try:
         objects, root = load_graph(path_or_bytes)
+    except ContentUnreadable as e:
+        # gap 9b: the content gate. Same conclusion as UNPARSEABLE below - this
+        # cannot be validated - but tagged distinctly because THIS specific set
+        # of failure shapes is measured as an Extron loadnull, not guessed.
+        result = Result(REFUSED_BEFORE_VALIDATE, path=path)
+        result.on_disk_name = checked_name
+        msg = ("%s - Extron's LoadFromFile fails to read this content the "
+               "same way and returns null before Validate ever runs (gap 9b, "
+               "measured: empty.pkp, gzip_garbage.pkp, notgzip.pkp, "
+               "trunc_16.pkp and trunc_half.pkp are all loadnull in "
+               "oracle_mut.tsv)." % (e,))
+        result.details.append(msg)
+        result.warnings.append(msg)
+        return result
     except PackageError as e:
         result = Result(UNPARSEABLE, path=path)
         result.details.append(str(e))
@@ -733,11 +950,24 @@ def main(argv=None):
     ap.add_argument("files", nargs="+", metavar="FILE", help=".pkp package(s)")
     ap.add_argument("-v", "--verbose", action="store_true",
                     help="print a line per resource")
+    ap.add_argument("--guid-table", metavar="PATH", default=None,
+                    help="Guid->SHA-256 fallback table (gap 1), TSV as "
+                         "load_guid_table() reads - e.g. "
+                         "experiments/validator_differential/guidtable.tsv. "
+                         "Omit to leave the table empty (unchanged default "
+                         "behaviour).")
     args = ap.parse_args(argv)
+
+    guid_hash_table = None
+    if args.guid_table is not None:
+        try:
+            guid_hash_table = load_guid_table(args.guid_table)
+        except (OSError, ValueError) as e:
+            ap.error("--guid-table %s: %s" % (args.guid_table, e))
 
     bad = 0
     for f in args.files:
-        r = validate(f)
+        r = validate(f, guid_hash_table=guid_hash_table)
         print(r.report(verbose=args.verbose))
         if not r.ok:
             bad += 1

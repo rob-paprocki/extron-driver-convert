@@ -105,12 +105,12 @@ HEADER_NOTE = '''
     tables (e.g. exposure mode Full Auto=0x00, Manual=0x03, Shutter
     Priority=0x0A, Iris Priority=0x0B).
 
-    UNVERIFIED ON HARDWARE. No i20 was available to this repo. Every added
-    command is a transcription of Crestron's declarative spec; none has been
-    observed on a wire. Treat status feedback in particular as provisional -
-    the inquiry REQUESTS are specified by Crestron, but their RESPONSE
-    layouts were not fully declared and are parsed here on the same pattern
-    Extron uses for the equivalent PTZ-IP responses.
+    NOT YET RUN AGAINST AN I20. Every added command is a transcription of
+    Crestron's declarative spec. The package has run on an IPCP Pro 360 with a
+    PC playing the camera, so the requests have been observed on a wire, but
+    no reply has come from a real camera. Treat status feedback in particular
+    as provisional: the reply rules are Crestron's where their driver declares
+    one, and the documentation's or VISCA's convention where it does not.
     ------------------------------------------------------------------
 '''
 
@@ -150,8 +150,7 @@ NEW_COMMANDS = """,
             # [PATCH E3] i20 command set. Bytes resolved from Crestron's
             # SchemaVersion 2.0 definition by resolve_visca.py.
             'TrackingFraming':      {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
-            'GroupTracking':        {'Set': True,   'Update': False,    'Live': False,  'Emulated': True,                                               'Status': {}},
-            'PresenterTracking':    {'Set': True,   'Update': False,    'Live': False,  'Emulated': True,                                               'Status': {}},
+            'TrackingMode':         {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
             'ZoomPosition':         {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,   'Parameters': ['Speed'],                    'Status': {}},
             'PanTiltAngle':         {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,  'Parameters': ['Pan Speed', 'Tilt Speed', 'Pan', 'Tilt'],   'Status': {}},
             'PanAngleStatus':       {'Set': False,  'Update': True,     'Live': True,   'Emulated': False,                              'Status': {}},
@@ -160,14 +159,27 @@ NEW_COMMANDS = """,
             'FreezeFrame':          {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
             'Menu':                 {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}},
             'Identify':             {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}},
-            'TrackingProfile':      {'Set': True,   'Update': False,    'Live': False,  'Emulated': True,                                               'Status': {}},
+            'TrackingProfile':      {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
             'PresetZone':           {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}},
             'TrackingShot':         {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}},
             'IndicatorLight':       {'Set': True,   'Update': False,    'Live': False,  'Emulated': True,   'Parameters': ['Color', 'Brightness'],      'Status': {}},
             'CameraOutput':         {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
-            'IntelligentSwitching': {'Set': True,   'Update': False,    'Live': False,  'Emulated': True,                                               'Status': {}},
+            'IntelligentSwitching': {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
             'CameraConnectionStatus': {'Set': False, 'Update': True,    'Live': True,   'Emulated': False,  'Parameters': ['Camera'],                   'Status': {}},
-            'Reboot':               {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}}"""
+            'Reboot':               {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}},
+            # [PATCH E7] Parity with Crestron's I20 driver (v1.6).
+            'ExposureCompensationMode': {'Set': True, 'Update': True,   'Live': True,   'Emulated': True,                                               'Status': {}},
+            'ExposureCompensation': {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
+            'FocusPosition':        {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
+            'OnePushAutoFocus':     {'Set': True,   'Update': False,    'Live': False,  'Emulated': False,                                              'Status': {}},
+            'AutoFocusBehavior':    {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
+            'AutoFocusSensitivity': {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
+            'AutoPrivacyMode':      {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
+            'AutoSoftwareUpdate':   {'Set': True,   'Update': True,     'Live': True,   'Emulated': True,                                               'Status': {}},
+            'DeviceModel':          {'Set': False,  'Update': True,     'Live': True,   'Emulated': False,                                              'Status': {}},
+            'RomVersion':           {'Set': False,  'Update': True,     'Live': True,   'Emulated': False,                                              'Status': {}},
+            'PanSpeedMaxStatus':    {'Set': False,  'Update': True,     'Live': True,   'Emulated': False,                                              'Status': {}},
+            'TiltSpeedMaxStatus':   {'Set': False,  'Update': True,     'Live': True,   'Emulated': False,                                              'Status': {}}"""
 
 
 def patch_commands_table(src):
@@ -208,10 +220,50 @@ NEW_METHODS = r'''
             out = (out << 4) | (b & 0x0F)
         return out
 
+    def _Signed16(self, value):
+        """Read a 16-bit position the way SetPanTiltAngle writes it (pan & 0xFFFF),
+        so a negative angle reads back as itself. The documentation gives the
+        nibble layout but not the sign convention; the camera's is unmeasured."""
+        return value - 0x10000 if value & 0x8000 else value
+
     def _PresetOpcode(self, preset):
         """Recall a reserved preset. The i20 exposes its auto-switching and
         framing features this way rather than through dedicated opcodes."""
         return pack('>7B', self.DeviceID, 0x01, 0x04, 0x3F, 0x02, preset, 0xFF)
+
+    # Some replies carry more than one status: pan and tilt, the camera output
+    # and the switching flag, the model and the ROM version, the two maximum
+    # speeds. GC polls every bound status separately, so without this each
+    # would send the same inquiry. Extron's pana_19_5702 queries at most once
+    # per window and writes every status the reply carries; this does the same.
+    #
+    # The window is deliberately shorter than any poll interval. The updates
+    # in one polling pass arrive milliseconds apart, so later ones reuse the
+    # first reply; the next pass is seconds away, so no pass is swallowed. A
+    # query that got no reply caches nothing and is retried. The cache is a
+    # class attribute rather than an __init__ line, to keep this patch
+    # additive; each instance creates its own on first use.
+    INQUIRY_WINDOW = 1.0
+    _inquiryCache = None
+
+    def _SharedInquiry(self, command, cmdString, value, qualifier, parse):
+        """Send cmdString at most once per window; parse() writes the statuses."""
+        if self._inquiryCache is None:
+            self._inquiryCache = {}
+        now = time.monotonic()
+        hit = self._inquiryCache.get(cmdString)
+        if hit is not None and now - hit[0] < self.INQUIRY_WINDOW:
+            return hit[1]
+        res = self.__UpdateHelper(command, cmdString, value, qualifier)
+        if not res:
+            return None
+        try:
+            parsed = parse(res, qualifier)
+        except (KeyError, IndexError):
+            self.Error(['%s: Invalid/unexpected response' % command])
+            return None
+        self._inquiryCache[cmdString] = (now, parsed)
+        return parsed
 
     # Begin TrackingFraming
     ####################################################################################################################
@@ -267,33 +319,19 @@ NEW_METHODS = r'''
     def ReadTrackingFraming(self, qualifier, context):
         return self.ReadStatusHelper('TrackingFraming', qualifier, context)
 
-    # Begin GroupTracking
+    # Begin TrackingMode
     ####################################################################################################################
-    # Crestron IV-CAM-I20_IP: EnableGroupTracking -> reserved preset 0x52
-    def _cmd_SetGroupTracking(self, value, qualifier):
-        """Set Group Tracking
-        value: Enum ('Enable')
-        qualifier: None
-        """
-        if value == 'Enable':
-            cmdString = self._PresetOpcode(0x52)
-            if self.__SafeToSet('GroupTracking'):
-                self.WriteGroupTracking(value, qualifier, 'Emulated')
-                self.__SetHelper('GroupTracking', cmdString, value, qualifier, 3)
-        else:
-            self.Discard('Invalid Command')
-
-    def WriteGroupTracking(self, value, qualifier, context):
-        self.WriteStatusHelper('GroupTracking', value, qualifier, context)
-
-    def ReadGroupTracking(self, qualifier, context):
-        return self.ReadStatusHelper('GroupTracking', qualifier, context)
-
-    # Begin PresenterTracking
-    ####################################################################################################################
-    # Crestron IV-CAM-I20_IP: EnablePresenterTracking -> reserved preset 0x53
+    # Crestron IV-CAM-I20_IP: EnableGroupTracking     -> reserved preset 0x52
+    #                         EnablePresenterTracking -> reserved preset 0x53
     #
-    # !! DOCS AND IMPLEMENTATION DISAGREE ON THIS BYTE !!
+    # These were two commands until 20027, one value each, so GC could switch
+    # either ON and neither OFF - a latching button with no release, and an
+    # emulated status that could never go back. They are one setting on the
+    # camera: Crestron's Presenter Tracking Settings page describes Group Track
+    # as a toggle, "when disabled, the camera only tracks one presenter at a
+    # time". So one command with two values, which is what the hardware has.
+    #
+    # !! DOCS AND IMPLEMENTATION DISAGREE ON 0x53 !!
     # Crestron's own driver names preset 0x53 "EnablePresenterTracking".
     # Crestron's own documentation (COMMANDS.md section 10, from the
     # Reserved-Presets page) names preset 83 decimal - the same byte -
@@ -301,29 +339,61 @@ NEW_METHODS = r'''
     # between the two sources (0x50, 0x51, 0x52, 0x5F, 0x63); this is the
     # only one that does not.
     #
-    # The name here follows the driver, because a shipped driver is the more
-    # specific artefact - but that is a choice, not a finding. Step 7 of
-    # PROTOCOL.md is designed to settle it on hardware: start group tracking
+    # The value names here are deliberately the one reading BOTH sources
+    # support: 0x52 selects group framing, 0x53 selects single-presenter
+    # framing - whether you reach it by "enabling presenter tracking" or by
+    # "pausing group tracking". So merging does not decide the open question.
+    # Step 7 of PROTOCOL.md still settles it on hardware: start group tracking
     # with 0x52, then send 0x53, and observe whether group tracking PAUSES
     # (documentation is right) or presenter mode ENGAGES (driver is right).
-    def _cmd_SetPresenterTracking(self, value, qualifier):
-        """Set Presenter Tracking
-        value: Enum ('Enable')
+    def _cmd_SetTrackingMode(self, value, qualifier):
+        """Set Tracking Mode
+        value: Enum ('Group'/'Presenter')
         qualifier: None
         """
-        if value == 'Enable':
-            cmdString = self._PresetOpcode(0x53)
-            if self.__SafeToSet('PresenterTracking'):
-                self.WritePresenterTracking(value, qualifier, 'Emulated')
-                self.__SetHelper('PresenterTracking', cmdString, value, qualifier, 3)
+        ValueStateValues = {
+            'Group':     0x52,
+            'Presenter': 0x53
+        }
+
+        if value in ValueStateValues:
+            cmdString = self._PresetOpcode(ValueStateValues[value])
+            if self.__SafeToSet('TrackingMode'):
+                self.WriteTrackingMode(value, qualifier, 'Emulated')
+                self.__SetHelper('TrackingMode', cmdString, value, qualifier, 3)
         else:
             self.Discard('Invalid Command')
 
-    def WritePresenterTracking(self, value, qualifier, context):
-        self.WriteStatusHelper('PresenterTracking', value, qualifier, context)
+    # Crestron IV-CAM-I20_IP: GetGroupTracking -> 81 C2 09 06 FF
+    #   reply  y0 50 00 0v FF    v 01 group tracking active, 00 not
+    # Crestron's ViscaGroupTrackingStatusInquiryResponse reads that one byte
+    # through MapBooleanToBinaryOnOff and derives presenter tracking as its
+    # inverse (InvertBoolean): one flag, the same two values this command sets.
+    # Live from 20028; until then this status was only ever what was last sent.
+    def _cmd_UpdateTrackingMode(self, value, qualifier):
+        """Update Tracking Mode
+        value: Enum
+        qualifier: None
+        """
+        ValueStateValues = {
+            0x01: 'Group',
+            0x00: 'Presenter'
+        }
 
-    def ReadPresenterTracking(self, qualifier, context):
-        return self.ReadStatusHelper('PresenterTracking', qualifier, context)
+        cmdString = pack('>5B', self.DeviceID, 0xC2, 0x09, 0x06, 0xFF)
+        res = self.__UpdateHelper('TrackingMode', cmdString, value, qualifier)
+        if res:
+            try:
+                value = ValueStateValues[res[3]]
+                self.WriteTrackingMode(value, qualifier, 'Live')
+            except (KeyError, IndexError):
+                self.Error(['TrackingMode: Invalid/unexpected response'])
+
+    def WriteTrackingMode(self, value, qualifier, context):
+        self.WriteStatusHelper('TrackingMode', value, qualifier, context)
+
+    def ReadTrackingMode(self, qualifier, context):
+        return self.ReadStatusHelper('TrackingMode', qualifier, context)
 
     # Begin ZoomPosition
     ####################################################################################################################
@@ -415,28 +485,34 @@ NEW_METHODS = r'''
     # same way in pana_19_5702 (PanPositionStatus / TiltPositionStatus), so the
     # split is their pattern rather than our invention.
     #
+    # Extron also solves the COST of that split, and this follows them. In
+    # pana_19_5702, _cmd_UpdatePanPositionStatus queries at most once every
+    # three seconds and writes every position the reply carries, so a bound Pan
+    # and a bound Tilt cost one query between them instead of two. Measured on
+    # 20026 before this change: two identical 81 09 06 12 FF per poll cycle,
+    # the second reply used for its tilt half alone. _SharedInquiry below is
+    # that pattern, and from 20028 three more pairs use it.
+    #
     # Crestron IV-CAM-I20_IP: GetPanTiltAngle -> 81 09 06 12 FF
     #   reply  y0 50 0p0q0r0s 0t0u0v0w FF
     def _PanTiltAngleInquiry(self, command, value, qualifier):
-        """Send the shared inquiry; return (pan, tilt) or None."""
         cmdString = pack('>5B', self.DeviceID, 0x09, 0x06, 0x12, 0xFF)
-        res = self.__UpdateHelper(command, cmdString, value, qualifier)
-        if not res:
-            return None
-        try:
-            return (self._FromNibbles(res[2:6]), self._FromNibbles(res[6:10]))
-        except (KeyError, IndexError):
-            self.Error(['%s: Invalid/unexpected response' % command])
-            return None
+        return self._SharedInquiry(command, cmdString, value, qualifier,
+                                   self._ParsePanTiltAngle)
+
+    def _ParsePanTiltAngle(self, res, qualifier):
+        pos = (self._Signed16(self._FromNibbles(res[2:6])),
+               self._Signed16(self._FromNibbles(res[6:10])))
+        self.WritePanAngleStatus(pos[0], qualifier, 'Live')
+        self.WriteTiltAngleStatus(pos[1], qualifier, 'Live')
+        return pos
 
     def _cmd_UpdatePanAngleStatus(self, value, qualifier):
         """Update Pan Angle Status
         value: Decimal
         qualifier: None
         """
-        pos = self._PanTiltAngleInquiry('PanAngleStatus', value, qualifier)
-        if pos is not None:
-            self.WritePanAngleStatus(pos[0], qualifier, 'Live')
+        self._PanTiltAngleInquiry('PanAngleStatus', value, qualifier)
 
     def WritePanAngleStatus(self, value, qualifier, context):
         self.WriteStatusHelper('PanAngleStatus', value, qualifier, context)
@@ -449,9 +525,7 @@ NEW_METHODS = r'''
         value: Decimal
         qualifier: None
         """
-        pos = self._PanTiltAngleInquiry('TiltAngleStatus', value, qualifier)
-        if pos is not None:
-            self.WriteTiltAngleStatus(pos[1], qualifier, 'Live')
+        self._PanTiltAngleInquiry('TiltAngleStatus', value, qualifier)
 
     def WriteTiltAngleStatus(self, value, qualifier, context):
         self.WriteStatusHelper('TiltAngleStatus', value, qualifier, context)
@@ -575,6 +649,31 @@ NEW_METHODS = r'''
         else:
             self.Discard('Invalid Command')
 
+    # Crestron IV-CAM-I20_IP: GetTrackingFramingProfile -> 81 C2 09 07 FF
+    #   reply  y0 50 06 0x FF    x = 9..C
+    # Crestron assembles those two bytes with ViscaAssemble2LowerNibbles, which
+    # exists only as IL, then maps the result through
+    # MapTrackingFramingProfileToPreset, whose domain is presets 0x69-0x6C =
+    # Tracking Profile 1-4. Its reply rule admits exactly 06 09 to 06 0C, and
+    # only the most-significant-first assembly lands in that domain
+    # (0x6 << 4 | 0x9 = 0x69), so the order is fixed by Crestron's own rule and
+    # map rather than assumed. Live from 20028.
+    def _cmd_UpdateTrackingProfile(self, value, qualifier):
+        """Update Tracking Profile
+        value: Decimal
+        qualifier: None
+        """
+        cmdString = pack('>5B', self.DeviceID, 0xC2, 0x09, 0x07, 0xFF)
+        res = self.__UpdateHelper('TrackingProfile', cmdString, value, qualifier)
+        if res:
+            try:
+                preset = self._FromNibbles(res[2:4])
+                if not 0x69 <= preset <= 0x6C:
+                    raise KeyError(preset)
+                self.WriteTrackingProfile(preset - 0x68, qualifier, 'Live')
+            except (KeyError, IndexError):
+                self.Error(['TrackingProfile: Invalid/unexpected response'])
+
     def WriteTrackingProfile(self, value, qualifier, context):
         self.WriteStatusHelper('TrackingProfile', value, qualifier, context)
 
@@ -697,12 +796,17 @@ NEW_METHODS = r'''
     ####################################################################################################################
     # Call Camera Output:            8x c2 01 08 0Z ff   (Z = 1..5)
     # Resume Intelligent Switching:  8x c2 01 08 00 ff
+    #
+    # Value 0 is the SAME frame Intelligent Switching sends for Resume, so
+    # until 20027 two commands could put one byte sequence on the wire and a
+    # capture could not tell which had been used. Intelligent Switching already
+    # offers Resume by name, so this range starts at 1 and the overlap is gone.
     def _cmd_SetCameraOutput(self, value, qualifier):
         """Set Camera Output
-        value: Decimal (1 - 5), or 0 to resume intelligent switching
+        value: Decimal (1 - 5)
         qualifier: None
         """
-        if 0 <= int(value) <= 5:
+        if 1 <= int(value) <= 5:
             cmdString = pack('>6B', self.DeviceID, 0xC2, 0x01, 0x08,
                              int(value), 0xFF)
             if self.__SafeToSet('CameraOutput'):
@@ -712,23 +816,30 @@ NEW_METHODS = r'''
             self.Discard('Invalid Command')
 
     # Get Output: 8x C2 09 08 FF
+    #   VISCA-Intelligent-Switching-Commands.md:
+    #     y0 50 01 0Z FF  switching on,   y0 50 00 0Z FF  switching off
+    # The camera is the second payload byte; reading the first gave the
+    # switching flag instead (found by experiments/loopback). From 20028 that
+    # first byte is not discarded: it is Intelligent Switching's status, so one
+    # reply answers both commands.
+    def _OutputInquiry(self, command, value, qualifier):
+        cmdString = pack('>5B', self.DeviceID, 0xC2, 0x09, 0x08, 0xFF)
+        return self._SharedInquiry(command, cmdString, value, qualifier,
+                                   self._ParseOutput)
+
+    def _ParseOutput(self, res, qualifier):
+        camera = res[3] & 0x0F
+        self.WriteCameraOutput(camera, qualifier, 'Live')
+        switching = {0x01: 'Resume', 0x00: 'Pause'}[res[2]]
+        self.WriteIntelligentSwitching(switching, qualifier, 'Live')
+        return camera, switching
+
     def _cmd_UpdateCameraOutput(self, value, qualifier):
         """Update Camera Output
         value: Decimal
         qualifier: None
         """
-        cmdString = pack('>5B', self.DeviceID, 0xC2, 0x09, 0x08, 0xFF)
-        res = self.__UpdateHelper('CameraOutput', cmdString, value, qualifier)
-        if res:
-            try:
-                # The documentation says "see below" for this reply and then
-                # does not print a layout (recorded as a gap in COMMANDS.md).
-                # Read on the same shape as the other c2 inquiries, whose
-                # replies are y0 50 <payload> FF.
-                value = res[2] & 0x0F
-                self.WriteCameraOutput(value, qualifier, 'Live')
-            except (KeyError, IndexError):
-                self.Error(['CameraOutput: Invalid/unexpected response'])
+        self._OutputInquiry('CameraOutput', value, qualifier)
 
     def WriteCameraOutput(self, value, qualifier, context):
         self.WriteStatusHelper('CameraOutput', value, qualifier, context)
@@ -755,6 +866,14 @@ NEW_METHODS = r'''
         if self.__SafeToSet('IntelligentSwitching'):
             self.WriteIntelligentSwitching(value, qualifier, 'Emulated')
             self.__SetHelper('IntelligentSwitching', cmdString, value, qualifier, 3)
+
+    # Get Output's first payload byte, shared with Camera Output above.
+    def _cmd_UpdateIntelligentSwitching(self, value, qualifier):
+        """Update Intelligent Switching
+        value: Enum
+        qualifier: None
+        """
+        self._OutputInquiry('IntelligentSwitching', value, qualifier)
 
     def WriteIntelligentSwitching(self, value, qualifier, context):
         self.WriteStatusHelper('IntelligentSwitching', value, qualifier, context)
@@ -795,6 +914,468 @@ NEW_METHODS = r'''
 
     def ReadCameraConnectionStatus(self, qualifier, context):
         return self.ReadStatusHelper('CameraConnectionStatus', qualifier, context)
+
+################################################################
+### [PATCH E7] PARITY WITH CRESTRON'S I20 DRIVER (v1.6)
+###
+### Commands Crestron's driver has and 20027 did not. Every request is
+### Crestron's own template (i20_wire_table.txt), every reply rule is
+### Crestron's Responses entry, and every range is a Crestron controller's
+### declared Min/Max (experiments/skeleton_i20/CRESTRON_PARITY.md).
+###
+### Left out on purpose, and why (CRESTRON_PARITY.md has the detail):
+###   Privacy Enable/Disable  driver behaviour, not a camera command: stop,
+###                           remember the tilt, point at the ceiling, return.
+###                           Pan Tilt Angle does it from a program.
+###   Press-and-hold menu     the same bytes as Zoom Tele/Wide/Stop and the
+###                           Pan Tilt arrows at speed 1, sent with Menu open.
+###   Field Of View           its conversion is a polynomial Crestron supplies
+###                           only as IL (OverridePolynomial).
+###   PTZ Super Operation     its operation codes are declared nowhere.
+###   Exposure Comp Up/Down   Exposure Compensation sets the level directly.
+################################################################
+
+    # Begin ExposureCompensationMode
+    ####################################################################################################################
+    # Crestron IV-CAM-I20_IP: SetExposureCompensationMode -> 81 01 04 3E {OnOff} FF
+    #                         GetExposureCompensationMode -> 81 09 04 3E FF
+    # MapBooleanToViscaOnOff both ways: On = 0x02, Off = 0x03.
+    def _cmd_SetExposureCompensationMode(self, value, qualifier):
+        """Set Exposure Compensation Mode
+        value: Enum ('On'/'Off')
+        qualifier: None
+        """
+        ValueStateValues = {
+            'On':   0x02,
+            'Off':  0x03
+        }
+
+        if value in ValueStateValues:
+            cmdString = pack('>6B', self.DeviceID, 0x01, 0x04, 0x3E,
+                             ValueStateValues[value], 0xFF)
+            if self.__SafeToSet('ExposureCompensationMode'):
+                self.WriteExposureCompensationMode(value, qualifier, 'Emulated')
+                self.__SetHelper('ExposureCompensationMode', cmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    def _cmd_UpdateExposureCompensationMode(self, value, qualifier):
+        """Update Exposure Compensation Mode
+        value: Enum
+        qualifier: None
+        """
+        ValueStateValues = {
+            0x02: 'On',
+            0x03: 'Off'
+        }
+
+        cmdString = pack('>5B', self.DeviceID, 0x09, 0x04, 0x3E, 0xFF)
+        res = self.__UpdateHelper('ExposureCompensationMode', cmdString, value, qualifier)
+        if res:
+            try:
+                value = ValueStateValues[res[2]]
+                self.WriteExposureCompensationMode(value, qualifier, 'Live')
+            except (KeyError, IndexError):
+                self.Error(['ExposureCompensationMode: Invalid/unexpected response'])
+
+    def WriteExposureCompensationMode(self, value, qualifier, context):
+        self.WriteStatusHelper('ExposureCompensationMode', value, qualifier, context)
+
+    def ReadExposureCompensationMode(self, qualifier, context):
+        return self.ReadStatusHelper('ExposureCompensationMode', qualifier, context)
+
+    # Begin ExposureCompensation
+    ####################################################################################################################
+    # Crestron IV-CAM-I20_IP: SetExposureCompensation -> 81 01 04 4E 00 00 {Y2} {Y1} FF
+    #                         GetExposureCompensation -> 81 09 04 4E FF
+    #   reply  y0 50 00 00 0p 0q FF
+    # Range 0-14 from Crestron's ExposureCompensation controller. The
+    # documentation's table reads 0x00 = -7 EV, 0x07 = 0 EV, 0x0E = +7 EV.
+    # It only acts in auto exposure: Crestron's driver blocks it otherwise.
+    def _cmd_SetExposureCompensation(self, value, qualifier):
+        """Set Exposure Compensation
+        value: Decimal (0 - 14)
+        qualifier: None
+        """
+        if 0 <= int(value) <= 14:
+            cmdString = pack('>9B', self.DeviceID, 0x01, 0x04, 0x4E, 0x00, 0x00,
+                             *(self._Nibbles(value, 2) + [0xFF]))
+            if self.__SafeToSet('ExposureCompensation'):
+                self.WriteExposureCompensation(value, qualifier, 'Emulated')
+                self.__SetHelper('ExposureCompensation', cmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    def _cmd_UpdateExposureCompensation(self, value, qualifier):
+        """Update Exposure Compensation
+        value: Decimal
+        qualifier: None
+        """
+        cmdString = pack('>5B', self.DeviceID, 0x09, 0x04, 0x4E, 0xFF)
+        res = self.__UpdateHelper('ExposureCompensation', cmdString, value, qualifier)
+        if res:
+            try:
+                value = self._FromNibbles(res[2:6])
+                if not 0 <= value <= 14:
+                    raise KeyError(value)
+                self.WriteExposureCompensation(value, qualifier, 'Live')
+            except (KeyError, IndexError):
+                self.Error(['ExposureCompensation: Invalid/unexpected response'])
+
+    def WriteExposureCompensation(self, value, qualifier, context):
+        self.WriteStatusHelper('ExposureCompensation', value, qualifier, context)
+
+    def ReadExposureCompensation(self, qualifier, context):
+        return self.ReadStatusHelper('ExposureCompensation', qualifier, context)
+
+    # Begin FocusPosition
+    ####################################################################################################################
+    # Crestron IV-CAM-I20_IP: SetFocusPosition -> 81 01 04 48 {Y4} {Y3} {Y2} {Y1} FF
+    #                         GetFocusPosition -> 81 09 04 48 FF
+    #   reply  y0 50 0p 0q 0r 0s FF
+    # Crestron's FocusPosition range differs by model (its
+    # FeedbackForZoomAndFocusRanges rules): IV-CAM-I20 12224-17114,
+    # IV-CAM-I12 15084-20664. This driver is not told its model, so it accepts
+    # the union. The camera rejects focus commands while auto focus is on.
+    def _cmd_SetFocusPosition(self, value, qualifier):
+        """Set Focus Position
+        value: Decimal (12224 - 20664)
+        qualifier: None
+        """
+        if 12224 <= int(value) <= 20664:
+            cmdString = pack('>9B', self.DeviceID, 0x01, 0x04, 0x48,
+                             *(self._Nibbles(value, 4) + [0xFF]))
+            if self.__SafeToSet('FocusPosition'):
+                self.WriteFocusPosition(value, qualifier, 'Emulated')
+                self.__SetHelper('FocusPosition', cmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    def _cmd_UpdateFocusPosition(self, value, qualifier):
+        """Update Focus Position
+        value: Decimal
+        qualifier: None
+        """
+        cmdString = pack('>5B', self.DeviceID, 0x09, 0x04, 0x48, 0xFF)
+        res = self.__UpdateHelper('FocusPosition', cmdString, value, qualifier)
+        if res:
+            try:
+                value = self._FromNibbles(res[2:6])
+                self.WriteFocusPosition(value, qualifier, 'Live')
+            except (KeyError, IndexError):
+                self.Error(['FocusPosition: Invalid/unexpected response'])
+
+    def WriteFocusPosition(self, value, qualifier, context):
+        self.WriteStatusHelper('FocusPosition', value, qualifier, context)
+
+    def ReadFocusPosition(self, qualifier, context):
+        return self.ReadStatusHelper('FocusPosition', qualifier, context)
+
+    # Begin OnePushAutoFocus
+    ####################################################################################################################
+    # Crestron IV-CAM-I20_IP: OnePushAutoFocus -> 81 01 04 18 01 FF
+    # (CAM_Focus One Push Trigger in the VISCA table.)
+    def _cmd_SetOnePushAutoFocus(self, value, qualifier):
+        """Set One Push Auto Focus
+        value: Enum ('Trigger')
+        qualifier: None
+        """
+        cmdString = pack('>6B', self.DeviceID, 0x01, 0x04, 0x18, 0x01, 0xFF)
+        if self.__SafeToSet('OnePushAutoFocus'):
+            self.__SetHelper('OnePushAutoFocus', cmdString, value, qualifier, 3)
+
+    # Begin AutoFocusBehavior
+    ####################################################################################################################
+    # Crestron IV-CAM-I20_IP: SetAutoFocusBehavior -> 81 C2 01 02 {v} FF
+    #                         GetAutoFocusBehavior -> 81 C2 09 02 FF
+    #   reply  y0 50 00 0v FF
+    # MapAutoFocusBehavior: global 0x00, center 0x01, face 0x04.
+    def _cmd_SetAutoFocusBehavior(self, value, qualifier):
+        """Set Auto Focus Behavior
+        value: Enum ('Global'/'Center'/'Face')
+        qualifier: None
+        """
+        ValueStateValues = {
+            'Global':   0x00,
+            'Center':   0x01,
+            'Face':     0x04
+        }
+
+        if value in ValueStateValues:
+            cmdString = pack('>6B', self.DeviceID, 0xC2, 0x01, 0x02,
+                             ValueStateValues[value], 0xFF)
+            if self.__SafeToSet('AutoFocusBehavior'):
+                self.WriteAutoFocusBehavior(value, qualifier, 'Emulated')
+                self.__SetHelper('AutoFocusBehavior', cmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    def _cmd_UpdateAutoFocusBehavior(self, value, qualifier):
+        """Update Auto Focus Behavior
+        value: Enum
+        qualifier: None
+        """
+        ValueStateValues = {
+            0x00: 'Global',
+            0x01: 'Center',
+            0x04: 'Face'
+        }
+
+        cmdString = pack('>5B', self.DeviceID, 0xC2, 0x09, 0x02, 0xFF)
+        res = self.__UpdateHelper('AutoFocusBehavior', cmdString, value, qualifier)
+        if res:
+            try:
+                value = ValueStateValues[res[3]]
+                self.WriteAutoFocusBehavior(value, qualifier, 'Live')
+            except (KeyError, IndexError):
+                self.Error(['AutoFocusBehavior: Invalid/unexpected response'])
+
+    def WriteAutoFocusBehavior(self, value, qualifier, context):
+        self.WriteStatusHelper('AutoFocusBehavior', value, qualifier, context)
+
+    def ReadAutoFocusBehavior(self, qualifier, context):
+        return self.ReadStatusHelper('AutoFocusBehavior', qualifier, context)
+
+    # Begin AutoFocusSensitivity
+    ####################################################################################################################
+    # Crestron IV-CAM-I20_IP: SetAutoFocusSensitivity -> 81 C2 01 03 {v} FF
+    #                         GetAutoFocusSensitivity -> 81 C2 09 03 FF
+    #   reply  y0 50 00 0v FF
+    # Range 1-3 from Crestron's AutoFocusSensitivity controller; the value is
+    # sent as a byte (AsByte) and read back raw (FromBytesToUInt).
+    def _cmd_SetAutoFocusSensitivity(self, value, qualifier):
+        """Set Auto Focus Sensitivity
+        value: Decimal (1 - 3)
+        qualifier: None
+        """
+        if 1 <= int(value) <= 3:
+            cmdString = pack('>6B', self.DeviceID, 0xC2, 0x01, 0x03, int(value), 0xFF)
+            if self.__SafeToSet('AutoFocusSensitivity'):
+                self.WriteAutoFocusSensitivity(value, qualifier, 'Emulated')
+                self.__SetHelper('AutoFocusSensitivity', cmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    def _cmd_UpdateAutoFocusSensitivity(self, value, qualifier):
+        """Update Auto Focus Sensitivity
+        value: Decimal
+        qualifier: None
+        """
+        cmdString = pack('>5B', self.DeviceID, 0xC2, 0x09, 0x03, 0xFF)
+        res = self.__UpdateHelper('AutoFocusSensitivity', cmdString, value, qualifier)
+        if res:
+            try:
+                value = res[3]
+                if not 1 <= value <= 3:
+                    raise KeyError(value)
+                self.WriteAutoFocusSensitivity(value, qualifier, 'Live')
+            except (KeyError, IndexError):
+                self.Error(['AutoFocusSensitivity: Invalid/unexpected response'])
+
+    def WriteAutoFocusSensitivity(self, value, qualifier, context):
+        self.WriteStatusHelper('AutoFocusSensitivity', value, qualifier, context)
+
+    def ReadAutoFocusSensitivity(self, qualifier, context):
+        return self.ReadStatusHelper('AutoFocusSensitivity', qualifier, context)
+
+    # Begin AutoPrivacyMode
+    ####################################################################################################################
+    # Crestron IV-CAM-I20_IP: SetAutoPrivacyMode -> 81 01 0E 24 26 00 {OnOff} FF
+    #                         GetAutoPrivacyMode -> 81 09 0E 24 26 FF
+    #   reply  y0 50 00 0v FF
+    # MapBooleanToBinaryOnOff: On = 0x01, Off = 0x00 (not VISCA's 02/03).
+    # The camera's own privacy mode. Crestron's driver asks for it to be off,
+    # because a camera in privacy mode answers no VISCA command.
+    def _cmd_SetAutoPrivacyMode(self, value, qualifier):
+        """Set Auto Privacy Mode
+        value: Enum ('On'/'Off')
+        qualifier: None
+        """
+        ValueStateValues = {
+            'On':   0x01,
+            'Off':  0x00
+        }
+
+        if value in ValueStateValues:
+            cmdString = pack('>8B', self.DeviceID, 0x01, 0x0E, 0x24, 0x26, 0x00,
+                             ValueStateValues[value], 0xFF)
+            if self.__SafeToSet('AutoPrivacyMode'):
+                self.WriteAutoPrivacyMode(value, qualifier, 'Emulated')
+                self.__SetHelper('AutoPrivacyMode', cmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    def _cmd_UpdateAutoPrivacyMode(self, value, qualifier):
+        """Update Auto Privacy Mode
+        value: Enum
+        qualifier: None
+        """
+        ValueStateValues = {
+            0x01: 'On',
+            0x00: 'Off'
+        }
+
+        cmdString = pack('>6B', self.DeviceID, 0x09, 0x0E, 0x24, 0x26, 0xFF)
+        res = self.__UpdateHelper('AutoPrivacyMode', cmdString, value, qualifier)
+        if res:
+            try:
+                value = ValueStateValues[res[3]]
+                self.WriteAutoPrivacyMode(value, qualifier, 'Live')
+            except (KeyError, IndexError):
+                self.Error(['AutoPrivacyMode: Invalid/unexpected response'])
+
+    def WriteAutoPrivacyMode(self, value, qualifier, context):
+        self.WriteStatusHelper('AutoPrivacyMode', value, qualifier, context)
+
+    def ReadAutoPrivacyMode(self, qualifier, context):
+        return self.ReadStatusHelper('AutoPrivacyMode', qualifier, context)
+
+    # Begin AutoSoftwareUpdate
+    ####################################################################################################################
+    # Crestron IV-CAM-I20_IP: SetAutoSoftwareUpdate -> 81 C2 01 04 {OnOff} FF
+    #                         GetAutoSoftwareUpdate -> 81 C2 09 04 FF
+    #   reply  y0 50 00 0v FF
+    # MapBooleanToBinaryOnOff: On = 0x01, Off = 0x00. Crestron polls it every
+    # 30 s, the slowest poll in its driver.
+    def _cmd_SetAutoSoftwareUpdate(self, value, qualifier):
+        """Set Auto Software Update
+        value: Enum ('On'/'Off')
+        qualifier: None
+        """
+        ValueStateValues = {
+            'On':   0x01,
+            'Off':  0x00
+        }
+
+        if value in ValueStateValues:
+            cmdString = pack('>6B', self.DeviceID, 0xC2, 0x01, 0x04,
+                             ValueStateValues[value], 0xFF)
+            if self.__SafeToSet('AutoSoftwareUpdate'):
+                self.WriteAutoSoftwareUpdate(value, qualifier, 'Emulated')
+                self.__SetHelper('AutoSoftwareUpdate', cmdString, value, qualifier, 3)
+        else:
+            self.Discard('Invalid Command')
+
+    def _cmd_UpdateAutoSoftwareUpdate(self, value, qualifier):
+        """Update Auto Software Update
+        value: Enum
+        qualifier: None
+        """
+        ValueStateValues = {
+            0x01: 'On',
+            0x00: 'Off'
+        }
+
+        cmdString = pack('>5B', self.DeviceID, 0xC2, 0x09, 0x04, 0xFF)
+        res = self.__UpdateHelper('AutoSoftwareUpdate', cmdString, value, qualifier)
+        if res:
+            try:
+                value = ValueStateValues[res[3]]
+                self.WriteAutoSoftwareUpdate(value, qualifier, 'Live')
+            except (KeyError, IndexError):
+                self.Error(['AutoSoftwareUpdate: Invalid/unexpected response'])
+
+    def WriteAutoSoftwareUpdate(self, value, qualifier, context):
+        self.WriteStatusHelper('AutoSoftwareUpdate', value, qualifier, context)
+
+    def ReadAutoSoftwareUpdate(self, qualifier, context):
+        return self.ReadStatusHelper('AutoSoftwareUpdate', qualifier, context)
+
+    # Begin DeviceModel / RomVersion
+    ####################################################################################################################
+    # Crestron IV-CAM-I20_IP: GetDeviceInformation -> 81 09 00 02 FF
+    #   reply  y0 50 00 01 mn pq rs tu vw FF
+    #          model code mn pq, ROM version rs tu, socket vw (CAM_VersionInq)
+    # MapModelCodeToModel: 05 05 IV-CAM-I20, 05 06 IV-CAM-I12, 05 07 IV-CAM-P20,
+    # 05 08 IV-CAM-P12, anything else Unknown. Crestron turns the ROM version
+    # into text with FormatRomVersion, which exists only as IL, so this reports
+    # the two bytes as the 16-bit number they are rather than guess its format.
+    _MODEL_CODES = {
+        (0x05, 0x05): 'IV-CAM-I20',
+        (0x05, 0x06): 'IV-CAM-I12',
+        (0x05, 0x07): 'IV-CAM-P20',
+        (0x05, 0x08): 'IV-CAM-P12'
+    }
+
+    def _VersionInquiry(self, command, value, qualifier):
+        cmdString = pack('>5B', self.DeviceID, 0x09, 0x00, 0x02, 0xFF)
+        return self._SharedInquiry(command, cmdString, value, qualifier,
+                                   self._ParseVersion)
+
+    def _ParseVersion(self, res, qualifier):
+        model = self._MODEL_CODES.get((res[4], res[5]), 'Unknown')
+        rom = (res[6] << 8) | res[7]
+        self.WriteDeviceModel(model, qualifier, 'Live')
+        self.WriteRomVersion(rom, qualifier, 'Live')
+        return model, rom
+
+    def _cmd_UpdateDeviceModel(self, value, qualifier):
+        """Update Device Model
+        value: Enum
+        qualifier: None
+        """
+        self._VersionInquiry('DeviceModel', value, qualifier)
+
+    def WriteDeviceModel(self, value, qualifier, context):
+        self.WriteStatusHelper('DeviceModel', value, qualifier, context)
+
+    def ReadDeviceModel(self, qualifier, context):
+        return self.ReadStatusHelper('DeviceModel', qualifier, context)
+
+    def _cmd_UpdateRomVersion(self, value, qualifier):
+        """Update ROM Version
+        value: Decimal
+        qualifier: None
+        """
+        self._VersionInquiry('RomVersion', value, qualifier)
+
+    def WriteRomVersion(self, value, qualifier, context):
+        self.WriteStatusHelper('RomVersion', value, qualifier, context)
+
+    def ReadRomVersion(self, qualifier, context):
+        return self.ReadStatusHelper('RomVersion', qualifier, context)
+
+    # Begin PanSpeedMaxStatus / TiltSpeedMaxStatus
+    ####################################################################################################################
+    # Crestron IV-CAM-I20_IP: GetPanTiltSpeedMax -> 81 09 06 11 FF
+    #   reply  y0 50 ww zz FF    ww pan, zz tilt: one whole byte each, not
+    #                            nibbles (Pan-tiltMaxSpeedInq)
+    def _SpeedMaxInquiry(self, command, value, qualifier):
+        cmdString = pack('>5B', self.DeviceID, 0x09, 0x06, 0x11, 0xFF)
+        return self._SharedInquiry(command, cmdString, value, qualifier,
+                                   self._ParseSpeedMax)
+
+    def _ParseSpeedMax(self, res, qualifier):
+        speeds = (res[2], res[3])
+        self.WritePanSpeedMaxStatus(speeds[0], qualifier, 'Live')
+        self.WriteTiltSpeedMaxStatus(speeds[1], qualifier, 'Live')
+        return speeds
+
+    def _cmd_UpdatePanSpeedMaxStatus(self, value, qualifier):
+        """Update Pan Speed Max Status
+        value: Decimal
+        qualifier: None
+        """
+        self._SpeedMaxInquiry('PanSpeedMaxStatus', value, qualifier)
+
+    def WritePanSpeedMaxStatus(self, value, qualifier, context):
+        self.WriteStatusHelper('PanSpeedMaxStatus', value, qualifier, context)
+
+    def ReadPanSpeedMaxStatus(self, qualifier, context):
+        return self.ReadStatusHelper('PanSpeedMaxStatus', qualifier, context)
+
+    def _cmd_UpdateTiltSpeedMaxStatus(self, value, qualifier):
+        """Update Tilt Speed Max Status
+        value: Decimal
+        qualifier: None
+        """
+        self._SpeedMaxInquiry('TiltSpeedMaxStatus', value, qualifier)
+
+    def WriteTiltSpeedMaxStatus(self, value, qualifier, context):
+        self.WriteStatusHelper('TiltSpeedMaxStatus', value, qualifier, context)
+
+    def ReadTiltSpeedMaxStatus(self, qualifier, context):
+        return self.ReadStatusHelper('TiltSpeedMaxStatus', qualifier, context)
 '''
 
 

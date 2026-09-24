@@ -8,9 +8,10 @@ Why a transplant and not a from-scratch object graph
 Finding 12 measured that Global Configurator ingests a package produced by
 our NRBF writer, including a mutated one - but every package tested there
 descended from a real package's byte stream. Assembling an object graph
-from scratch is a separate, untested step (STATUS.md open item 4). This
-module deliberately stays on the measured side of that line: it reads a real
-package, changes named things inside it, and writes it back.
+from scratch is a separate, untested step (ROADMAP.md R28: "a graph
+assembled from scratch"). This module deliberately stays on the measured
+side of that line: it reads a real package, changes named things inside it,
+and writes it back.
 
 The safety property that makes that trustworthy
 -----------------------------------------------
