@@ -26,6 +26,7 @@ _ROOT = os.path.dirname(_HERE)
 sys.path.insert(0, _HERE)
 
 import pkp_dump as pd            # noqa: E402
+import vendor_inputs            # noqa: E402
 import pkp_build as pb           # noqa: E402
 
 
@@ -283,6 +284,10 @@ def _graph_fingerprint(raw):
 
 def main():
     print("test_pkp_build.py - offline gate for the .pkp transplant builder")
+    # Every test here reads the sample packages, the camera donor above all;
+    # without them the suite would pass on an empty list, so it is skipped.
+    vendor_inputs.skip_suite(os.path.join(_ROOT, "samples", "1 Beyond Cameras",
+                                          "PTZ-IP12_IP20", "pkp", "1bynd_19_4743_v1_0_1.pkp"))
     for fn in (test_all_donors_round_trip,
                test_unmutated_build_is_stable,
                test_scripts_discovered,

@@ -127,6 +127,12 @@ compiled code. PTZ super operation, whose operation codes are declared nowhere.
 
 ## Path B — Global Configurator
 
+*(Since 2026-09-24 the built packages are not in the repository: each is a
+modified Extron package. The owner's checkout has them; anyone else builds
+`20028` with `python experiments/skeleton_i20/build_i20_assets.py`, which needs
+Extron's donor `samples/1 Beyond Cameras/PTZ-IP12_IP20/pkp/1bynd_19_4743_v1_0_1.pkp`
+in place — see `vendor-files.manifest.tsv`.)*
+
 **File:** `out/1bynd_19_20028_v1_0_0.pkp` — **the only one to install.** It lists
 in Driver Manager as *1 Beyond / IV-CAM-I20 / 1.6* (and *IV-CAM-I12 / 1.6*), with
 45 commands on the I20 and 42 on the I12, which does not get the three I20-only

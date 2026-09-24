@@ -1,5 +1,7 @@
 # Automate VX API Documentation — Harvest Index
 
+*(2026-09-24: the harvested pages this index lists are the vendor's text and are no longer published — the repository is public. This index, its source URLs and our analyses stay, so any page can be fetched again; `vendor-files.manifest.tsv` pins the copies the findings used.)*
+
 Harvested from `https://sdkcon78221.crestron.com/sdk/Automate-VX-API/` (a MadCap Flare site). Fetched via
 `brightdata scrape` on 2026-09-07. Page enumeration relied entirely on `brightdata search "site:sdkcon78221.crestron.com Automate-VX-API <term>"`
 plus links harvested from within fetched pages (the `Data/Tocs` JSON TOC endpoints return 404, and the

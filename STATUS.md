@@ -53,6 +53,7 @@ described in `ENVIRONMENT.md`.**
 | `tools/nrbf_graph.py` | **Structural navigation over an NRBF trace.** Every object id → its exact span of records, by replaying the reader's grammar. Verified end-to-end on all 9 packages, up to 4.4M events / 668k objects. | (with below) |
 | `tools/pkp_asset.py` | **Adds commands to a `.pkp`'s object graph.** Clone/attach/detach of asset subtrees with computed ownership, so a shared string is never renamed and a donor is never damaged. Output confirmed loadable by Extron's own `LoadFromFile`. Per-model command lists can be trimmed (`CommandGraph.detach`). | 48 |
 | `tools/pkg_patch.py` | **Replaces the driver definition inside a Crestron `.pkg`'s DLL.** In place, or grown within the section's slack with every RVA fixed up; refuses to grow beyond it. Authenticode detected and optionally stripped, never re-signed. | 11 |
+| `tools/verify_vendor_files.py` | **Checks a local copy of the unpublished vendor material** against `vendor-files.manifest.tsv` (SHA-256 and size per file). Its test also fails if a listed file becomes tracked or stops being ignored. `tools/vendor_inputs.py` is how every suite skips, visibly, what needs a missing file. | 14 |
 | `tools/gc_catalogue.py` | **What Global Configurator catalogued.** Reads `DriverLookup.dat` (raw NRBF); `--against` compares it with a driver folder. Failing the catalogue-parse gate shows only as absence — this measures it. | 14 |
 | `experiments/skeleton_i20/` | **i20 driver, both forms.** `.pkp` transplant + standalone ControlScript module, held to identical bytes, every added frame matched against Crestron's resolved template. | 179 + 103 |
 | `experiments/skeleton_p20/` | **P12/P20 driver, both forms**, from the i20 builders: `1bynd_19_20102` (38 commands), loads through Extron's loader. Not uploaded. | 69 |
@@ -64,10 +65,16 @@ described in `ENVIRONMENT.md`.**
 Experiments live in `experiments/` (NRBF writer, Crestron→ControlScript, missing-Ethernet
 generation, docs-only generation, oracle pairs, graph probes and cross-package cloning,
 a sweep of all 1,854 corpus packages, Ross Ultrix, GCP harness).
-Harvested vendor docs in `reference/`. **`corpus/` is a 1.3 GB snapshot of an
-Extron library** (1,854 `.pkp`, 2,235 ControlScript modules), so findings 14, 16 and 17
-reproduce off that machine. `evidence/` holds the screenshots and catalogue captures the
-findings cite.
+Our indexes and analyses of vendor docs in `reference/`. **`corpus/` holds a snapshot of
+an Extron library** (1,854 `.pkp`, 2,235 ControlScript modules), so findings 14, 16 and 17
+reproduce off that machine — given the snapshot. `evidence/` holds the screenshots and
+logs the findings cite.
+
+**The repository is public and publishes no vendor material** (since 2026-09-24): the
+samples, the corpus, harvested vendor pages, GC catalogue captures and the packages built
+from vendor ones are untracked, pinned by SHA-256 in `vendor-files.manifest.tsv`
+(`tools/verify_vendor_files.py` checks a copy). In a clone without them, every suite runs
+what it can and skips the rest, naming the missing file. Earlier commits still contain them.
 
 ### Translator scorecard
 
@@ -130,8 +137,8 @@ not a mechanical rewrite, so they are reported as residuals rather than guessed.
 
 *The "only 4 oracle pairs" item was closed by finding 14: 352 pairs across 314 packages,
 scored.* Finding 12 counted **6,644 `.pkp`** in one GC install; the snapshotted library held
-1,854, and that library is now committed under `corpus/`. The sampling problem is a
-selection problem.
+1,854, and that library is kept under `corpus/` (untracked, hash-pinned). The sampling
+problem is a selection problem.
 
 ## Standing methodology notes
 

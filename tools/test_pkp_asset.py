@@ -34,6 +34,7 @@ _ROOT = os.path.dirname(_HERE)
 sys.path.insert(0, _HERE)
 
 import pkp_dump as pd            # noqa: E402
+import vendor_inputs            # noqa: E402
 import pkp_build as pb           # noqa: E402
 import pkp_asset as pa           # noqa: E402
 import nrbf_graph as ng          # noqa: E402
@@ -355,6 +356,10 @@ def test_enum_members():
 
 def main():
     print("test_pkp_asset.py - offline gate for object-graph synthesis")
+    # Every test here reads the sample packages, the camera donor above all;
+    # without them the suite would pass on an empty list, so it is skipped.
+    vendor_inputs.skip_suite(os.path.join(_ROOT, "samples", "1 Beyond Cameras",
+                                          "PTZ-IP12_IP20", "pkp", "1bynd_19_4743_v1_0_1.pkp"))
     for fn in (test_grammar_covers_every_package,
                test_spans_partition_the_trace,
                test_clone_is_isolated,

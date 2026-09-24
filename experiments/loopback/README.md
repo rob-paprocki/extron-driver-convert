@@ -64,7 +64,8 @@ the whole sequence the moment the driver connects to the PC.
 
 1. **Driver.** Install `experiments/skeleton_i20/out/1bynd_19_20028_v1_0_0.pkp`
    into GC's driver library, then restart GC so it catalogues it
-   (`experiments/skeleton_i20/PROTOCOL.md`, *Install 20028*).
+   (`experiments/skeleton_i20/PROTOCOL.md`, *Install 20028*). The package is not
+   in the repository — build it locally there first if you do not have it.
    20027 is 20024 with feedback GC can bind and polls, one Tracking Mode
    command in place of two enable-only ones, and Camera Output 1-5. 20028
    (v1.6) adds Crestron parity commands and makes Tracking Mode, Tracking

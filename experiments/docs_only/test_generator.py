@@ -39,6 +39,7 @@ import analyze_endpoints as ae  # noqa: E402
 
 PASS = 0
 FAIL = 0
+SKIPPED = 0
 
 
 def check(label, got, want):
@@ -97,29 +98,37 @@ EXPECTED_PROMOTED = {
     "api/RoomConfigStatus", "api/GetLayouts", "api/LayoutStatus",
     "api/GetRoomConfigs",
 }
-documented, by_file = ae.build_documented_uris()
+# The pages harvested from Crestron's site are not published
+# (vendor-files.manifest.tsv); without them this section is skipped, visibly.
+if not os.path.isfile(os.path.join(_ROOT, "reference", "automate-vx-api", "API-Reference",
+                                   "RecordStatus-API.md")):
+    SKIPPED += 1
+    print("  SKIP section 3: vendor input not present: reference/automate-vx-api/"
+          "API-Reference/ (see vendor-files.manifest.tsv)")
+else:
+    documented, by_file = ae.build_documented_uris()
 
-check("7 sub-APIs promoted from example-only to dedicated-page by the R32 re-harvest",
-      ae.SUBAPI_NAMED_IN_ENDPOINTS_MD & documented, EXPECTED_PROMOTED)
+    check("7 sub-APIs promoted from example-only to dedicated-page by the R32 re-harvest",
+          ae.SUBAPI_NAMED_IN_ENDPOINTS_MD & documented, EXPECTED_PROMOTED)
 
-check("2 sub-APIs still have no dedicated page (ISORecordStatus, CopyStatus)",
-      ae.SUBAPI_EXAMPLE_ONLY, {"api/ISORecordStatus", "api/CopyStatus"})
+    check("2 sub-APIs still have no dedicated page (ISORecordStatus, CopyStatus)",
+          ae.SUBAPI_EXAMPLE_ONLY, {"api/ISORecordStatus", "api/CopyStatus"})
 
-# Every promoted URI's page should be one of the 9 files this re-harvest
-# added (not a pre-existing page misclassified some other way).
-NEW_FILES = {
-    "Wake-API.md", "AutoSwitchStatus-API.md", "StartAutoSwitch-API.md",
-    "OutputStatus-API.md", "RecordStatus-API.md", "RoomConfigStatus-API.md",
-    "GetLayouts-API.md", "LayoutStatus-API.md", "GetRoomConfigs-API.md",
-}
-promoted_files = {by_file[u] for u in EXPECTED_PROMOTED}
-check_true("every promoted sub-API's page is one of the 9 pages this re-harvest added",
-           promoted_files <= NEW_FILES)
+    # Every promoted URI's page should be one of the 9 files this re-harvest
+    # added (not a pre-existing page misclassified some other way).
+    NEW_FILES = {
+        "Wake-API.md", "AutoSwitchStatus-API.md", "StartAutoSwitch-API.md",
+        "OutputStatus-API.md", "RecordStatus-API.md", "RoomConfigStatus-API.md",
+        "GetLayouts-API.md", "LayoutStatus-API.md", "GetRoomConfigs-API.md",
+    }
+    promoted_files = {by_file[u] for u in EXPECTED_PROMOTED}
+    check_true("every promoted sub-API's page is one of the 9 pages this re-harvest added",
+               promoted_files <= NEW_FILES)
 
-check("Get-Token still classifies OFFICIAL (regression guard on the base case)",
-      ae.classify("get-token"), "OFFICIAL")
-check("StartISORecord still classifies DOC_GAP (never fetchable -- 404, confirmed live)",
-      ae.classify("api/StartISORecord"), "DOC_GAP")
+    check("Get-Token still classifies OFFICIAL (regression guard on the base case)",
+          ae.classify("get-token"), "OFFICIAL")
+    check("StartISORecord still classifies DOC_GAP (never fetchable -- 404, confirmed live)",
+          ae.classify("api/StartISORecord"), "DOC_GAP")
 
 
 # =========================================================================
@@ -170,5 +179,6 @@ except ImportError as e:
           "tools/test_wire_table.py instead" % e)
 
 
-print("\n%d passed, %d failed, %d total" % (PASS, FAIL, PASS + FAIL))
+print("\n%d passed, %d failed, %d total; %d section(s) skipped (vendor input absent)"
+      % (PASS, FAIL, PASS + FAIL, SKIPPED))
 sys.exit(1 if FAIL else 0)

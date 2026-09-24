@@ -4,8 +4,9 @@
 carrying **1,853 `.pkp`** packages and Extron's **09/06/2026 GS module
 shipment** (2,235 ControlScript modules). Neither library is in this repo;
 `experiments/oracle_pairs/` rebuilds the analysis on any machine that has them.
-*(Since then: a snapshot of both is committed under `corpus/` (1,854 packages),
-and `experiments/oracle_pairs/` reads it by default. **Re-scored 2026-09-23 —
+*(Since then: a snapshot of both was committed under `corpus/` (1,854 packages)
+and `experiments/oracle_pairs/` reads it by default; since 2026-09-24 it is
+untracked vendor material again, pinned by SHA-256 in `vendor-files.manifest.tsv`. **Re-scored 2026-09-23 —
 §7**: 80.8% wire-match, and 48 of 314 generated modules (15%) would raise
 `AttributeError` or `NameError` at runtime, where the first run found 25% from
 `AttributeError` alone. **Then executed — §8**: counting attributes nothing

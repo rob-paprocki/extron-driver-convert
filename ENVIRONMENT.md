@@ -79,26 +79,34 @@ truncates the catalogue before rebuilding it, so an interrupted start leaves a
 0-byte file. Both are raw NRBF and parse with `tools/pkp_dump.py`, so whether GC
 catalogued something is directly checkable. Read finding 12 first.
 
-A SHA-256-verified snapshot of one such library is committed under `corpus/`,
-and `experiments/oracle_pairs/` reads it by default — so findings 14, 16 and 17
-reproduce with no Extron install at all.
+A SHA-256-verified snapshot of one such library belongs under `corpus/`, and
+`experiments/oracle_pairs/` reads it by default — so findings 14, 16 and 17
+reproduce with no Extron install, given the snapshot.
+
+**The vendor material is not in the repository** (since 2026-09-24; the repo is
+public): the samples, the corpus, harvested vendor pages, GC catalogue captures
+and every package built from a vendor one. `vendor-files.manifest.tsv` lists
+each file's SHA-256, size and path.
 
 ## Setting up a workstation
 
 1. Install Global Configurator Pro and sign in.
 2. Install Python 3.11 or later. No packages are needed.
-3. Restore the library if a fresh install lacks packages a finding cites: copy
+3. **Put the vendor material in place** at the paths `vendor-files.manifest.tsv`
+   lists, and check it: `python tools/verify_vendor_files.py` (`--only samples/`
+   for a subset). Without it the tests that need it skip; with it, they run.
+4. Restore the library if a fresh install lacks packages a finding cites: copy
    `corpus/extron-driver3/*` into `<DRIVER_LIB>`, **after backing up that
    folder's `DataFile.dat` and `DriverLookup.dat`.**
-4. Install Crestron Toolbox, for the Crestron-side items only.
-5. Rebuild the validator harnesses, for finding-16 work:
+5. Install Crestron Toolbox, for the Crestron-side items only.
+6. Rebuild the validator harnesses, for finding-16 work:
    `C:\Windows\Microsoft.NET\Framework\v4.0.30319\csc.exe /platform:x86 Harness.cs`
    (and `Dir.cs`, `Mutate.cs`, `Reflect2.cs`) in
    `experiments/validator_differential/`.
-6. Unpack the ControlScript `.vsix` into `tools/out/vsix` if you need the
+7. Unpack the ControlScript `.vsix` into `tools/out/vsix` if you need the
    `extronlib` stubs — see `ROADMAP.md` R13.
-7. Run the test suites, below.
-8. Run the acceptance check, below.
+8. Run the test suites, below.
+9. Run the acceptance check, below.
 
 ### Tests
 
@@ -125,9 +133,14 @@ python -u experiments/corpus_sweep/test_sweep.py
 python -u experiments/docs_only/test_generator.py
 python -u experiments/graph_synthesis/test_cross_clone.py
 python -u experiments/exec_harness/test_exec_harness.py
+python -u tools/test_verify_vendor_files.py
 ```
 
-**1,075 tests in 20 files** (all passing, 2026-09-23). `test_pkp_build.py` and
+**1,089 tests in 21 files**, all passing with the vendor material in place
+(2026-09-24). **In a clone without it, 309 run and pass and the rest are
+skipped**, each skip naming the file it needed (`tools/vendor_inputs.py`); a
+suite that cannot build anything without its donor package says so and exits 0.
+A clean run in a clone checks the code, not the findings. `test_pkp_build.py` and
 `test_pkp_validate.py` walk every sample package, including a 4.4M-event one —
 expect roughly 11 and 4 minutes respectively, and about 20 minutes for the whole
 set.

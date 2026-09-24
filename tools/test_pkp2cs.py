@@ -13,6 +13,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import pkp_dump           # noqa: E402
+import vendor_inputs      # noqa: E402
 import pkp2cs             # noqa: E402
 import wire_table as wt   # noqa: E402
 
@@ -1090,8 +1091,7 @@ def test_samsung_ethernet_job_reports_dangling_reference_as_residual():
     gc-emulated-wrapper-kept-as-scratch-store residual explains why."""
     pkp = os.path.join(REPO_ROOT, "samples", "Samsung QNxxLS03DAFXZA", "pkp",
                        "smsg_10_6738_v1_0_0.pkp")
-    if not os.path.exists(pkp):
-        return
+    vendor_inputs.require(pkp)
     jobs = pkp2cs.discover_jobs(pkp)
     eth = [j for j in jobs if "ethernet" in j.script_file_name]
     if not eth:
@@ -1261,8 +1261,7 @@ def test_non_sis_ethernet_reports_untranslated_handshake():
     (no fabricated SIS handshake anywhere in the module) is checked directly,
     and R17's own secondary-mixin residual takes its place."""
     pkp = os.path.join(REPO_ROOT, "samples", "Tesira", "pkp", "biam_25_150_v1_20_0.pkp")
-    if not os.path.exists(pkp):
-        return
+    vendor_inputs.require(pkp)
     r = pkp2cs.translate_pkp(pkp)[0]
     assert r["dialect"] == "serial", r["dialect"]
     reasons = {x["reason"] for x in r["residuals"]}
@@ -1368,8 +1367,7 @@ def test_clockaudio_ethernet_class_matches_shipped_udp_port():
     shipped, oracle-matching value straight from the package's own
     EthernetProtocolAsset (_compatibility=32 Ethernet_UDP, _port=49494),
     with no residual saying it couldn't be found."""
-    if not os.path.exists(CLOCKAUDIO_PKP):
-        return
+    vendor_inputs.require(CLOCKAUDIO_PKP)
     r = pkp2cs.translate_pkp(CLOCKAUDIO_PKP)[0]
     assert r["dialect"] == "ethernet", r["dialect"]
     assert "Protocol='UDP', ServicePort=49494" in r["source"], r["source"]
@@ -1468,8 +1466,7 @@ def test_ptz_ip12_models_resolve_both_protocol_assets():
     protocol asset" finding). Both models' single IProtocolAsset wrapper
     holds an EthernetProtocolAsset AND a SerialProtocolAsset; before this fix
     protocol_class was None for both."""
-    if not os.path.exists(PTZ_IP12_PKP):
-        return
+    vendor_inputs.require(PTZ_IP12_PKP)
     jobs = pkp2cs.discover_jobs(PTZ_IP12_PKP)
     assert len(jobs) == 1, jobs
     job = jobs[0]
@@ -1484,8 +1481,7 @@ def test_ptz_ip12_translates_with_both_transport_mixins_and_no_dangling_calls():
     """Integration: end to end, both wiring classes are emitted, the
     dual-transport residual explains why, and the module is still valid,
     dangling-call-free Python."""
-    if not os.path.exists(PTZ_IP12_PKP):
-        return
+    vendor_inputs.require(PTZ_IP12_PKP)
     jobs = pkp2cs.discover_jobs(PTZ_IP12_PKP)
     result = pkp2cs.translate_job(jobs[0])
     assert result["source"] is not None
@@ -1512,8 +1508,7 @@ def test_ptz_ip12_generated_module_imports_what_it_uses():
     """The generated module used `pack` 19 times with no import - a NameError
     on the processor that neither the wire table nor the dangling self.X()
     check could see. The source's own `from struct import pack` is carried."""
-    if not os.path.exists(PTZ_IP12_PKP):
-        return
+    vendor_inputs.require(PTZ_IP12_PKP)
     src = pkp2cs.translate_job(pkp2cs.discover_jobs(PTZ_IP12_PKP)[0])["source"]
     assert "from struct import pack" in src, src[:600]
     assert pkp2cs.find_unresolved_globals(src) == [], pkp2cs.find_unresolved_globals(src)
@@ -2026,15 +2021,22 @@ if __name__ == "__main__":
               if name.startswith("test_") and callable(obj)]
     passed = 0
     failed = 0
+    skipped = 0
     for name, fn in tests:
         try:
             fn()
             passed += 1
             print("PASS", name)
         except Exception as e:
+            why = vendor_inputs.vendor_missing(e)
+            if why:
+                skipped += 1
+                print("SKIP", name, "-", why)
+                continue
             failed += 1
             print("FAIL", name, "-", repr(e))
             import traceback
             traceback.print_exc()
-    print("%d passed, %d failed, %d total" % (passed, failed, len(tests)))
+    print("%d passed, %d failed, %d skipped (vendor input absent), %d total"
+          % (passed, failed, skipped, len(tests)))
     sys.exit(1 if failed else 0)

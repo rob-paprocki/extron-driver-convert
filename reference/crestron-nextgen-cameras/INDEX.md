@@ -1,5 +1,7 @@
 # Crestron NextGen Cameras (IV-CAM Series) Documentation — Index
 
+*(2026-09-24: the harvested pages this index lists are the vendor's text and are no longer published — the repository is public. This index, its source URLs and our analyses stay, so any page can be fetched again; `vendor-files.manifest.tsv` pins the copies the findings used.)*
+
 Harvested from the public Crestron documentation set at https://docs.crestron.com/en-us/9440/Content/Topics/Home.htm 
 (MadCap Flare site, doc ID 9440, product: IV-CAM Series / Crestron 1 Beyond NextGen Cameras).
 

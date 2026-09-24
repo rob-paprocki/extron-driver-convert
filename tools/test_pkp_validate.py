@@ -39,6 +39,7 @@ sys.path.insert(0, _HERE)
 
 import pkp_build as pb            # noqa: E402
 import pkp_validate as pv         # noqa: E402
+import vendor_inputs              # noqa: E402
 
 
 PASS = []
@@ -58,6 +59,12 @@ def all_packages():
         for f in files:
             if f.endswith(".pkp"):
                 out.append(os.path.join(root, f))
+    if not out:
+        # The sample packages are not published (vendor-files.manifest.tsv):
+        # skip what needs them rather than pass on an empty list.
+        raise vendor_inputs.VendorInputMissing(
+            "vendor input not present: no sample packages under samples/ "
+            "(see vendor-files.manifest.tsv)")
     return sorted(out)
 
 
@@ -598,6 +605,7 @@ def test_cli():
 
 def main():
     print("test_pkp_validate.py - offline gate for the .pkp validator")
+    skipped = 0
     for fn in (test_enum_mirrors_extron,
                test_every_sample_validates,
                test_pdf_is_embedded_and_checked,
@@ -617,9 +625,17 @@ def main():
                test_accepts_bytes_and_gzip,
                test_digest_is_plain_sha256,
                test_cli):
-        fn()
+        try:
+            fn()
+        except Exception as e:  # noqa: BLE001
+            why = vendor_inputs.vendor_missing(e)
+            if not why:
+                raise
+            skipped += 1
+            print("  SKIP %s - %s" % (fn.__name__, why))
     total = len(PASS) + len(FAIL)
-    print("\n%d passed, %d failed, %d total" % (len(PASS), len(FAIL), total))
+    print("\n%d passed, %d failed, %d total; %d section(s) skipped (vendor input absent)"
+          % (len(PASS), len(FAIL), total, skipped))
     return 1 if FAIL else 0
 
 

@@ -18,6 +18,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 
 import pkp_dump as pd            # noqa: E402
 import nrbf_write as nw          # noqa: E402
+import vendor_inputs             # noqa: E402
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -30,8 +31,7 @@ ALL_PKPS = [SAMSUNG, DSC, DTP3, AUTOMATE_VX]
 
 
 def _require_samples():
-    missing = [p for p in ALL_PKPS if not os.path.isfile(p)]
-    assert not missing, "missing sample .pkp files: %r" % missing
+    vendor_inputs.require(*ALL_PKPS)
 
 
 # --------------------------------------------------------------------------
@@ -286,15 +286,22 @@ if __name__ == "__main__":
     tests = [(name, fn) for name, fn in sorted(globals().items())
              if name.startswith("test_") and callable(fn)]
     failed = 0
+    skipped = 0
     for name, fn in tests:
         try:
             fn()
             print("PASS", name)
-        except AssertionError as e:
-            failed += 1
-            print("FAIL", name, "-", e)
         except Exception as e:
-            failed += 1
-            print("ERROR", name, "-", repr(e))
-    print("%d/%d passed" % (len(tests) - failed, len(tests)))
+            why = vendor_inputs.vendor_missing(e)
+            if why:
+                skipped += 1
+                print("SKIP", name, "-", why)
+            elif isinstance(e, AssertionError):
+                failed += 1
+                print("FAIL", name, "-", e)
+            else:
+                failed += 1
+                print("ERROR", name, "-", repr(e))
+    print("%d/%d passed, %d skipped (vendor input absent)"
+          % (len(tests) - failed - skipped, len(tests), skipped))
     sys.exit(1 if failed else 0)

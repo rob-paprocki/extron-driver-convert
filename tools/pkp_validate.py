@@ -79,9 +79,10 @@ close it.
       It also could not confirm that a DriverValidationService is constructed
       on every path that reaches Validate.
     NOT RESOLVED as a question of Extron's internal behaviour, but the real
-    table IS in this repo: `experiments/validator_differential/ilres/ExtronDH.dat`
+    table is on hand: `experiments/validator_differential/ilres/ExtronDH.dat`
     is the actual 534,939-byte resource `LoadDefaultFromResource()` reads out of
-    `Extron.Configuration.Drivers.dll` 15.27.0.0, committed vendor material, and
+    `Extron.Configuration.Drivers.dll` 15.27.0.0 - vendor material, untracked
+    since 2026-09-24 and pinned by vendor-files.manifest.tsv - and
     `experiments/validator_differential/guidtable.tsv` is its 4,775 entries
     extracted to `guid<TAB>sha256hex` (finding 16 section 5c measured that
     loading it turns exactly the three pre-13.x packages from 80086 to Valid and
@@ -248,7 +249,8 @@ CLI:
     `guid<TAB>64-hex-char-sha256` row per line, `#`-prefixed lines and blank
     lines ignored - exactly the shape of
     `experiments/validator_differential/guidtable.tsv`, the table extracted from
-    the committed `experiments/validator_differential/ilres/ExtronDH.dat`.
+    `experiments/validator_differential/ilres/ExtronDH.dat` (both vendor
+    material, on disk but untracked).
     Omitting it is unchanged from before this flag existed: the table stays
     empty and an 80086 is reported as a prediction (gap 1).
 """
@@ -599,8 +601,9 @@ def load_graph(path_or_bytes):
 def load_guid_table(path):
     """Load a `guid_hash_table` from a TSV file: `guid<TAB>64-hex-char-sha256`
     per line, matching `experiments/validator_differential/guidtable.tsv` (the
-    4,775 entries extracted from the committed
-    `experiments/validator_differential/ilres/ExtronDH.dat`, gap 1).
+    4,775 entries extracted from
+    `experiments/validator_differential/ilres/ExtronDH.dat`, gap 1; both are
+    vendor material, on disk but untracked).
 
     Lines that are empty or start with '#' are skipped (the file's own first
     line is a '# guid table entries: N' comment). Every other line must be

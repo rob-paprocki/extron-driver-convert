@@ -86,6 +86,12 @@ taken anywhere from under a minute to four minutes. That is expected, not a hang
 
 ## Install 20028
 
+*(The built packages are not in the repository since 2026-09-24 — each is a
+modified Extron package. Build `20028` locally with
+`python experiments/skeleton_i20/build_i20_assets.py`, which needs Extron's donor
+package in `samples/` (`vendor-files.manifest.tsv`); the owner's checkout already
+has it.)*
+
 1. Close GC completely.
 2. Copy `out/1bynd_19_20028_v1_0_0.pkp` into the driver library. If an earlier
    build is installed too, Driver Manager lists the same models more than once;

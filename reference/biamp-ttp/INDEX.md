@@ -1,5 +1,7 @@
 # Biamp Tesira Text Protocol reference — index
 
+*(2026-09-24: the harvested pages this index lists are the vendor's text and are no longer published — the repository is public. This index, its source URLs and our analyses stay, so any page can be fetched again; `vendor-files.manifest.tsv` pins the copies the findings used.)*
+
 ## Enumeration method (not keyword search, not filename guessing)
 
 The first source URL supplied,

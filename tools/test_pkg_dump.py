@@ -16,6 +16,7 @@ import zipfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import vendor_inputs  # noqa: E402
 import pkg_dump  # noqa: E402
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -38,8 +39,7 @@ ALL_PKGS = [SAMSUNG_SERIAL, SAMSUNG_IP, SAMSUNG_IR, BEYOND_I20, BEYOND_P20]
 
 
 def _require_samples():
-    missing = [p for p in ALL_PKGS if not os.path.isfile(p)]
-    assert not missing, "missing sample .pkg files: %r" % missing
+    vendor_inputs.require(*ALL_PKGS)
 
 
 # --------------------------------------------------------------------------
@@ -306,15 +306,22 @@ if __name__ == "__main__":
     tests = [(name, fn) for name, fn in sorted(globals().items())
              if name.startswith("test_") and callable(fn)]
     failures = []
+    skipped = []
     for name, fn in tests:
         try:
             fn()
             print("PASS: %s" % name)
-        except AssertionError as e:
-            failures.append(name)
-            print("FAIL: %s: %s" % (name, e))
         except Exception as e:  # noqa: BLE001
-            failures.append(name)
-            print("ERROR: %s: %r" % (name, e))
-    print("\n%d passed, %d failed, %d total" % (len(tests) - len(failures), len(failures), len(tests)))
+            why = vendor_inputs.vendor_missing(e)
+            if why:
+                skipped.append(name)
+                print("SKIP: %s: %s" % (name, why))
+            elif isinstance(e, AssertionError):
+                failures.append(name)
+                print("FAIL: %s: %s" % (name, e))
+            else:
+                failures.append(name)
+                print("ERROR: %s: %r" % (name, e))
+    print("\n%d passed, %d failed, %d skipped (vendor input absent), %d total"
+          % (len(tests) - len(failures) - len(skipped), len(failures), len(skipped), len(tests)))
     sys.exit(1 if failures else 0)

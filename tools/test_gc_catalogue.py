@@ -27,6 +27,7 @@ _ROOT = os.path.dirname(_HERE)
 sys.path.insert(0, _HERE)
 
 import gc_catalogue as gc        # noqa: E402
+import vendor_inputs             # noqa: E402
 
 PASS = []
 FAIL = []
@@ -80,9 +81,12 @@ def test_only_package_names_are_counted():
 
 def test_rejects_what_is_not_a_catalogue():
     print("\n[3] a non-catalogue is refused, not misread")
-    for label, data in (("a gzipped .pkp", open(A_PACKAGE, "rb").read()),
-                        ("empty input", b""),
-                        ("plain text", b"DriverLookup\n")):
+    cases = [("empty input", b""), ("plain text", b"DriverLookup\n")]
+    if os.path.isfile(A_PACKAGE):
+        cases.insert(0, ("a gzipped .pkp", open(A_PACKAGE, "rb").read()))
+    else:
+        print("  skip a gzipped .pkp: vendor input not present (see vendor-files.manifest.tsv)")
+    for label, data in cases:
         try:
             gc.lookup_entries(data)
             ok = False
@@ -116,14 +120,23 @@ def test_corpus_catalogue_matches_its_folder():
 
 def main():
     print("test_gc_catalogue.py - gate for the Global Configurator catalogue reader")
+    skipped = 0
     for fn in (test_before_and_after_the_rebuild,
                test_only_package_names_are_counted,
                test_rejects_what_is_not_a_catalogue,
                test_cli_exit_codes,
                test_corpus_catalogue_matches_its_folder):
-        fn()
+        try:
+            fn()
+        except Exception as e:  # noqa: BLE001
+            why = vendor_inputs.vendor_missing(e)
+            if not why:
+                raise
+            skipped += 1
+            print("  SKIP %s - %s" % (fn.__name__, why))
     total = len(PASS) + len(FAIL)
-    print("\n%d passed, %d failed, %d total" % (len(PASS), len(FAIL), total))
+    print("\n%d passed, %d failed, %d total; %d section(s) skipped (vendor input absent)"
+          % (len(PASS), len(FAIL), total, skipped))
     return 1 if FAIL else 0
 
 

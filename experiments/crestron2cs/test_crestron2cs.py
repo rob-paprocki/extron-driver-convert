@@ -81,9 +81,18 @@ class TestSlotParsing(unittest.TestCase):
             c2c.parse_json_with_slots("{not json at all")
 
 
+def _need(path):
+    """Skip, not fail, when a vendor package is not on disk: the repository
+    does not publish them (vendor-files.manifest.tsv)."""
+    if not os.path.exists(path):
+        raise unittest.SkipTest("vendor input not present: %s (see vendor-files.manifest.tsv)"
+                                % os.path.relpath(path, os.path.join(_HERE, "..", "..")))
+
+
 class TestTemplateIndexOnRealPackage(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        _need(PKG_PATH)
         doc = pkg_dump.process_pkg(PKG_PATH)
         cls.dd = doc["driver_definition"]
         cls.idx = c2c.TemplateIndex(cls.dd)
@@ -143,6 +152,7 @@ class TestTemplateIndexOnRealPackage(unittest.TestCase):
 class TestFullGeneration(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        _need(PKG_PATH)
         cls.module_src, cls.report = c2c.translate_pkg(PKG_PATH)
 
     def test_compiles(self):
@@ -187,6 +197,7 @@ class TestUndeclaredTransformations(unittest.TestCase):
     def test_samsung_json_legacywrappers_has_zero_undeclared(self):
         # Regression check: a fully-declarative JSON-engine driver (no
         # compiled IL residue at all) must report nothing undeclared.
+        _need(PKG_PATH)
         doc = pkg_dump.process_pkg(PKG_PATH)
         idx = c2c.TemplateIndex(doc["driver_definition"])
         report = idx.undeclared_transformations()
@@ -273,6 +284,7 @@ class TestUndeclaredTransformations(unittest.TestCase):
     def test_find_undeclared_transformations_entry_point(self):
         # The module-level convenience wrapper (loads the .pkg itself, for
         # the --list-il-only CLI path) agrees with the TemplateIndex method.
+        _need(PKG_PATH)
         report = c2c.find_undeclared_transformations(PKG_PATH)
         self.assertEqual(report.undeclared, [])
 

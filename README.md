@@ -46,6 +46,8 @@ and none is needed.
 | `tools/nrbf_graph.py` | maps every NRBF object to its exact span of records |
 | `tools/pkp_asset.py` | adds commands to a `.pkp`'s object graph by clone / attach / detach |
 | `tools/gc_catalogue.py` | reads GC's `DriverLookup.dat`: what it actually catalogued |
+| `tools/pkg_patch.py` | replaces the driver definition inside a Crestron `.pkg`'s DLL |
+| `tools/verify_vendor_files.py` | checks a local copy of the unpublished vendor material against `vendor-files.manifest.tsv` |
 
 The one non-Python component is `experiments/gcp_harness/` — Windows-only
 PowerShell that asks Extron's own DLLs whether a package loads, and the UI
@@ -66,11 +68,12 @@ experiments/
   graph_probes/              packages that located finding 18's deserializer bug
   ross_ultrix/               the one oracle pair with a human-written side (finding 17)
   nrbf_writeback/ crestron2cs/ docs_only/ missing_ethernet/
-samples/<device>/            .pkp, shipped ControlScript module, Crestron package
-corpus/                      1.3 GB snapshot of an Extron driver library
-evidence/                    screenshots and GC catalogue captures the findings cite
-reference/                   harvested vendor documentation
+samples/<device>/            .pkp, shipped ControlScript module, Crestron package — vendor files not published
+corpus/                      an Extron driver library snapshot — vendor files not published
+evidence/                    screenshots and logs the findings cite (GC catalogue captures not published)
+reference/                   our indexes and analyses of vendor documentation (harvested pages not published)
 notes/                       sample provenance
+vendor-files.manifest.tsv    every unpublished vendor file: SHA-256, size, path
 private/                     session records + tool settings (licence data) — git-ignored, on disk only
 ```
 
@@ -96,6 +99,25 @@ format. Deserialize through the vendor's own code before believing an edit.
 
 ## Provenance and licensing
 
-The sample drivers and `corpus/` are Extron and Crestron vendor material, so
-this repo stays private. Findings may describe the formats; vendor files are
-not redistributed.
+**This repository is public, and it does not publish vendor material.** The
+sample drivers, `corpus/`, the documentation pages harvested from vendor sites,
+Global Configurator's catalogue data, and the packages this project built or
+mutated from Extron's are Extron, Crestron and third-party material. They are
+used on the owner's machine and not tracked (since 2026-09-24).
+`vendor-files.manifest.tsv` lists every one with its SHA-256, size and the path
+the tools read it from; whoever has the material puts it there and checks it
+with `python tools/verify_vendor_files.py`. Findings, tools and results
+describe the formats; they do not redistribute them.
+
+Without that material, a clone still runs every test that does not need it:
+each suite skips what does, naming the missing file, and reports the skips
+beside its passes and failures.
+
+**Earlier commits still contain the vendor files** — they were tracked until
+2026-09-24, and removing them from history would take a rewrite of every
+commit. Treat the history accordingly.
+
+The generated driver modules (`experiments/skeleton_i20/out/*.py`,
+`experiments/skeleton_p20/out/*.py`) and the translator's other generated
+modules are tracked. They are derived from vendor scripts, so whether they
+belong here is the owner's call.

@@ -4,6 +4,15 @@ The workspace behind **finding 16**: how Extron's own `DriverAssetValidator` was
 called directly, and how `tools/pkp_validate.py` was tested against it. Kept
 verbatim from the 2026-09 working session that produced it.
 
+**Not published (since 2026-09-24):** the mutant packages (`m2/`…`m6/`, `out/`,
+`b/`, `junk/`, `extval/mutants/`), `ilres/ExtronDH.dat` (a resource of Extron's
+assembly), `guidtable.tsv` (extracted from it), and `b/dump.json` /
+`b/new_driver.py` are Extron material or built from it, so they stay on the
+owner's machine; `vendor-files.manifest.tsv` pins each one. The harness
+sources, scripts, lists and every verdict file (`real_all.txt`, `oracle_*.tsv`,
+`py_*.tsv`) are ours and tracked, so the differential's results remain
+readable; re-running it needs the inputs.
+
 ## The harnesses (C#, .NET Framework 4.8, x86)
 
 All four load Extron's assemblies from `C:\Program Files (x86)\Extron\GCP`

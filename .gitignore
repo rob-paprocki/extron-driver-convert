@@ -34,3 +34,74 @@ private/
 # Extron's loader unpacks a package into a .ptmp<hex>/ folder beside it and
 # does not always remove it (one was committed under skeleton_i20/out/).
 .ptmp*/
+
+# ---------------------------------------------------------------------------
+# Vendor material: used on disk, never published (untracked 2026-09-24).
+# vendor-files.manifest.tsv lists every such file with its SHA-256, and
+# tools/verify_vendor_files.py checks a local copy against it. Our own
+# READMEs, indexes, analyses, scripts and results in these folders stay
+# tracked.
+# ---------------------------------------------------------------------------
+
+# Vendor-format packages and binaries, wherever they are: Extron .pkp/.eir
+# (including every package this project built or mutated from one), Crestron
+# .pkg/.clz/.dll and SIMPL files, the ControlScript .vsix.
+*.pkp
+*.eir
+*.pkg
+*.clz
+*.dll
+*.vsix
+*.umc
+*.usp
+*.ush
+*.ced
+*.smw
+*.sgd
+*.tmf
+*.um2
+# Global Configurator's catalogue data
+DataFile*.dat
+DriverLookup*.dat
+# Scripts extracted verbatim from a vendor package
+*.embedded.py
+
+# corpus/: the Extron library snapshot. Only the README and manifests are ours.
+/corpus/*/
+
+# samples/: vendor packages and modules. Only the README and .gitkeep are ours.
+/samples/**
+!/samples/**/
+!/samples/README.md
+!/samples/**/.gitkeep
+
+# reference/: pages harvested from vendor sites. The indexes and analyses
+# (INDEX, ENDPOINTS, SYNTAX, CONTROL, MODELS, ZOOM, COMMANDS) are ours.
+/reference/automate-vx-api/*/
+/reference/automate-vx-api/Home.md
+/reference/biamp-ttp/data/
+/reference/biamp-ttp/pages/
+/reference/crestron-nextgen-cameras/pages/
+/reference/crestron-nextgen-cameras/_harvest_meta/_raw/
+/reference/crestron-nextgen-cameras/_harvest_meta/_md_raw/
+/reference/crestron-nextgen-cameras/_harvest_meta/home_raw.*
+/reference/crestron-visca/*.md
+!/reference/crestron-visca/INDEX.md
+!/reference/crestron-visca/COMMANDS.md
+
+# evidence/: GC catalogue snapshots and the upload bundle holding them.
+/evidence/catalogue-snapshots/
+/evidence/uploads/
+
+# validator_differential/: packages mutated from vendor ones, a resource of
+# Extron's assembly, the table extracted from it, a package dump and script.
+/experiments/validator_differential/extval/mutants/
+/experiments/validator_differential/ilres/*.dat
+/experiments/validator_differential/guidtable.tsv
+/experiments/validator_differential/b/dump.json
+/experiments/validator_differential/b/new_driver.py
+
+# Verbatim vendor boilerplate, definitions and scripts used as evidence.
+/experiments/ross_ultrix/template_splice/*.txt
+/experiments/crestron2cs/out/driver_definition.json
+/experiments/crestron2cs/out/extron_ethernet_source.py

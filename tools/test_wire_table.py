@@ -14,6 +14,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import pkp_dump          # noqa: E402
+import vendor_inputs     # noqa: E402
 import wire_table as wt  # noqa: E402
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -43,7 +44,7 @@ AVX_SHIPPED = os.path.join(REPO_ROOT, "samples", "Automate VX", "Controlscript",
 # --------------------------------------------------------------------------
 
 def _require(path):
-    assert os.path.isfile(path), "missing sample file: %r" % path
+    vendor_inputs.require(path)
 
 
 def extract_embedded_scripts(pkp_path):
@@ -841,15 +842,22 @@ if __name__ == "__main__":
     tests = [(name, fn) for name, fn in sorted(globals().items())
              if name.startswith("test_") and callable(fn)]
     failures = []
+    skipped = []
     for name, fn in tests:
         try:
             fn()
             print("PASS: %s" % name)
-        except AssertionError as e:
-            failures.append(name)
-            print("FAIL: %s: %s" % (name, e))
         except Exception as e:  # noqa: BLE001
-            failures.append(name)
-            print("ERROR: %s: %r" % (name, e))
-    print("\n%d passed, %d failed, %d total" % (len(tests) - len(failures), len(failures), len(tests)))
+            why = vendor_inputs.vendor_missing(e)
+            if why:
+                skipped.append(name)
+                print("SKIP: %s: %s" % (name, why))
+            elif isinstance(e, AssertionError):
+                failures.append(name)
+                print("FAIL: %s: %s" % (name, e))
+            else:
+                failures.append(name)
+                print("ERROR: %s: %r" % (name, e))
+    print("\n%d passed, %d failed, %d skipped (vendor input absent), %d total"
+          % (len(tests) - len(failures) - len(skipped), len(failures), len(skipped), len(tests)))
     sys.exit(1 if failures else 0)

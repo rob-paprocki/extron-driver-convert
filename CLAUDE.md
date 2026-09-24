@@ -23,6 +23,15 @@ workstation needs in order to run the machine-bound parts.
 no `requirements.txt`, no compiled dependency. A cloud session is a first-class
 place to work on the code.
 
+**But the vendor material is not in the repository** (since 2026-09-24): the
+samples, `corpus/`, harvested vendor pages, GC catalogue data and every package
+built from a vendor one are untracked, listed in `vendor-files.manifest.tsv`. A
+clone — including a cloud session's — has none of it, so tests that need it
+**skip**, naming the file, and the suites report skips beside passes and
+failures. A clean run in a clone therefore checks the code, not the findings;
+reproducing a finding needs the material in place (`tools/verify_vendor_files.py`
+checks it).
+
 **The one exception is `experiments/gcp_harness/`:** Windows-only PowerShell that
 loads Extron's x86 assemblies and drives Global Configurator over UI Automation.
 Python cannot load those assemblies without a third-party bridge (pythonnet),
@@ -48,9 +57,10 @@ Two things worth knowing before planning work:
   rather than quoting a number. Read finding 12 before touching it, and back up
   its `DataFile.dat` and `DriverLookup.dat` first — GC truncates the catalogue
   before rebuilding it, so an interrupted start leaves 0 bytes.
-- **A SHA-256-verified snapshot of one such library is committed under `corpus/`**,
+- **A SHA-256-verified snapshot of one such library belongs under `corpus/`**,
   and `experiments/oracle_pairs/` reads it by default — so findings 14, 16 and 17
-  reproduce with no Extron install at all.
+  reproduce with no Extron install, given the snapshot. It is vendor material and
+  no longer tracked; the manifest pins every file's hash.
 
 **Over a thousand tests, all standard library, no pytest** — the count lives in
 `ENVIRONMENT.md`, not here. Run each file directly; the
@@ -139,11 +149,23 @@ top it up from here without checking first.
 
 ## Provenance
 
-`samples/` and `corpus/` hold **vendor driver material** — Extron and Crestron
-both; `corpus/` alone is a full driver library snapshot. The repo stays private.
-Findings may describe formats; vendor files are not redistributed. Think before
-adding a remote, and note that a cloud session clones all of it into a managed
-container.
+**The repository is public on GitHub, and it publishes no vendor material.**
+`samples/`, `corpus/`, the pages harvested into `reference/`, GC's catalogue
+captures, and every `.pkp` this project built or mutated are Extron, Crestron or
+third-party material: used on disk, untracked, listed with their SHA-256s in
+`vendor-files.manifest.tsv`. Findings may describe formats; vendor files are not
+redistributed.
+
+- **Never `git add` vendor material**, wherever it sits — the `.gitignore` rules
+  cover the known shapes (`*.pkp`, `*.pkg`, `DataFile*.dat`, `*.embedded.py`,
+  the sample and corpus folders), and `tools/test_verify_vendor_files.py` fails
+  if a listed file becomes tracked. A *new* kind of vendor file needs a new rule
+  and a manifest line, not a commit.
+- **Earlier commits still hold the vendor files** (tracked until 2026-09-24);
+  do not cite them as if the repo never carried them, and do not restore them
+  into the index.
+- Generated driver modules derived from vendor scripts are still tracked; that
+  is an open call for the owner, not a precedent.
 
 `private/` is **git-ignored** and never pushed. It holds this project's Claude
 Code session records (full tool output, account details, lab IPs) and the

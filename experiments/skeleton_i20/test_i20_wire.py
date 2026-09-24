@@ -30,6 +30,16 @@ _ROOT = os.path.dirname(os.path.dirname(_HERE))
 sys.path.insert(0, _HERE)
 sys.path.insert(0, os.path.join(_ROOT, "tools"))
 
+import vendor_inputs                  # noqa: E402
+# Every check here builds the driver from Extron's donor and compares it
+# with Crestron's own driver; the repository publishes neither
+# (vendor-files.manifest.tsv), so without them the suite is skipped, visibly.
+vendor_inputs.skip_suite(
+    os.path.join(_ROOT, "samples", "1 Beyond Cameras", "PTZ-IP12_IP20", "pkp", "1bynd_19_4743_v1_0_1.pkp"),
+    os.path.join(_ROOT, "samples", "Crestron 1 Beyond IV-CAM-i12_i20", "Crestron",
+                 "Camera_Crestron-1-Beyond_IV-CAM-I20_IP.pkg"),
+)
+
 import build_i20                      # noqa: E402
 import pkp_build as pb                # noqa: E402
 import resolve_visca                  # noqa: E402
