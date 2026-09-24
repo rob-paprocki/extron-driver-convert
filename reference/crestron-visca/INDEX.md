@@ -1,6 +1,6 @@
 # Index — Crestron 1 Beyond IV-CAM Series doc harvest (docs.crestron.com area 9440)
 
-*(2026-09-24: the harvested pages this index lists are the vendor's text and are no longer published — the repository is public. This index, its source URLs and our analyses stay, so any page can be fetched again; `vendor-files.manifest.tsv` pins the copies the findings used.)*
+*(2026-09-24: the harvested pages this index lists are the vendor's text and are no longer tracked. This index, its source URLs and our analyses stay, so any page can be fetched again; `vendor-files.manifest.tsv` pins the copies the findings used.)*
 
 Harvested via Bright Data CLI (`brightdata scrape <url>`), never via WebFetch/WebSearch or a
 direct request from this machine's IP, per project rules. All pages below are part of the same

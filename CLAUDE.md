@@ -149,23 +149,28 @@ top it up from here without checking first.
 
 ## Provenance
 
-**The repository is public on GitHub, and it publishes no vendor material.**
-`samples/`, `corpus/`, the pages harvested into `reference/`, GC's catalogue
-captures, and every `.pkp` this project built or mutated are Extron, Crestron or
-third-party material: used on disk, untracked, listed with their SHA-256s in
-`vendor-files.manifest.tsv`. Findings may describe formats; vendor files are not
-redistributed.
+**Two repositories, and neither publishes vendor material.** The original is a
+**private archive** with the complete history; a **public copy** carries the same
+work with the vendor material removed from every commit (built from a rewritten
+branch, so its commit hashes differ — the hashes the docs cite are the
+archive's). `samples/`, `corpus/`, the pages harvested into `reference/`, GC's
+catalogue captures, and every `.pkp` this project built or mutated are Extron,
+Crestron or third-party material: used on disk, untracked in both, listed with
+their SHA-256s in `vendor-files.manifest.tsv`. Findings may describe formats;
+vendor files are not redistributed.
 
 - **Never `git add` vendor material**, wherever it sits — the `.gitignore` rules
   cover the known shapes (`*.pkp`, `*.pkg`, `DataFile*.dat`, `*.embedded.py`,
   the sample and corpus folders), and `tools/test_verify_vendor_files.py` fails
   if a listed file becomes tracked. A *new* kind of vendor file needs a new rule
   and a manifest line, not a commit.
-- **Earlier commits still hold the vendor files** (tracked until 2026-09-24);
-  do not cite them as if the repo never carried them, and do not restore them
-  into the index.
-- Generated driver modules derived from vendor scripts are still tracked; that
-  is an open call for the owner, not a precedent.
+- **The archive's commits before 2026-09-24 hold the vendor files**, so its
+  history must never reach a public remote: no pushing its branches to the
+  public copy, no public forks. The public copy only ever receives commits from
+  its own rewritten line of history. Do not restore vendor files into either
+  index.
+- Generated driver modules derived from vendor scripts are tracked; the owner
+  decided (2026-09-24) that they are not a concern.
 
 `private/` is **git-ignored** and never pushed. It holds this project's Claude
 Code session records (full tool output, account details, lab IPs) and the

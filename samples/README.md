@@ -1,12 +1,13 @@
 # Samples
 
-**Vendor material, not published.** The repository is public, so since
+**Vendor material, not published.** Since
 2026-09-24 only this README and the empty folders' `.gitkeep` files are
 tracked. The sample packages and modules the tools and tests read are listed,
 with their SHA-256s, in `vendor-files.manifest.tsv` at the repo root; put
 your copies at those paths and check them with
 `python tools/verify_vendor_files.py --only samples/`. Without them the tests
-that need a sample skip, naming it. Earlier commits still contain them.
+that need a sample skip, naming it. The private archive's earlier commits
+still contain them; the public copy's history does not.
 
 Drop files here:
 

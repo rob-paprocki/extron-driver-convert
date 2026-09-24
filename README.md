@@ -99,11 +99,14 @@ format. Deserialize through the vendor's own code before believing an edit.
 
 ## Provenance and licensing
 
-**This repository is public, and it does not publish vendor material.** The
-sample drivers, `corpus/`, the documentation pages harvested from vendor sites,
-Global Configurator's catalogue data, and the packages this project built or
-mutated from Extron's are Extron, Crestron and third-party material. They are
-used on the owner's machine and not tracked (since 2026-09-24).
+**The project has two repositories, and neither publishes vendor material.**
+The original is a **private archive** with the complete history. A **public
+copy** carries the same work with the vendor material removed from every
+commit of its history. The sample drivers, `corpus/`, the documentation pages
+harvested from vendor sites, Global Configurator's catalogue data, and the
+packages this project built or mutated from Extron's are Extron, Crestron and
+third-party material. They are used on the owner's machine and not tracked in
+either (since 2026-09-24).
 `vendor-files.manifest.tsv` lists every one with its SHA-256, size and the path
 the tools read it from; whoever has the material puts it there and checks it
 with `python tools/verify_vendor_files.py`. Findings, tools and results
@@ -113,11 +116,11 @@ Without that material, a clone still runs every test that does not need it:
 each suite skips what does, naming the missing file, and reports the skips
 beside its passes and failures.
 
-**Earlier commits still contain the vendor files** — they were tracked until
-2026-09-24, and removing them from history would take a rewrite of every
-commit. Treat the history accordingly.
+**The archive's commits before 2026-09-24 still contain the vendor files**, so
+the archive stays private and its history is never pushed anywhere public. The
+public copy was built from a rewritten branch, which changes every commit hash:
+the hashes these docs cite are the archive's.
 
 The generated driver modules (`experiments/skeleton_i20/out/*.py`,
 `experiments/skeleton_p20/out/*.py`) and the translator's other generated
-modules are tracked. They are derived from vendor scripts, so whether they
-belong here is the owner's call.
+modules are this project's output and are tracked.

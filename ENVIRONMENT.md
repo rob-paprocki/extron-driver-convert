@@ -83,10 +83,11 @@ A SHA-256-verified snapshot of one such library belongs under `corpus/`, and
 `experiments/oracle_pairs/` reads it by default — so findings 14, 16 and 17
 reproduce with no Extron install, given the snapshot.
 
-**The vendor material is not in the repository** (since 2026-09-24; the repo is
-public): the samples, the corpus, harvested vendor pages, GC catalogue captures
-and every package built from a vendor one. `vendor-files.manifest.tsv` lists
-each file's SHA-256, size and path.
+**The vendor material is not tracked** (since 2026-09-24): the samples, the
+corpus, harvested vendor pages, GC catalogue captures and every package built
+from a vendor one. `vendor-files.manifest.tsv` lists each file's SHA-256, size
+and path. The project's repository is a private archive whose earlier commits
+still hold that material; a public copy carries a history rewritten without it.
 
 ## Setting up a workstation
 

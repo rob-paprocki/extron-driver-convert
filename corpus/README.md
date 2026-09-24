@@ -4,12 +4,12 @@ A snapshot of one Extron driver library: the experiments measured against it
 reproduce on any machine that has it, and it outlives the Global Configurator
 licence it was taken from.
 
-**Vendor material, not published.** The repository is public, so since
+**Vendor material, not published.** Since
 2026-09-24 only this README and the manifests are tracked here. The snapshot
 itself lives on the owner's machine at these paths, and `vendor-files.manifest.tsv`
 (at the repo root) pins every file's SHA-256 and size;
-`python tools/verify_vendor_files.py --only corpus/` checks a copy. Earlier
-commits still contain it.
+`python tools/verify_vendor_files.py --only corpus/` checks a copy. The private
+archive's earlier commits still contain it; the public copy's history does not.
 
 | folder | what it is | contents | size |
 |---|---|---|---|

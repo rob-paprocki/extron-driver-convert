@@ -70,11 +70,13 @@ an Extron library** (1,854 `.pkp`, 2,235 ControlScript modules), so findings 14,
 reproduce off that machine — given the snapshot. `evidence/` holds the screenshots and
 logs the findings cite.
 
-**The repository is public and publishes no vendor material** (since 2026-09-24): the
+**No vendor material is tracked** (since 2026-09-24): the
 samples, the corpus, harvested vendor pages, GC catalogue captures and the packages built
 from vendor ones are untracked, pinned by SHA-256 in `vendor-files.manifest.tsv`
 (`tools/verify_vendor_files.py` checks a copy). In a clone without them, every suite runs
-what it can and skips the rest, naming the missing file. Earlier commits still contain them.
+what it can and skips the rest, naming the missing file. The project's repository is a
+private archive whose commits before 2026-09-24 still contain them; a public copy carries
+a history rewritten without them.
 
 ### Translator scorecard
 
