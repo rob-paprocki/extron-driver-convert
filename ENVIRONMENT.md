@@ -86,8 +86,9 @@ reproduce with no Extron install, given the snapshot.
 **The vendor material is not tracked** (since 2026-09-24): the samples, the
 corpus, harvested vendor pages, GC catalogue captures and every package built
 from a vendor one. `vendor-files.manifest.tsv` lists each file's SHA-256, size
-and path. The project's repository is a private archive whose earlier commits
-still hold that material; a public copy carries a history rewritten without it.
+and path. The private archive (`rob-paprocki/extron-driver-convert-archive`)
+still holds that material in its earlier commits; the public copy
+(`rob-paprocki/extron-driver-convert`) carries a history rewritten without it.
 
 ## Setting up a workstation
 

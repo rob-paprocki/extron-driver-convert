@@ -99,18 +99,19 @@ format. Deserialize through the vendor's own code before believing an edit.
 
 ## Provenance and licensing
 
-**The project has two repositories, and neither publishes vendor material.**
-The original is a **private archive** with the complete history. A **public
-copy** carries the same work with the vendor material removed from every
-commit of its history. The sample drivers, `corpus/`, the documentation pages
-harvested from vendor sites, Global Configurator's catalogue data, and the
-packages this project built or mutated from Extron's are Extron, Crestron and
-third-party material. They are used on the owner's machine and not tracked in
-either (since 2026-09-24).
+**The project has two repositories, and neither publishes vendor material.** The
+original is a **private archive**, `rob-paprocki/extron-driver-convert-archive`,
+with the complete history. The **public copy**,
+`rob-paprocki/extron-driver-convert` (the original name), carries the same work
+with the vendor material removed from every commit of its history. The sample
+drivers, `corpus/`, the documentation pages harvested from vendor sites, Global
+Configurator's catalogue data, and the packages this project built or mutated
+from Extron's are Extron, Crestron and third-party material. They are used on
+the owner's machine and not tracked in either (since 2026-09-24).
 `vendor-files.manifest.tsv` lists every one with its SHA-256, size and the path
 the tools read it from; whoever has the material puts it there and checks it
-with `python tools/verify_vendor_files.py`. Findings, tools and results
-describe the formats; they do not redistribute them.
+with `python tools/verify_vendor_files.py`. Findings, tools and results describe
+the formats; they do not redistribute them.
 
 Without that material, a clone still runs every test that does not need it:
 each suite skips what does, naming the missing file, and reports the skips

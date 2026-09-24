@@ -70,13 +70,13 @@ an Extron library** (1,854 `.pkp`, 2,235 ControlScript modules), so findings 14,
 reproduce off that machine — given the snapshot. `evidence/` holds the screenshots and
 logs the findings cite.
 
-**No vendor material is tracked** (since 2026-09-24): the
-samples, the corpus, harvested vendor pages, GC catalogue captures and the packages built
-from vendor ones are untracked, pinned by SHA-256 in `vendor-files.manifest.tsv`
-(`tools/verify_vendor_files.py` checks a copy). In a clone without them, every suite runs
-what it can and skips the rest, naming the missing file. The project's repository is a
-private archive whose commits before 2026-09-24 still contain them; a public copy carries
-a history rewritten without them.
+**No vendor material is tracked** (since 2026-09-24): the samples, the corpus, harvested
+vendor pages, GC catalogue captures and the packages built from vendor ones are untracked,
+pinned by SHA-256 in `vendor-files.manifest.tsv` (`tools/verify_vendor_files.py` checks a
+copy). In a clone without them, every suite runs what it can and skips the rest, naming
+the missing file. The private archive (`rob-paprocki/extron-driver-convert-archive`) still
+has them in its commits before 2026-09-24; the public copy
+(`rob-paprocki/extron-driver-convert`) carries a history rewritten without them.
 
 ### Translator scorecard
 
