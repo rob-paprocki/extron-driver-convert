@@ -55,6 +55,9 @@ private/
 *.umc
 *.usp
 *.ush
+*.cmc
+*.csp
+*.csh
 *.ced
 *.smw
 *.sgd
@@ -65,6 +68,13 @@ DataFile*.dat
 DriverLookup*.dat
 # Scripts extracted verbatim from a vendor package
 *.embedded.py
+# Crestron module sources and library docs extracted from an installed device
+# database (experiments/automate_vx_threeway/crestron_module.py extract)
+/experiments/automate_vx_threeway/crestron/
+# Crestron SIMPL# libraries and their decompiled C# and IL
+# (experiments/crestron_decompile/decompile.py run)
+/experiments/crestron_decompile/out/
+*.il
 
 # corpus/: the Extron library snapshot. Only the README and manifests are ours.
 /corpus/*/

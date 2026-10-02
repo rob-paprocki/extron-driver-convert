@@ -16,6 +16,7 @@ Conventions used here:
 | `<GCP_DIR>` | `C:\Program Files (x86)\Extron\GCP` |
 | `<DRIVER_LIB>` | `C:\Users\Public\Documents\extron\Driver3` |
 | `<PS32>` | `C:\Windows\SysWOW64\WindowsPowerShell\v1.0\powershell.exe` |
+| `<CRESDB>` | `C:\Program Files (x86)\Crestron\Cresdb` (Crestron's device database) |
 
 Everything else is written repo-relative. Paths naming a particular checkout,
 user account or drive letter do not belong in this repo.
@@ -30,6 +31,7 @@ user account or drive letter do not belong in this repo.
 | GCP render check over UI Automation | **A licensed GCP install**, and nobody else using the mouse | R23, R24, R26–R28 |
 | GCP Build and Upload | A licence, plus a processor for Upload | H0, H4 |
 | Crestron-side work | Crestron Toolbox | H8 |
+| Crestron module sources and device join maps (finding 20 §8–9, `experiments/dm_md/JOINS.md`) | An installed Crestron device database (`<CRESDB>`, installed with SIMPL Windows / Toolbox). No processor, no licence check to read it. | R44, R45 |
 
 ## Required software
 
@@ -136,10 +138,11 @@ python -u experiments/docs_only/test_generator.py
 python -u experiments/graph_synthesis/test_cross_clone.py
 python -u experiments/exec_harness/test_exec_harness.py
 python -u tools/test_verify_vendor_files.py
+python -u experiments/automate_vx_threeway/test_surfaces.py
 ```
 
-**1,089 tests in 21 files**, all passing with the vendor material in place
-(2026-09-24). **In a clone without it, 309 run and pass and the rest are
+**1,100 tests in 23 files**, all passing with the vendor material in place
+(2026-09-24). **In a clone without it, 313 run and pass and the rest are
 skipped**, each skip naming the file it needed (`tools/vendor_inputs.py`); a
 suite that cannot build anything without its donor package says so and exits 0.
 A clean run in a clone checks the code, not the findings. `test_pkp_build.py` and

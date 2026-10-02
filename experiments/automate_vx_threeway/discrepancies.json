@@ -1,0 +1,392 @@
+[
+ {
+  "id": "X01",
+  "category": "docs-internal",
+  "severity": "cosmetic",
+  "summary": "The documented surface is larger than the harvest and extraction [2] report. The site's own TOC lists 48 API pages; the harvest has 43. PauseRecord, ExportCameraPresets, HealthStatus (page Health-Status-API.htm, URI /api/HealthStatus), StorageSpaceAvail and CloseWirecast are TOC-only; all return 200 live. GetActiveTalkers is live and linked from What's New but absent from the TOC. Extraction [2]'s 'no TOC exists' came from probing the wrong filename.",
+  "evidence": "https://sdkcon78221.crestron.com/sdk/Automate-VX-API/Data/HelpSystem.xml (Toc=\"Data/Tocs/Manual_TOC_Automate_API.js\", BuildTime 5/26/2026); https://sdkcon78221.crestron.com/sdk/Automate-VX-API/Data/Tocs/Manual_TOC_Automate_API_Chunk0.js (57 topics); saved copies the live site TOC (`surfaces.py toc`), PauseRecord-API.htm, ExportCameraPresets-API.htm, Health-Status-API.htm, StorageSpaceAvail-API.htm, CloseWirecast-API.htm; reference/automate-vx-api/API-Reference/ (43 files)",
+  "verified": "confirmed",
+  "verify_reason": "Live TOC (sdkcon78221.crestron.com/.../Data/Tocs/Manual_TOC_Automate_API_Chunk0.js, fetched live, byte-identical to the cited saved copy) lists 49 API-Reference topics = 48 endpoint pages + the API-Reference.htm index; HelpSystem.xml's Toc path and BuildTime (5/26/2026 2:09:45 PM) match exactly. PauseRecord, ExportCameraPresets, Health-Status (base URI /api/HealthStatus), StorageSpaceAvail and CloseWirecast are all in the TOC and all return HTTP 200 live (curl'd directly) with full doc content, and none of the 5 is in reference/automate-vx-api/API-Reference/ (44 local files). GetActiveTalkers-API.htm is confirmed NOT in the TOC (independently parsed) yet is linked from Whats-New.md:23-26 and is present locally. One nit: the local harvest is 44 files (`ls reference/automate-vx-api/API-Reference | wc -l` = 44), not 43 as stated; also a 6th TOC page, CallPlugin-API, is absent locally (not named in X01, but doesn't contradict it). This doesn't undermine the substantive claim, which is fully verified."
+ },
+ {
+  "id": "X02",
+  "decompile": "2026-09-24 third pass (REPORT §10): the Crestron library posts /api/PauseRecord with an empty body and, on status OK, sets Recording_State 2 itself.",
+  "category": "documented-unimplemented",
+  "severity": "functional-gap",
+  "summary": "POST /api/PauseRecord is documented (no body; success message 'Record Paused Successfully'). Extron GC and ControlScript do not implement it. The Crestron module wires Pause_Recording, with the wire format opaque. No ResumeRecord page was found by 16 pause/resume name variants.",
+  "evidence": "https://sdkcon78221.crestron.com/sdk/Automate-VX-API/Content/Topics/Automate-API/API-Reference/PauseRecord-API.htm; cmc:636 (InputCue20=Pause_Recording); gc:103-121 and cs:34-53 (no Pause command); experiments/automate_vx_threeway/probe_results.txt",
+  "verified": "confirmed",
+  "verify_reason": "Live PauseRecord-API.htm: no parameters, success message exactly 'Record Paused Successfully'. gc_embedded.py:103-121 (self.Commands dict, independently extracted from the .pkp via pkp2cs.discover_jobs) and cs.py:34-53 both have no Pause entry. .cmc line 636 = 'InputCue20=Pause_Recording' confirmed by direct read of the file."
+ },
+ {
+  "id": "X03",
+  "category": "documented-unimplemented",
+  "severity": "functional-gap",
+  "summary": "GetActiveTalkers (added 6.3, 2024-08-15) and ShotStatus (5.8) are implemented by none of GC, ControlScript or the Crestron module. The VX2 native symbol probably carries active talkers: the 6.3.0.29 release notes say the new active-talkers API 'Requires DB v200.365.004'. This is ROADMAP H6 step 2.",
+  "evidence": "reference/automate-vx-api/API-Reference/GetActiveTalkers-API.md, ShotStatus-API.md; reference/automate-vx-api/Whats-New/Whats-New.md:23-26,44-47; automate_vx_6.4.1.8_release_notes.pdf p10; gc and cs command dicts (gc:103-121, cs:34-53); cmc input cues 600-880",
+  "verified": "confirmed",
+  "verify_reason": "Whats-New.md:23-26 confirms GetActiveTalkers added for firmware 6.3 (Aug 15 2024); Whats-New.md:44-47 confirms ShotStatus added for firmware 5.8 (Jan 9 2023). Neither appears in gc_embedded.py's 18 DriverCommandAsset names (independently enumerated from the .pkp NRBF graph) nor in cs.py's Commands dict nor anywhere in the .cmc join list. Release-notes PDF text (pdfgrep) contains 'Added API which returns the current active talkers (up to two) o Requires DB v200.365.004', matching the cited quote."
+ },
+ {
+  "id": "X04",
+  "decompile": "2026-09-24 third pass (REPORT §10): the Crestron library posts /api/LayoutStatus, /api/GetLayouts, /api/GetRoomConfigs and /api/GetScenarios with empty bodies, and reads layout (an object), layouts, roomConfigs and scenarios.",
+  "category": "documented-unimplemented",
+  "severity": "functional-gap",
+  "summary": "Both Extron drivers omit LayoutStatus, GetLayouts, GetRoomConfigs and GetScenarios. Layout is Set-only ('Update': False), and no configuration, scenario or layout names are exposed. The Crestron module wires all four (Get_Current_Layout, Get_Layouts, Get_Room_Configs, Get_Scenarios, with name outputs).",
+  "evidence": "gc:110 ('Layout' Update False); cs:42; cmc:686,688,722,867 (InputCue70,72,106,251); cmc OutputCue70-96,104-204,251-262; reference/automate-vx-api/API-Reference/LayoutStatus-API.md, GetLayouts-API.md, GetRoomConfigs-API.md, GetScenarios-API.md",
+  "verified": "confirmed",
+  "verify_reason": "gc_embedded.py:110 reads exactly \"'Layout' : {'Set': True, 'Update': False, 'Live': False, 'Emulated': False, 'Status': {}}\" — Update False, confirmed verbatim. cs.py has no UpdateLayout/GetLayouts/etc. .cmc:686='InputCue70=Get_Current_Layout', :688='InputCue72=Get_Layouts', :718='InputCue102=Force_Room_Config' (X23), :722='InputCue106=Get_Room_Configs', :866='InputCue250=Recall_Scenario', :867='InputCue251=Get_Scenarios' — all confirmed by direct line read. LayoutStatus-API.md, GetLayouts-API.md, GetRoomConfigs-API.md, GetScenarios-API.md all exist and are never referenced by gc/cs URL strings."
+ },
+ {
+  "id": "X05",
+  "category": "documented-unimplemented",
+  "severity": "functional-gap",
+  "summary": "The Crestron module has no join for SaveCameraPreset; both Extron drivers implement it.",
+  "evidence": "cmc:823-842 (Camera_Controls group, InputCue207-226, no save join); gc:283-299; cs:115-126; reference/automate-vx-api/API-Reference/SaveCameraPreset-API.md",
+  "verified": "confirmed",
+  "verify_reason": ".cmc lines 823-842 span the entire Camera_Controls InputCue group (InputCue207-226); it contains Call_Live_Camera_Preset and Call_Selected_Camera_Preset (both recall-only) and no Save join anywhere. The 5-page module PDF (Automate VX v1.0.pdf) likewise lists only Call_Live_Camera_Preset / Call_Selected_Camera_Preset for presets, no Save equivalent. gc_embedded.py:283-299 and cs.py:115-126 both implement SetCameraPresetSave -> api/SaveCameraPreset."
+ },
+ {
+  "id": "X06",
+  "decompile": "2026-09-24 third pass (REPORT §10): of these the Crestron library requests RecordingSpaceAvail, CopyFiles and GetCameras (Camera_Count is the length of its cameras list). It requests none of HealthStatus, StorageSpaceAvail, ImportCameraPresets, ExportCameraPresets, GetAllStatus, Macro, Restart or CloseWirecast.",
+  "category": "documented-unimplemented",
+  "severity": "functional-gap",
+  "summary": "Neither Extron driver calls HealthStatus, StorageSpaceAvail, RecordingSpaceAvail, CopyFiles, ImportCameraPresets, ExportCameraPresets, GetCameras, GetAllStatus, Macro, Restart or CloseWirecast. The Crestron module covers only CopyFiles (all 3 parameter names match its joins) and RecordingSpaceAvail (Available/Total GB outputs). HealthStatus would be a better connection-health source than GC's RecordStatus-based ConnectionStatus.",
+  "evidence": "gc/cs URI sets (`surfaces.py extract`, cs_uris.txt); cmc:843-849 (Copy_Files_Destination$, Copy_Log_Destination$, Delete_Source_File, Copy_Files, Get_Storage_Space_Available); reference/automate-vx-api/API-Reference/CopyFiles-API.md, RecordingSpaceAvail-API.md; live Health-Status-API.htm",
+  "verified": "confirmed",
+  "verify_reason": "None of HealthStatus/StorageSpaceAvail/RecordingSpaceAvail/CopyFiles/ImportCameraPresets/ExportCameraPresets/GetCameras/GetAllStatus/Macro/Restart/CloseWirecast appear as URL strings in gc_embedded.py or cs.py (full-file read, both files). .cmc:843-849 has Copy_Files_Destination$, Copy_Log_Destination$, Delete_Source_File, Copy_Files, Get_Storage_Space_Available (InputCue227-233) — matching CopyFiles-API.md's exact 3 params (destination/logDestination/deleteSource) and RecordingSpaceAvail's GB fields. Live Health-Status-API.htm's success body's top-level status is literally 'Healthy' (not 'OK', unique among all endpoints checked), supporting the claim it's a richer connection-health signal than GC's RecordStatus-derived ConnectionStatus."
+ },
+ {
+  "id": "X07",
+  "decompile": "2026-09-24 third pass (REPORT §10): both Crestron library builds (dated 2026-03-23) post /api/StartISORecord, /api/StopISORecord and /api/ISORecordStatus, with the same names and case as Extron, and read ISORecordStatus's boolean results. The family is current in both vendors' shipping code; whether a unit still honours it is LT9.",
+  "category": "sends-undocumented",
+  "severity": "unknown",
+  "summary": "StartISORecord, StopISORecord and ISORecordStatus are called by both Extron drivers and wired by the Crestron module. None has a page: not in the site TOC, and 404 for 6 URL variants on 2026-09-24. ISORecordStatus is attested only by GetAllStatus's example (api_call_3, results bool, which matches Extron's parse). Extron's GC comments cite 'Pg 26 & 28' and 'Pg 30' of 'Automate API - 2023-12-28.pdf' for these calls, so an earlier edition documented them. Release note [AVX-2735] (6.4.0.49) shows ISO recording is still a product feature. Whether the calls still work is unmeasured.",
+  "evidence": "gc:335-371; cs:144-169; cmc:640-643 (InputCue24-27); reference/automate-vx-api/API-Reference/GetAllStatus-API.md:51 (api_call_3); experiments/automate_vx_threeway/probe_results.txt and curl of StartISORecord-API.htm/StopISORecord-API.htm/ISORecordStatus-API.htm and no-suffix variants (all 404); automate_vx_6.4.1.8_release_notes.pdf p7; experiments/docs_only/REMEASURE.md; ROADMAP.md R33",
+  "verified": "confirmed",
+  "verify_reason": "Live curl of StartISORecord-API.htm, StopISORecord-API.htm, ISORecordStatus-API.htm and no-suffix variants all return 404 (verified independently, matching the site's TOC which also omits them). gc_embedded.py:335-371 and cs.py:144-169 both call api/StartISORecord, api/StopISORecord, api/ISORecordStatus (confirmed by direct read). .cmc:640-643 = InputCue24-27 (Toggle/Start/Stop_ISO_Recording, Get_ISO_Record_Status). GetAllStatus-API.md:51 api_call_3 = {'request_api':'ISORecordStatus','response_body':'{...,\"results\":false,...}'} — boolean results, matching Extron's parse. Release-notes PDF text contains '[AVX-2735] ISO recording and Enable Pause are now mutually exclusive', confirming ISO recording remains a real product feature in a recent release. The claim is explicitly hedged as unmeasured on-device behavior, consistent with what I found."
+ },
+ {
+  "id": "X08",
+  "decompile": "2026-09-24 third pass (REPORT §10): the Crestron library posts /api/CopyStatus with an empty body and reads copy_underway (a bool), matching GetAllStatus's example.",
+  "category": "sends-undocumented",
+  "severity": "unknown",
+  "summary": "The Crestron module's Get_Copy_Files_Status and its Copy_Files_In_Progress/Success outputs imply CopyStatus. CopyStatus has no page and is attested only in GetAllStatus's example ({\"copy_underway\":false}); its page returns 404. The wire format is opaque because the .csp is absent. The Crestron sheet names the join Get_Copy_Status while the module uses Get_Copy_Files_Status.",
+  "evidence": "cmc:847 (InputCue231=Get_Copy_Files_Status); cmc:1109-1110; samples/Automate VX/Crestron Module/Automate VX v1.0.pdf p2; reference/automate-vx-api/API-Reference/GetAllStatus-API.md:51 (api_call_6); CopyStatus-API.htm 404 (curl 2026-09-24)",
+  "verified": "confirmed",
+  "verify_reason": "Live curl of CopyStatus-API.htm (and CopyStatus, no suffix) returns 404. GetAllStatus-API.md:51 api_call_6 = {'request_api':'CopyStatus','response_body':'{...\"copy_underway\":false}'}. .cmc:847 = 'InputCue231=Get_Copy_Files_Status' (confirmed by direct line read) while the module's own PDF sheet (Automate VX v1.0.pdf p2) documents the join as 'Get_Copy_Status' — the sheet/.cmc naming mismatch is real and exact. .cmc:1109-1110 = OutputCue230=Copy_Files_Success, OutputCue231=Copy_Files_In_Progress, matching the .csp being absent/opaque framing."
+ },
+ {
+  "id": "X09",
+  "decompile": "2026-09-24 third pass (REPORT §10): the Crestron library reads record_state (an int, 0/1/2) and pause_enabled (a bool) from the /api/RecordStatus reply. No documented response carries either field. It also sets state 2 itself after a successful PauseRecord.",
+  "category": "sends-undocumented",
+  "severity": "unknown",
+  "summary": "The Crestron module outputs Recording_State (0 Stopped, 1 Recording, 2 Paused) and Pause_Enabled_FB. No documented response carries a paused state or a pause-enabled flag: RecordStatus and GetAllStatus give only boolean `results`. So the .csp either uses an undocumented field or call, or infers state client-side. Opaque.",
+  "evidence": "cmc:899-900 (OutputCue20 Pause_Enabled_FB, OutputCue21 Recording_State); Automate VX v1.0.pdf p4 (Record_State 0/1/2); reference/automate-vx-api/API-Reference/RecordStatus-API.md; GetAllStatus-API.md:51 (api_call_4)",
+  "verified": "confirmed",
+  "verify_reason": ".cmc:899-900 = 'OutputCue20=Pause_Enabled_FB','OutputCue21=Recording_State' (confirmed exact). RecordStatus-API.md and GetAllStatus-API.md's api_call_4 both show only {status, results:bool, message} — no pause/paused field or enabled flag anywhere. Automate VX v1.0.pdf p4 documents Record_State 0/1/2 (Stopped/Recording/Paused) and Pause_Enabled feedback matching the .cmc joins, so the module does expose paused state from an undocumented source, exactly as claimed.",
+  "update": "2026-09-24 second pass: Recording_State comes from the library's (status, state) callback; how it derives 'paused' is inside the library (§8)."
+ },
+ {
+  "id": "X10",
+  "decompile": "2026-09-24 third pass (REPORT §10): the Crestron library posts {\"name\",\"arg1\",\"arg2\",\"arg3\"} to /api/CallPlugin, leaving out null strings, and reads message and return_code.",
+  "category": "value-domain-mismatch",
+  "severity": "unknown",
+  "summary": "CallPlugin: the Crestron module passes a name plus three argument strings (Plugin_Arg1$/2$/3$). The doc page defines exactly name, arg1 and arg2. Separately, the What's New entry of 2025-05-09 and release note [AVX-2996] (6.4.1.8) remove or deprecate the call, while the page is still in the TOC and returns 200. That last point is a docs-internal contradiction.",
+  "evidence": "cmc:852-863 (InputCue236-247); Automate VX v1.0.pdf p3-4; https://sdkcon78221.crestron.com/sdk/Automate-VX-API/Content/Topics/Automate-API/API-Reference/CallPlugin-API.htm; reference/automate-vx-api/Whats-New/Whats-New.md:16-19; automate_vx_6.4.1.8_release_notes.pdf p4",
+  "verified": "confirmed",
+  "verify_reason": ".cmc:852-863 = InputCue236-247, confirmed to include Plugin_Arg1$/Arg2$/Arg3$ (3 args) plus Call_Plugin_1/2/3 and Plugin_1/2/3_Name$; Automate VX v1.0.pdf p3-4 documents the same 3 args. Live CallPlugin-API.htm defines exactly 'name', 'arg1', 'arg2' (no arg3) in its Parameters table. Whats-New.md:16-19 (May 9 2025, firmware 6.4.1) says 'Removed support for depreciated CallPlugin API call'; release-notes PDF text contains '[AVX-2996] Deprecated Call Plugin API.' Yet the page is still in the live TOC and returns HTTP 200 with full content (curl'd) — the docs-internal contradiction is real and independently reproduced.",
+  "update": "2026-09-24 second pass: confirmed at source - three argument properties, PluginArg1..3 (§8)."
+ },
+ {
+  "id": "X12a",
+  "decompile": "2026-09-24 third pass (REPORT §10): the Crestron library sends {\"id\":3}, a JSON number (Scenario.Id is an int). The two vendors' shipping drivers disagree on the type: Crestron follows the doc prose, Extron the doc examples.",
+  "category": "value-domain-mismatch",
+  "severity": "unknown",
+  "summary": "GoToScenario.id: both Extron drivers send a JSON string (`{'id': str(value)}`). The doc prose says Integer, but the doc's Body JSON and cURL example also quote it (\"1\"), so this is not 'driver right, doc wrong' but doc prose vs doc example. H6 item. The Crestron module's type is opaque (Recall_Scenario is analog 1-10).",
+  "evidence": "gc:625-628; cs:300-303; reference/automate-vx-api/API-Reference/GoToScenario-API.md:26,31,47; findings/08-spec-vs-implementation.md:155; ROADMAP.md:28",
+  "verified": "confirmed",
+  "verify_reason": "GoToScenario-API.md:26 says 'Required. Integer (body JSON)'; line 31's Body JSON Formatting shows '{\"id\": \"[value]\"}' (quoted); line 47's example cURL shows '--data \"{\\\"id\\\":\\\"1\\\"}\"' (quoted '1'). gc_embedded.py:625-633 and cs.py:298-306 both send {'id': str(value)}, a JSON string, matching the example not the prose."
+ },
+ {
+  "id": "X12b",
+  "decompile": "2026-09-24 third pass (REPORT §10): the Crestron library sends all three CameraMove fields as numbers on every pan/tilt/zoom call: {\"cam\":1,\"ptDir\":5,\"zDir\":0} to /api/StartPt, {\"cam\":1,\"ptDir\":0,\"zDir\":1} to /api/StartZ, and zeros on the stops. It disagrees with Extron on the ptDir/zDir type and agrees that cam is a number.",
+  "category": "value-domain-mismatch",
+  "severity": "unknown",
+  "summary": "StartPT and StartZ: Extron sends ptDir as '0'..'7' and zDir as '0'/'1' (strings), but cam as a number in the same body. GC declares PanTilt/Zoom Camera as DecimalParamAsset 1-255; the CS sheet documents an int; `1 <= qualifier['Camera']` cannot accept a str. StopPT and StopZ send {\"cam\": <number>}. The doc prose says Integer for all of these, while its examples quote them all. The direction mappings match the docs exactly (0=Up...7=Up Left; 0=In, 1=Out). H6 item.",
+  "evidence": "gc:476-500, 815-832; cs:216-240, 387-404; `surfaces.py params` output (PanTilt/Zoom Camera DecimalParamAsset _min 1 _max 255); onebynd_sm_Automate_VX_Series_v1_0_11_0.pdf p3-4 (Camera 1-255 unquoted); reference/automate-vx-api/API-Reference/StartPT-API.md:26-54, StartZ-API.md:26-54, StopPT-API.md:26-47, StopZ-API.md:26-47",
+  "verified": "confirmed",
+  "verify_reason": "StartPT-API.md:26-39 documents ptDir as Integer 0-7 with the exact direction list (0=Up...7=Up Left), matching gc_embedded.py's ValueStateValues at lines 476-486 exactly and independently confirmed via my own NRBF extraction (gc_surface.py) showing the PanTilt 'Value' EnumParamAsset's 9 states in that same order. Camera is independently confirmed as a DecimalParamAsset with _min=1,_max=255 (ids 935/937 in the dump) — i.e. numeric, not enum-string — consistent with gc_embedded.py:488 `if 1 <= qualifier['Camera'] <= 255` (no int() cast). The GC sheet (1bynd_42_4279_v1_0_11.pdf p3) shows Pan Tilt/Zoom Camera as unquoted '1 – 255', while the CS sheet (onebynd...pdf p3) shows the same field as unquoted '1 – 255' too under a 'Qualifier Value' column with no string quotes, matching 'the CS sheet documents an int' claim — and `1 <= qualifier['Camera'] <= 255` in cs.py:228 would indeed TypeError on a str."
+ },
+ {
+  "id": "X12c",
+  "decompile": "2026-09-24 third pass (REPORT §10): the Crestron library sends the room-config id as a number ({\"id\":5}), but ManualSwitchCamera address and CallCameraPreset cam/pre as strings ({\"address\":\"4\",\"id\":0}; {\"cam\":\"1\",\"pre\":\"4\"}). It agrees with Extron on address, cam and pre, and disagrees on the room-config id.",
+  "category": "value-domain-mismatch",
+  "severity": "unknown",
+  "summary": "Beyond the three H6 fields, Extron sends ChangeRoomConfiguration.id, ForceChangeRoomConfig.id, ManualSwitchCamera.address, and CallCameraPreset/SaveCameraPreset cam and pre as JSON strings, where the doc prose says Integer. For GC this is settled offline by the package: these parameters are EnumParamAsset with states '1'..'99' or '1'..'255', and `int(value)` is used only for the range check. For CS the sheet documents string values ('1'-'99', '1'-'255'); an int is sent only if the caller passes one. Result: `cam` is a string in preset calls but a number in PT/Z calls.",
+  "evidence": "gc:268-272, 289-293, 310-313, 572-575, 748-751; cs:104-108, 117-121, 130-133, 277-280, 358-361; gc_surface.py output (EnumParamAsset states); onebynd_sm_Automate_VX_Series_v1_0_11_0.pdf p3-4; reference/automate-vx-api/API-Reference/ChangeRoomConfiguration-API.md:26-53, ForceChangeRoomConfig-API.md:26-47, ManualSwitchCamera-API.md:26-47, CallCameraPreset-API.md:26-51, SaveCameraPreset-API.md:26-51",
+  "verified": "confirmed",
+  "verify_reason": "Independently re-extracted the .pkp's asset graph (gc_surface.py) and confirmed: 'Room Configuration'.Value and 'Force Room Configuration'.Value are EnumParamAsset with 99 states '1'..'99'; 'Switch Camera'.Value, 'Camera Preset Recall'/'Camera Preset Save' .Camera and .Value are EnumParamAsset with 255 states '1'..'255' — exactly as claimed. ChangeRoomConfiguration-API.md, ForceChangeRoomConfig-API.md, ManualSwitchCamera-API.md, CallCameraPreset-API.md and SaveCameraPreset-API.md all document 'Integer' in prose while their Body JSON / cURL examples quote the values as strings (read directly). The CS sheet (onebynd...pdf pp.3-4) documents these same fields with explicit string quotes ('1'-'99', '1'-'255'), distinct from PanTilt/Zoom's unquoted numeric range — confirming the str-vs-number split across command families."
+ },
+ {
+  "id": "X12d",
+  "category": "docs-internal",
+  "severity": "cosmetic",
+  "summary": "On 14 fields the doc prose says Integer while every Body-JSON and cURL example quotes the value as a string. The Macro example sends an unquoted int (\"address\": 2) and a nonsense value (\"id\": behnam). Several examples are malformed JSON: CallCameraPreset/SaveCameraPreset `\"pre\": [value]\"`, CopyFiles `\\\"deleteSource\\\":\\true\\\"`.",
+  "evidence": "reference/automate-vx-api/API-Reference/GoToScenario-API.md:26-47; StartPT-API.md:26-54; Macro-API.md:57; CallCameraPreset-API.md:35; SaveCameraPreset-API.md:35; CopyFiles-API.md:39,57",
+  "verified": "confirmed",
+  "verify_reason": "Read all 5 cited pages directly. CallCameraPreset-API.md:35 and SaveCameraPreset-API.md:35 both literally read '{ \"cam\": \"[value]\", \"pre\": [value]\"}' — malformed exactly as described. CopyFiles-API.md:57's example cURL literally contains '\\\"deleteSource\\\":\\true\\\"' — malformed exactly as described. Macro-API.md:57's example literally contains '{\\\"address\\\": 2}' (unquoted int) and '{\\\"id\\\": behnam}' (bare nonsense token) — confirmed exactly."
+ },
+ {
+  "id": "X13",
+  "category": "value-domain-mismatch",
+  "severity": "unknown",
+  "summary": "The runtime Python type GC hands to Decimal parameters (Scenario Value; PanTilt/Zoom Camera) is opaque. If it is a float, GoToScenario sends {\"id\":\"3.0\"} and PT/Z send \"cam\": 1.0. If it is decimal.Decimal, json.dumps raises TypeError and PT/Z never send. If it is an int, the wire matches CS. This is settleable on a processor without an Automate VX (LT17).",
+  "evidence": "gc:625-628 (str(value)), gc:488-500, 821-832 (json body via __SetHelper gc:869-870); gc_surface.py output (Scenario DecimalParamAsset _min 1, _max None)",
+  "verified": "confirmed",
+  "verify_reason": "Independently re-extracted the .pkp: object id 934, chain ['Value','Scenario',...], class DecimalParamAsset, _min=Decimal('1'), _max=None — exactly 'Scenario Value DecimalParamAsset _min 1, _max None' as claimed. gc_embedded.py:627 does 'id': str(value). The claim is explicitly and appropriately hedged as depending on GC's runtime Python type for Decimal params, which is unmeasured (opaque) from static analysis alone."
+ },
+ {
+  "id": "X14",
+  "decompile": "2026-09-24 third pass (REPORT §10): the Crestron library reads roomConfig (a single object, the GetAllStatus shape) from RoomConfigStatus; Extron reads roomConfigs[0]. The two shipping drivers expect different shapes, so one of them loses this feedback unless the device sends both keys. After a Change or Force, Crestron also takes the configuration from the first number in the reply's message text.",
+  "category": "docs-internal",
+  "severity": "unknown",
+  "summary": "The RoomConfigStatus page documents `roomConfigs: [{id:\"[1-99]\", name}]` (a list with a quoted id). GetAllStatus's embedded example of the same sub-call shows `roomConfig: {id:1, name}` (a singular object with an int id). Both Extron drivers parse `res['roomConfigs'][0]['id']`. If the device returns the singular form, the KeyError is caught and logged, and Room Configuration feedback never updates. That would be fails-on-device for that status.",
+  "evidence": "reference/automate-vx-api/API-Reference/RoomConfigStatus-API.md:52; GetAllStatus-API.md:51 (api_call_12); live GetAllStatus-API.htm still shows roomConfig singular (grep 2026-09-24); gc:595-598; cs:293-296",
+  "verified": "confirmed",
+  "verify_reason": "RoomConfigStatus-API.md:52 reads '\"roomConfigs\": [{\"id\": \"[1-99]\", \"name\": \"[Config Name]\"}]' — a list with a quoted id. GetAllStatus-API.md:51 api_call_12 reads '\"roomConfig\": {\"id\":1,\"name\":\"Config 1\"}' — singular key, int id. Both gc_embedded.py:595 and cs.py:293 do `res['roomConfigs'][0]['id']`, and both catch only (KeyError, IndexError, AttributeError) (gc_embedded.py:597, cs.py:295), consistent with the described failure mode if the device ever returns the singular form."
+ },
+ {
+  "id": "X15",
+  "decompile": "2026-09-24 third pass (REPORT §10): the Crestron library reads layout as a single object ({id,name}). A list, as the page documents, would fail to deserialize and be logged as a JSON parsing error.",
+  "category": "docs-internal",
+  "severity": "unknown",
+  "summary": "The LayoutStatus page documents `layout: [{id,name}]` (a list); GetAllStatus's example shows `layout: {id,name}` (an object). No Extron driver calls it; the Crestron module's Get_Current_Layout depends on the real shape (opaque).",
+  "evidence": "reference/automate-vx-api/API-Reference/LayoutStatus-API.md:52; GetAllStatus-API.md:51 (api_call_10); cmc:686 (InputCue70)",
+  "verified": "confirmed",
+  "verify_reason": "LayoutStatus-API.md:52 reads '\"layout\": [{\"id\": \"[A-Z]\", \"name\": \"[Layout Name]\"}]' — a list. GetAllStatus-API.md:51 api_call_10 reads '\"layout\": {\"id\":\"A\",\"name\":\"Layout A\"}' — a singular object. Confirmed no gc/cs code calls LayoutStatus (consistent with X04); .cmc:686 = InputCue70=Get_Current_Layout confirmed."
+ },
+ {
+  "id": "X16",
+  "decompile": "2026-09-24 third pass (REPORT §10): the Crestron library deserializes address into an int. Newtonsoft accepts 4 or \"4\", so either documented form works for Crestron.",
+  "category": "value-domain-mismatch",
+  "severity": "unknown",
+  "summary": "CameraStatus.address is documented as a string (\"[value]\") on its page but as an int (\"address\":1) plus an extra \"addresses\":[1] in GetAllStatus. Both Extron drivers validate with int() and then write the raw value. In GC the SwitchCamera status is EnumParamAsset '1'..'255', so an int Live value would not match the Enum states or GC's own string Emulated value. The CS sheet documents the status as strings '1'-'255'.",
+  "evidence": "reference/automate-vx-api/API-Reference/CameraStatus-API.md:51; GetAllStatus-API.md:51 (api_call_8); gc:755, 771-773; cs:374-376; onebynd_sm_Automate_VX_Series_v1_0_11_0.pdf p6; gc_surface.py output (SwitchCamera EnumParamAsset)",
+  "verified": "confirmed",
+  "verify_reason": "CameraStatus-API.md:51 reads '\"address\": \"[value]\"' — quoted string. GetAllStatus-API.md:51 api_call_8 reads '\"address\":1,...,\"addresses\":[1]' — int plus an extra array field. gc_embedded.py:771-773 and cs.py:374-376 both do `value = res['address']; if 1 <= int(value) <= 255:`. Independently re-extracted the .pkp: 'Switch Camera'.Value is an EnumParamAsset with 255 states '1'..'255' (string states), so an int Live value from CameraStatus wouldn't lexically match GC's own string Emulated value."
+ },
+ {
+  "id": "X17",
+  "category": "value-domain-mismatch",
+  "severity": "unknown",
+  "summary": "Both Extron ScenarioStatus handlers catch only (ValueError, IndexError, AttributeError). A success body without `scenario`, or with `scenario: null`, raises KeyError or TypeError out of the Update method. Most other handlers catch KeyError. Whether the device sends such a body, for example with no scenario selected, is unknown.",
+  "evidence": "gc:645-651; cs:313-319; reference/automate-vx-api/API-Reference/ScenarioStatus-API.md:51-57",
+  "verified": "confirmed",
+  "verify_reason": "gc_embedded.py:650 and cs.py:318 both read `except (ValueError, IndexError, AttributeError):` around `res['scenario']['id']` — KeyError (missing 'scenario') and TypeError (`None['id']` if scenario is null) are both absent from that tuple, confirmed by direct line read. ScenarioStatus-API.md:51 shows only a populated-scenario success body; no explicit 'no scenario selected' example is documented, matching the claim's own hedge that the real trigger condition is unmeasured."
+ },
+ {
+  "id": "X18",
+  "decompile": "2026-09-24 third pass (REPORT §10): inside an HTTP 200 the Crestron library also treats only status == \"Error\" as an error, so the lowercase error envelope passes silently there too. It does act on HTTP 400 (reads err) and 401.",
+  "category": "value-domain-mismatch",
+  "severity": "cosmetic",
+  "summary": "StopPT and StopZ document their error as {\"status\":\"error\",\"message\":...}: lowercase, with `message` instead of `err`. Both Extron drivers test res['status'] == 'Error' and read res['err'], so those errors are treated as success and never logged. Only TypeError is caught, so an 'Error' reply without 'err', or a non-JSON body (JSONDecodeError), raises.",
+  "evidence": "reference/automate-vx-api/API-Reference/StopPT-API.md:73; StopZ-API.md:73; gc:842-855; cs:409-418",
+  "verified": "confirmed",
+  "verify_reason": "StopPT-API.md:73 reads exactly '{ \"status\": \"error\", \"message\": \"Could not stop camera [value]\"}OR{\"status\": \"error\", \"message\": \"Camera address [value] is invalid\"}' — lowercase 'error' and a 'message' key, unlike every other endpoint's 'Error'/'err'. gc_embedded.py's __CheckResponseForErrors (lines 848-855) and cs.py's equivalent (409-418) only test `res['status'] == 'Error'` (capital) and read `res['err']`, and only catch TypeError — so a lowercase-'error' reply is silently returned as if successful, and JSONDecodeError / a capital-'Error' reply missing 'err' would raise uncaught, exactly as described."
+ },
+ {
+  "id": "X19",
+  "decompile": "2026-09-24 third pass (REPORT §10): confirmed end to end. With IsHttps 0 and Port 0 the library's base URL is http://<ip>:3579; with IsHttps 1 and Port 0 it is https://<ip>:4443.",
+  "category": "extron-vs-crestron",
+  "severity": "fails-on-device",
+  "summary": "Transport default: the Crestron module's Request_Type parameter defaults to HTTP (DV=0d; the sheet gives default port 3579, or 4443 for HTTPS). Both Extron drivers use HTTPS only (sheet default port 4443). Automate VX 6.4.1.8 [AVX-2994]: the API now defaults to HTTPS; legacy mode stays on by default only when upgrading, and 'New installations do not support legacy mode.' The Crestron module at its defaults therefore cannot reach a freshly installed 6.4.1.8+ unit; setting Request_Type=HTTPS and Port=4443 fixes it. This rests on the vendor release note and is not measured on a unit.",
+  "evidence": "cmc:1143 (ParamCue1=Request_Type,0d,1d); cmc:3824-3840 (Dp block DV=0d, Lbl1=HTTP, Lbl2=HTTPS); Automate VX v1.0.pdf p1; gc:867, 913; cs:29; 1bynd_42_4279_v1_0_11.pdf p6; https://www.crestron.com/release_notes/automate_vx_6.4.1.8_release_notes.pdf p4; reference/automate-vx-api/Whats-New/Whats-New.md:9-12",
+  "verified": "confirmed",
+  "verify_reason": ".cmc:1143 = 'ParamCue1=Request_Type,0d,1d' confirmed exact. .cmc:3824-3840 is precisely the Dp block: DV=0d, Val1=0d/Lbl1=HTTP, Val2=1d/Lbl2=HTTPS — confirmed exact line-for-line. gc_embedded.py forces https via `self.RootURL.replace('http','https',1)` (lines 867,913) and cs.py hardcodes `'https://{0}:{1}/'.format(...)` (line 29) — both HTTPS-only, confirmed by direct read. Release-notes PDF text contains, verbatim, 'legacy mode is enabled by default... New installations do not support legacy mode' under [AVX-2994] (installer 6.4.1.8, 2025-04-23) — matches the cited quote exactly.",
+  "update": "2026-09-24 second pass: confirmed at source - Request_Type defaults to 0d and main() sets Automate.IsHttps = Request_Type (REPORT.md §8)."
+ },
+ {
+  "id": "X20",
+  "decompile": "2026-09-24 third pass (REPORT §10): the library caps ManualSwitchCamera and CallCameraPreset at 255, but the live-preset call (current camera) at 8. All three guards share one error message that still says (1-8).",
+  "category": "extron-vs-crestron",
+  "severity": "functional-gap",
+  "summary": "Camera ID range: the Crestron module's sheet gives 1-8 for Manual_Switch_Camera, Select_Camera and Call_Selected_Camera_Preset. The docs widened camera IDs to 1-255 on 2023-12-28, and both Extron drivers accept 1-255. Whether the .csp enforces 1-8 is opaque.",
+  "evidence": "Automate VX v1.0.pdf p2-3; cmc:824-825, 841; reference/automate-vx-api/Whats-New/Whats-New.md:30-33; gc:268, 488, 748, 821; cs:104, 228, 358, 393",
+  "verified": "confirmed",
+  "verify_reason": "Automate VX v1.0.pdf pp.2-3 (read directly) documents Manual_Switch_Camera, Select_Camera and Call_Selected_Camera_Preset all as '(Valid range: 1-8)'. Whats-New.md:30-33 (Dec 28 2023) documents the camera-ID widening from [1-8] to [1-255] across 9 named pages including CallCameraPreset, CameraStatus, GetCameras, ManualSwitchCamera, SaveCameraPreset, StartPT, StartZ, StopPT, StopZ — confirmed verbatim. gc_embedded.py and cs.py both accept 1-255 throughout (confirmed via direct line reads and the independent EnumParamAsset/DecimalParamAsset dump). Whether the .csp itself enforces 1-8 remains genuinely opaque, as stated.",
+  "update": "2026-09-24 second pass: the SIMPL+ wrapper does not cap cameras (CameraCount 8 only in commented-out code); 1-8 is the help sheet's figure; any library limit is not visible (§8)."
+ },
+ {
+  "id": "X21",
+  "decompile": "2026-09-24 third pass (REPORT §10): the library's ChangeLayout takes 1-26 and sends \"A\"-\"Z\".",
+  "category": "extron-vs-crestron",
+  "severity": "functional-gap",
+  "summary": "Layouts: the Crestron module wires Change_Layout_A..Y (25 joins, no Z). The docs define A-Z, and both Extron drivers and the GC package (26 Enum states) cover A-Z.",
+  "evidence": "cmc:660-684 (InputCue44-68); Automate VX v1.0.pdf p2; reference/automate-vx-api/API-Reference/ChangeLayout-API.md:26; gc:397-398; cs:173-174; gc_surface.py output (Layout 26 states)",
+  "verified": "confirmed",
+  "verify_reason": ".cmc:660-684 = InputCue44 through InputCue68, exactly 25 entries, Change_Layout_A through Change_Layout_Y, with no Change_Layout_Z anywhere (confirmed by direct read of the full range). Docs (ChangeLayout-API.md) and both gc_embedded.py (26-item list A-Z) and cs.py cover the full A-Z; independently re-extracted the .pkp's 'Layout' EnumParamAsset and confirmed exactly 26 states, A through Z (list _size=26 in the NRBF stream).",
+  "update": "2026-09-24 second pass: the A-Y limit is the wrapper's 25 layout joins; the library documents ChangeLayout as A-Z (§8)."
+ },
+ {
+  "id": "X22",
+  "decompile": "2026-09-24 third pass (REPORT §10): the library's GoToScenario has no upper bound, and it skips the logged-in check most calls make.",
+  "category": "extron-vs-crestron",
+  "severity": "functional-gap",
+  "summary": "Scenarios: the Crestron module recalls 1-10 and exposes Scenario_1..10_Name$. The docs give no upper bound for GoToScenario.id. GC declares Scenario as Decimal with min 1 and no max; the code checks only `1 <= value`.",
+  "evidence": "Automate VX v1.0.pdf p4; cmc:866 (Recall_Scenario), cmc:1132-1141; reference/automate-vx-api/API-Reference/GoToScenario-API.md:26; gc:625; cs:300; gc_surface.py output",
+  "verified": "confirmed",
+  "verify_reason": "Automate VX v1.0.pdf p4 (read directly): 'Recall_Scenario A / Recall a scenario (Valid range: 1-10)' confirmed exact, plus cmc:866='InputCue250=Recall_Scenario'. GoToScenario-API.md documents no upper bound for id (only 'Integer... that sets the corresponding scenario', no range stated), unlike every camera/room-config endpoint which states an explicit range. Independently re-extracted the .pkp's Scenario 'Value' DecimalParamAsset: _min=1, _max=None, matching gc_embedded.py:625 `if 1 <= value:` (no upper check).",
+  "update": "2026-09-24 second pass: Recall_Scenario is forwarded uncapped; ScenarioCount 10 bounds only the name outputs (§8)."
+ },
+ {
+  "id": "X23",
+  "decompile": "2026-09-24 third pass (REPORT §10): ForceChangeRoomConfig is one POST to /api/ForceChangeRoomConfig with {\"id\":n}, with no client-side sequence. Both vendors call the single endpoint; the Crestron sheet describes what the server does.",
+  "category": "extron-vs-crestron",
+  "severity": "unknown",
+  "summary": "Force room configuration: the Crestron sheet describes Force_Room_Config as a client-side sequence (check AutoSwitch status, stop AutoSwitch, change the configuration, restart AutoSwitch). Extron calls the single documented api/ForceChangeRoomConfig, which the docs say does that server-side. Whether the .csp calls the endpoint or composes four calls is opaque.",
+  "evidence": "Automate VX v1.0.pdf p2; cmc:718 (InputCue102); gc:304-318; cs:128-137; reference/automate-vx-api/API-Reference/ForceChangeRoomConfig-API.md:5",
+  "verified": "confirmed",
+  "verify_reason": "Automate VX v1.0.pdf p2 (read directly): 'Force_Room_Config ... Will check the Auto Switch Status, stop Auto Switch if it was running, change room config and then restart Auto Switch if had been running when Force_Room_Config is called' — a described client-side check/stop/change/restart sequence. ForceChangeRoomConfig-API.md's intro (line 5, read directly) instead says the server does this: 'AutoSwitching is stopped and then resumed before the API call was issued.' .cmc:718='InputCue102=Force_Room_Config' confirmed. gc_embedded.py:301-318/cs.py:128-137 just POST to api/ForceChangeRoomConfig once. Whether the .cmc's underlying .csp composes multiple calls or trusts the single endpoint is explicitly and correctly left opaque.",
+  "update": "2026-09-24 second pass: one library call, documented as stopping autoswitching and forcing the change; one request or a sequence is inside the compiled library (§8)."
+ },
+ {
+  "id": "X24",
+  "decompile": "2026-09-24 third pass (REPORT §10): on HTTP 401, or the 4-Series client's synthetic 666, the library logs out. A 401's 'Unauthorized' is mapped to 'Incorrect Username or Password...', which deletes the cached token, so re-login fetches a fresh one. PersistentLogin: up to 5 immediate re-logins, then a 5-minute wait. At most two such waits happen, and each resets the counter, so each can be followed by another burst of up to 5. A 60 s CameraStatus keep-alive runs only after a freshly issued token, not after a cached one is reused.",
+  "category": "extron-vs-crestron",
+  "severity": "unknown",
+  "summary": "Session recovery differs. The Crestron PersistentLogin retries 5 times, waits 5 minutes, then stops until a program restart; per [AVX-3179] the module logs the user out on a permission error. Both Extron drivers re-request a token on every (re)connect and retry immediately and without limit when a reply lacks `token`. In CS that retry is direct recursion (TokenRequestHandler → TokenRequest), so a device answering 200 without a token and without status 'Error' would end in RecursionError. GC re-queues through DriverCmd, which is opaque.",
+  "evidence": "Automate VX v1.0.pdf p1; automate_vx_6.4.1.8_release_notes.pdf p4; gc:190-202, 951-959; cs:59-73, 501-507",
+  "verified": "confirmed",
+  "verify_reason": "Automate VX v1.0.pdf p1 (read directly): 'Will re-try 5 times and then wait 5 minutes before trying again, after which, it will stop trying until a program restart is issued if login is not successful' — matches the PersistentLogin description exactly. Release-notes PDF text contains, verbatim, '[AVX-3179] If using the SIMPL module ... and an API is called which the user does not have permissions for, the module will log the user out.' cs.py:59-73 shows TokenRequestHandler calling `self.TokenRequest(None,None)` which itself calls `self.TokenRequestHandler()` — direct mutual recursion, confirmed by code read, risking RecursionError exactly as described. gc_embedded.py:190-202 instead re-queues via `self.DriverCmd('TokenRequest', None, None)`, an opaque framework call, confirmed by code read; gc_embedded.py:951-959 (OnConnected) likewise calls DriverCmd.",
+  "update": "2026-09-24 second pass: the library caches a token per device IP on the processor's disk, checks 1.5 s after an IP arrives, logs in only if none is stored; PersistentLogin is new in v1.2 (§8)."
+ },
+ {
+  "id": "X25",
+  "category": "gc-vs-controlscript",
+  "severity": "fails-on-device",
+  "summary": "The ControlScript sheet (rev 7/31/2026, page 4) documents Set('Scenario', None, {'ID': 'String'}), the pre-1_0_11_0 form. The shipped code's SetScenario runs `if 1 <= value:`, which raises TypeError for None or any str; only a numeric value works. Commands['Scenario'] still declares the stale 'Parameters': ['ID']. The GC sheet and GC code agree (Value: Number, no qualifier).",
+  "evidence": "onebynd_sm_Automate_VX_Series_v1_0_11_0.pdf p4; cs:47, 298-308; 1bynd_42_4279_v1_0_11.pdf p3; gc:115, 619-635",
+  "verified": "confirmed",
+  "verify_reason": "onebynd_sm_Automate_VX_Series_v1_0_11_0.pdf (rev 7/31/2026), page 4, reads verbatim: 'Command Scenario / Value None / Qualifier Key 'ID' / Qualifier Value 'String' / # Scenario example / InterfaceName.Set('Scenario', None, {'ID': 'String'})' — the exact pre-1_0_11_0 form, even though the same document's own version-history table (page 1) says version 1_0_11_0 (dated the same 7/31/2026) 'Updated Scenario command: changed 'ID' parameter to value type' — a genuine same-document internal contradiction. cs.py:47 still declares `'Scenario' : {'Parameters':['ID'], ...}` and cs.py:300 runs `if 1 <= value:`, which TypeErrors on None or any str — confirmed by direct code read, so following the documented example crashes. The GC sheet (1bynd_42_4279_v1_0_11.pdf, pp.3 and 5) instead shows 'Scenario / Value Number' with no qualifier in both Control Commands and Status Available sections, agreeing with gc_embedded.py's qualifier-free numeric handling (line 619-635)."
+ },
+ {
+  "id": "X26",
+  "category": "gc-vs-controlscript",
+  "severity": "functional-gap",
+  "summary": "A Set while unauthenticated: ControlScript discards the command and immediately re-requests a token. GC only discards it, so GC relies on the next Update or OnConnected to re-authenticate, and commands sent before that are lost.",
+  "evidence": "cs:458-460; gc:903-904, 947-949",
+  "verified": "confirmed",
+  "verify_reason": "cs.py:458-460 reads exactly 'else: self.Discard('Invalid Command') / self.TokenRequest(None, None)' — immediate re-request on an unauthenticated Set, confirmed by direct line read. gc_embedded.py's __SetHelper else-branch (lines 903-904) reads only 'self.Discard('Invalid Command')' with no token re-request, confirmed by direct line read (gc_embedded.py:947-949 is the separate __UpdateHelper's else-branch, which does call DriverCmd('TokenRequest',...) — that's the Update path, not Set, consistent with the claim's framing)."
+ },
+ {
+  "id": "X27",
+  "category": "gc-vs-controlscript",
+  "severity": "cosmetic",
+  "summary": "Connection status is derived differently. The GC package declares a ConnectionStatus command, which the GC sheet says is 'based off of' /api/RecordStatus; the script feeds it through WriteDeviceResponseStatus. Any HTTPError writes 'Good', and only the Record command writes 'Bad' on URLError or other exceptions. ControlScript counts Update calls without a successful WriteStatus and fires OnDisconnected after connectionCounter (15). This also corrects extraction [0]: GC does have ConnectionStatus, and CS never calls WriteDeviceResponseStatus.",
+  "evidence": "gc_surface.py output (ConnectionStatus EnumParamAsset Connected/Disconnected); 1bynd_42_4279_v1_0_11.pdf p5 footnote RP; gc:923-945; cs:21, 462-471, 501-515, 582-585",
+  "verified": "confirmed",
+  "verify_reason": "Independently re-extracted the .pkp's DriverCommandAsset list and found 18 named commands per model including 'Connection Status' (id 108 etc.), and its child EnumParamAsset 'Value' has exactly 2 states: 'Connected','Disconnected' — confirming GC does declare a ConnectionStatus command with that EnumParamAsset (refuting 'extraction [0]'s claim that it doesn't). 1bynd_42_4279_v1_0_11.pdf p5 footnote reads verbatim 'RP Connection Status is based off of the following string: https://IP_ADDRESS:4443/api/RecordStatus' — exact match to 'based off of' framing. gc_embedded.py:927,932,936,939 call self.WriteDeviceResponseStatus inside __UpdateHelper, confirmed by direct read. cs.py:21 sets connectionCounter=15, and __UpdateHelper (462-471) increments self.counter and calls OnDisconnected() once counter>connectionCounter, confirmed by direct read; 'WriteDeviceResponseStatus' does not appear anywhere in cs.py (confirmed by full-file scan)."
+ },
+ {
+  "id": "X28",
+  "category": "gc-vs-controlscript",
+  "severity": "cosmetic",
+  "summary": "GC writes an optimistic 'Emulated' status before sending AutoSwitch, ISORecording, Output, Record, RoomConfiguration, Scenario and SwitchCamera commands; ControlScript writes none. In GC the Scenario Emulated value is the raw Decimal while the Live value is str(id), so the two never compare equal, which affects SyncEmulatedStatus.",
+  "evidence": "gc:218, 347, 423, 520, 579, 632, 755; gc:648; gc:1064-1095; cs:75-82, 184-194, 245-255, 275-285, 298-308, 356-366",
+  "verified": "confirmed",
+  "verify_reason": "Confirmed by direct line read, every one of the 7 cited lines is exactly the pre-send Emulated write: gc_embedded.py:218 (WriteAutoSwitch ...'Emulated'), 347 (WriteISORecording), 423 (WriteOutput), 520 (WriteRecord), 579 (WriteRoomConfiguration), 632 (WriteScenario), 755 (WriteSwitchCamera) — each immediately preceding the corresponding __SetHelper call. cs.py's matching Set* methods never call WriteStatus before __SetHelper (confirmed by full-file read — WriteStatus in cs.py is only invoked from the Update* handlers and OnConnected/OnDisconnected). gc_embedded.py:632 passes the raw numeric `value` for Emulated while line 648 does `value = str(res['scenario']['id'])` for Live — confirmed exactly, a type mismatch that would prevent SyncEmulatedStatus's equality check from ever succeeding."
+ },
+ {
+  "id": "X29",
+  "category": "gc-vs-controlscript",
+  "severity": "cosmetic",
+  "summary": "Configuration differences. Only GC refuses SSL-verify 'Off' on 'Pro' platforms below API (3,4,6), and only GC validates a CommandPacing parameter (0-30). ResponseTimeout (GC) and DefaultResponseTimeout (CS) are set but never used; both send with a literal timeout=10.",
+  "evidence": "gc:10-18, 89-99, 135-151, 887, 924; cs:22, 24-27, 442, 481",
+  "verified": "confirmed",
+  "verify_reason": "gc_embedded.py:93-95 reads 'if platform == \"Pro\" and version < minimumVersion: initError.append(\"Minimum API version not met...\")' guarding SSLVerifyMode=='Off', with minimumVersion=(3,4,6) at line 16 — confirmed. gc_embedded.py:136-138 validates CommandPacing with `if not 0 <= self.CommandPacing <= 30`. cs.py has no such SSL-platform guard (lines 24-27 unconditionally accept 'Off') and no CommandPacing parameter anywhere (confirmed by full-file scan). Both files use the literal `timeout=10` in their Opener.open calls (gc_embedded.py:887,924; cs.py:442,481, confirmed exact) while DefaultResponseTimeout/ResponseTimeout are assigned once (gc_embedded.py:145; cs.py:22) and never read again anywhere else in either file (confirmed by full-file scan)."
+ },
+ {
+  "id": "X30",
+  "category": "gc-vs-controlscript",
+  "severity": "unknown",
+  "summary": "GC builds every URL as self.RootURL.replace('http', 'https', 1). If the opaque Extron2.HTTPDriver base class ever supplies an https:// RootURL, the result is 'httpss://...' and every request fails. CS hard-codes 'https://{ip}:{port}/'. This depends on the base class, which is not in the repo.",
+  "evidence": "gc:867-868, 913-914; cs:29",
+  "verified": "confirmed",
+  "verify_reason": "gc_embedded.py:867 and :913 both read exactly \"url = '{0}{1}'.format(self.RootURL.replace('http', 'https', 1), url)\" — confirmed by direct line read in both __SetHelper and __UpdateHelper. cs.py:29 reads exactly \"self.RootURL = 'https://{0}:{1}/'.format(ipAddress, port)\" — hardcoded, confirmed. Neither gc_embedded.py's __init__ nor the rest of the file sets self.RootURL directly, consistent with it coming from the opaque Extron2.HTTPDriver base class, as claimed."
+ },
+ {
+  "id": "X31",
+  "category": "docs-internal",
+  "severity": "cosmetic",
+  "summary": "Firmware currency is inconsistent. Home.htm says current as of 6.4.1.8; API-Reference.htm says 6.02; the newest changelog entry is 6.4.2 (2025-07-01); the TOC was built 2026-05-26. In the release notes' history, 6.4.0.49 is dated 2024-03-19 although it is listed after 6.3.0.34 (2024-11-07).",
+  "evidence": "reference/automate-vx-api/Home.md; reference/automate-vx-api/API-Reference/API-Reference.md; reference/automate-vx-api/Whats-New/Whats-New.md:9-12; Data/HelpSystem.xml BuildTime; automate_vx_6.4.1.8_release_notes.pdf p6, p9",
+  "verified": "confirmed",
+  "verify_reason": "Home.md:9 reads 'This document is current as of the 6.4.1.8 firmware release' (confirmed exact). API-Reference.md:5 reads '...current as of the version 6.02 firmware release' (confirmed exact) — a direct internal contradiction. Whats-New.md:9-11 confirms the newest entry is firmware 6.4.2, dated July 1 2025. HelpSystem.xml's BuildTime is 5/26/2026 (confirmed exact, independently fetched live and byte-identical to the saved copy). Release-notes PDF text (pdfgrep) confirms 'Installer 6.4.0.49 ... Date: 2024-03-19' appearing in the document after 'Installer 6.3.0.34 ... Date: 2024-11-07' — a numerically-higher version (6.4.x) chronologically predating a numerically-lower one (6.3.x), exactly the oddity described."
+ },
+ {
+  "id": "X32",
+  "category": "docs-internal",
+  "severity": "cosmetic",
+  "summary": "The scheme and port history is contradictory. The 2022-08-18 changelog entry 'Corrected all HTTPS references to HTTP'; on 2025-07-01 every call moved to port 4443. The Make-API-Calls example still uses http://, and the 6.4.1.8 release notes still recommend ':4443 or 3579'. This bears on X19.",
+  "evidence": "reference/automate-vx-api/Whats-New/Whats-New.md:9-12, 59-62; reference/automate-vx-api/Quick-Start/Make-API-Calls.md; automate_vx_6.4.1.8_release_notes.pdf p3",
+  "verified": "confirmed",
+  "verify_reason": "Whats-New.md:59-62 (Aug 18 2022) reads 'Corrected all \"HTTPS\" references to \"HTTP\"' — confirmed, matching the cited quote in substance. Whats-New.md:9-12 (Jul 1 2025) confirms the move of every API call's base URL to port 4443. Release-notes PDF text (pdfgrep) contains 'it is recommended to access from a remote machine via <ipaddress>:4443 or 3579' under the Recommendation/Notes section preceding the 6.4.1.8 entry — matching the '4443 or 3579' recommendation claim. (Make-API-Calls.md's use of http:// was not independently re-verified in this pass, but nothing found contradicts it, and the Authentication.md example I did read still uses http://[ip]:4443/get-token, consistent with the scheme/port inconsistency being real.)"
+ },
+ {
+  "id": "X33",
+  "category": "docs-internal",
+  "severity": "cosmetic",
+  "summary": "Response examples disagree across pages. Messages differ between dedicated pages and GetAllStatus (StreamStatus 'No Stream in Progress' vs 'Streaming not in progress'; OutputStatus 'Output in Progress' vs 'Outputting in progress'). The 5.13.1.11 release notes changed StartAutoSwitch's reply to 'Received StartAutoSwitch command', but the page still shows 'AutoSwitching Started Successfully'. GetCameras entries are {id,name,ip} on the page but {id,model} in GetAllStatus. RecordingSpaceAvail values are quoted on the page but ints in GetAllStatus. GetActiveTalkers `talkers` is the string \"[5,]\". HealthStatus's top-level status is 'Healthy', not 'OK'. OutputStatus and StopOutput document no error case. No driver parses messages.",
+  "evidence": "reference/automate-vx-api/API-Reference/GetAllStatus-API.md:51; StreamStatus-API.md; OutputStatus-API.md; StartAutoSwitch-API.md; GetCameras-API.md:51; GetActiveTalkers-API.md:53; RecordingSpaceAvail-API.md; live Health-Status-API.htm; automate_vx_6.4.1.8_release_notes.pdf p15",
+  "verified": "confirmed",
+  "verify_reason": "Confirmed by direct reads: StreamStatus-API.md:53 says 'No Stream in Progress' vs GetAllStatus-API.md:51 api_call_1 'Streaming not in progress'. OutputStatus-API.md:52/58 says 'Output in Progress'/'No Output in Progress' vs GetAllStatus api_call_2 'Outputting in progress'. GetCameras-API.md:51 documents {id,name,ip} vs GetAllStatus api_call_7 {id,model}. RecordingSpaceAvail-API.md:51 quotes available/total_gigabytes as strings vs GetAllStatus api_call_5's ints (207,232). GetActiveTalkers-API.md:53 documents talkers as the literal string '[5,]'. Live Health-Status-API.htm's success body's top-level status is 'Healthy', not 'OK' (confirmed live). OutputStatus-API.md and StopOutput-API.md both genuinely lack an Error response block (confirmed by direct read of both full pages). The one sub-claim I could not independently corroborate is the specific text that '5.13.1.11 release notes changed StartAutoSwitch's reply to Received StartAutoSwitch command' — a keyword search of the release-notes PDF text for 'startautoswitch'/'received' found no match near the 5.13.1.11 section (though the crude stdlib PDF-text extractor may simply miss that content). This doesn't contradict the claim; StartAutoSwitch-API.md does still show 'AutoSwitching Started Successfully' live, consistent with that part of the claim."
+ },
+ {
+  "id": "X34",
+  "decompile": "2026-09-24 third pass (REPORT §10): consistent with [AVX-3179], any HTTP 401 logs the Crestron module out and clears its cached token. What the device returns for a permission error is still undocumented (LT14).",
+  "category": "docs-internal",
+  "severity": "unknown",
+  "summary": "Release notes [AVX-2995]/[AVX-2997] (6.4.1.8) applied user permissions to API commands, and [AVX-3179] says the SIMPL module logs out on a permission error. The API docs define no permission-error shape or HTTP status. Both Extron drivers log HTTP errors but keep Authenticated=True, and GC even writes device status 'Good' on HTTPError, so a revoked or unauthorised token may never be re-requested.",
+  "evidence": "automate_vx_6.4.1.8_release_notes.pdf p4; gc:888-890, 925-928; cs:443-445, 482-484; reference/automate-vx-api/Quick-Start/Authentication.md",
+  "verified": "confirmed",
+  "verify_reason": "Release-notes PDF text (pdfgrep) contains, verbatim: '[AVX-2995], [AVX-2997] Updated labels in the permissions table and applied permissions to API commands' and '[AVX-2996] Deprecated Call Plugin API' and '[AVX-3179] If using the SIMPL module...and an API is called which the user does not have permissions for, the module will log the user out' — all confirmed exact matches to the cited note numbers and content. Authentication.md defines no explicit permission-error JSON shape or HTTP status, only prose ('an error message returned indicating that the credentials are not valid'), confirmed by direct read. gc_embedded.py:888-890 (HTTPError in __SetHelper) and :925-928 (HTTPError in __UpdateHelper, which also calls WriteDeviceResponseStatus('Good',...) — confirmed exact) never touch self.Authenticated; cs.py:443-445 and :482-484 likewise never touch self.Authenticated on HTTPError — confirmed by direct line read in both files."
+ },
+ {
+  "id": "X35",
+  "decompile": "2026-09-24 third pass (REPORT §10): the Crestron library reads GoToScenario's reply as {status, message, cameras}, with cameras a flat list of ints, not the page's nested [[1-8]].",
+  "category": "docs-internal",
+  "severity": "cosmetic",
+  "summary": "GoToScenario's success example documents `cameras: [[1-8]]` although camera IDs were widened to 1-255 on 2023-12-28.",
+  "evidence": "reference/automate-vx-api/API-Reference/GoToScenario-API.md (Success block); reference/automate-vx-api/Whats-New/Whats-New.md:30-33",
+  "verified": "confirmed",
+  "verify_reason": "GoToScenario-API.md's Success block (line 67, read directly) reads exactly '\"cameras\": [ [1-8] ]'. Whats-New.md:30-33 confirms the camera-ID range was widened from [1-8] to [1-255] on Dec 28, 2023, across 9 other named endpoints — GoToScenario's own success example was evidently missed in that update, exactly as claimed."
+ },
+ {
+  "id": "X36",
+  "category": "extron-vs-crestron",
+  "severity": "unknown",
+  "summary": "Pan/tilt URI case: the Crestron library (both builds) posts to /api/StartPt and /api/StopPt, while the docs and both Extron drivers use /api/StartPT and /api/StopPT. StartZ and StopZ match. Both drivers ship, which suggests the server matches URIs case-insensitively; that is inferred, not measured.",
+  "evidence": "decompiled Automate_VX AutomateVx.cs:586, 595 and Automate_Vx_4Series AutomateVx4Series.cs:540 (REPORT §10.3); gc:476-500 and cs:216-240 (StartPT); reference/automate-vx-api/API-Reference/StartPT-API.md, StopPT-API.md",
+  "verified": "confirmed",
+  "verify_reason": "Third pass, 2026-09-24: an independent verifier re-read the cited decompiled lines in both builds and decoded the IL blobs; confirmed as stated."
+ },
+ {
+  "id": "X37",
+  "category": "extron-vs-crestron",
+  "severity": "unknown",
+  "summary": "Authorization header form: the Crestron 3-Series library's HTTPS client sends 'Authorization: Basic <value>', for the get-token credential and for the token alike. Its HTTP client and the 4-Series library send the bare value, as both Extron drivers and the docs do. HTTPS is the transport the release notes now require for new installs, and it is exactly the path on which a 3-Series processor adds 'Basic '. Whether the device accepts the prefixed form is unmeasured.",
+  "evidence": "decompiled Automate_VX Https.cs:94 ('Basic {token}'), Http.cs:79 (bare); Automate_Vx_4Series Http.cs:50 (bare) (REPORT §10.2); REPORT §1 (Extron: Authorization: base64(user:pass), later <token>); reference/automate-vx-api/Quick-Start/Authentication.md",
+  "verified": "confirmed",
+  "verify_reason": "Third pass, 2026-09-24: an independent verifier re-read the cited decompiled lines in both builds and decoded the IL blobs; confirmed as stated."
+ },
+ {
+  "id": "X38",
+  "category": "extron-vs-crestron",
+  "severity": "unknown",
+  "summary": "Unused keys: Newtonsoft always writes an int property, so the Crestron library sends cam, ptDir and zDir on every pan/tilt/zoom call. StopPt and StopZ send ptDir 0 and zDir 0, and StartZ sends ptDir 0, which is the Up direction. It also adds \"id\":0 to every ManualSwitchCamera. Extron sends only the documented keys. If the Crestron module works, the device ignores keys an endpoint does not use; unmeasured.",
+  "evidence": "decompiled Automate_VX CameraMove.cs and Camera.cs (int properties); the IL's JsonProperty blobs (NullValueHandling.Ignore, which does not apply to an int); AutomateVx.cs:579-615, 617-636 (REPORT §10.3); gc:476-500, 815-832",
+  "verified": "confirmed",
+  "verify_reason": "Third pass, 2026-09-24: an independent verifier re-read the cited decompiled lines in both builds and decoded the IL blobs; confirmed as stated."
+ }
+]

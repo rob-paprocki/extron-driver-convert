@@ -59,7 +59,7 @@ Test counts are in `STATUS.md`.
 
 ```
 STATUS.md  ROADMAP.md  ENVIRONMENT.md
-findings/                    numbered research output, 01 to 18
+findings/                    numbered research output, 01 to 20
 tools/                       the tools above, with their tests
 experiments/
   skeleton_i20/              the IV-CAM-I20 driver, .pkp and ControlScript forms
@@ -67,6 +67,8 @@ experiments/
   gcp_harness/               Windows-only: Extron DLL probes + GCP UI Automation
   graph_probes/              packages that located finding 18's deserializer bug
   ross_ultrix/               the one oracle pair with a human-written side (finding 17)
+  automate_vx_threeway/      Extron vs Crestron vs docs for the Automate VX (finding 20)
+  dm_md/                     design for driving a Crestron DM-MD32X32-CPU3 from an Extron processor
   nrbf_writeback/ crestron2cs/ docs_only/ missing_ethernet/
 samples/<device>/            .pkp, shipped ControlScript module, Crestron package — vendor files not published
 corpus/                      an Extron driver library snapshot — vendor files not published
