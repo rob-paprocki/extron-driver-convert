@@ -10,7 +10,7 @@ function PropText($win){
   $o=@()
   foreach($t in $win.FindAll($TS::Descendants,$tc)){
     $rr=$t.Current.BoundingRectangle
-    if($rr.X -gt 1580 -and $t.Current.Name -and $t.Current.Name -notmatch 'Expires|cti.com|^Pro$'){ $o+=$t.Current.Name }
+    if($rr.X -gt 1580 -and $t.Current.Name -and $t.Current.Name -notmatch 'Expires|@|^Pro$'){ $o+=$t.Current.Name }
   }
   return $o
 }

@@ -10,7 +10,7 @@ function PaneDump($win){
   $tc=New-Object System.Windows.Automation.PropertyCondition($AE::ControlTypeProperty,[System.Windows.Automation.ControlType]::Text)
   foreach($t in $win.FindAll($TS::Descendants,$tc)){
     $rr=$t.Current.BoundingRectangle
-    if($rr.X -gt 1580 -and $t.Current.Name -and $t.Current.Name -notmatch 'Expires|cti\.com|^Pro$'){ $o += ("{0}" -f $t.Current.Name) }
+    if($rr.X -gt 1580 -and $t.Current.Name -and $t.Current.Name -notmatch 'Expires|@|^Pro$'){ $o += ("{0}" -f $t.Current.Name) }
   }
   $ec=New-Object System.Windows.Automation.PropertyCondition($AE::ControlTypeProperty,[System.Windows.Automation.ControlType]::Edit)
   foreach($e in $win.FindAll($TS::Descendants,$ec)){

@@ -1,6 +1,6 @@
 donor: onebynd_camera_PTZ_IP12_IP20_v1_0_0_0.py (20497 bytes)
   derived module: 39651 bytes (+19154), verification clean
-  Z:\GitHub\rob-paprocki\extron-driver-convert\experiments\skeleton_i20\out\onebynd_camera_IV_CAM_I20_v1_0_0_0.py
+  <repo>\experiments\skeleton_i20\out\onebynd_camera_IV_CAM_I20_v1_0_0_0.py
 --- pkp wire ---
 [7] the emitted driver targets Python 3.5 (non-xi processors)
   ok   no f-strings

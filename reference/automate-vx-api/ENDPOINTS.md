@@ -4,7 +4,7 @@ Source: Crestron SDK documentation, `https://sdkcon78221.crestron.com/sdk/Automa
 
 Global facts, true for every endpoint below unless noted:
 - **Base URL**: `https://[Server URL]:4443` — port 4443 is used for all calls (`Whats-New/Whats-New.htm`: "Updated all topics to change the API calls to reflect port 4443 in the base URLs," July 1, 2025).
-- **Auth**: every endpoint except `Get-Token` requires an `Authorization` header carrying the bearer token obtained from `Get-Token` (`Quick-Start/Authentication.md`). `Get-Token` itself requires an `Authorization` header of its own: base64(`username:password`), default `YWRtaW46MWJleW9uZA==` = `admin:1beyond` (`API-Reference/Get-Token-API.md`).
+- **Auth**: every endpoint except `Get-Token` requires an `Authorization` header carrying the bearer token obtained from `Get-Token` (`Quick-Start/Authentication.md`). `Get-Token` itself requires an `Authorization` header of its own: base64(`username:password`); the factory-default pair is printed on that page (`API-Reference/Get-Token-API.md`) and not repeated here.
 - **Content-Type**: `application/json` for both request and response on every endpoint.
 - **HTTP Method**: POST for every documented endpoint — there are no GET, PUT, or DELETE calls anywhere in this API.
 - **Base URI prefix**: all endpoints are under `/api/...` except `Get-Token`, which is at the root (`/get-token`), per an explicit note on that page.

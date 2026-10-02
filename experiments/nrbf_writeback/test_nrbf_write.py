@@ -236,7 +236,9 @@ def test_mutation_changes_only_the_targeted_string():
     assert len(reparsed.objects) == len(baseline.objects)
     assert reparsed.record_type_counts == baseline.record_type_counts
     assert reparsed.objects[30]["members"]["_author"] == {"$ref": 44}
-    assert reparsed.objects[44] == "billywong"
+    sibling = baseline.objects[44]          # another author's login; not named here
+    assert isinstance(sibling, str) and sibling and sibling != "username"
+    assert reparsed.objects[44] == sibling
 
     def class_counts(objs):
         counts = {}

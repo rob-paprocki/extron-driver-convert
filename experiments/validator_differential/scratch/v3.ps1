@@ -17,5 +17,5 @@ function Check([string]$path,[string]$label) {
     "{0,-30} {1}" -f $label, $validate.Invoke($inst,$a2)
   } catch { $m=$_.Exception; if($m.InnerException){$m=$m.InnerException}; "{0,-30} EXC {1}" -f $label,$m.Message }
 }
-$dir="Z:\GitHub\rob-paprocki\extron-driver-convert\experiments\skeleton_i20\out"
+$dir="<repo>\experiments\skeleton_i20\out"
 foreach ($f in (Get-ChildItem $dir -Filter *.pkp | Sort-Object Name)) { Check $f.FullName $f.Name }

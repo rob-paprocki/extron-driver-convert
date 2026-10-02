@@ -23,8 +23,8 @@ function Check([string]$path,[string]$label) {
     return "{0,-30} EXC {1}: {2}" -f $label, $m.GetType().Name, $m.Message
   }
 }
-$dir = "Z:\GitHub\rob-paprocki\extron-driver-convert\experiments\skeleton_i20\out"
-Check "Z:\GitHub\rob-paprocki\extron-driver-convert\samples\1 Beyond Cameras\PTZ-IP12_IP20\pkp\1bynd_19_4743_v1_0_1.pkp" "DONOR (untouched)"
+$dir = "<repo>\experiments\skeleton_i20\out"
+Check "<repo>\samples\1 Beyond Cameras\PTZ-IP12_IP20\pkp\1bynd_19_4743_v1_0_1.pkp" "DONOR (untouched)"
 foreach ($f in @("1bynd_19_20020_v1_0_0.pkp","1bynd_19_20021_v1_0_0.pkp","1bynd_19_20022_v1_0_0.pkp","1bynd_19_20023_v1_0_0.pkp","1bynd_19_20030_v1_0_0.pkp","1bynd_19_20031_v1_0_0.pkp","1bynd_19_20032_v1_0_0.pkp")) {
   Check "$dir\$f" $f
 }

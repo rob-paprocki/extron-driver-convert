@@ -2,7 +2,7 @@
 """Run tools/pkp_validate.validate over a list of packages -> TSV."""
 import sys, os, traceback
 
-REPO = r"Z:\GitHub\rob-paprocki\extron-driver-convert"
+REPO = r"<repo>"
 sys.path.insert(0, os.path.join(REPO, "tools"))
 import pkp_validate as V
 

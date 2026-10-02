@@ -18,7 +18,7 @@ themselves** — which is what our own transplant does, arrived at independently
 | `mod_ross_matrix_RossTalk_v1_1_0_0.py` | ~300 | device module, RossTalk protocol — the wire |
 | `mod_ross_matrix_tsl_3_1_v1_1_0_0.py` | ~330 | device module, TSL 3.1 — a second protocol to the same box |
 | `plugin_ross_ultrix.py` | ~90 | translation layer between program and modules |
-| `tools.py` | **7,644** | general framework (Valley Communications, v1.6.0.0, 2023) |
+| `tools.py` | **7,644** | general framework (an integrator's own, v1.6.0.0, 2023) |
 
 `plugin_ross_ultrix.py` states its own job in its docstring: *"providing a
 translation layer between the main program and hardware module."* That is the
@@ -92,8 +92,8 @@ that keeps the template is still readable to it.
 ## 5. `tools.py` is a runtime, not a driver
 
 7,644 lines, 30 top-level classes, a hand-maintained 90-line changelog running
-v1.0 → v1.6.0.0. Authored by Jean-Luc Rioux at Valley Communications, targeting
-Pro controller firmware 3.10+.
+v1.0 → v1.6.0.0. Written by an integrator's in-house programmer (named in the
+file's header; not repeated here), targeting Pro controller firmware 3.10+.
 
 | lines | provides |
 |---|---|
@@ -148,8 +148,8 @@ work that matters is the capability it omits.
 
 - **`pkp2cs` was run on Extron's Ultrix package but its output was never executed.**
   The comparison above is wire tables, not behaviour.
-- **One integrator, one device.** Conventions here may be Valley
-  Communications' house style rather than industry practice. Nothing else in the
+- **One integrator, one device.** Conventions here may be this integrator's
+  house style rather than industry practice. Nothing else in the
   repo corroborates it.
 - **Nothing was executed.** The splice claim is from normalised diffs against
   shipped modules; no module was run.

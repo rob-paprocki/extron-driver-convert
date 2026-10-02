@@ -175,6 +175,13 @@ redistributed.
   into either index.
 - Generated driver modules derived from vendor scripts are tracked; the owner
   decided (2026-09-24) that they are not a concern.
+- **Build the public copy with `tools/public_sync.py`, never by hand.** `build`
+  turns an archive commit into one commit on the public line, dropping what
+  stays private and scrubbing personal paths, and refuses while anything
+  personal or secret is left; `check` audits any commit. It never pushes:
+  publishing needs the owner's word, and a history rewrite (`rewrite`) needs
+  them to name the force-push. Patterns too personal to publish go in the
+  git-ignored `private/public-sync-denylist.txt`.
 
 `private/` is **git-ignored** and never pushed. It holds this project's Claude
 Code session records (full tool output, account details, lab IPs) and the

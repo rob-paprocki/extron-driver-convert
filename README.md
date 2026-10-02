@@ -124,6 +124,16 @@ the archive stays private and its history is never pushed anywhere public. The
 public copy was built from a rewritten branch, which changes every commit hash:
 the hashes these docs cite are the archive's.
 
+**The public copy also leaves out** (since 2026-10-02; `tools/public_sync.py`
+builds it): the parked switcher experiment, the raw records of the automated
+research runs (`tools/out/verdicts/workflows/`), the workstation pack-up notes,
+screenshots and logs that show the owner's account or lab network, compiled
+binaries, and three reference files that transcribe vendor documentation at
+length (`reference/crestron-visca/COMMANDS.md`, `reference/biamp-ttp/SYNTAX.md`,
+`reference/crestron-nextgen-cameras/ZOOM.md`). Personal paths are rewritten to
+`<user>`. Docs that cite these files still name them; the files are in the
+archive.
+
 The generated driver modules (`experiments/skeleton_i20/out/*.py`,
 `experiments/skeleton_p20/out/*.py`) and the translator's other generated
 modules are this project's output and are tracked.

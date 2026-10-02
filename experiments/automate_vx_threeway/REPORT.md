@@ -351,7 +351,7 @@ symbol, whose own control code was not decompiled.
 - **ISO recording is absent here too,** which fits the ISO calls' missing documentation (X07).
 - **Using it needs a Crestron control system.** The VX2 registers to one over CIP. For an Extron processor it is the same barrier as the DM-MD's native path (`experiments/dm_md/DESIGN.md` §1.4), so the REST API remains the practical route. The native join map fills the matrix's **Native IP ID** column, which reads `?` in §2.
 
-**The two demo programs in Downloads** (`intelligent_switching_microphone_integration_demo_v5`, `1_beyond_multi-cam_demo_v1.2`) use neither the VX2 symbol nor any DigitalMedia device.
+**The two vendor demo programs** (`intelligent_switching_microphone_integration_demo_v5`, `1_beyond_multi-cam_demo_v1.2`) use neither the VX2 symbol nor any DigitalMedia device.
 - The first drives 1 Beyond cameras through a compiled SIMPL# library (`ISMIv2`, class `OneBeyondCamera`, addressed by IP and a camera ID of 1–5).
 - The second is a VISCA-over-IP module for 1 Beyond cameras, built from plain SIMPL+ helpers. It is an independent source of VISCA strings for the i20 driver to be checked against (ROADMAP R45).
 
@@ -451,5 +451,5 @@ section **supersedes §8's "stays opaque"** and corrects §8's licence line (not
 §8 said that decompiling a `.clz` is what Crestron's development-tools licence bars. That was wrong.
 - The clause finding 04 records (§4.2(c), on reverse engineering and decompilation) is in Crestron's *Software Development Tools* licence, which governs the tools: SIMPL Windows and Toolbox.
 - The only licence text this repo has read is that one. I found no term that governs this distributed module library and bars decompiling it.
-- The owner, who works for a Crestron dealer/partner organisation, made the call to decompile it for interoperability.
+- The owner made the call to decompile it for interoperability.
 - ROADMAP D2 still carries the licence question, and no legal conclusion is drawn here.

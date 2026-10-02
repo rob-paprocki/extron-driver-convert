@@ -5,7 +5,7 @@ model entries:                      6822
 packages with a vendor-consistent match: 311
 distinct pairs:                     349
 packages rejected (vendor mismatch only): 36
-wrote C:\Users\robp\.claude\jobs\a721b700/tmp/repro2
+wrote C:\Users\<user>\.claude\jobs\a721b700/tmp/repro2
 --- vs committed ---
 rebuilt packages: 311  committed packages: 314
 only in rebuilt: []

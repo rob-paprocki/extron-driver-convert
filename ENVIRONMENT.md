@@ -139,12 +139,20 @@ python -u experiments/graph_synthesis/test_cross_clone.py
 python -u experiments/exec_harness/test_exec_harness.py
 python -u tools/test_verify_vendor_files.py
 python -u experiments/automate_vx_threeway/test_surfaces.py
+python -u experiments/automate_vx_threeway/test_avx_cs.py
+python -u experiments/crestron_decompile/test_decompile.py
+python -u experiments/tesira_in1804/test_tesira_strings.py
+python -u tools/test_public_sync.py
 ```
 
-**1,100 tests in 23 files**, all passing with the vendor material in place
-(2026-09-24). **In a clone without it, 313 run and pass and the rest are
-skipped**, each skip naming the file it needed (`tools/vendor_inputs.py`); a
-suite that cannot build anything without its donor package says so and exits 0.
+**1,154 tests in 28 files**, all passing with the vendor material in place
+(2026-10-02). **In a clone without it, 380 run and pass on this workstation and
+the rest are skipped**, each skip naming the file it needed
+(`tools/vendor_inputs.py`); a suite that cannot build anything without its donor
+package says so and exits 0. Two suites read the installed Crestron device
+database rather than the repo, so a machine without Crestron's tools runs fewer.
+The public copy leaves out one parked experiment, two of these files and their
+14 tests.
 A clean run in a clone checks the code, not the findings. `test_pkp_build.py` and
 `test_pkp_validate.py` walk every sample package, including a 4.4M-event one —
 expect roughly 11 and 4 minutes respectively, and about 20 minutes for the whole

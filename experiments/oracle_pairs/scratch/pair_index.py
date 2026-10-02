@@ -1,6 +1,6 @@
 """Build the .pkp <-> ControlScript oracle-pair index from the local GC install."""
 import os, re, sys, json, traceback
-sys.path.insert(0, r"Z:\GitHub\rob-paprocki\extron-driver-convert\tools")
+sys.path.insert(0, r"<repo>\tools")
 import pkp_dump as pd
 
 D = r"C:\Users\Public\Documents\extron\Driver3"

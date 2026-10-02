@@ -3,7 +3,7 @@ $s=$a.GetManifestResourceStream('Extron.Configuration.Drivers.Resources.ExtronDH
 $ms=New-Object IO.MemoryStream
 $s.CopyTo($ms)
 $b=$ms.ToArray()
-[IO.File]::WriteAllBytes('C:\Users\robp\AppData\Local\Temp\ilres\ExtronDH.dat',$b)
+[IO.File]::WriteAllBytes('C:\Users\<user>\AppData\Local\Temp\ilres\ExtronDH.dat',$b)
 $txt=[Text.Encoding]::UTF8.GetString($b)
 Write-Output ("len={0}" -f $b.Length)
 Write-Output $txt.Substring(0,900)

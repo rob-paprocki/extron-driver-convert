@@ -18,7 +18,7 @@ function Check([string]$p) {
     return [string]$validate.Invoke($inst,$a2)
   } catch { $m=$_.Exception; if($m.InnerException){$m=$m.InnerException}; return "EXC "+$m.Message }
 }
-$t = "C:\Users\robp\.claude\jobs\a721b700\tmp\eirtest"
+$t = "C:\Users\<user>\.claude\jobs\a721b700\tmp\eirtest"
 foreach ($f in @("bad_ondisk.eir","bad_plain.pkp")) { "{0,-20} {1}" -f $f, (Check "$t\$f") }
 foreach ($f in @("extr_10_397_v1_0_4.pkp","extr_1_789_v1_0_2.pkp","extr_8_89_v1_0_0.pkp")) {
   "{0,-26} {1}" -f $f, (Check "C:\Users\Public\Documents\extron\Driver3\$f") }

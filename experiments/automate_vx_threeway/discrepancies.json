@@ -132,10 +132,10 @@
   "id": "X12d",
   "category": "docs-internal",
   "severity": "cosmetic",
-  "summary": "On 14 fields the doc prose says Integer while every Body-JSON and cURL example quotes the value as a string. The Macro example sends an unquoted int (\"address\": 2) and a nonsense value (\"id\": behnam). Several examples are malformed JSON: CallCameraPreset/SaveCameraPreset `\"pre\": [value]\"`, CopyFiles `\\\"deleteSource\\\":\\true\\\"`.",
+  "summary": "On 14 fields the doc prose says Integer while every Body-JSON and cURL example quotes the value as a string. The Macro example sends an unquoted int (\"address\": 2) and a nonsense value (\"id\": <a bare word>). Several examples are malformed JSON: CallCameraPreset/SaveCameraPreset `\"pre\": [value]\"`, CopyFiles `\\\"deleteSource\\\":\\true\\\"`.",
   "evidence": "reference/automate-vx-api/API-Reference/GoToScenario-API.md:26-47; StartPT-API.md:26-54; Macro-API.md:57; CallCameraPreset-API.md:35; SaveCameraPreset-API.md:35; CopyFiles-API.md:39,57",
   "verified": "confirmed",
-  "verify_reason": "Read all 5 cited pages directly. CallCameraPreset-API.md:35 and SaveCameraPreset-API.md:35 both literally read '{ \"cam\": \"[value]\", \"pre\": [value]\"}' — malformed exactly as described. CopyFiles-API.md:57's example cURL literally contains '\\\"deleteSource\\\":\\true\\\"' — malformed exactly as described. Macro-API.md:57's example literally contains '{\\\"address\\\": 2}' (unquoted int) and '{\\\"id\\\": behnam}' (bare nonsense token) — confirmed exactly."
+  "verify_reason": "Read all 5 cited pages directly. CallCameraPreset-API.md:35 and SaveCameraPreset-API.md:35 both literally read '{ \"cam\": \"[value]\", \"pre\": [value]\"}' — malformed exactly as described. CopyFiles-API.md:57's example cURL literally contains '\\\"deleteSource\\\":\\true\\\"' — malformed exactly as described. Macro-API.md:57's example literally contains '{\\\"address\\\": 2}' (unquoted int) and '{\\\"id\\\": <a bare word>}' (bare nonsense token) — confirmed exactly."
  },
  {
   "id": "X13",

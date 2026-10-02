@@ -23,11 +23,11 @@ plugin, Core or device was run.*
   scored yet: Barco ClickShare CX, Samsung MDC displays and the Extron SMP 351 (§2).
 - **Controlling a Q-SYS Core from Extron is already done by Extron**:
   `qsc_dsp_Q_Sys_Core_Series_v1_15_1_0.py` speaks QSC's ECP text protocol. QSC also documents a
-  JSON-RPC protocol (QRC, TCP 1710). That is a different job from converting device drivers and
-  is out of this scope unless the owner wants it (§6, decision D-Q4).
+  JSON-RPC protocol (QRC, TCP 1710). That is a different job from converting device drivers;
+  the owner wants it, as a separate job (§6, decision D-Q4).
 - **What is missing before any building:** a reader that turns a Lua plugin into this project's
-  wire table, a way to run a generated plugin (Designer's emulator, on this PC), and four owner
-  decisions (§6).
+  wire table, and a way to run a generated plugin (Designer's emulator, on this PC). The four
+  owner decisions are made (§6, 2026-10-01): Q-SYS → Extron first.
 
 ## 1. What a Q-SYS plugin is
 
@@ -122,25 +122,30 @@ emulator (F6) that runs plugin logic on the PC without a Core. QSC documents the
   converting third-party plugins; each plain plugin is under its author's terms. Treat it as open,
   as the Crestron question already is.
 
-## 6. Decisions for the owner
+## 6. Decisions (the owner, 2026-10-01)
 
-| id | decision | recommendation |
-|---|---|---|
-| D-Q1 | **Which direction first.** Extron → Q-SYS (generate `.qplug` from an Extron module) or Q-SYS → Extron (translate a plugin into ControlScript). | **Extron → Q-SYS.** Extron's corpus has about 2,200 ControlScript modules; only 25 Q-SYS plugins are readable. Generating from Extron reaches far more devices, and the four pairs become the oracle that checks the output, the way finding 14 used Extron's own pairs. |
-| D-Q2 | **Provenance for Q-SYS material.** `.qplug`, `.qplugx`, `.qplugx2`, `.nupkg` and `.qsys` are vendor files: add `.gitignore` rules and manifest lines before any is copied near the repo. Sealed formats are never opened. May generated plugins derived from vendor modules be tracked, as was decided for generated Extron modules on 2026-09-24? | add the rules first; tracking generated plugins is the owner's call |
-| D-Q3 | **Lua at test time.** The portable suite is standard-library only. Executing generated Lua offline needs a Lua interpreter (excluded) or Designer's emulator (this PC only). | keep the suite stdlib-only (wire-table checks); run F6 emulation as a machine-bound acceptance step |
-| D-Q4 | **Q-SYS as a device**: an Extron or Crestron driver for a Core over QRC (JSON-RPC, TCP 1710). Extron's existing module uses the older ECP protocol. | out of scope unless the owner needs it; it is a separate, well-documented job |
+| id | decision | recommendation | **decided** |
+|---|---|---|---|
+| D-Q1 | **Which direction first.** Extron → Q-SYS (generate `.qplug` from an Extron module) or Q-SYS → Extron (translate a plugin into ControlScript). | **Extron → Q-SYS.** Extron's corpus has about 2,200 ControlScript modules; only 25 Q-SYS plugins are readable. Generating from Extron reaches far more devices, and the four pairs become the oracle that checks the output, the way finding 14 used Extron's own pairs. | **Q-SYS → Extron first**, against the recommendation. Extron → Q-SYS follows. |
+| D-Q2 | **Provenance for Q-SYS material.** `.qplug`, `.qplugx`, `.qplugx2`, `.nupkg` and `.qsys` are vendor files: add `.gitignore` rules and manifest lines before any is copied near the repo. Sealed formats are never opened. May generated plugins derived from vendor modules be tracked, as was decided for generated Extron modules on 2026-09-24? | add the rules first; tracking generated plugins is the owner's call | **Generated plugins may be tracked.** The vendor rules still come first. |
+| D-Q3 | **Lua at test time.** The portable suite is standard-library only. Executing generated Lua offline needs a Lua interpreter (excluded) or Designer's emulator (this PC only). | keep the suite stdlib-only (wire-table checks); run F6 emulation as a machine-bound acceptance step | **Designer's emulator**, as recommended; no Lua interpreter in the repo. |
+| D-Q4 | **Q-SYS as a device**: an Extron or Crestron driver for a Core over QRC (JSON-RPC, TCP 1710). Extron's existing module uses the older ECP protocol. | out of scope unless the owner needs it; it is a separate, well-documented job | **Yes, as a separate job** (ROADMAP R49). |
 
-## 7. First steps once decided
+## 7. First steps, as decided
 
-1. Write the Lua reader (stdlib) and its tests against the 25 plain plugins: every send site and
-   reply branch found, or counted as opaque.
-2. Score the four pairs, model family checked first (finding 10's rule).
-3. Pilot one device Extron → Q-SYS. Clock Audio CDT100 is the natural first: smallest surface,
-   already scored, UDP only (so emulation can exercise it), and finding 10 already holds the
-   manual-based adjudication.
-4. Load the generated plugin in Designer, emulate it against a stand-in device on the PC, and
-   compare its wire table with QSC's own plugin.
+Q-SYS → Extron first, so the output is a ControlScript module, which the existing exec harness
+can run offline; Designer's emulator is needed only once the Extron → Q-SYS direction starts.
+
+1. Add the `.gitignore` rules and manifest lines for Q-SYS vendor files (D-Q2), then write the
+   Lua reader (stdlib) and its tests against the 25 plain plugins: every send site and reply
+   branch found, or counted as opaque (ROADMAP R46).
+2. Score the three unscored pairs, model family checked first (finding 10's rule) (R47).
+3. Pilot one device Q-SYS → Extron. Clock Audio CDT100 is the natural first: smallest surface,
+   already scored, and finding 10 already holds the manual-based adjudication. Translate the
+   plugin into a ControlScript module, compare its wire table with both QSC's plugin and
+   Extron's module, and run it in `experiments/exec_harness/` (R48).
+4. Then Extron → Q-SYS: load a generated plugin in Designer, emulate it against a stand-in
+   device on the PC, and compare its wire table with QSC's own plugin.
 
 ## Sources
 

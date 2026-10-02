@@ -3,14 +3,14 @@
 disagreements between tools/pkp_validate.py and Extron's real validator."""
 import os, sys, hashlib, gzip, shutil
 
-REPO = r"Z:\GitHub\rob-paprocki\extron-driver-convert"
+REPO = r"<repo>"
 sys.path.insert(0, os.path.join(REPO, "tools"))
 sys.path.insert(0, os.path.join(REPO, "experiments", "nrbf_writeback"))
 import pkp_build as pb
 import nrbf_write as nw
 import pkp_dump as pd
 
-OUT = r"C:\Users\robp\AppData\Local\Temp\extval\mutants"
+OUT = r"C:\Users\<user>\AppData\Local\Temp\extval\mutants"
 os.makedirs(OUT, exist_ok=True)
 
 STREAM = pb.STREAM_ASSET_CLASS
@@ -97,9 +97,9 @@ def mutant(donor, name, fn):
 
 
 DONORS = [
-    (r"Z:\GitHub\rob-paprocki\extron-driver-convert\samples\DSC_12G-HD\pkp\extr_17_17677_v1_0_0.pkp", "dsc"),
-    (r"Z:\GitHub\rob-paprocki\extron-driver-convert\samples\Samsung QNxxLS03DAFXZA\pkp\smsg_10_6738_v1_0_0.pkp", "smsg"),
-    (r"Z:\GitHub\rob-paprocki\extron-driver-convert\samples\Tesira\pkp\biam_25_150_v1_20_0.pkp", "tesira"),
+    (r"<repo>\samples\DSC_12G-HD\pkp\extr_17_17677_v1_0_0.pkp", "dsc"),
+    (r"<repo>\samples\Samsung QNxxLS03DAFXZA\pkp\smsg_10_6738_v1_0_0.pkp", "smsg"),
+    (r"<repo>\samples\Tesira\pkp\biam_25_150_v1_20_0.pkp", "tesira"),
 ]
 
 for donor, tag in DONORS:

@@ -1,5 +1,5 @@
 import sys, os
-sys.path.insert(0, r"Z:\GitHub\rob-paprocki\extron-driver-convert\tools")
+sys.path.insert(0, r"<repo>\tools")
 import pkp_validate as pv
 from collections import Counter
 

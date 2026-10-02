@@ -74,6 +74,6 @@ The real question is therefore **runtime translation**, not format decoding.
 ## Incidental
 
 The DSC package carries an absolute path from the machine that built it:
-`C:\Users\billywong\OneDrive - Extron\Desktop\pakage holding folder\extr_17_17677_v1_0_0.pkp`.
+`C:\Users\<user>\OneDrive - Extron\Desktop\pakage holding folder\extr_17_17677_v1_0_0.pkp`.
 Irrelevant to conversion, but it confirms these are Extron-authored packages
 rather than field exports, and that the packager preserves build-host paths.

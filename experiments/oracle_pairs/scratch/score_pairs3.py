@@ -11,7 +11,7 @@ Metric follows STATUS.md: acceptance is the wire-string table
 (wire_table.diff_tables), not file or line similarity.
 """
 import json, os, sys, collections
-R = r"Z:\GitHub\rob-paprocki\extron-driver-convert"
+R = r"<repo>"
 sys.path.insert(0, os.path.join(R, "tools"))
 import pkp2cs, wire_table
 

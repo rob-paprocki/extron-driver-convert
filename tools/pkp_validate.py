@@ -110,7 +110,7 @@ close it.
       it is the ON-DISK name; but decode 1 did not verify every load path
       (CachedDriverFileAsset, GC's 61 MB rehydrated catalogue).
     Decodes 2 and 3: the SERIALIZED `_filename` in the samples is often the
-      authoring absolute path (e.g. 'C:\\Users\\billywong\\...\\x.pkp'), and no
+      authoring absolute path (e.g. 'C:\\Users\\<user>\\...\\x.pkp'), and no
       decode observed a real `.eir` asset flowing through Validate.
     NOT RESOLVED. WHAT THIS FILE DOES: it evaluates the test against BOTH
     candidates - the serialized `_filename` and the on-disk filename - and only

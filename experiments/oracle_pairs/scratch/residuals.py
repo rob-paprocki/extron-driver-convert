@@ -5,7 +5,7 @@ it appends {"reason","detail"} rather than raising. Counting exceptions
 therefore measures nothing; this is the real failure signal.
 """
 import json, os, sys, collections
-sys.path.insert(0, r"Z:\GitHub\rob-paprocki\extron-driver-convert\tools")
+sys.path.insert(0, r"<repo>\tools")
 import pkp2cs
 D = r"C:\Users\Public\Documents\extron\Driver3"
 here = os.path.dirname(os.path.abspath(__file__))

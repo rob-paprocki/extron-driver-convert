@@ -5,7 +5,7 @@ Extron hardware. This runs the same oracle (wire_table.diff_tables) over
 hundreds of third-party pairs the translator was never tuned on.
 """
 import json, os, sys, traceback, collections
-R = r"Z:\GitHub\rob-paprocki\extron-driver-convert"
+R = r"<repo>"
 sys.path.insert(0, os.path.join(R, "tools"))
 import pkp2cs, wire_table
 

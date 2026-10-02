@@ -9,6 +9,11 @@ Global Configurator's own catalogue data, which is Extron's, so they stay on the
 owner's machine; `vendor-files.manifest.tsv` pins them. The screenshots and
 test logs below are ours and tracked.
 
+**Not in the public copy (since 2026-10-02):** every screenshot below except
+`GCP_OJ8lgWOFHo.png`, because Global Configurator's status bar shows the
+licensee's account and most of them show lab addresses; and the corpus-copy and
+push logs. They stay in the private archive.
+
 ## screenshots/
 
 | file | taken | shows | cited by |
@@ -49,6 +54,5 @@ files not); the zip is kept on disk as the original.
 ## test-logs/
 
 Console output from the 2026-09-10 build, test and push runs (`rebuild.log`,
-`final_tests.log`, `wire.log`, `asset2.log`, `push*.log`, …). The push logs
-record the Git Credential Manager hang and the `GIT_ASKPASS` workaround; no
-token was ever written to them.
+`final_tests.log`, `wire.log`, `asset2.log`, `push*.log`, …). No token was
+ever written to them.

@@ -13,7 +13,7 @@ $validate = $val.GetMethod("Validate")
 $refresh = $ext.GetMethod("RefreshResourceHash")
 $save = $dfa.GetMethod("SaveToFile", [type[]]@($asm.GetType("Extron.Configuration.Drivers.DriverFileAsset").GetInterfaces()[0], [string]))
 
-$dir = "Z:\GitHub\rob-paprocki\extron-driver-convert\experiments\skeleton_i20\out"
+$dir = "<repo>\experiments\skeleton_i20\out"
 $src = "$dir\1bynd_19_20023_v1_0_0.pkp"
 $dst = "$dir\1bynd_19_20040_v1_0_0.pkp"
 

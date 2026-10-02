@@ -1,6 +1,6 @@
 # Status
 
-**Last updated: 2026-09-23.** Read this first. Everything below is measured unless
+**Last updated: 2026-10-02.** Read this first. Everything below is measured unless
 marked otherwise. **What is left to do lives in `ROADMAP.md`; the machine it runs on is
 described in `ENVIRONMENT.md`.**
 
@@ -15,6 +15,8 @@ described in `ENVIRONMENT.md`.**
 | Extron → Crestron `.pkg`? | **Mechanically demonstrated** (resource-patched a real DLL). Gated by Crestron's dealer/partner licence, not by code. |
 | Generate a driver from API docs alone? | **Mostly.** 29 of the 32 endpoints a real driver calls have their own documentation page (~91%), re-measured from saved files on 2026-09-23 (`experiments/docs_only/REMEASURE.md`); the earlier ~84% predated finding 08's correction. The other 3 are the ISO-record family: `ISORecordStatus` appears only inside another page's example, and `StartISORecord`/`StopISORecord` appear nowhere. The danger is silent incompleteness, not missing methods. |
 | Is a shared intermediate representation justified? | **Yes.** Two vendors independently encode the same device to the same bytes, including its undocumented bug workarounds. |
+| A Biamp Tesira controlling an Extron device? | **On paper, yes, with Tesira's own blocks** (`experiments/tesira_in1804/MAP.md`, 2026-10-01). A Network Command String block sends an IN1804's SIS strings over TCP and, from Tesira 3.15, matches its replies for feedback; the strings come from Extron's own module. Not run on either device (ROADMAP H11). |
+| Q-SYS to and from Extron or Crestron? | **Scoped, not built** (`experiments/qsys/SCOPE.md`, 2026-10-01). A plain `.qplug` maps onto a ControlScript module closely enough to carry command tables both ways; in the one pair scored (Clock Audio CDT100) all 9 commands Extron's module sends are among the plugin's, byte for byte, while the replies differ. Most plugins in the owner's library are encrypted and stay unopened. The owner chose **Q-SYS → Extron first** (ROADMAP 2G). |
 
 ## Findings
 
@@ -61,11 +63,16 @@ described in `ENVIRONMENT.md`.**
 | `experiments/oracle_pairs/` | **Finding 14's pair index and scorecard.** `build_index.py` reproduces the pair set exactly (314 packages, 352 pairs) from `corpus/`, with five named, evidenced corrections (`OVERRIDES`); `score.py` counts `AttributeError` and `NameError` beside the wire table. | 26 |
 | `experiments/loopback/` | **A processor drives the i20 module at a PC.** A command console on the processor, a VISCA listener playing the camera, and an orchestrator checking every step's frames and reads against the module run locally. Rehearsed end to end offline. Path A (ControlScript) needs the Deployment Utility and a certified project; Path B drives the synthesised 20028 from a Global Configurator macro. Found two reply-parser bugs before any hardware. | 116 + 19 |
 | `experiments/exec_harness/` | **Runs generated modules offline.** A stand-in extronlib records every `Send`; each generated module and Extron's shipped module for the same device get the same inputs, taken from their own method bodies, and the outcomes are compared. Found the bug classes no static check could see (ROADMAP R13). | 8 |
+| `experiments/automate_vx_threeway/` | **Automate VX v1.1 ControlScript module** (`BUILD.md`, 2026-10-01): Extron's own module rebuilt by `build_avx_cs.py` with ten named fixes and six additions. Each defect was reproduced by running Extron's module offline, each fix has a test that fails on Extron's module, and leaving any one edit out makes a test fail. Every valid Set and poll sends exactly Extron's requests. Not run against a unit (ROADMAP H6). | 22 + 5 |
+| `experiments/tesira_in1804/` | **Tesira command strings for an Extron IN1804**, in the `~HH` form Tesira's Command String blocks take, Expected Response patterns included. | 10 |
+| `experiments/crestron_decompile/` | Extracts Crestron's SIMPL# libraries from an installed device database and decompiles them with ILSpy (the owner's decision, ROADMAP D2), the input to finding 20's third pass. `ilspycmd` is its one non-stdlib dependency; the test uses synthetic packages. | 3 |
+| `tools/public_sync.py` | **Builds the public copy's next commit from the archive.** Drops what stays private, scrubs personal paths, refuses to build while anything personal or secret remains, and never pushes; `rewrite` replays the public history through the same rules, for a force-push only the owner can order. | 11 |
 | `experiments/gcp_harness/` | **Windows-only.** `Load-Package.ps1` asks Extron's own `LoadFromFile`/`BinaryFormatter` about a package; `scratch/` is the verified UI Automation chain that drove GCP. PowerShell because Python cannot load the x86 Extron assemblies without a third-party bridge. | manual |
 
 Experiments live in `experiments/` (NRBF writer, Crestron→ControlScript, missing-Ethernet
 generation, docs-only generation, oracle pairs, graph probes and cross-package cloning,
-a sweep of all 1,854 corpus packages, Ross Ultrix, GCP harness).
+a sweep of all 1,854 corpus packages, Ross Ultrix, GCP harness, the Q-SYS scope, and the
+DM-MD32X32-CPU3 switcher, parked by the owner on 2026-10-01).
 Our indexes and analyses of vendor docs in `reference/`. **`corpus/` holds a snapshot of
 an Extron library** (1,854 `.pkp`, 2,235 ControlScript modules), so findings 14, 16 and 17
 reproduce off that machine — given the snapshot. `evidence/` holds the screenshots and
