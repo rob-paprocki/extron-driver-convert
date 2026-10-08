@@ -68,7 +68,9 @@ experiments/
   graph_probes/              packages that located finding 18's deserializer bug
   ross_ultrix/               the one oracle pair with a human-written side (finding 17)
   automate_vx_threeway/      Extron vs Crestron vs docs for the Automate VX (finding 20)
-  dm_md/                     design for driving a Crestron DM-MD32X32-CPU3 from an Extron processor
+  dm_md/                     design for driving a Crestron DM-MD switcher from an Extron processor:
+                             designed for the DM-MD32X32-CPU3, retargeted 2026-10-05 to the owner's
+                             bench DM-MD8X8-CPU3-RPS after read-only console sessions
   nrbf_writeback/ crestron2cs/ docs_only/ missing_ethernet/
 samples/<device>/            .pkp, shipped ControlScript module, Crestron package — vendor files not published
 corpus/                      an Extron driver library snapshot — vendor files not published
@@ -125,7 +127,9 @@ public copy was built from a rewritten branch, which changes every commit hash:
 the hashes these docs cite are the archive's.
 
 **The public copy also leaves out** (since 2026-10-02; `tools/public_sync.py`
-builds it): the parked switcher experiment, the raw records of the automated
+builds it): the switcher experiment (`experiments/dm_md/`, held back while it
+was parked and still excluded after the owner reopened it for read-only console
+work on 2026-10-04), the raw records of the automated
 research runs (`tools/out/verdicts/workflows/`), the workstation pack-up notes,
 screenshots and logs that show the owner's account or lab network, compiled
 binaries, and three reference files that transcribe vendor documentation at

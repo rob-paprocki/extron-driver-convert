@@ -217,6 +217,35 @@ def test_private_replacements_rewrite_text_and_bare_home_folders():
     assert _show(repo, "public-next", "keep/t.md") == "| `Users\\<user>\\Downloads\\x.vsix` |"
 
 
+def test_rewrite_maps_an_old_address_and_refuses_one_left_behind():
+    repo = tempfile.mkdtemp(prefix="public-sync-test-")
+    _git(repo, "init", "-q")
+    _git(repo, "config", "commit.gpgsign", "false")
+    old = "owner" + "@old-mail.example.net"
+    env = dict(os.environ, GIT_AUTHOR_EMAIL=old, GIT_COMMITTER_EMAIL=old)
+    with open(os.path.join(repo, "a.md"), "w") as f:
+        f.write("one\n")
+    _git(repo, "checkout", "-q", "-b", "public")
+    _git(repo, "add", "a.md")
+    subprocess.run(["git", "-C", repo, "commit", "-q", "-m", "first"], env=env, check=True)
+    os.makedirs(os.path.join(repo, "private"))
+    with open(os.path.join(repo, "private", "public-sync-denylist.txt"), "w") as f:
+        f.write("owner@old-mail\\.example\\.net\n")
+    code, out = _run(repo, "check", "--history", "public")
+    assert code == 1 and "<author>" in out and "<committer>" in out, out
+    code, out = _run(repo, "rewrite", "--public", "public")
+    assert code == 1 and "NOT BUILT" in out, out           # no mapping yet: refused
+    with open(os.path.join(repo, "private", "public-sync-replace.tsv"), "w") as f:
+        f.write("owner@old-mail\\.example\\.net\towner@new.example.org\n")
+    try:
+        code, out = _run(repo, "rewrite", "--public", "public")
+    finally:
+        ps.EXTRA_SCRUB[:] = []
+    assert code == 0, out
+    assert _git(repo, "log", "-1", "--format=%ae %ce", "public-rewritten") == \
+        "owner@new.example.org owner@new.example.org"
+
+
 def test_check_reports_what_build_removes():
     repo, arc, pub = _repo()
     code, out = _run(repo, "check", "archive")

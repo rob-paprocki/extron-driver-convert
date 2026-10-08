@@ -32,6 +32,7 @@ user account or drive letter do not belong in this repo.
 | GCP Build and Upload | A licence, plus a processor for Upload | H0, H4 |
 | Crestron-side work | Crestron Toolbox | H8 |
 | Crestron module sources and device join maps (finding 20 §8–9, `experiments/dm_md/JOINS.md`) | An installed Crestron device database (`<CRESDB>`, installed with SIMPL Windows / Toolbox). No processor, no licence check to read it. | R44, R45 |
+| DM-MD switcher console: read-only capture; a route change only with the owner's explicit approval | The owner's switcher on the lab LAN, an account on it (authentication is forced on the bench firmware), and an SSH client or Crestron Toolbox's Text Console. No licence. | H9, R44 |
 
 ## Required software
 
@@ -65,6 +66,32 @@ c478fc26ed21561c70df15c7c8bebb41b2254e3d2c9046489191d0905bbd5f65  Extron.Configu
 A `.pkp` stream names `Extron.Configuration.* 1.1.24.402`. Deserializing one
 outside GC needs an `AssemblyResolve` handler mapping that onto the installed
 `15.27.0.0`; `experiments/gcp_harness/lib/Extron.ps1` does this.
+
+## The switcher the bench observations are measured against
+
+The switcher work's BENCH observations (the grade `experiments/dm_md/DESIGN.md`
+defines) come from one unit, the owner's **DM-MD8X8-CPU3-RPS**, observed
+read-only on 2026-10-04/05 through its console, plus a TCP connect check and the
+SSH client's debug output from the PC (records S1–S8). It replaces the
+DM-MD32X32-CPU3 the design was written for, which is gone.
+
+| what | value |
+|---|---|
+| control engine | v1.8001.5769.27432 (built 18 Oct 2024) |
+| PUF | 3.04.16 |
+| input cards | slots 1–4 DMC-4KZ-HD (HDMI), 5–6 DMC-4KZ-C (HDBaseT); 7–8 "physically does not exist" |
+| output cards | one slot per output: 33–38 on three DMC-4KZ-CO-HD cards, 39–40 on one DMC-4KZ-HDO (two outputs per physical card) |
+| endpoint online | a DM-RMC-4K-SCALER-C on the first output, firmware 1.2911.00103 |
+| console | of the ports probed, the console answers only on SSH 22 (the server identifies as CrestronSSH, S7); 23 and 41795 refuse (BENCH, S6). Authentication forced (`ver -v`, S1, 2026-10-04). The USB console port and the transport of the Toolbox sessions (S1, S2) were not checked |
+| web server | TCP 80 and 443 accept connections (BENCH, S6). That the web UI answers but would not log the owner in is the owner's report, not captured and not BENCH |
+
+PUF updates can change the console (DESIGN §4), so a result that differs on other
+firmware is not automatically a contradiction: record `ver -v` in every capture.
+The unit's clock is unset (it reports 2024), so timestamp captures on the PC. The
+raw records (S1–S8) are in the git-ignored `private/dm_md_bench/`, because they
+hold the unit's identifiers. Lab IPs, link-local addresses, MAC addresses, serial
+numbers, hostname, the @E- token, host-key fingerprints and local key paths do
+not belong in the repo.
 
 ## The driver library
 
@@ -142,17 +169,18 @@ python -u experiments/automate_vx_threeway/test_surfaces.py
 python -u experiments/automate_vx_threeway/test_avx_cs.py
 python -u experiments/crestron_decompile/test_decompile.py
 python -u experiments/tesira_in1804/test_tesira_strings.py
+python -u experiments/qsys/test_qplug_wire.py
 python -u tools/test_public_sync.py
 ```
 
-**1,154 tests in 28 files**, all passing with the vendor material in place
-(2026-10-02). **In a clone without it, 380 run and pass on this workstation and
+**1,168 tests in 29 files**, all passing with the vendor material in place
+(2026-10-02). **In a clone without it, 392 run and pass on this workstation and
 the rest are skipped**, each skip naming the file it needed
 (`tools/vendor_inputs.py`); a suite that cannot build anything without its donor
 package says so and exits 0. Two suites read the installed Crestron device
 database rather than the repo, so a machine without Crestron's tools runs fewer.
-The public copy leaves out one parked experiment, two of these files and their
-14 tests.
+The public copy leaves out the switcher experiment (`experiments/dm_md/`), two of
+these files and their 14 tests.
 A clean run in a clone checks the code, not the findings. `test_pkp_build.py` and
 `test_pkp_validate.py` walk every sample package, including a 4.4M-event one —
 expect roughly 11 and 4 minutes respectively, and about 20 minutes for the whole

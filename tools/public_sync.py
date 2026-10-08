@@ -318,11 +318,19 @@ def check_tree(git, treeish, manifest_paths=(), extra=(), notes=None):
 
 
 def check_message(git, commit, extra=()):
-    """Blocking problems in a commit's message. Author and committer identity are left to the
-    owner's git config and not checked."""
+    """Blocking problems in a commit's message, and in its author and committer: an address
+    on the private denylist (an old one the owner has replaced) is refused there too."""
     text = git.text("log", "-1", "--format=%B", commit)
-    return [(p[0], p[1], p[2] + " (in %s)" % commit[:7], p[3])
-            for p in check_text("<commit message>", text, extra)[0]]
+    out = [(p[0], p[1], p[2] + " (in %s)" % commit[:7], p[3])
+           for p in check_text("<commit message>", text, extra)[0]]
+    ident = git.text("log", "-1", "--format=%an <%ae>%n%cn <%ce>", commit)
+    for lineno, line in enumerate(ident.splitlines(), 1):
+        for kind, rx in extra:
+            m = rx.search(line)
+            if m:
+                out.append(("<author>" if lineno == 1 else "<committer>", 0, kind + " (in %s)" % commit[:7],
+                            _mask(m.group(0))))
+    return out
 
 
 def _mask(s):
@@ -353,8 +361,10 @@ def _path_sha(git, treeish, path):
 def commit_meta(git, rev):
     fmt = "%an%x00%ae%x00%aI%x00%cn%x00%ce%x00%cI%x00%B"
     an, ae, ad, cn, ce, cd, body = git.text("log", "-1", "--format=" + fmt, rev).split("\0", 6)
-    env = {"GIT_AUTHOR_NAME": an, "GIT_AUTHOR_EMAIL": ae, "GIT_AUTHOR_DATE": ad,
-           "GIT_COMMITTER_NAME": cn, "GIT_COMMITTER_EMAIL": ce, "GIT_COMMITTER_DATE": cd}
+    # names and addresses go through the same rewrites as text, so the private replace list can
+    # map an address the owner no longer uses to the one they do
+    env = {"GIT_AUTHOR_NAME": scrub_text(an), "GIT_AUTHOR_EMAIL": scrub_text(ae), "GIT_AUTHOR_DATE": ad,
+           "GIT_COMMITTER_NAME": scrub_text(cn), "GIT_COMMITTER_EMAIL": scrub_text(ce), "GIT_COMMITTER_DATE": cd}
     return env, body
 
 

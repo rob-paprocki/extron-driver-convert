@@ -63,6 +63,14 @@ private/
 *.sgd
 *.tmf
 *.um2
+# Q-SYS: plugins (plain and encrypted), Asset Manager packages, designs
+# (experiments/qsys/SCOPE.md, decision D-Q2). Plugins this project generates
+# may be tracked (the owner, 2026-10-01); un-ignore their output folder then.
+*.qplug
+*.qplugx
+*.qplugx2
+*.nupkg
+*.qsys
 # Global Configurator's catalogue data
 DataFile*.dat
 DriverLookup*.dat
@@ -115,3 +123,15 @@ DriverLookup*.dat
 /experiments/ross_ultrix/template_splice/*.txt
 /experiments/crestron2cs/out/driver_definition.json
 /experiments/crestron2cs/out/extron_ethernet_source.py
+
+# Global Configurator project files and their build logs. GC writes these
+# beside the project; they are tool payloads that carry driver packages, and
+# no .gcpro has ever been tracked here.
+*.gcpro
+*.gcpro.log
+
+# Raw loopback captures, named by run timestamp -- the unscrubbed originals:
+# ~224 MB combined (one is 149 MB, past GitHub's 100 MB per-file limit) and
+# they carry lab IP addresses. The curated captures in the same folder keep a
+# YYYY-MM-DD-description.tsv name and ARE tracked; only the raws are ignored.
+/experiments/loopback/captures/????-??-??T*.tsv

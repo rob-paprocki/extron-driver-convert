@@ -56,10 +56,10 @@ Facts that matter for a converter:
 
 | device | Q-SYS plugin (plain) | Extron module | state |
 |---|---|---|---|
-| Clock Audio CDT100 | `ClockAudioCDT100.qplug` (v3.6, MK1-MK3) | `clau_dsp_CDT100_v1_0_3_0.py` (MK I/II family, finding 10) | **scored**, below |
-| Barco ClickShare CX-20/30/50 | `BarcoClickShareCX.qplug` | `barc_cs_CX_x0_Series_v1_1_4_0.py`, `barc_cs_CX_50_Gen2_v1_0_0_0.py` | found, same `/v2/` API on 4003; not scored |
-| Samsung MDC displays | `SamsungCommercialDisplay.qplug` | the `smsg_display_QM*` family, e.g. `smsg_display_QMxxR_v1_1_4_0.py` | found, same 0xAA frames and command bytes; not scored |
-| Extron SMP 351 | `ExtronSMP351.qplug` (QSC-written, Telnet 23) | `extr_sm_SMP_300_Series_v1_19_20_0.py` | found; not scored |
+| Clock Audio CDT100 | `ClockAudioCDT100.qplug` (v3.6, MK1-MK3) | `clau_dsp_CDT100_v1_0_3_0.py` (MK I/II family, finding 10) | **scored**, below; measured by `qplug_wire.py` 2026-10-02: 6 of 8 Extron templates fully sent, 2 partly (RESULTS.md) |
+| Barco ClickShare CX-20/30/50 | `BarcoClickShareCX.qplug` | `barc_cs_CX_x0_Series_v1_1_4_0.py`, `barc_cs_CX_50_Gen2_v1_0_0_0.py` | **scored 2026-10-02:** 2 of 12 paths identical; different endpoints otherwise (RESULTS.md §3) |
+| Samsung MDC displays | `SamsungCommercialDisplay.qplug` | the `smsg_display_QM*` family, e.g. `smsg_display_QMxxR_v1_1_4_0.py` | found, same 0xAA frames and command bytes; **not measurable yet**: the plugin builds frames in a loop (RESULTS.md §4, ROADMAP R50) |
+| Extron SMP 351 | `ExtronSMP351.qplug` (QSC-written, Telnet 23) | `extr_sm_SMP_300_Series_v1_19_20_0.py` | **scored 2026-10-02:** 3 of 105 identical, 11 under SIS's two escape spellings (RESULTS.md §2) |
 
 **Clock Audio CDT100, the one pair scored.** Both use UDP to port 49494 and CR-terminated text
 verbs. Of 14 functions both implement, 9 send identical bytes (`SASIP`, `SARMC`, `GARMC`,
