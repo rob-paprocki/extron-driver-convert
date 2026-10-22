@@ -93,6 +93,9 @@ SCRUB = [
 BINARY_OK = [
     "evidence/screenshots/GCP_OJ8lgWOFHo.png",              # Driver Manager list only
     "experiments/skeleton_i20/hardware/80085-invalid-driver.png",  # GC's error dialog only
+    "experiments/crestron-dm-md-bridge/pkp-out/dm_md_master_v0_0_1.pkp",
+    "experiments/crestron-dm-md-bridge/pkp-out/dm_md_unified_v0_0_1.pkp",
+    "experiments/crestron-dm-md-bridge/evidence/22-cid-sweep-and-slot-response-capture.log",
 ]
 
 # What the published result must not contain: these refuse a build. (name, pattern)

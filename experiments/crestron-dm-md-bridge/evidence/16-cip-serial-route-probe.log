@@ -1,0 +1,33 @@
+606:=== STEP 1: baseline for output slot 33 ===
+615:=== STEP 2: open CIP as IPID 1 ===
+619:=== STEP 3: try writing route commands as serial values to various joins ===
+621:--- probe 1: S4000 <- 'SETVIDEOROUTE 1 33\r' ---
+622:  pre-write S4221 counter: b'43'
+623:  post-write S4221 counter: b'43'  (changed: False)
+624:  no route change
+626:--- probe 2: S4000 <- 'SETVIDEOROUTE 1 101\r' ---
+627:  pre-write S4221 counter: b'43'
+628:  post-write S4221 counter: b'57'  (changed: True)
+629:  no route change
+631:--- probe 3: S4000 <- 'SETAVROUTE 1 33\r' ---
+632:  pre-write S4221 counter: b'57'
+633:  post-write S4221 counter: b'57'  (changed: False)
+634:  no route change
+636:--- probe 4: S4000 <- 'SETAVROUTE 1 101\r' ---
+637:  pre-write S4221 counter: b'57'
+638:  post-write S4221 counter: b'64'  (changed: True)
+639:  no route change
+641:--- probe 5: S4001 <- 'SETAVROUTE 1 33\r' ---
+642:  pre-write S4221 counter: b'64'
+643:  post-write S4221 counter: b'78'  (changed: True)
+644:  no route change
+646:--- probe 6: S4003 <- 'SETAVROUTE 1 33\r' ---
+647:  pre-write S4221 counter: b'78'
+648:  post-write S4221 counter: b'78'  (changed: False)
+649:  no route change
+651:--- probe 7: S4100 <- 'SETAVROUTE 1 33\r' ---
+652:  pre-write S4221 counter: b'78'
+653:  post-write S4221 counter: b'92'  (changed: True)
+654:  no route change
+656:=== STEP 4: cleanup via SSH (break any route) ===
+662:=== done ===

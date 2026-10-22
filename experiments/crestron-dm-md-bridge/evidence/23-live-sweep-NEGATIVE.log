@@ -1,0 +1,29 @@
+# Final empirical sweep for ComPort loopback echo
+# After factory reset, with chassis in clean state
+# Chassis responds to UpdateRequest on 29 permanent CIDs with slot-level
+# identity responses, but silently drops ComPort write dispatches.
+
+=== Fingerprint of all 29 CIDs ===
+Group 0 (15 CIDs): 0x0101, 0x0103-0x010A, 0x0133-0x0138
+  Template: 03 00 | 08 0e 09 38 00 10 18 26 | 03 16
+Group 1 (14 CIDs): 0x0139-0x013A, 0x0153,55,57,59, 0x0183-0x018A
+  Template: 03 00 | 08 0e 09 39 00 10 18 26 | 03 16
+
+All 29 CIDs are same-type services (just two sub-groups by response).
+No unique "DmMd dispatcher" CID stands out from fingerprinting.
+
+=== Final write sweep (per fork recommendation) ===
+7 representative CIDs x 2 leaf types (0x15 serial-15 and 0x34 serial-34)
+x 30 join numbers (1-30) = 420 ComPort write attempts total.
+Payload: 'PING\r' as StringInput to each.
+
+RESULT: Zero PING loopback echoes received.
+RESULT: Zero response frames of any kind on ComPort writes
+        (writes are silently accepted by the chassis TCP but not
+         dispatched to the DM-link RMC).
+
+The RMC's TX->RX physical loopback is wired and known-working from
+prior IPID 1 masquerade sessions. The chassis's OEM program is
+accepting our frames at the TCP layer but is NOT routing them to
+the DM-link endpoint stack. Confirmed empirically on fully-reset
+chassis state.

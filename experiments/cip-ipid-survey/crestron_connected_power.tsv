@@ -1,0 +1,5 @@
+list	type	direction	join	name
+1	Digital	input	1	Power_On
+1	Digital	input	2	Power_Off
+1	Digital	output	1	Power_On_Fb
+1	Digital	output	2	Power_Off_Fb

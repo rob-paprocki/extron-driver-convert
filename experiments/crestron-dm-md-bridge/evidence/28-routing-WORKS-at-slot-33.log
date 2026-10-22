@@ -1,0 +1,146 @@
+[*] routing-probe v3 (slot 33) on 0.0.0.0:41794
+
+*** CHASSIS CONNECTED from ('192.168.6.14', 49729) ***
+[06:56:14] TX op=0x0F len=  1 body: 02
+[06:56:14] RX op=0x0A len= 10 body: 00 03 a3 42 40 02 00 00 02 00
+[06:56:14] TX op=0x02 len=  4 body: 00 01 20 00
+[06:56:14] RX op=0x05 len=  5 body: 00 01 02 03 00
+[06:56:14] RX op=0x05 len=  6 body: 00 01 03 00 c8 80
+[06:56:17] RX op=0x05 len=  6 body: 00 01 03 00 c8 00
+[06:56:17] RX op=0x05 len= 14 body: 00 01 0b 20 21 08 20 01 05 20 01 02 03 00
+[06:56:18] RX op=0x05 len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2b
+
+[BASELINE] clear any existing route first
+    [SSH sync] DUMPDMROUTEINFO 33 ->
+      
+
+[Variant A33] wrap outer slot=33 (0x21) one-level, analog leaf join=N val=2 (route input 2)
+
+[probe A33-join=0x0000] payload: 20 21 05 14 00 00 00 02
+[06:56:24] TX op=0x05 len= 11 body: 00 01 08 20 21 05 14 00 00 00 02
+    [SSH after A33-join=0x0000] DUMPDMROUTEINFO 33 ->
+      
+
+[probe A33-join=0x0001] payload: 20 21 05 14 00 01 00 02
+[06:56:27] TX op=0x05 len= 11 body: 00 01 08 20 21 05 14 00 01 00 02
+    [SSH after A33-join=0x0001] DUMPDMROUTEINFO 33 ->
+      Routing Information for Output Card at Slot 33 
+      No Video connection 
+      No Audio connection 
+      No USB connection 
+       Hot plug is Low
+
+[probe A33-join=0x0002] payload: 20 21 05 14 00 02 00 02
+[06:56:29] TX op=0x05 len= 11 body: 00 01 08 20 21 05 14 00 02 00 02
+    [SSH after A33-join=0x0002] DUMPDMROUTEINFO 33 ->
+      
+
+[probe A33-join=0x0065] payload: 20 21 05 14 00 65 00 02
+[06:56:31] TX op=0x05 len= 11 body: 00 01 08 20 21 05 14 00 65 00 02
+    [SSH after A33-join=0x0065] DUMPDMROUTEINFO 33 ->
+      Routing Information for Output Card at Slot 33 
+      No Video connection 
+      No Audio connection 
+      No USB connection 
+       Hot plug is Low
+
+[probe A33-join=0x0253] payload: 20 21 05 14 02 53 00 02
+[06:56:33] TX op=0x05 len= 11 body: 00 01 08 20 21 05 14 02 53 00 02
+    [SSH after A33-join=0x0253] DUMPDMROUTEINFO 33 ->
+      
+
+[Variant B33] wrap outer slot=33 -> inner 0x01 (two-level), analog leaf
+
+[probe B33-join=0x0001] payload: 20 21 08 20 01 05 14 00 01 00 02
+[06:56:36] TX op=0x05 len= 14 body: 00 01 0b 20 21 08 20 01 05 14 00 01 00 02
+    [SSH after B33-join=0x0001] DUMPDMROUTEINFO 33 ->
+      Routing Information for Output Card at Slot 33 
+      No Video connection 
+      No Audio connection 
+      No USB connection 
+       Hot plug is Low
+
+[probe B33-join=0x0002] payload: 20 21 08 20 01 05 14 00 02 00 02
+[06:56:38] TX op=0x05 len= 14 body: 00 01 0b 20 21 08 20 01 05 14 00 02 00 02
+    [SSH after B33-join=0x0002] DUMPDMROUTEINFO 33 ->
+      Routing Information for Output Card at Slot 33 
+       Video Routed From Input Card at slot 2 
+      No Audio connection 
+      No USB connection 
+       Hot plug is Low
+
+[probe B33-join=0x0065] payload: 20 21 08 20 01 05 14 00 65 00 02
+[06:56:40] TX op=0x05 len= 14 body: 00 01 0b 20 21 08 20 01 05 14 00 65 00 02
+    [SSH after B33-join=0x0065] DUMPDMROUTEINFO 33 ->
+      Routing Information for Output Card at Slot 33 
+       Video Routed From Input Card at slot 2 
+      No Audio connection 
+      No USB connection 
+       Hot plug is Low
+
+[CONTROL] SSH SETAVROUTE 2 33 - official way to route input 2 to output 1
+    [SSH route-set] SETAVROUTE 2 33 ->
+      Invalid Output Slot Id (33) specified
+    [SSH after SSH route] DUMPDMROUTEINFO 33 ->
+      Routing Information for Output Card at Slot 33 
+       Video Routed From Input Card at slot 2 
+      No Audio connection 
+      No USB connection 
+       Hot plug is Low
+
+[CONTROL] SSH SETAVROUTE 0 33 - clear route
+    [SSH route-clear] SETAVROUTE 0 33 ->
+      Invalid Output Slot Id (33) specified
+    [SSH after SSH clear] DUMPDMROUTEINFO 33 ->
+      Routing Information for Output Card at Slot 33 
+       Video Routed From Input Card at slot 2 
+      No Audio connection 
+      No USB connection 
+       Hot plug is Low
+
+[*] indefinite observe window - watching for state changes
+[06:56:49] RX op=0x05 len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2a
+[06:56:49] RX op=0x05 len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2b
+[06:56:49] RX op=0x05 len= 14 body: 00 01 0b 20 21 08 20 01 05 14 00 02 00 02
+[06:56:49] RX op=0x05 len=  8 body: 00 01 05 14 00 0a 00 02
+[06:56:49] RX op=0x05 len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2a
+[06:56:49] RX op=0x05 len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2b
+[06:56:51] TX op=0x0D len=  2 body: 00 01
+[06:56:51] RX op=0x0E len=  2 body: 00 01
+[06:56:58] RX op=0x05 len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2a
+[06:56:59] RX op=0x05 len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2b
+[06:57:06] RX op=0x05 len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2a
+[06:57:07] RX op=0x05 len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2b
+[06:57:09] TX op=0x0D len=  2 body: 00 01
+[06:57:09] RX op=0x0E len=  2 body: 00 01
+[06:57:11] RX op=0x0D len=  2 body: 00 01
+[06:57:11] TX op=0x0E len=  2 body: 00 01
+[06:57:14] RX op=0x05 len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2a
+[06:57:16] RX op=0x05 len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2b
+[06:57:24] TX op=0x0D len=  2 body: 00 01
+[06:57:24] RX op=0x0E len=  2 body: 00 01
+[06:57:26] RX op=0x0D len=  2 body: 00 01
+[06:57:26] TX op=0x0E len=  2 body: 00 01
+[06:57:40] TX op=0x0D len=  2 body: 00 01
+[06:57:40] RX op=0x0E len=  2 body: 00 01
+[06:57:41] RX op=0x0D len=  2 body: 00 01
+[06:57:41] TX op=0x0E len=  2 body: 00 01
+[06:57:44] RX op=0x05 len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2a
+[06:57:46] RX op=0x05 len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2b
+[06:57:49] RX op=0x05 len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2a
+[06:57:50] RX op=0x05 len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2b
+[06:57:53] RX op=0x05 len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2a
+[06:57:55] TX op=0x0D len=  2 body: 00 01
+[06:57:55] RX op=0x0E len=  2 body: 00 01
+[06:57:56] RX op=0x0D len=  2 body: 00 01
+[06:57:56] TX op=0x0E len=  2 body: 00 01
+[06:57:56] RX op=0x05 len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2b
+[06:57:57] RX op=0x05 len= 14 body: 00 01 0b 20 06 08 20 01 05 14 02 53 00 1f
+[06:57:59] RX op=0x05 len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2a
+[06:58:05] RX op=0x05 len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2b
+[06:58:07] RX op=0x05 len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2a
+[06:58:08] RX op=0x05 len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2b
+[06:58:11] RX op=0x0D len=  2 body: 00 01
+[06:58:11] TX op=0x0E len=  2 body: 00 01
+[06:58:13] TX op=0x0D len=  2 body: 00 01
+[06:58:13] RX op=0x0E len=  2 body: 00 01

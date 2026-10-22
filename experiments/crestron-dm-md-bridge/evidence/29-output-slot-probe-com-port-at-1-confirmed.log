@@ -1,0 +1,122 @@
+[*] output-slot probe on 0.0.0.0:41794
+
+*** CHASSIS CONNECTED from ('192.168.6.14', 50226) ***
+[18:01:16] TX PROGRAM_READY len=  1 body: 02
+[18:01:16] RX ALTERNATE_CONNECT len= 10 body: 00 03 a3 42 40 02 00 00 02 00
+[18:01:16] TX CONNECT_RESPONSE len=  4 body: 00 01 20 00
+[18:01:16] RX DATA len=  5 body: 00 01 02 03 00
+    [+] CONTROL  path=[] subtype=0x00
+[18:01:16] RX DATA len= 14 body: 00 01 0b 20 24 08 20 01 05 14 02 53 00 30
+    [+] ANALOG   path=[36, 1] join=0x0253 val=0x0030
+[18:01:16] RX DATA len=  6 body: 00 01 03 00 c8 80
+    [+] DIGITAL  path=[] join=0x4880 ON
+[18:01:20] RX HEARTBEAT len=  2 body: 00 01
+[18:01:20] TX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:01:20] RX DATA len=  6 body: 00 01 03 00 c8 00
+    [+] DIGITAL  path=[] join=0x4800 ON
+[18:01:20] RX DATA len= 14 body: 00 01 0b 20 21 08 20 01 05 20 01 02 03 00
+    [+] CONTROL  path=[33, 1, 1] subtype=0x00
+
+[P1] ComPort SERIAL15 at output card slot 33 (RMC's physical TX pin?)
+  TX payload=b'PING42\r' cresnet=20 21 0e 20 01 0b 15 00 01 00 50 49 4e 47 34 32 0d
+[18:01:24] TX DATA len= 20 body: 00 01 11 20 21 0e 20 01 0b 15 00 01 00 50 49 4e 47 34 32 0d
+  TX payload=b'HELLO\r' cresnet=20 21 0d 20 01 0a 15 00 01 00 48 45 4c 4c 4f 0d
+[18:01:26] TX DATA len= 19 body: 00 01 10 20 21 0d 20 01 0a 15 00 01 00 48 45 4c 4c 4f 0d
+
+[P2] ComPort SERIAL15 at input slot 1 (finding 24 path - still works?)
+  TX payload=b'SLOT1A\r' cresnet=20 01 0e 20 01 0b 15 00 01 00 53 4c 4f 54 31 41 0d
+[18:01:27] TX DATA len= 20 body: 00 01 11 20 01 0e 20 01 0b 15 00 01 00 53 4c 4f 54 31 41 0d
+
+[P3] Relay DIGITAL at output card slot 33
+  TX join=1 CLOSE cresnet=20 21 06 20 01 03 00 80 01
+[18:01:29] TX DATA len= 12 body: 00 01 09 20 21 06 20 01 03 00 80 01
+  TX join=1 OPEN cresnet=20 21 06 20 01 03 00 00 01
+[18:01:30] TX DATA len= 12 body: 00 01 09 20 21 06 20 01 03 00 00 01
+  TX join=2 CLOSE cresnet=20 21 06 20 01 03 00 80 02
+[18:01:30] TX DATA len= 12 body: 00 01 09 20 21 06 20 01 03 00 80 02
+  TX join=2 OPEN cresnet=20 21 06 20 01 03 00 00 02
+[18:01:31] TX DATA len= 12 body: 00 01 09 20 21 06 20 01 03 00 00 02
+  TX join=3 CLOSE cresnet=20 21 06 20 01 03 00 80 03
+[18:01:32] TX DATA len= 12 body: 00 01 09 20 21 06 20 01 03 00 80 03
+  TX join=3 OPEN cresnet=20 21 06 20 01 03 00 00 03
+[18:01:32] TX DATA len= 12 body: 00 01 09 20 21 06 20 01 03 00 00 03
+  TX join=101 CLOSE cresnet=20 21 06 20 01 03 00 80 65
+[18:01:33] TX DATA len= 12 body: 00 01 09 20 21 06 20 01 03 00 80 65
+  TX join=101 OPEN cresnet=20 21 06 20 01 03 00 00 65
+[18:01:34] TX DATA len= 12 body: 00 01 09 20 21 06 20 01 03 00 00 65
+
+[P4] IR leaf (0x16) at output card slot 33
+  TX join=1 data=00 cresnet=20 21 07 20 01 04 16 00 01 00
+[18:01:34] TX DATA len= 13 body: 00 01 0a 20 21 07 20 01 04 16 00 01 00
+  TX join=1 data=01 02 03 04 cresnet=20 21 0a 20 01 07 16 00 01 01 02 03 04
+[18:01:35] TX DATA len= 16 body: 00 01 0d 20 21 0a 20 01 07 16 00 01 01 02 03 04
+  TX join=2 data=00 cresnet=20 21 07 20 01 04 16 00 02 00
+[18:01:36] TX DATA len= 13 body: 00 01 0a 20 21 07 20 01 04 16 00 02 00
+  TX join=2 data=01 02 03 04 cresnet=20 21 0a 20 01 07 16 00 02 01 02 03 04
+[18:01:37] TX DATA len= 16 body: 00 01 0d 20 21 0a 20 01 07 16 00 02 01 02 03 04
+  TX join=3 data=00 cresnet=20 21 07 20 01 04 16 00 03 00
+[18:01:37] TX DATA len= 13 body: 00 01 0a 20 21 07 20 01 04 16 00 03 00
+  TX join=3 data=01 02 03 04 cresnet=20 21 0a 20 01 07 16 00 03 01 02 03 04
+[18:01:38] TX DATA len= 16 body: 00 01 0d 20 21 0a 20 01 07 16 00 03 01 02 03 04
+
+[*] 30s observe window
+[18:01:39] RX DATA len= 20 body: 00 01 11 20 01 0e 20 01 0b 15 00 01 03 53 4c 4f 54 31 41 0d
+    [+] SERIAL15 path=[1, 1] join=0x0001 flags=0x03 b'SLOT1A\r'
+[18:01:41] TX HEARTBEAT len=  2 body: 00 01
+[18:01:41] RX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:01:57] TX HEARTBEAT len=  2 body: 00 01
+[18:01:57] RX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:02:13] TX HEARTBEAT len=  2 body: 00 01
+[18:02:13] RX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:02:17] RX DATA len= 14 body: 00 01 0b 20 06 08 20 01 05 14 02 53 00 1d
+    [+] ANALOG   path=[6, 1] join=0x0253 val=0x001D
+[18:02:20] RX HEARTBEAT len=  2 body: 00 01
+[18:02:20] TX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:02:28] TX HEARTBEAT len=  2 body: 00 01
+[18:02:28] RX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:02:35] RX HEARTBEAT len=  2 body: 00 01
+[18:02:35] TX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:02:37] RX DATA len= 14 body: 00 01 0b 20 06 08 20 01 05 14 02 53 00 1e
+    [+] ANALOG   path=[6, 1] join=0x0253 val=0x001E
+[18:02:45] TX HEARTBEAT len=  2 body: 00 01
+[18:02:45] RX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:02:50] RX HEARTBEAT len=  2 body: 00 01
+[18:02:50] TX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:03:00] TX HEARTBEAT len=  2 body: 00 01
+[18:03:00] RX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:03:05] RX HEARTBEAT len=  2 body: 00 01
+[18:03:05] TX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:03:17] TX HEARTBEAT len=  2 body: 00 01
+[18:03:17] RX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:03:20] RX HEARTBEAT len=  2 body: 00 01
+[18:03:20] TX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:03:34] TX HEARTBEAT len=  2 body: 00 01
+[18:03:34] RX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:03:35] RX HEARTBEAT len=  2 body: 00 01
+[18:03:35] TX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:03:49] TX HEARTBEAT len=  2 body: 00 01
+[18:03:49] RX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:03:50] RX HEARTBEAT len=  2 body: 00 01
+[18:03:50] TX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:04:05] RX HEARTBEAT len=  2 body: 00 01
+[18:04:05] TX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:04:07] TX HEARTBEAT len=  2 body: 00 01
+[18:04:07] RX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:04:20] RX HEARTBEAT len=  2 body: 00 01
+[18:04:20] TX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:04:24] TX HEARTBEAT len=  2 body: 00 01
+[18:04:24] RX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:04:24] RX DATA len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2b
+    [+] ANALOG   path=[33, 1, 1] join=0x0253 val=0x002B
+[18:04:25] RX DATA len= 17 body: 00 01 0e 20 21 0b 20 01 08 20 01 05 14 02 53 00 2a
+    [+] ANALOG   path=[33, 1, 1] join=0x0253 val=0x002A
+[18:04:35] RX HEARTBEAT len=  2 body: 00 01
+[18:04:35] TX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:04:39] TX HEARTBEAT len=  2 body: 00 01
+[18:04:39] RX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:04:50] RX HEARTBEAT len=  2 body: 00 01
+[18:04:50] TX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:04:56] TX HEARTBEAT len=  2 body: 00 01
+[18:04:56] RX HEARTBEAT_RESPONSE len=  2 body: 00 01
+[18:05:05] RX HEARTBEAT len=  2 body: 00 01
+[18:05:05] TX HEARTBEAT_RESPONSE len=  2 body: 00 01

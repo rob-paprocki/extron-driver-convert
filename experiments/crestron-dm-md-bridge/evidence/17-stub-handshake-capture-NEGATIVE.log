@@ -1,0 +1,73 @@
+# Capture v2 session: 2026-10-15 23:40-23:44 EDT
+# Stub listener: 0.0.0.0:41794 (pass=1 silent), host 192.168.6.114
+# RMC: DM-RMC-4K-SCALER-C at chassis output 101, accessed via chassis NAT 192.168.6.14:50322
+# Chassis: DM-MD8X8-CPU3-RPS at 192.168.6.14, hostname DM8X8-DA192A
+
+=== RMC ESTATUS BEFORE change ===
+  MAC Address: 00.10.7f.c4.53.cb
+  DHCP: Disabled
+  IP Address: 169.254.1.66
+  Subnet Mask: 255.255.0.0
+  Def Router : 169.254.0.1
+  Pri DNS IP: 0.0.0.0
+IP Table:
+CIP_ID  Type    Status     DevID  Port   IP Address/SiteName
+   183  Gway    ONLINE            41794  169.254.0.1
+
+=== RMC HELP ALL (master-related commands only) ===
+  ADDMaster              Add an entry to IP table
+  AUTOdiscovery          Enable/disable auto discovery
+  CIPPort                Set port number for CIP
+  REMMaster              Remove entry from the IP table
+# Note: no LISTMASTER, no MASTERS, no SIGNON, no REGISTER verbs.
+
+=== attempt 1: ADDMASTER with AUTODISCOVERY still ON ===
+> ADDMASTER 192.168.6.114
+< ERROR: Console command returned error code -1
+
+=== attempt 2: AUTO OFF then ADDMASTER ===
+> AUTODISCOVERY OFF
+< Autodiscovery is now: OFF
+> ADDMASTER 192.168.6.114
+< ERROR: Console command returned error code -1
+# No sign-on at stub for 90 seconds.
+
+=== attempt 3: force CIP client restart via CIPPORT (same value) ===
+> CIPPORT
+< CIP port = 41794
+> CIPPORT 41794
+< New port number = 41794. Reboot to take effect.
+# No sign-on at stub for 30 seconds.
+
+=== attempt 4: PORTDISABLE / PORTENABLE (bare, no args) ===
+> PORTDISABLE
+< Ethernet Switch Port States:
+<   Port 0 To LAN: enabled
+<   Port 1 DM    : enabled
+<   Port 2 To CPU: enabled
+> PORTENABLE
+< Ethernet Switch Port States: (same)
+# Bare commands are no-ops - printed state but didn't disable. No sign-on at stub.
+
+=== rollback ===
+> REMMASTER 192.168.6.114
+< ERROR: Console command returned error code -1  (nothing to remove, ADD never took)
+> AUTODISCOVERY ON
+< Autodiscovery is now: ON
+
+=== RMC ESTATUS AFTER rollback (verified clean) ===
+  MAC Address: 00.10.7f.c4.53.cb
+  DHCP: Disabled
+  IP Address: 169.254.1.66
+  Subnet Mask: 255.255.0.0
+  Def Router : 169.254.0.1
+IP Table:
+CIP_ID  Type    Status     DevID  Port   IP Address/SiteName
+   183  Gway    ONLINE            41794  169.254.0.1
+# Baseline restored. Chassis as gateway, autodiscovery on.
+
+=== stub listener state ===
+# Entire session log, 54 bytes total:
+[23:41:00.089661] listening on 0.0.0.0:41794  pass=1
+# ... 4 minutes elapsed ...
+# Zero bytes received from any peer.

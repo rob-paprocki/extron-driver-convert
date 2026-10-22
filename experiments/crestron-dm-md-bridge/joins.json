@@ -1,0 +1,709 @@
+[
+  {
+    "join_type": "digital",
+    "join_number": 4,
+    "meaning": "EnableAudioBreakaway -- FromSIMPL. Allows audio to route independently of video when high; audio follows video when low.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs + help.crestron.com DM-MD8x8 symbol",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 5,
+    "meaning": "EnableUsbBreakaway -- FromSIMPL. Allows USB to route independently of video.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 11,
+    "meaning": "IsOnline -- ToSIMPL. Chassis online status feedback.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 101,
+    "meaning": "VideoSyncStatus (span 32: D101-D132) -- ToSIMPL. One digital feedback per input slot; high while a signal is present at that input.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs + help.crestron.com (Video_Detected_N_fb)",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 501,
+    "meaning": "InputEndpointOnline (span 32: D501-D532) -- ToSIMPL. Per-input DM-TX/endpoint online feedback.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 701,
+    "meaning": "OutputEndpointOnline (span 32: D701-D732) -- ToSIMPL. Per-output DM-RMC/endpoint online feedback.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 1001,
+    "meaning": "TxAdvancedIsPresent (span 32: D1001-D1032) -- ToSIMPL. Per-input advanced DM-TX presence.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 1201,
+    "meaning": "OutputDisabledByHdcp (span 32: D1201-D1232) -- ToSIMPL. Per-output HDCP block indicator.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "analog",
+    "join_number": 10,
+    "meaning": "SystemId (DigitalAnalog, ToFromSIMPL). Chassis system ID for cascaded units (2-64; 1 = default/non-cascaded).",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs + CPU3 product manual",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "analog",
+    "join_number": 101,
+    "meaning": "OutputVideo (span 32: A101-A132) -- ToFromSIMPL. Per-output video source select (VideoOut1..N in the native symbol). Analog value = input number to route.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs + help.crestron.com (VideoOut1..8)",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "analog",
+    "join_number": 301,
+    "meaning": "OutputAudio (span 32: A301-A332) -- ToFromSIMPL. Per-output audio source select (gated by EnableAudioBreakaway).",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs + help.crestron.com (AudioOut1..8)",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "analog",
+    "join_number": 501,
+    "meaning": "OutputUsb (span 32: A501-A532) -- ToFromSIMPL. Per-output USB routing target.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs + help.crestron.com (Output1..8_USBRoutedTo)",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "analog",
+    "join_number": 701,
+    "meaning": "InputUsb (span 32: A701-A732) -- ToFromSIMPL. Per-input USB routing target.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs + help.crestron.com (Input1..8_USBRoutedTo)",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "analog",
+    "join_number": 1001,
+    "meaning": "HdcpSupportState (span 32: A1001-A1032) -- ToSIMPL. Per-input HDCP active state feedback.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "analog",
+    "join_number": 1201,
+    "meaning": "HdcpSupportCapability (span 32: A1201-A1232) -- FromSIMPL. Per-input HDCP capability setting.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "analog",
+    "join_number": 1501,
+    "meaning": "InputStreamCardState (span 32: A1501-A1532) -- FromSIMPL. Stream input cards: 1=Start, 2=Stop, 3=Pause.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "analog",
+    "join_number": 1601,
+    "meaning": "OutputStreamCardState (span 32: A1601-A1632) -- FromSIMPL. Stream output cards: 1=Start, 2=Stop, 3=Pause.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 1,
+    "meaning": "Name -- ToSIMPL. Chassis friendly name feedback.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 100,
+    "meaning": "NoRouteName -- ToSIMPL. String reported when an output has no input routed.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 101,
+    "meaning": "InputNames (span 32: S101-S132) -- ToSIMPL. Per-input friendly names.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 301,
+    "meaning": "OutputNames (span 32: S301-S332) -- ToSIMPL. Per-output friendly names.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 501,
+    "meaning": "InputVideoNames (span 200: S501-S700) -- ToFromSIMPL. Per-input video-source labels (settable).",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 701,
+    "meaning": "InputAudioNames (span 200: S701-S900) -- ToFromSIMPL. Per-input audio-source labels (settable).",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 901,
+    "meaning": "OutputVideoNames (span 200: S901-S1100) -- ToFromSIMPL. Per-output video labels (settable).",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 1101,
+    "meaning": "OutputAudioNames (span 200: S1101-S1300) -- ToFromSIMPL. Per-output audio labels (settable).",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 2001,
+    "meaning": "OutputCurrentVideoInputNames (span 32: S2001-S2032) -- ToSIMPL. Each output's currently routed video input name.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 2201,
+    "meaning": "OutputCurrentAudioInputNames (span 32: S2201-S2232) -- ToSIMPL. Each output's currently routed audio input name.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 2401,
+    "meaning": "InputCurrentResolution (span 32: S2401-S2432) -- ToSIMPL. Per-input current detected resolution string.",
+    "source": "Pepperdash DmChassisControllerJoinMap.cs",
+    "_from_dim": "crestron-dm-md8x8-cpu3-joins"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 1,
+    "meaning": "DM Chassis Name (ToSIMPL)",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc, joinStart=1",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 4,
+    "meaning": "EnableAudioBreakaway \u00e2\u20ac\u201d toggles audio-breakaway routing mode on the chassis (FromSIMPL)",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 5,
+    "meaning": "EnableUsbBreakaway \u00e2\u20ac\u201d toggles USB-breakaway routing mode (FromSIMPL)",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "analog",
+    "join_number": 10,
+    "meaning": "SystemId \u00e2\u20ac\u201d DigitalMedia system ID get/set/trigger (ToFromSIMPL, Digital+Analog combo)",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 11,
+    "meaning": "IsOnline \u00e2\u20ac\u201d chassis online feedback (ToSIMPL)",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 100,
+    "meaning": "NoRouteName \u00e2\u20ac\u201d label used when nothing is routed (ToSIMPL)",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 101,
+    "meaning": "VideoSyncStatus base \u00e2\u20ac\u201d input video sync detect per input slot, span 32 (joins 101\u00e2\u20ac\u201c108 for the 8x8 chassis). ToSIMPL. This is video-detected on the input, NOT HPD on an endpoint.",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc; linked at DmChassisController.cs L1600 / L1763 / L1853",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "analog",
+    "join_number": 101,
+    "meaning": "OutputVideo base \u00e2\u20ac\u201d Video_Route per output: write=select input (1..8) routed to that output, read=current routed input. Span 32 (joins 101\u00e2\u20ac\u201c108 for 8x8). ToFromSIMPL. Per-output offset = outputSlot-1.",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc; LinkRoutingJoinsToApi at DmChassisController.cs L1934/1944",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 101,
+    "meaning": "InputNames base \u00e2\u20ac\u201d human-readable input slot names, span 32 (ToSIMPL)",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "analog",
+    "join_number": 301,
+    "meaning": "OutputAudio base \u00e2\u20ac\u201d Audio_Route per output: write=select input routed for audio to that output, read=current. Span 32 (joins 301\u00e2\u20ac\u201c308 for 8x8). ToFromSIMPL (requires EnableAudioBreakaway for breakaway behavior).",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 301,
+    "meaning": "OutputNames base \u00e2\u20ac\u201d human-readable output slot names, span 32 (ToSIMPL)",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 501,
+    "meaning": "InputEndpointOnline base \u00e2\u20ac\u201d per-input DM-TX endpoint online feedback, span 32 (joins 501\u00e2\u20ac\u201c508 for 8x8). ToSIMPL.",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "analog",
+    "join_number": 501,
+    "meaning": "OutputUsb base \u00e2\u20ac\u201d USB_Route per output: write=select input routed for USB to that output, read=current. Span 32. ToFromSIMPL.",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 501,
+    "meaning": "InputVideoNames base \u00e2\u20ac\u201d long input-name/EDID-style strings, span 200 (ToFromSIMPL)",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 701,
+    "meaning": "OutputEndpointOnline base \u00e2\u20ac\u201d per-output DM-RMC endpoint online feedback, span 32 (joins 701\u00e2\u20ac\u201c708 for 8x8). ToSIMPL.",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "analog",
+    "join_number": 701,
+    "meaning": "InputUsb base \u00e2\u20ac\u201d USB_Route per input, span 32. ToFromSIMPL.",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 701,
+    "meaning": "InputAudioNames base \u00e2\u20ac\u201d audio-input name strings, span 200 (ToFromSIMPL)",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 901,
+    "meaning": "OutputVideoNames base \u00e2\u20ac\u201d video-output name strings, span 200 (ToFromSIMPL)",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 1001,
+    "meaning": "TxAdvancedIsPresent base \u00e2\u20ac\u201d true when an 'advanced' DM-TX (per-slot) endpoint is attached, span 32. ToSIMPL.",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc; LinkAdvancedTxToApi L1850",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "analog",
+    "join_number": 1001,
+    "meaning": "HdcpSupportState base \u00e2\u20ac\u201d HDCP support state per input, span 32. ToSIMPL feedback (metadata labels it ToSIMPL; also used as a FromSIMPL setter via SetHdcpStateAction at L1626/1819/1877).",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 1101,
+    "meaning": "OutputAudioNames base \u00e2\u20ac\u201d audio-output name strings, span 200 (ToFromSIMPL)",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 1201,
+    "meaning": "OutputDisabledByHdcp base \u00e2\u20ac\u201d per-output 'this sink refuses to accept the current source's HDCP' feedback, span 32 (joins 1201\u00e2\u20ac\u201c1208 for 8x8). ToSIMPL.",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "analog",
+    "join_number": 1201,
+    "meaning": "HdcpSupportCapability base \u00e2\u20ac\u201d HDCP capability per input, span 32. Metadata says FromSIMPL, but code at DmChassisController.cs L1634/1639 writes trilist.UShortInput[\u00e2\u20ac\u00a6].UShortValue so it is effectively ToSIMPL feedback. Report what the code does, not the metadata flag.",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc; DmChassisController.cs @ SHA bc53216 L1634",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "analog",
+    "join_number": 1501,
+    "meaning": "InputStreamCardState base \u00e2\u20ac\u201d DMC-STR input: 1=Start, 2=Stop, 3=Pause; span 32. Metadata says FromSIMPL, but code at L1665 + L1688 both sets action AND LinkInputSigs feedback \u00e2\u20ac\u201d effectively ToFromSIMPL.",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc; DmChassisController.cs L1660\u00e2\u20ac\u201c1690",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "analog",
+    "join_number": 1601,
+    "meaning": "OutputStreamCardState base \u00e2\u20ac\u201d DMC-STRO output: 1=Start, 2=Stop, 3=Pause; span 32. Same as input stream \u00e2\u20ac\u201d effectively ToFromSIMPL per L1712+L1735.",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc; DmChassisController.cs L1707\u00e2\u20ac\u201c1737",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 2001,
+    "meaning": "OutputCurrentVideoInputNames base \u00e2\u20ac\u201d per output, the serial name of whatever input is currently routed to it (span 32, ToSIMPL)",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 2201,
+    "meaning": "OutputCurrentAudioInputNames base \u00e2\u20ac\u201d per output, the serial name of whatever input is currently routed to it for audio (span 32, ToSIMPL)",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 2401,
+    "meaning": "InputCurrentResolution base \u00e2\u20ac\u201d per input, current detected resolution string (e.g. '1920x1080@60Hz'), span 32 (ToSIMPL)",
+    "source": "PepperDash Essentials EISC bridge, DmChassisControllerJoinMap @ SHA 9d2217cc; L1650/1696/1841/1905",
+    "_from_dim": "Crestron DM-MD8x8-CPU3-RPS SIMPL Windows / SIMPL# Pro signal and join lineup"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 1800,
+    "meaning": "Main (home) page visibility join - driven by program 0 to show the home page",
+    "source": "<repo>/puf-extract/dm-cpu3-c3p/swf/Environment.xml line 557, Page uid=1 Name=Main DigitalJoin",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 730,
+    "meaning": "Home page 'Take' button press - executes the pending route(s)",
+    "source": "Environment.xml child Button_2 of Main, DigitalPressJoin",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 601,
+    "meaning": "Home page 'Instant Take' button press - commits a route the moment an output is selected",
+    "source": "Environment.xml child Button (Instant Take) of Main",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 751,
+    "meaning": "Home page 'Select All' button press (visibility pair 752)",
+    "source": "Environment.xml child Button_4 of Main, DigitalPressJoin / DigitalVisibilityJoin",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 750,
+    "meaning": "Home page 'Clear Selected' button press (visibility pair 753)",
+    "source": "Environment.xml child Button_5 of Main",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 734,
+    "meaning": "Home page 'Audio Only' breakaway mode button",
+    "source": "Environment.xml child Button_77 of Main",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 736,
+    "meaning": "Home page 'USB Only' breakaway mode button",
+    "source": "Environment.xml child Button_76 of Main",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 732,
+    "meaning": "Home page 'Audio Follows Video' toggle (Advanced Button_1_2)",
+    "source": "Environment.xml child Advanced Button_1_2 of Main",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 733,
+    "meaning": "Home page 'USB Follows Video' toggle (Advanced Button_1_5)",
+    "source": "Environment.xml child Advanced Button_1_5 of Main",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 826,
+    "meaning": "Home page Menu/mode icon at top-right (position 832,4) - press join; opens the Menu/settings subpage",
+    "source": "Environment.xml child Button_1_1 of Main",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 830,
+    "meaning": "Home page icon button at position 1195,4 (visibility 831) - shown in one locked/unlocked state",
+    "source": "Environment.xml child Button_3_1 of Main",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 835,
+    "meaning": "Home page icon button at position 1195,4 (visibility 836) - shown in the opposite state; a status lock icon (Image Object_1 at 1247,8) also tracks visibility 836, matching the manual's note about a lock icon on the Main page when a password is set",
+    "source": "Environment.xml child Button_3 of Main and Image Object_1",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 840,
+    "meaning": "Home page 'PAGE 1' selector button press (Button_1_4)",
+    "source": "Environment.xml child Button_1_4 of Main",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 841,
+    "meaning": "Home page 'PAGE 2' selector button press (Button_1_5)",
+    "source": "Environment.xml child Button_1_5 of Main",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 845,
+    "meaning": "Home page 'PAGE 1' selector variant (Button_1_6)",
+    "source": "Environment.xml child Button_1_6 of Main",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 846,
+    "meaning": "Home page 'PAGE 2' selector variant (Button_59)",
+    "source": "Environment.xml child Button_59 of Main",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 833,
+    "meaning": "Home page Video Window subpage visibility (Subpage Reference_2 -> Page 27 'Video Window')",
+    "source": "Environment.xml SubpageReference uid 2",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 837,
+    "meaning": "Home page _DM_Logo subpage visibility (Subpage Reference_1 -> Page 51)",
+    "source": "Environment.xml SubpageReference uid 1",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 847,
+    "meaning": "Home page Clockrate subpage visibility (Subpage Reference_12 -> Page 81)",
+    "source": "Environment.xml SubpageReference uid 12",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 855,
+    "meaning": "Home page source list subpage visibility (Subpage Reference_23 -> Page 109 'Source Text List 8x2 Regular - Input'); DigitalJoinOffset=4999 so item buttons inside the subpage map to wire joins ~5000-5030",
+    "source": "Environment.xml SubpageReference uid 23",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 856,
+    "meaning": "Home page source list page-2 subpage visibility (Subpage Reference_43 -> Page 109), DigitalJoinOffset=5031 so items map to wire joins ~5032-5062",
+    "source": "Environment.xml SubpageReference uid 43",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 850,
+    "meaning": "Home page Source 4x1 grid rows visibility (eight Subpage References to Page 133 'Source Text List 4x1 Grid - Input (NEW)' with DigitalJoinOffsets 4999,5007,5015,5023,5031,5039,5047,5055; one 8-join stride per row => source-button press joins fall in digital 5000-5062)",
+    "source": "Environment.xml SubpageReferences uid 45,51,46,47,48,49,50,52",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 880,
+    "meaning": "Home page destination list subpage visibility (Subpage Reference_25 -> Page 112 'Destination Text List 8x2 Regular List'); DigitalJoinOffset=6999 so item buttons map to wire joins ~7000-7030",
+    "source": "Environment.xml SubpageReference uid 25",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 881,
+    "meaning": "Home page destination list page-2 subpage visibility (Subpage Reference_44 -> Page 112), DigitalJoinOffset=7063 so items map to wire joins ~7064-7094",
+    "source": "Environment.xml SubpageReference uid 44",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 875,
+    "meaning": "Home page Destination 4x1 grid rows visibility (eight Subpage References to Page 134 'Destination Grid List 4x1 (NEW)' with DigitalJoinOffsets 6999,7015,7031,7047,7063,7079,7095,7111; one 16-join stride per row => destination-button press joins fall in digital 7000-7126)",
+    "source": "Environment.xml SubpageReferences uid 53-60",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 1850,
+    "meaning": "Settings subpage visibility (Subpage Reference_9 -> Page 8 'Settings')",
+    "source": "Environment.xml SubpageReference uid 9",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 1851,
+    "meaning": "Diagnostics subpage visibility (Subpage Reference_10 -> Page 9 'Diagnostics')",
+    "source": "Environment.xml SubpageReference uid 10",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 1853,
+    "meaning": "Error pop-up visibility (Subpage Reference_6 -> Page 71 'Error Pop Up')",
+    "source": "Environment.xml SubpageReference uid 6",
+    "_from_dim": "crestron-dmc-cpu3-oem-xpanel-join-map"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 830,
+    "meaning": "Button_3_1 digital press join (project-level widget, likely a 'Home' or persistent top-bar button) \u00e2\u20ac\u201d Environment.xml line 696",
+    "source": "<repo>/puf-extract/dm_cpu3_c3p/swf/Environment.xml:696",
+    "_from_dim": "XPanel-swf-decompile-and-joins"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 831,
+    "meaning": "Button_3_1 digital visibility join (controls whether the button is drawn)",
+    "source": "Environment.xml:698",
+    "_from_dim": "XPanel-swf-decompile-and-joins"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 1816,
+    "meaning": "Project-level DigitalJoin (likely the main-page selector or project enable)",
+    "source": "Environment.xml:165",
+    "_from_dim": "XPanel-swf-decompile-and-joins"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 1800,
+    "meaning": "Project-level DigitalJoin (sibling of 1816, probably paired)",
+    "source": "Environment.xml:557",
+    "_from_dim": "XPanel-swf-decompile-and-joins"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 9000,
+    "meaning": "Subpage/SmartObject base DigitalJoin (large number is the Crestron convention for SmartObject reserved base)",
+    "source": "Environment.xml:493",
+    "_from_dim": "XPanel-swf-decompile-and-joins"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 837,
+    "meaning": "Widget base DigitalJoin with per-type offsets 0/0/0 \u00e2\u20ac\u201d classic SmartObject binding pattern (<DigitalJoinOffset>0</>, <AnalogJoinOffset>0</>, <SerialJoinOffset>0</>)",
+    "source": "Environment.xml:2017 and offset tags on 165-169",
+    "_from_dim": "XPanel-swf-decompile-and-joins"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 847,
+    "meaning": "Widget DigitalJoin on the same page cluster as 833/855/856",
+    "source": "Environment.xml:2125",
+    "_from_dim": "XPanel-swf-decompile-and-joins"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 833,
+    "meaning": "Widget DigitalJoin",
+    "source": "Environment.xml:2179",
+    "_from_dim": "XPanel-swf-decompile-and-joins"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 855,
+    "meaning": "Widget DigitalJoin",
+    "source": "Environment.xml:2287",
+    "_from_dim": "XPanel-swf-decompile-and-joins"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 856,
+    "meaning": "Widget DigitalJoin",
+    "source": "Environment.xml:2341",
+    "_from_dim": "XPanel-swf-decompile-and-joins"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 880,
+    "meaning": "Widget DigitalJoin",
+    "source": "Environment.xml:2449",
+    "_from_dim": "XPanel-swf-decompile-and-joins"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 881,
+    "meaning": "Widget DigitalJoin",
+    "source": "Environment.xml:2503",
+    "_from_dim": "XPanel-swf-decompile-and-joins"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 850,
+    "meaning": "Widget DigitalJoin (appears twice \u00e2\u20ac\u201d likely a two-widget pair sharing one feedback)",
+    "source": "Environment.xml:2557,2611",
+    "_from_dim": "XPanel-swf-decompile-and-joins"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 100,
+    "meaning": "Repeated 'placeholder' DigitalJoin (appears on multiple widgets \u00e2\u20ac\u201d likely 'reserved / unused' slot or a shared enable)",
+    "source": "Environment.xml:2233,2395",
+    "_from_dim": "XPanel-swf-decompile-and-joins"
+  },
+  {
+    "join_type": "digital",
+    "join_number": 1,
+    "meaning": "python-cipclient encodes digital join 1 as byte offset 0 in the join-high portion of the 7-byte 0x05 CIP data packet; packed_join = (cip_join//256) + ((cip_join%256)*256), high-bit set for value=0. CIP packet template for digital: `05 00 06 00 00 03 00` + 2-byte packed join.",
+    "source": "python-cipclient/cipclient.py _cip_packet['d']",
+    "_from_dim": "crestron-master-ip-table-config"
+  },
+  {
+    "join_type": "analog",
+    "join_number": 1,
+    "meaning": "Analog join 1 CIP packet template: `05 00 08 00 00 05 14` + 2-byte big-endian cip_join + 2-byte big-endian value. 16-bit unsigned 0-65535.",
+    "source": "python-cipclient/cipclient.py _cip_packet['a']",
+    "_from_dim": "crestron-master-ip-table-config"
+  },
+  {
+    "join_type": "serial",
+    "join_number": 1,
+    "meaning": "Serial join 1 packet template: `12 00 00 00 00 00 00 34` + 2-byte big-endian cip_join + `03` + ASCII bytes. Payload-length byte at offset 2 and inner-length at offset 6 are rewritten to `8+len(value)` and `4+len(value)` respectively.",
+    "source": "python-cipclient/cipclient.py _cip_packet['s'] and EventThread.run() serial branch",
+    "_from_dim": "crestron-master-ip-table-config"
+  }
+]

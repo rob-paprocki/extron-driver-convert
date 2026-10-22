@@ -1,0 +1,16 @@
+list	type	direction	join	name
+1	Digital	input	2	Image_Mute_On
+1	Digital	input	3	Image_Mute_Off
+1	Digital	input	5	Freeze_On
+1	Digital	input	6	Freeze_Off
+1	Digital	input	8	AV_Mute_On
+1	Digital	input	9	AV_Mute_Off
+1	Digital	output	1	Image_Mute_Supported_Fb
+1	Digital	output	2	Image_Mute_On_Fb
+1	Digital	output	3	Image_Mute_Off_Fb
+1	Digital	output	4	Freeze_Supported_Fb
+1	Digital	output	5	Freeze_On_Fb
+1	Digital	output	6	Freeze_Off_Fb
+1	Digital	output	7	AV_Mute_Supported_Fb
+1	Digital	output	8	AV_Mute_On_Fb
+1	Digital	output	9	AV_Mute_Off_Fb

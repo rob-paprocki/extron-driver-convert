@@ -1,0 +1,3 @@
+list	type	direction	join	name
+2	Analog	output	101	TotalDomains_F
+2	Analog	output	111	TotalEndpoints_F

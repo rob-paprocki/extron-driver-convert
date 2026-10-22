@@ -1,0 +1,55 @@
+# Phase 2 live probes against 192.168.6.14 proprietary-peer session
+# Session plumbing works (confirmed finding 19); the question is whether
+# nested-container slot-addressed writes make it past the chassis's OEM
+# program's parser into actual endpoint I/O.
+
+=== probe 1: flat 4-byte UpdateRequests ID=0x01..0x08 and 0x80/0x81/0xA0 ===
+  11 TX, 0 RX responses - OEM parser accepts frames but no response
+
+=== probe 2: broadcast IDs, finding-12 SwampE4 payload, longer-body UpdateRequests ===
+  SwampE4 payload (03 0B 20 04 08 20 02 05 14 00 07 00 19) triggered one response
+  16 TX longer-body UpdateRequests, 1 straggler response
+  Both responses: 34 10 7c 03 39 34 / 34 10 7c 03 39 36 (serial-34 join 0x107c, ASCII '94'/'96')
+  Pattern: byte-counter publication (same as IPID 1 S4221)
+
+=== probe 3: nested-container UpdateRequests ===
+  Chassis(0x01) alone, Chassis->Output(0x65), Chassis->Output->RMC chains
+  Output IDs 0x01-0x08, 0x65-0x6C
+  Chassis IDs 0x01-0x10
+  2 responses, both identical format: 34 10 7c 03 '100' and 34 10 7c 03 '132'
+  Still just the OEM byte-counter being published
+
+=== probe 4: nested-container WRITES to RMC[?] ComPort[?] StringInput ===
+  Full nested path Chassis(0x01)->Out(0x65 or 0x01)->RMC(0x01)->serial-15 leaf
+  Join numbers: 1, 2, 3, 4, 5, 16, 17, 29, 100, 101
+  Payload: 'PING\r' (5 bytes)
+  20 TX total
+
+  RESULTS:
+    - 0 PING echoes received (TX->RX loopback on RMC never fired)
+    - 2 counter responses: 34 10 7c 03 '142' and 34 10 7c 03 '172'
+    - No disconnection, no error frames
+    - Chassis silently parses writes but does NOT dispatch to slot I/O
+
+=== 60s passive observation (no TX, after reconnect) ===
+  Only heartbeats; zero unsolicited data frames
+  Confirms the chassis does NOT publish state updates spontaneously -
+  only publishes in response to packets we send (triggers counter bump)
+
+=== INTERPRETATION ===
+Session plumbing works (ALTERNATE_CONNECT, heartbeat, DATA frame
+framing). The counter responses prove our DATA frames parse through
+the chassis's receive stack. But the OEM program on the chassis does
+NOT implement slot-addressed dispatch - it recognizes only its own
+flat-join publish/counter pattern, same as all prior access methods.
+
+Slot-addressed endpoint I/O requires either:
+  (a) A user SIMPL program loaded on the chassis that defines
+      DmRmc4kScalerC objects + handles slot-addressed TLDM traffic.
+      The OEM default has neither.
+  (b) An opcode/flag combination we have not yet discovered that
+      unlocks slot-addressed dispatch in the OEM parser.
+
+For this chassis + OEM program, we have reached the same ceiling as
+findings 10, 16: the OEM default does not expose endpoint I/O via
+ANY peer channel.

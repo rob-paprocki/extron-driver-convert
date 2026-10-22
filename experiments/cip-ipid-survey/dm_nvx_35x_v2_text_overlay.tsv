@@ -1,0 +1,15 @@
+list	type	direction	join	name
+1	Digital	input	1	Enabled
+1	Digital	input	2	Disabled
+1	Digital	output	1	Enabled_F
+1	Digital	output	2	Disabled_F
+2	Analog	input	1	Location
+2	Analog	input	2	XPosition
+2	Analog	input	3	YPosition
+2	Analog	input	5	BackgroundTransparency
+2	Analog	output	1	Location_F
+2	Analog	output	2	XPosition_F
+2	Analog	output	3	YPosition_F
+2	Analog	output	5	BackgroundTransparency_F
+3	Serial	input	1	Text
+3	Serial	output	1	Text_F

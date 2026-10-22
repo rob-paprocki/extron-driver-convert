@@ -1,0 +1,8 @@
+list	type	direction	join	name
+1	Digital	output	1	Emergency_Message_Supported_Fb
+2	Analog	input	1	Emergency_Alert_Code
+2	Analog	output	1	Emergency_Alert_Code_Received_Fb
+3	Serial	input	1	Help_Message
+3	Serial	input	3	Emergency_Message
+3	Serial	output	1	Help_Message_Received_Fb
+3	Serial	output	3	Emergency_Message_Received_Fb

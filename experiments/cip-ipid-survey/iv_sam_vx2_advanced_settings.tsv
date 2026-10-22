@@ -1,0 +1,7 @@
+list	type	direction	join	name
+1	Digital	input	2	Copy_Files
+1	Digital	input	4	Delete_Files_After_Copy
+1	Digital	input	8	PTZ_Correction
+1	Digital	output	3	Copy_Files_Success_F
+3	Serial	input	11	Copy_Files_Location
+3	Serial	input	12	Log_Destination

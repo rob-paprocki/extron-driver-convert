@@ -1,0 +1,151 @@
+[*] v2 listening on 0.0.0.0:41794
+
+*** CHASSIS CONNECTED from ('192.168.6.14', 49262) ***
+[13:44:12] TX op=0x0F (       PROGRAM_READY) len=  1 body: 02
+[13:44:12] RX op=0x0A (   ALTERNATE_CONNECT) len= 10 body: 00 03 a3 42 40 02 00 00 02 00
+[13:44:12] TX op=0x02 (    CONNECT_RESPONSE) len=  4 body: 00 01 20 00
+[+] CONNECTED, handler=1
+[13:44:12] RX op=0x05 (                DATA) len=  5 body: 00 01 02 03 00
+    DECODE:
+CONTROL subtype=0x00
+[13:44:12] RX op=0x05 (                DATA) len=  6 body: 00 01 03 00 c8 80
+    DECODE:
+DIGITAL join=0x4880(18560) ON
+[13:44:14] RX op=0x0D (           HEARTBEAT) len=  2 body: 00 01
+[13:44:14] TX op=0x0E (  HEARTBEAT_RESPONSE) len=  2 body: 00 01
+[13:44:16] RX op=0x05 (                DATA) len=  6 body: 00 01 03 00 c8 00
+    DECODE:
+DIGITAL join=0x4800(18432) ON
+[13:44:16] RX op=0x05 (                DATA) len= 14 body: 00 01 0b 20 21 08 20 01 05 20 01 02 03 00
+    DECODE:
+cont(0x20 id=0x21 len=8):
+  cont(0x20 id=0x01 len=5):
+    cont(0x20 id=0x01 len=2):
+      CONTROL subtype=0x00
+
+[PHASE A] varied ComPort probes
+[probe] serial-15 join=1 flat
+[13:44:22] TX op=0x05 (                DATA) len= 13 body: 00 01 0a 15 00 01 00 50 49 4e 47 61 0d
+[probe] serial-15 join=5 flat
+[13:44:22] TX op=0x05 (                DATA) len= 13 body: 00 01 0a 15 00 05 00 50 49 4e 47 62 0d
+[probe] serial-15 join=29 flat
+[13:44:23] TX op=0x05 (                DATA) len= 13 body: 00 01 0a 15 00 1d 00 50 49 4e 47 63 0d
+[probe] serial-34 join=1 flat
+[13:44:23] TX op=0x05 (                DATA) len= 13 body: 00 01 0a 34 00 01 00 50 49 4e 47 64 0d
+[probe] serial-34 join=5 flat
+[13:44:24] TX op=0x05 (                DATA) len= 13 body: 00 01 0a 34 00 05 00 50 49 4e 47 65 0d
+[probe] serial-34 join=29 flat
+[13:44:24] TX op=0x05 (                DATA) len= 13 body: 00 01 0a 34 00 1d 00 50 49 4e 47 66 0d
+[probe] nested 0x20->0x01->0x01 serial-15 join=1
+[13:44:24] TX op=0x05 (                DATA) len= 19 body: 00 01 10 20 01 0b 20 01 08 15 00 01 00 50 49 4e 47 67 0d
+[13:44:25] RX op=0x05 (                DATA) len= 17 body: 00 01 0e 20 01 0b 20 01 08 15 00 01 03 50 49 4e 47
+    DECODE:
+cont(0x20 id=0x01 len=11):
+  cont(0x20 id=0x01 len=8):
+    SERIAL15 join=0x0001(1) flags=0x03 payload=50 49 4e 47 'PING'
+[13:44:27] TX op=0x0D (           HEARTBEAT) len=  2 body: 00 01
+[13:44:27] RX op=0x0E (  HEARTBEAT_RESPONSE) len=  2 body: 00 01
+[13:44:43] TX op=0x0D (           HEARTBEAT) len=  2 body: 00 01
+
+[PHASE B] SSH SETAVROUTE triggers
+[trigger-31] SETAVROUTE 1 33
+[SSH] SETAVROUTE 1 33 -> 
+[trigger-31] SETAVROUTE 2 33
+[SSH] SETAVROUTE 2 33 -> Invalid Output Slot Id (33) specified
+[trigger-31] SETAVROUTE 0 33
+[SSH] SETAVROUTE 0 33 -> Invalid Output Slot Id (33) specified
+[13:44:52] RX op=0x0E (  HEARTBEAT_RESPONSE) len=  2 body: 00 01
+[13:44:58] TX op=0x0D (           HEARTBEAT) len=  2 body: 00 01
+[13:44:58] RX op=0x0E (  HEARTBEAT_RESPONSE) len=  2 body: 00 01
+*** session closed ***
+
+Exception in thread Thread-1 (serve_one):
+Traceback (most recent call last):
+  File "<home>\AppData\Local\Programs\Python\Python311\Lib\threading.py", line 1045, in _bootstrap_inner
+    self.run()
+  File "<home>\AppData\Local\Programs\Python\Python311\Lib\threading.py", line 982, in run
+    self._target(*self._args, **self._kwargs)
+  File "<home>\.claude\jobs\50e4735d\tmp\cip_master_server_v2.py", line 199, in serve_one
+    op, body = recv_frame(conn)
+               ^^^^^^^^^^^^^^^^
+  File "<home>\.claude\jobs\50e4735d\tmp\cip_master_server_v2.py", line 127, in recv_frame
+    log("RX", op, body)
+  File "<home>\.claude\jobs\50e4735d\tmp\cip_master_server_v2.py", line 115, in log
+    print(msg, flush=True)
+  File "<home>\AppData\Local\Programs\Python\Python311\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 230-231: character maps to <undefined>
+
+*** CHASSIS CONNECTED from ('192.168.6.14', 49269) ***
+[13:45:08] TX op=0x0F (       PROGRAM_READY) len=  1 body: 02
+[13:45:08] RX op=0x0A (   ALTERNATE_CONNECT) len= 10 body: 00 03 a3 42 40 02 00 00 02 00
+[13:45:08] TX op=0x02 (    CONNECT_RESPONSE) len=  4 body: 00 01 20 00
+[+] CONNECTED, handler=1
+[13:45:08] RX op=0x05 (                DATA) len=  5 body: 00 01 02 03 00
+    DECODE:
+CONTROL subtype=0x00
+[13:45:08] RX op=0x05 (                DATA) len=  6 body: 00 01 03 00 c8 80
+    DECODE:
+DIGITAL join=0x4880(18560) ON
+[13:45:11] RX op=0x05 (                DATA) len=  6 body: 00 01 03 00 c8 00
+    DECODE:
+DIGITAL join=0x4800(18432) ON
+[13:45:11] RX op=0x05 (                DATA) len= 14 body: 00 01 0b 20 21 08 20 01 05 20 01 02 03 00
+    DECODE:
+cont(0x20 id=0x21 len=8):
+  cont(0x20 id=0x01 len=5):
+    cont(0x20 id=0x01 len=2):
+      CONTROL subtype=0x00
+[13:45:14] RX op=0x0D (           HEARTBEAT) len=  2 body: 00 01
+[13:45:14] TX op=0x0E (  HEARTBEAT_RESPONSE) len=  2 body: 00 01
+
+[PHASE A] varied ComPort probes
+[probe] serial-15 join=1 flat
+[13:45:18] TX op=0x05 (                DATA) len= 13 body: 00 01 0a 15 00 01 00 50 49 4e 47 61 0d
+[probe] serial-15 join=5 flat
+[13:45:19] TX op=0x05 (                DATA) len= 13 body: 00 01 0a 15 00 05 00 50 49 4e 47 62 0d
+[probe] serial-15 join=29 flat
+[13:45:19] TX op=0x05 (                DATA) len= 13 body: 00 01 0a 15 00 1d 00 50 49 4e 47 63 0d
+[probe] serial-34 join=1 flat
+[13:45:19] TX op=0x05 (                DATA) len= 13 body: 00 01 0a 34 00 01 00 50 49 4e 47 64 0d
+[probe] serial-34 join=5 flat
+[13:45:20] TX op=0x05 (                DATA) len= 13 body: 00 01 0a 34 00 05 00 50 49 4e 47 65 0d
+[probe] serial-34 join=29 flat
+[13:45:20] TX op=0x05 (                DATA) len= 13 body: 00 01 0a 34 00 1d 00 50 49 4e 47 66 0d
+[probe] nested 0x20->0x01->0x01 serial-15 join=1
+[13:45:21] TX op=0x05 (                DATA) len= 19 body: 00 01 10 20 01 0b 20 01 08 15 00 01 00 50 49 4e 47 67 0d
+[13:45:21] RX op=0x05 (                DATA) len= 17 body: 00 01 0e 20 01 0b 20 01 08 15 00 01 03 50 49 4e 47
+    DECODE:
+cont(0x20 id=0x01 len=11):
+  cont(0x20 id=0x01 len=8):
+    SERIAL15 join=0x0001(1) flags=0x03 payload=50 49 4e 47 'PING'
+[13:45:25] TX op=0x0D (           HEARTBEAT) len=  2 body: 00 01
+[13:45:25] RX op=0x0E (  HEARTBEAT_RESPONSE) len=  2 body: 00 01
+[13:45:26] RX op=0x05 (                DATA) len= 14 body: 00 01 0b 20 06 08 20 01 05 14 02 53 00 1c
+    DECODE:
+cont(0x20 id=0x06 len=8):
+  cont(0x20 id=0x01 len=5):
+    ANALOG join=0x0253(595) val=0x001C(28)
+[13:45:40] TX op=0x0D (           HEARTBEAT) len=  2 body: 00 01
+
+[PHASE B] SSH SETAVROUTE triggers
+[trigger-31] SETAVROUTE 1 33
+[SSH] SETAVROUTE 1 33 -> Invalid Output Slot Id (33) specified
+[trigger-31] SETAVROUTE 2 33
+[SSH] SETAVROUTE 2 33 -> 
+[trigger-31] SETAVROUTE 0 33
+[SSH] SETAVROUTE 0 33 -> 
+[13:45:49] RX op=0x0E (  HEARTBEAT_RESPONSE) len=  2 body: 00 01
+[13:45:55] TX op=0x0D (           HEARTBEAT) len=  2 body: 00 01
+[13:45:55] RX op=0x0E (  HEARTBEAT_RESPONSE) len=  2 body: 00 01
+[13:45:59] RX op=0x0D (           HEARTBEAT) len=  2 body: 00 01
+[13:45:59] TX op=0x0E (  HEARTBEAT_RESPONSE) len=  2 body: 00 01
+[13:46:11] TX op=0x0D (           HEARTBEAT) len=  2 body: 00 01
+[13:46:11] RX op=0x0E (  HEARTBEAT_RESPONSE) len=  2 body: 00 01
+[13:46:14] RX op=0x0D (           HEARTBEAT) len=  2 body: 00 01
+[13:46:14] TX op=0x0E (  HEARTBEAT_RESPONSE) len=  2 body: 00 01
+[13:46:28] TX op=0x0D (           HEARTBEAT) len=  2 body: 00 01
+[13:46:28] RX op=0x0E (  HEARTBEAT_RESPONSE) len=  2 body: 00 01
+[13:46:29] RX op=0x0D (           HEARTBEAT) len=  2 body: 00 01
+[13:46:29] TX op=0x0E (  HEARTBEAT_RESPONSE) len=  2 body: 00 01
