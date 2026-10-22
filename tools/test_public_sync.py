@@ -148,7 +148,8 @@ def test_run_lines_for_an_excluded_experiment_are_dropped():
 
 def test_build_refuses_a_leak_it_cannot_scrub():
     # assembled at run time, so this file does not itself carry what the tool refuses
-    for name, text in (("url", "https://user:" + "hunter2@github.com/x\n"), ("cip", "see python-cip" + "client\n"),
+    for name, text in (("url", "https://user:" + "hunter2@github.com/x\n"),
+                       ("tok", "token=" + "ghp_" + "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef0123456789\n"),
                        ("key", "-----BEGIN RSA PRIVATE " + "KEY-----\n")):
         repo, arc, pub = _repo(dict(ARCHIVE, **{"keep/leak.md": text}))
         code, out = _run(repo, "build", "--archive", "archive", "--public", "public")
