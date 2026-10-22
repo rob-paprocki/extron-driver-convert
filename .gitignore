@@ -82,6 +82,7 @@ DriverLookup*.dat
 # Crestron SIMPL# libraries and their decompiled C# and IL
 # (experiments/crestron_decompile/decompile.py run)
 /experiments/crestron_decompile/out/
+/experiments/qsys/out/
 *.il
 
 # corpus/: the Extron library snapshot. Only the README and manifests are ours.
