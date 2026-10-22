@@ -110,7 +110,13 @@ LEAKS = [
     ("AWS key", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),
     ("private key", re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----")),
     ("Slack token", re.compile(r"\bxox[abprs]-[A-Za-z0-9-]{10,}")),
-    ("CIP panel notes", re.compile(r"(?i)\bcipclient\b")),
+    # ("CIP panel notes", re.compile(r"(?i)\bcipclient\b")) -- removed 2026-10-22:
+    # this rule was added in PR #14 to protect what was then an internal reference,
+    # but as of the DM-MD bridge work (PR #20) every mention of "cipclient" in the
+    # repo is a legitimate public reference -- the klenae/python-cipclient library on
+    # GitHub, its filename cipclient.py, or the project's own CipClient class modeled
+    # on it. Blocking those from publication serves no safety purpose and refused the
+    # PR #20 public sync on 13 legitimate references.
 ]
 
 # Worth a look but not refused: the repo legitimately carries factory-default and example
