@@ -1,0 +1,1215 @@
+<title>Extron Driver Convert · Status</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: single-column status board. Fixed header, scrollable body.
+   Tabs switch content panes. Status chips encode state; no card decoration. */
+:root {
+  /* neutrals — slightly warm, not pure greys */
+  --bg: #faf9f6;
+  --panel: #ffffff;
+  --panel-2: #f3f1ec;
+  --fg: #16181a;
+  --fg-2: #4a4e55;
+  --fg-muted: #7a7f87;
+  --rule: #e2ded5;
+  --rule-strong: #c9c3b5;
+
+  /* accent — muted engineering teal, not a brand blue */
+  --accent: #286472;
+  --accent-ink: #ffffff;
+  --accent-weak: #d9e5e8;
+
+  /* status */
+  --done:   #2e6a3b;
+  --done-weak:   #dcecdd;
+  --wip:    #8a5a06;
+  --wip-weak:    #f1e4c7;
+  --block:  #9a2a2e;
+  --block-weak:  #f1d9d8;
+  --parked: #4a4e55;
+  --parked-weak: #e3e0d9;
+
+  /* type */
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141513;
+    --panel: #1c1d1b;
+    --panel-2: #22231f;
+    --fg: #ebeae6;
+    --fg-2: #c6c3bc;
+    --fg-muted: #8a8a84;
+    --rule: #2e2f2b;
+    --rule-strong: #40413b;
+
+    --accent: #5fb0c0;
+    --accent-ink: #0a1114;
+    --accent-weak: #243236;
+
+    --done:   #7fc48c;
+    --done-weak:   #203321;
+    --wip:    #e2b56a;
+    --wip-weak:    #39301c;
+    --block:  #e07a7f;
+    --block-weak:  #3a2122;
+    --parked: #a9a89f;
+    --parked-weak: #2c2d2a;
+
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141513;
+  --panel: #1c1d1b;
+  --panel-2: #22231f;
+  --fg: #ebeae6;
+  --fg-2: #c6c3bc;
+  --fg-muted: #8a8a84;
+  --rule: #2e2f2b;
+  --rule-strong: #40413b;
+
+  --accent: #5fb0c0;
+  --accent-ink: #0a1114;
+  --accent-weak: #243236;
+
+  --done:   #7fc48c;
+  --done-weak:   #203321;
+  --wip:    #e2b56a;
+  --wip-weak:    #39301c;
+  --block:  #e07a7f;
+  --block-weak:  #3a2122;
+  --parked: #a9a89f;
+  --parked-weak: #2c2d2a;
+
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 15px/1.55 var(--sans);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 56px;
+  font-variant-numeric: tabular-nums;
+}
+.wrap { max-width: 1120px; margin: 0 auto; }
+
+/* --- header --- */
+header.top {
+  display: grid; gap: 6px;
+  padding: 20px 24px 22px;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  margin-bottom: 20px;
+}
+header.top .kicker {
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+header.top h1 {
+  margin: 0;
+  font: 600 28px/1.15 var(--sans);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+header.top .sub {
+  color: var(--fg-2);
+  max-width: 72ch;
+}
+header.top .meta {
+  display: flex; flex-wrap: wrap; gap: 18px 28px;
+  margin-top: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+  font: 400 13px/1 var(--mono);
+  color: var(--fg-muted);
+}
+header.top .meta b {
+  color: var(--fg-2); font-weight: 500;
+}
+
+/* --- tabs --- */
+nav.tabs {
+  display: flex; flex-wrap: wrap; gap: 2px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--rule-strong);
+}
+nav.tabs button {
+  appearance: none; border: 0; background: transparent;
+  color: var(--fg-2);
+  font: 500 14px/1 var(--sans);
+  padding: 11px 16px 13px;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+nav.tabs button:hover { color: var(--fg); }
+nav.tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+nav.tabs button[aria-selected="true"] {
+  color: var(--fg); border-bottom-color: var(--accent);
+}
+nav.tabs .count {
+  font: 500 11px/1 var(--mono);
+  color: var(--fg-muted);
+  padding: 3px 6px;
+  background: var(--panel-2);
+  border-radius: 2px;
+}
+nav.tabs button[aria-selected="true"] .count {
+  color: var(--accent); background: var(--accent-weak);
+}
+
+/* --- panes --- */
+section.pane { display: grid; gap: 16px; }
+section.pane[hidden] { display: none; }
+
+h2.section {
+  margin: 10px 0 2px;
+  font: 600 18px/1.25 var(--sans);
+  letter-spacing: -0.005em;
+}
+h2.section + .note {
+  color: var(--fg-muted);
+  font-size: 13px;
+  margin-top: -2px;
+}
+
+/* --- cards (used for answered questions, open items) --- */
+.list { display: grid; gap: 8px; }
+.row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px 18px;
+  padding: 14px 16px;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  min-width: 0;
+}
+.row > .main { min-width: 0; }
+.row .title {
+  font-weight: 500;
+  margin: 0 0 4px;
+  color: var(--fg);
+}
+.row .title code {
+  font: 500 13px/1.4 var(--mono);
+  background: var(--panel-2);
+  padding: 1px 5px;
+  border-radius: 2px;
+  color: var(--fg);
+}
+.row .detail {
+  color: var(--fg-2);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.row .detail code {
+  font: 400 13px/1.4 var(--mono);
+  color: var(--fg-2);
+}
+.row .meta-tags {
+  margin-top: 8px;
+  display: flex; flex-wrap: wrap; gap: 6px;
+  font: 500 11px/1 var(--mono);
+  color: var(--fg-muted);
+}
+.row .meta-tags span {
+  padding: 3px 7px;
+  background: var(--panel-2);
+  border-radius: 2px;
+  letter-spacing: 0.02em;
+}
+
+/* --- chips --- */
+.chip {
+  display: inline-flex; align-items: center;
+  padding: 3px 8px;
+  font: 500 11px/1.4 var(--mono);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border-radius: 2px;
+  white-space: nowrap;
+  align-self: start;
+}
+.chip.done    { background: var(--done-weak);   color: var(--done); }
+.chip.wip     { background: var(--wip-weak);    color: var(--wip); }
+.chip.block   { background: var(--block-weak);  color: var(--block); }
+.chip.parked  { background: var(--parked-weak); color: var(--parked); }
+.chip.partial { background: var(--accent-weak); color: var(--accent); }
+
+/* --- filter bar --- */
+.filterbar {
+  display: flex; flex-wrap: wrap; gap: 8px 10px;
+  margin: 4px 0 6px;
+  padding: 10px 12px;
+  background: var(--panel-2);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  font-size: 13px;
+}
+.filterbar label {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--fg-2); cursor: pointer;
+}
+.filterbar input {
+  accent-color: var(--accent);
+}
+.filterbar .search {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 6px;
+}
+.filterbar input[type="text"] {
+  font: 400 13px/1 var(--mono);
+  padding: 6px 8px;
+  background: var(--panel);
+  color: var(--fg);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  min-width: 180px;
+}
+.filterbar input[type="text"]:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px;
+}
+
+/* --- answered-questions format --- */
+.answers {
+  display: grid; gap: 10px;
+}
+.answer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px 18px;
+  padding: 14px 16px;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+}
+.answer .q {
+  font-weight: 500;
+  font-size: 15px;
+  margin: 0 0 4px;
+}
+.answer .a {
+  color: var(--fg-2); font-size: 14px; line-height: 1.5;
+}
+.answer .a strong { color: var(--fg); font-weight: 600; }
+
+/* --- findings grid --- */
+.findings {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+}
+.finding {
+  padding: 12px 14px;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  display: grid; grid-template-columns: auto 1fr; gap: 10px 12px;
+  align-items: start;
+}
+.finding .num {
+  font: 600 13px/1 var(--mono);
+  color: var(--accent);
+  padding: 3px 6px;
+  background: var(--accent-weak);
+  border-radius: 2px;
+  min-width: 28px;
+  text-align: center;
+}
+.finding .body { min-width: 0; }
+.finding .body p { margin: 0; color: var(--fg-2); font-size: 13.5px; line-height: 1.5; }
+.finding .body p strong { color: var(--fg); font-weight: 600; }
+
+/* --- compact table --- */
+table.plain {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  overflow: hidden;
+  font-size: 14px;
+}
+table.plain th, table.plain td {
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+table.plain tr:last-child td { border-bottom: 0; }
+table.plain th {
+  font: 500 12px/1 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  background: var(--panel-2);
+  border-bottom-color: var(--rule-strong);
+}
+table.plain code {
+  font: 400 13px var(--mono);
+  color: var(--fg);
+  background: var(--panel-2);
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+.scroll-x { overflow-x: auto; }
+
+/* --- callout --- */
+.callout {
+  padding: 12px 16px;
+  background: var(--accent-weak);
+  color: var(--fg);
+  border-left: 3px solid var(--accent);
+  border-radius: 2px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.callout b { color: var(--accent); }
+
+/* --- footer --- */
+footer.foot {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  font: 400 12px/1.5 var(--mono);
+  color: var(--fg-muted);
+}
+footer.foot code { color: var(--fg-2); }
+
+/* --- responsive --- */
+@media (max-width: 640px) {
+  header.top { padding: 16px 16px 18px; }
+  header.top h1 { font-size: 22px; }
+  .row, .answer { grid-template-columns: 1fr; }
+  .row .chip, .answer .chip { justify-self: start; }
+  .filterbar .search { margin-left: 0; width: 100%; }
+  .filterbar .search input[type="text"] { flex: 1 1 auto; min-width: 0; }
+}
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="kicker">Research project · status board</div>
+  <h1>Extron Driver Convert</h1>
+  <p class="sub">
+    Research into converting audio-visual device drivers between vendor formats:
+    Extron <code>.pkp</code> (Global Configurator), Extron ControlScript <code>.py</code>,
+    Crestron <code>.pkg</code>. Scope has grown to cross-platform bridging. Q-SYS both ways,
+    Biamp Tesira&nbsp;→&nbsp;Extron, Crestron DM-MD controlled by an Extron processor.
+  </p>
+  <div class="meta">
+    <span><b>Repo</b> rob-paprocki/extron-driver-convert</span>
+    <span><b>Main</b> <code>3210479</code></span>
+    <span><b>Report</b> 2026-10-23</span>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="Report sections">
+  <button role="tab" aria-selected="true"  aria-controls="pane-purpose"    id="tab-purpose"   data-pane="purpose">Purpose</button>
+  <button role="tab" aria-selected="false" aria-controls="pane-done"       id="tab-done"      data-pane="done">Completed <span class="count">10</span></button>
+  <button role="tab" aria-selected="false" aria-controls="pane-remaining"  id="tab-remaining" data-pane="remaining">Remaining <span class="count">22</span></button>
+  <button role="tab" aria-selected="false" aria-controls="pane-research"   id="tab-research"  data-pane="research">Open research <span class="count">8</span></button>
+  <button role="tab" aria-selected="false" aria-controls="pane-findings"   id="tab-findings"  data-pane="findings">Findings <span class="count">20</span></button>
+</nav>
+
+<!-- ================= PURPOSE ================= -->
+<section id="pane-purpose" class="pane" role="tabpanel" aria-labelledby="tab-purpose">
+
+  <div class="callout">
+    <b>In a sentence.</b> Can a driver written for one AV control system (Extron, Crestron, Q-SYS, Biamp)
+    be converted. Mechanically, correctly, and provably. Into another system's format,
+    so a processor from vendor&nbsp;A can drive a device whose only released driver is for vendor&nbsp;B?
+  </div>
+
+  <h2 class="section">Why it exists</h2>
+  <div class="list">
+    <div class="row"><div class="main">
+      <div class="title">Vendors ship different driver formats for the same devices</div>
+      <div class="detail">
+        Extron ships a <code>.pkp</code> (gzip over .NET NRBF, embedding a complete Python driver) <em>and</em>
+        a plain-text ControlScript <code>.py</code> module. Crestron ships <code>.pkg</code> (zip over DLL
+        with the driver definition as JSON inside). Q-SYS ships <code>.qplug</code> (Lua). Biamp Tesira
+        ships Tesira text configs. The same physical device typically has drivers from only one
+        or two of these, so the processor you own may not be able to control the device you own.
+      </div>
+    </div></div>
+    <div class="row"><div class="main">
+      <div class="title">If translation works, one driver can serve any processor</div>
+      <div class="detail">
+        A shared Command/Response intermediate representation lets any emitter target any format.
+        Finding 05 is the proof-of-concept: two different vendor teams independently encoded the same
+        Samsung display to byte-identical wire traffic, including the same undocumented
+        firmware-bug workaround. The convergence says a shared IR exists to extract.
+      </div>
+    </div></div>
+  </div>
+
+  <h2 class="section">The four core conversion directions</h2>
+  <div class="scroll-x">
+    <table class="plain">
+      <thead><tr><th>Direction</th><th>Status</th><th>Tool</th></tr></thead>
+      <tbody>
+        <tr><td>Extron <code>.pkp</code> → ControlScript <code>.py</code></td><td><span class="chip done">Done</span></td><td><code>tools/pkp2cs.py</code></td></tr>
+        <tr><td>ControlScript <code>.py</code> → <code>.pkp</code></td><td><span class="chip done">Done</span></td><td><code>tools/pkp_asset.py</code></td></tr>
+        <tr><td>Crestron <code>.pkg</code> → Extron ControlScript</td><td><span class="chip done">Done</span></td><td><code>tools/pkg_dump.py</code> + translator</td></tr>
+        <tr><td>Extron → Crestron <code>.pkg</code></td><td><span class="chip partial">Patch only</span></td><td><code>tools/pkg_patch.py</code> (resource swap)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="section">What the research actually produces</h2>
+  <div class="list">
+    <div class="row"><div class="main">
+      <div class="title">Tools, not a product</div>
+      <div class="detail">
+        Everything is standard-library Python 3, no dependencies, no build system. One command per
+        tool, deterministic, tested. The repo describes itself as "research with working tools."
+      </div>
+    </div></div>
+    <div class="row"><div class="main">
+      <div class="title">An oracle for correctness</div>
+      <div class="detail">
+        Acceptance is <em>wire-string equivalence</em>. do the bytes a translated driver sends match
+        the shipped driver's bytes, command by command? Not line similarity, not file similarity.
+        <code>tools/wire_table.py</code> is the oracle. 352 oracle pairs scored across 314 packages
+        (finding 14).
+      </div>
+    </div></div>
+    <div class="row"><div class="main">
+      <div class="title">A library of 20 numbered findings</div>
+      <div class="detail">
+        Each finding is a reproducible result or a corrected mistake, with evidence paths and
+        measurement methodology. See the <b>Findings</b> tab.
+      </div>
+    </div></div>
+  </div>
+
+  <h2 class="section">Updates since <code>STATUS.md</code> was last written (2026-10-05)</h2>
+  <div class="list">
+    <div class="row"><div class="main">
+      <div class="title">Q-SYS plugin bridge <span class="chip done">Merged 2026-10-22</span></div>
+      <div class="detail">
+        ControlScript emitter from a <code>.qplug</code> wire table (Clock Audio and RDL BTN pilots,
+        100% exact). Reverse direction: three Q-SYS family plugins for Extron CrossPoint matrix
+        switchers. DTP3 CrossPoint (12 variants), DTP CrossPoint non-3 (13 variants),
+        DTP2 CrossPoint 82. Capability-aware layout per model: scaled vs non-scaled outputs,
+        audio-only outputs, amp, ShareLink Pro, USB routing. 15/15 tests pass.
+      </div>
+    </div></div>
+    <div class="row"><div class="main">
+      <div class="title">DM-MD master-of-record + CIP IPID device survey <span class="chip done">Merged 2026-10-22</span></div>
+      <div class="detail">
+        One-socket master-of-record <code>.pkp</code> for the Crestron DM-MD CPU3 chassis
+        (direction-inverted: chassis dials out as TCP client, Extron accepts as server).
+        <em>Verified on hardware:</em> routing byte-exact (finding 28), ComPort passthrough via physical
+        loopback (findings 24, 29). Plus named-join maps for IV-SAM-VX2 (276 joins), DM-NVX-35x
+        (286), DM-NVX-DIR-ENT (~6,006), and Crestron Connected displays (344 joins across two
+        shapes). IR/Relay stubbed pending bench instruments.
+      </div>
+    </div></div>
+  </div>
+</section>
+
+<!-- ================= DONE ================= -->
+<section id="pane-done" class="pane" role="tabpanel" aria-labelledby="tab-done" hidden>
+  <h2 class="section">Answered research questions</h2>
+  <p class="note">From <code>STATUS.md</code>'s Answers table, with recent commits folded in.</p>
+
+  <div class="answers">
+    <div class="answer">
+      <div class="main">
+        <div class="q">Extron <code>.pkp</code> → ControlScript <code>.py</code>?</div>
+        <div class="a"><strong>Yes. Built and measured.</strong> <code>tools/pkp2cs.py</code>.</div>
+      </div>
+      <span class="chip done">Done</span>
+    </div>
+
+    <div class="answer">
+      <div class="main">
+        <div class="q">ControlScript <code>.py</code> → <code>.pkp</code>?</div>
+        <div class="a">
+          <strong>Format: yes. Command surface: yes.</strong> Byte-identical NRBF round-trip on all 9
+          sample packages. <code>tools/pkp_asset.py</code> adds commands to the object graph. The i20
+          package goes from 15 to 45 commands, GC renders every one with the ranges and enum states
+          written into the graph, and a processor runs them (findings 12, 16, 18).
+        </div>
+      </div>
+      <span class="chip done">Done</span>
+    </div>
+
+    <div class="answer">
+      <div class="main">
+        <div class="q">Crestron <code>.pkg</code> → Extron ControlScript?</div>
+        <div class="a">
+          <strong>Yes. Built and measured</strong> against Extron's own driver for the same device
+          (finding 19).
+        </div>
+      </div>
+      <span class="chip done">Done</span>
+    </div>
+
+    <div class="answer">
+      <div class="main">
+        <div class="q">Crestron device driven by an Extron processor?</div>
+        <div class="a">
+          <strong>The <code>.pkp</code> runs on a processor; no real camera yet.</strong>
+          <code>20025</code> and <code>20026</code> were built, uploaded to an IPCP Pro 360, and
+          driven from a TLP Pro 725M panel against a PC playing the camera, with feedback following
+          it both ways. Current build is <code>20028</code> (v1.6, parity with Crestron's own
+          driver). <em>What remains:</em> a socket to a real i20.
+        </div>
+      </div>
+      <span class="chip partial">Mostly</span>
+    </div>
+
+    <div class="answer">
+      <div class="main">
+        <div class="q">A Crestron DM-MD switcher driven by an Extron processor?</div>
+        <div class="a">
+          <strong>Yes, as of 2026-10-22.</strong> Master-of-record <code>.pkp</code> for the
+          bench DM-MD8X8-CPU3-RPS. 46 commands, validates clean, 370 KB. MatrixTieCommand routing
+          byte-exact on hardware (finding 28). ComPort passthrough verified by physical TX↔RX loopback
+          on RMC output 1 (findings 24, 29). <em>Stubbed:</em> IR/Relay (chassis silent on probes;
+          needs multimeter/IR scope).
+        </div>
+      </div>
+      <span class="chip done">Done</span>
+    </div>
+
+    <div class="answer">
+      <div class="main">
+        <div class="q">Extron → Crestron <code>.pkg</code>?</div>
+        <div class="a">
+          <strong>Mechanically demonstrated</strong> (resource-swap of a real DLL). Gated by
+          Crestron's dealer/partner licence, not by code (findings 04, 06).
+        </div>
+      </div>
+      <span class="chip partial">Patch only</span>
+    </div>
+
+    <div class="answer">
+      <div class="main">
+        <div class="q">Generate a driver from API docs alone?</div>
+        <div class="a">
+          <strong>Mostly.</strong> 29 of 32 endpoints a real driver calls have their own
+          documentation page (~91%). The other 3 are the ISO-record family. The danger is silent
+          incompleteness, not missing methods (finding 08).
+        </div>
+      </div>
+      <span class="chip partial">91%</span>
+    </div>
+
+    <div class="answer">
+      <div class="main">
+        <div class="q">Is a shared intermediate representation justified?</div>
+        <div class="a">
+          <strong>Yes.</strong> Two vendors independently encoded the same Samsung device to the same
+          bytes, including the same undocumented firmware-bug workaround (finding 05).
+        </div>
+      </div>
+      <span class="chip done">Done</span>
+    </div>
+
+    <div class="answer">
+      <div class="main">
+        <div class="q">A Biamp Tesira controlling an Extron device?</div>
+        <div class="a">
+          <strong>On paper, yes</strong>. a Tesira Network Command String block sends an IN1804's
+          SIS strings over TCP, and from Tesira 3.15 matches replies for feedback. Strings come from
+          Extron's own module. Not run on either device (ROADMAP H11).
+        </div>
+      </div>
+      <span class="chip wip">Offline only</span>
+    </div>
+
+    <div class="answer">
+      <div class="main">
+        <div class="q">Q-SYS to and from Extron?</div>
+        <div class="a">
+          <strong>Both directions built as of 2026-10-22.</strong>
+          <em>Reading:</em> Lua parser reads all 27 plain plugins; <code>qplug_wire.py</code> turns
+          one into a wire table. <em>Direction A (Q-SYS → Extron):</em> ControlScript emitter, Clock
+          Audio CDT100 and RDL BTN pilots, 100% exact wire match.
+          <em>Direction B (Extron → Q-SYS):</em> family plugins for DTP3 (12 variants), DTP non-3
+          (13 variants), DTP2 CP 82. Verified live in Q-SYS Designer F6. <em>Still deferred:</em>
+          XTP II CrossPoint (needs resizable matrix for 16/32/64 chassis), IN1608 series (presentation
+          scaler, different architecture).
+        </div>
+      </div>
+      <span class="chip done">Done</span>
+    </div>
+  </div>
+
+  <h2 class="section">Working tools (standard library only, all tested)</h2>
+  <div class="scroll-x">
+    <table class="plain">
+      <thead><tr><th>Tool</th><th>What it does</th><th>Tests</th></tr></thead>
+      <tbody>
+        <tr><td><code>pkp_dump.py</code></td><td>Extron <code>.pkp</code> → JSON object graph. Byte-for-byte round-trip on 9 sample packages.</td><td>23</td></tr>
+        <tr><td><code>pkg_dump.py</code></td><td>Crestron <code>.pkg</code> → manifest + driver JSON. Real ECMA-335 metadata walk.</td><td>.</td></tr>
+        <tr><td><code>wire_table.py</code></td><td><b>The acceptance oracle.</b> Normalized per-command wire table from both Python dialects.</td><td>47</td></tr>
+        <tr><td><code>pkp2cs.py</code></td><td><code>.pkp</code> → ControlScript translator. Raises rather than degrading; reports runtime residuals.</td><td>90</td></tr>
+        <tr><td><code>pkp_build.py</code></td><td><code>.pkp</code> transplant builder. Refuses to emit unless the donor round-trips byte-for-byte.</td><td>37</td></tr>
+        <tr><td><code>pkp_validate.py</code></td><td>Extron's driver validator, in pure Python. Same verdict as GC's own code on all 1,853 shipping packages.</td><td>182</td></tr>
+        <tr><td><code>pkp_asset.py</code></td><td>Adds commands to a <code>.pkp</code>'s object graph. Verified loadable through Extron's own <code>LoadFromFile</code>.</td><td>48</td></tr>
+        <tr><td><code>pkg_patch.py</code></td><td>Replaces the driver definition inside a Crestron <code>.pkg</code>'s DLL, with RVA fixups.</td><td>11</td></tr>
+        <tr><td><code>nrbf_graph.py</code></td><td>Structural navigation over an NRBF trace; every object id → its span of records.</td><td>.</td></tr>
+        <tr><td><code>gc_catalogue.py</code></td><td>Reads <code>DriverLookup.dat</code> to see what GC catalogued; <code>--against</code> compares to a driver folder.</td><td>14</td></tr>
+        <tr><td><code>public_sync.py</code></td><td>Builds the public copy's next commit from the archive. Scrubs, refuses on leaks.</td><td>15</td></tr>
+        <tr><td><code>cs_to_qplug.py</code></td><td>Emits Q-SYS plugins from Extron modules. DTP3/DTP/DTP2 CrossPoint families, 27 model variants.</td><td>15</td></tr>
+        <tr><td><code>gcp_harness/</code> (PowerShell)</td><td>Windows-only. Loads Extron's x86 assemblies and drives Global Configurator via UI Automation.</td><td>manual</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ================= REMAINING ================= -->
+<section id="pane-remaining" class="pane" role="tabpanel" aria-labelledby="tab-remaining" hidden>
+  <h2 class="section">What's left to do</h2>
+  <p class="note">From <code>ROADMAP.md</code>. Filter by blocker to see what's limiting each item.</p>
+
+  <div class="filterbar" role="group" aria-label="Filter remaining items">
+    <label><input type="checkbox" class="flt" data-filter="block"  checked> Blocked</label>
+    <label><input type="checkbox" class="flt" data-filter="wip"    checked> In progress / can start</label>
+    <label><input type="checkbox" class="flt" data-filter="parked" checked> Parked</label>
+    <label><input type="checkbox" class="flt" data-filter="partial" checked> Partial</label>
+    <div class="search"><input type="text" id="remsearch" placeholder="Filter by text…" aria-label="Search remaining"></div>
+  </div>
+
+  <h2 class="section">Needs hardware</h2>
+  <div class="list" data-list="hardware">
+
+    <div class="row" data-status="block" data-text="h1 controlscript path a i20 processor camera">
+      <div class="main">
+        <div class="title">H1. ControlScript Path A against an i20 camera <code>EthernetClass(ip, 5500)</code></div>
+        <div class="detail">
+          Processor + real i20 camera. Would prove the drop-in ControlScript module actually runs on a
+          processor (right now it has only run offline against a VISCA listener).
+        </div>
+        <div class="meta-tags"><span>needs: processor + i20</span><span>effort: S</span></div>
+      </div>
+      <span class="chip block">Blocked</span>
+    </div>
+
+    <div class="row" data-status="block" data-text="h3 wire captures reply parser">
+      <div class="main">
+        <div class="title">H3. Wire captures from a real i20</div>
+        <div class="detail">
+          Every captured reply fixes a parser (R3 fixed QUICKSTART on 2026-09-13 from a single capture).
+          <code>experiments/skeleton_i20/doc_calls.py</code> runs each probe against the module.
+        </div>
+        <div class="meta-tags"><span>needs: processor + i20</span><span>effort: M</span></div>
+      </div>
+      <span class="chip block">Blocked</span>
+    </div>
+
+    <div class="row" data-status="block" data-text="h5 samsung qn display channelstep">
+      <div class="main">
+        <div class="title">H5. Samsung QN display: which ChannelStep encoding does the panel honor?</div>
+        <div class="detail">
+          Extron sends <code>0x03</code> family, Crestron sends <code>0D 00 00 12/10</code>. This is
+          the one known cross-vendor wire divergence from finding 05.
+        </div>
+        <div class="meta-tags"><span>needs: Samsung QNxxLS03DAFXZA</span><span>effort: S</span></div>
+      </div>
+      <span class="chip block">Blocked</span>
+    </div>
+
+    <div class="row" data-status="block" data-text="h8 crestron pkg load processor dealer licence">
+      <div class="main">
+        <div class="title">H8. Does an outsider-built <code>.pkg</code> load on a Crestron processor?</div>
+        <div class="detail">
+          Upload the resource-swapped Samsung Serial <code>.pkg</code> via Toolbox File Manager.
+          No signature gate was found on paper; Authenticode is self-signed. <b>The single highest-value
+          open item.</b>
+        </div>
+        <div class="meta-tags"><span>needs: 4-Series processor or VC-4</span><span>needs: dealer agreement</span><span>effort: M</span></div>
+      </div>
+      <span class="chip block">Blocked</span>
+    </div>
+
+    <div class="row" data-status="block" data-text="h9 h10 dm-md switcher route sent one tie confirm">
+      <div class="main">
+        <div class="title">H9 / H10. Send one route on the bench DM-MD8X8 to confirm the output-slot numbering</div>
+        <div class="detail">
+          CPU3's console numbers outputs 33–40 (not 17–24 as a 2011 forum post suggested). One
+          owner-approved route on a spare output confirms it empirically. The master-of-record driver
+          waits on this.
+        </div>
+        <div class="meta-tags"><span>needs: owner approval + spare output</span><span>effort: S</span></div>
+      </div>
+      <span class="chip block">Blocked</span>
+    </div>
+
+    <div class="row" data-status="block" data-text="ir relay bench instruments multimeter oscilloscope">
+      <div class="main">
+        <div class="title">DM-MD IR / Relay. Bench instruments needed</div>
+        <div class="detail">
+          Chassis silent on probes without a physical multimeter / IR scope to verify. Deferred to a
+          Phase 4 hardware harness.
+        </div>
+        <div class="meta-tags"><span>needs: multimeter + IR scope</span><span>effort: M</span></div>
+      </div>
+      <span class="chip block">Blocked</span>
+    </div>
+  </div>
+
+  <h2 class="section">Can be done from the repo (no hardware)</h2>
+  <div class="list" data-list="offline">
+
+    <div class="row" data-status="wip" data-text="xtp ii crosspoint q-sys plugin resizable matrix 16 32 64">
+      <div class="main">
+        <div class="title">Q-SYS plugin. XTP II CrossPoint family (chassis-based, 16×16 / 32×32 / 64×64)</div>
+        <div class="detail">
+          Natural follow-up to the DTP family work. Needs the matrix tab to be per-model resizable
+          + scrollable (current layout fits up to 12×14). Three variants.
+        </div>
+        <div class="meta-tags"><span>effort: M</span></div>
+      </div>
+      <span class="chip wip">Can start</span>
+    </div>
+
+    <div class="row" data-status="wip" data-text="in1608 presentation scaler q-sys new plugin architecture">
+      <div class="main">
+        <div class="title">Q-SYS plugin. IN1606 / IN1608 presentation scaler</div>
+        <div class="detail">
+          Different architecture from the matrix family: single output with scaler, audio mixer, mic
+          mixing, ducking, amplifier. Needs a new plugin layout (input selector + audio mixer tab +
+          per-input scaler config).
+        </div>
+        <div class="meta-tags"><span>effort: M (2-3 commits)</span></div>
+      </div>
+      <span class="chip wip">Can start</span>
+    </div>
+
+    <div class="row" data-status="wip" data-text="r48 q-sys clock audio cdt100 pilot ControlScript">
+      <div class="main">
+        <div class="title">R48. Q-SYS → Extron pilot: Clock Audio CDT100</div>
+        <div class="detail">
+          Translate QSC's plugin into a ControlScript module; compare its wire table with both the
+          plugin's and Extron's <code>clau_dsp_CDT100_v1_0_3_0.py</code>; run in
+          <code>experiments/exec_harness/</code>. Finding 10's manual-based adjudication is already done.
+        </div>
+        <div class="meta-tags"><span>SCOPE §2, §7</span><span>effort: M</span></div>
+      </div>
+      <span class="chip wip">Can start</span>
+    </div>
+
+    <div class="row" data-status="wip" data-text="r49 qrc q-sys core drive extron crestron processor ecp">
+      <div class="main">
+        <div class="title">R49. QRC: drive a Q-SYS Core from an Extron (or Crestron) processor</div>
+        <div class="detail">
+          Over QSC's JSON-RPC protocol (TCP 1710). Extron's own Core module speaks the older ECP.
+          Different job from converting device drivers; well documented.
+        </div>
+        <div class="meta-tags"><span>effort: M</span></div>
+      </div>
+      <span class="chip wip">Can start</span>
+    </div>
+
+    <div class="row" data-status="wip" data-text="usb routing amp controls q-sys dtp3 884 ipcp a surface">
+      <div class="main">
+        <div class="title">Expose per-amp + USB routing controls in the DTP3 family plugin</div>
+        <div class="detail">
+          The current family plugins flag <code>has_usb</code> and <code>has_amp</code> in the model dict, show them in the
+          banner, but does not yet surface the actual <code>SetUSBInput</code> / <code>Amplifier*</code>
+          controls. Would need a new USB tab and an amp-controls section in Output Config.
+        </div>
+        <div class="meta-tags"><span>effort: S-M</span></div>
+      </div>
+      <span class="chip wip">Can start</span>
+    </div>
+
+    <div class="row" data-status="partial" data-text="d4 scratch accessor policy qualifier number name rewrite">
+      <div class="main">
+        <div class="title">D4. Scratch-accessor policy: attempt the <code>qualifier['Number']</code> rewrite?</div>
+        <div class="detail">
+          5 residuals in-sample, but ~146 calls across 77 packages at scale (~25% of modules would
+          raise). After R37 kept the wrappers still called elsewhere: 28 packages (9%). Needs owner's
+          go/no-go.
+        </div>
+        <div class="meta-tags"><span>decision needed</span><span>effort: L if yes</span></div>
+      </div>
+      <span class="chip partial">Decision</span>
+    </div>
+
+    <div class="row" data-status="partial" data-text="d6 hub spoke ir module build decision">
+      <div class="main">
+        <div class="title">D6. Build the hub-and-spoke IR module?</div>
+        <div class="detail">
+          Recommended (finding 04) and justified (STATUS), but doesn't exist. Decides whether R35
+          (Extron → Crestron Samsung JSON regeneration test) is worth doing.
+        </div>
+        <div class="meta-tags"><span>decision needed</span><span>effort: L if yes</span></div>
+      </div>
+      <span class="chip partial">Decision</span>
+    </div>
+
+    <div class="row" data-status="wip" data-text="d8 report defects extron zoom speed srbg typo logoassignment eir filename hashing">
+      <div class="main">
+        <div class="title">D8. Report defects to Extron?</div>
+        <div class="detail">
+          Five known: zoom speed 0 in <code>1bynd_19_4743</code>, <code>SRBG</code> typo in
+          <code>clau_25_5940</code>, <code>LogoAssignment</code> in DSC 12G-HD, Tesira speed-dial quoting,
+          and the security-relevant <code>.eir</code> filename check that skips hashing.
+        </div>
+        <div class="meta-tags"><span>decision needed</span><span>effort: S</span></div>
+      </div>
+      <span class="chip partial">Decision</span>
+    </div>
+
+    <div class="row" data-status="wip" data-text="d10 sample provenance pending row notes">
+      <div class="main">
+        <div class="title">D10. Fill in sample provenance for the one pending row</div>
+        <div class="detail">
+          <code>notes/sample-provenance.md</code> has one <em>(pending)</em>. Findings should cite
+          where each sample came from.
+        </div>
+        <div class="meta-tags"><span>effort: S</span></div>
+      </div>
+      <span class="chip wip">Can start</span>
+    </div>
+
+    <div class="row" data-status="wip" data-text="d11 clock audio mk3 controlscript module gs shipment">
+      <div class="main">
+        <div class="title">D11. Obtain a Clock Audio MK3 ControlScript module</div>
+        <div class="detail">
+          GS shipment holds only the 1777 module (MK I/II). Without an MK3 one, <code>clau_25_5940</code>
+          stays unscored. Source: Extron Insider or Clock Audio.
+        </div>
+        <div class="meta-tags"><span>needs: Extron / Clock Audio contact</span><span>effort: S</span></div>
+      </div>
+      <span class="chip wip">Can start</span>
+    </div>
+
+    <div class="row" data-status="parked" data-text="r35 extron crestron samsung json regeneration test emitter blocked d2">
+      <div class="main">
+        <div class="title">R35. Extron → Crestron Samsung JSON regeneration test</div>
+        <div class="detail">
+          No emitter exists. Blocked by D2 (the licence decision) per STATUS item 2.
+        </div>
+        <div class="meta-tags"><span>blocked by D2</span><span>effort: M</span></div>
+      </div>
+      <span class="chip parked">Parked</span>
+    </div>
+  </div>
+
+  <h2 class="section">Needs a decision or credentials from the owner</h2>
+  <div class="list" data-list="decisions">
+
+    <div class="row" data-status="block" data-text="d2 crestron licence dealer aip partner agreement reverse engineering">
+      <div class="main">
+        <div class="title">D2. Crestron's licence position</div>
+        <div class="detail">
+          Crestron's licence restricts its tools to "Developing software for Crestron Devices",
+          bars reverse engineering, and requires a Dealer/AIP/Partner agreement. Extron requires only
+          a free account. <b>A lawyer's question</b>, cheaper to ask before building a Crestron emitter
+          than after.
+        </div>
+        <div class="meta-tags"><span>decision only</span></div>
+      </div>
+      <span class="chip block">Decision needed</span>
+    </div>
+
+    <div class="row" data-status="block" data-text="catalogue coverage crestron drivers login gated jsonengine v2 entity model v1 rad">
+      <div class="main">
+        <div class="title">Crestron catalogue coverage. JSON-engine vs V2 Entity Model vs V1 RAD</div>
+        <div class="detail">
+          Two data points so far: Samsung = LegacyWrappers JSON engine, 1 Beyond = V2 with bounded IL
+          residue. <code>drivers.crestron.io</code> is login-gated. Needs credentials to sample.
+        </div>
+        <div class="meta-tags"><span>needs: Crestron login</span></div>
+      </div>
+      <span class="chip block">Credentials needed</span>
+    </div>
+
+    <div class="row" data-status="partial" data-text="d13 claude session transcripts git private holder reasoning findings">
+      <div class="main">
+        <div class="title">D13. Should Claude session transcripts go into git?</div>
+        <div class="detail">
+          Currently in git-ignored <code>private/claude/</code>. They hold full tool output, account
+          details, lab IPs. And the reasoning behind several findings.
+        </div>
+        <div class="meta-tags"><span>decision only</span></div>
+      </div>
+      <span class="chip partial">Decision</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= OPEN RESEARCH ================= -->
+<section id="pane-research" class="pane" role="tabpanel" aria-labelledby="tab-research" hidden>
+  <h2 class="section">Open research questions</h2>
+  <p class="note">
+    From <code>STATUS.md</code> "Open, in order of how much they matter" and
+    <code>ROADMAP.md</code> §5 ("Open research questions and unmeasured claims"). These are the
+    questions the project still wants answered.
+  </p>
+
+  <div class="list">
+    <div class="row">
+      <div class="main">
+        <div class="title">1. Does an outsider-built <code>.pkg</code> load on a real Crestron processor?</div>
+        <div class="detail">
+          Independent developers ship drivers built from the public NuGet DevKit, so the compile path
+          is demonstrated. The resource-swap shortcut is not. Crestron Toolbox is obtainable; the gate
+          is a processor or VC-4 instance plus the licence question. <b>No amount of research substitutes
+          for this.</b>
+        </div>
+      </div>
+      <span class="chip block">Hardware + licence</span>
+    </div>
+
+    <div class="row">
+      <div class="main">
+        <div class="title">2. Does a real i20 camera accept the synthesized <code>.pkp</code> commands?</div>
+        <div class="detail">
+          Every reply parsed by the module so far came from documentation. No socket has been opened to
+          a camera. <code>20028</code> is loader-verified but not yet uploaded.
+        </div>
+      </div>
+      <span class="chip block">Hardware</span>
+    </div>
+
+    <div class="row">
+      <div class="main">
+        <div class="title">3. DM-MD IR and Relay: what does the chassis actually send?</div>
+        <div class="detail">
+          Routing and ComPort passthrough are proven byte-exact (findings 28, 29). IR/Relay are
+          stubbed because the chassis is silent on probes without instruments. A multimeter and an
+          IR scope would answer this in a day.
+        </div>
+      </div>
+      <span class="chip block">Bench instruments</span>
+    </div>
+
+    <div class="row">
+      <div class="main">
+        <div class="title">4. Catalogue coverage of Crestron's driver library</div>
+        <div class="detail">
+          How much is extractable JSON-engine form vs V2 Entity Model vs V1 RAD? Two data points. The
+          whole library is login-gated. Only answerable by sampling, and sampling needs credentials.
+        </div>
+      </div>
+      <span class="chip block">Credentials</span>
+    </div>
+
+    <div class="row">
+      <div class="main">
+        <div class="title">5. A rendered command is not a polled one</div>
+        <div class="detail">
+          A package can render, build, upload and send correctly and still never be <em>asked</em>
+          anything. Polling is gated by <code>PollingInterval</code> carrying <code>Enabled</code>
+          <em>and</em> by the project containing an instance of the command. GC compiles its poll list
+          from panel feedback, monitors, and macros. Not from the driver's command list. Both gates
+          were hit in turn and each looked like a bug in the package. Same "necessary but not
+          sufficient" trap as the wire table, two gates further along.
+        </div>
+      </div>
+      <span class="chip wip">Methodology note</span>
+    </div>
+
+    <div class="row">
+      <div class="main">
+        <div class="title">6. Emulated feedback for devices that publish nothing</div>
+        <div class="detail">
+          <code>20028</code> adds 30 commands; 21 report live status, 8 are momentary with nothing to
+          report, and <em>only the lightbar is emulated</em>. no inquiry exists in either vendor's
+          driver or the documentation. One rule remains unsourced: Crestron declares none for
+          <code>GetFreezeFrame</code>, so that parse follows VISCA convention.
+        </div>
+      </div>
+      <span class="chip partial">1 remaining</span>
+    </div>
+
+    <div class="row">
+      <div class="main">
+        <div class="title">7. Does Q-SYS plugin generation hold outside the DTP CrossPoint family?</div>
+        <div class="detail">
+          Three families verified (DTP3, DTP, DTP2) with 27 model variants, all PCS-matched in
+          Designer F6. Next test: a chassis-based family (XTP II CrossPoint, 16/32/64), which exercises
+          dynamic matrix sizing the layout doesn't yet support. Then a non-matrix architecture
+          (IN1608 presentation scaler).
+        </div>
+      </div>
+      <span class="chip wip">Can test now</span>
+    </div>
+
+    <div class="row">
+      <div class="main">
+        <div class="title">8. The runtime-resolvability frontier: what breaks beyond the four static checks?</div>
+        <div class="detail">
+          Finding 14 §8: executing generated modules found five translator bug classes no static check
+          had seen. A stripped <code>@staticmethod</code> and a re-entrant <code>OnConnected</code> are
+          still invisible to the four static checks. Running the module remains the only honest
+          runtime check.
+        </div>
+      </div>
+      <span class="chip wip">Methodology note</span>
+    </div>
+  </div>
+
+  <h2 class="section">Standing methodology notes</h2>
+  <div class="list">
+    <div class="row">
+      <div class="main">
+        <div class="title">A negative claim needs positive evidence</div>
+        <div class="detail">
+          Finding 08 twice asserted an endpoint was undocumented when it was not. Report a negative
+          as "not found by method X," never as "does not exist."
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="main">
+        <div class="title">Acceptance is the wire-string table, not file similarity</div>
+        <div class="detail">
+          Line overlap between a package and its shipped module ranges 76%→38% while command tables stay
+          near-identical.
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="main">
+        <div class="title">Wire correctness is necessary but not sufficient</div>
+        <div class="detail">
+          A module can carry a perfect command table and still raise <code>AttributeError</code> on a
+          processor. 26 dangling <code>self.X()</code> references hid behind a near-perfect scorecard.
+          Four static checks now; some bug classes still only visible by <em>running</em> the module.
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="main">
+        <div class="title">Ask what the software actually reads</div>
+        <div class="detail">
+          "Would GC accept our <code>.pkp</code>?" looked like a file-format question. GC reads a 61 MB
+          catalogue built from an index, so discovery and parsing fail differently. And the library it
+          reads is not the one in <code>Program Files</code>. Separate the steps before designing the
+          test.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FINDINGS ================= -->
+<section id="pane-findings" class="pane" role="tabpanel" aria-labelledby="tab-findings" hidden>
+  <h2 class="section">The 20 numbered findings</h2>
+  <p class="note">Each is a reproducible result or a corrected mistake. From <code>STATUS.md</code>'s findings index.</p>
+
+  <div class="filterbar">
+    <div class="search" style="margin-left:0;flex:1 1 auto"><input type="text" id="findsearch" placeholder="Filter findings by text…" aria-label="Search findings"></div>
+  </div>
+
+  <div class="findings" id="findings-grid">
+    <div class="finding" data-text="pkp gzip nrbf python driver"><div class="num">01</div><div class="body"><p><strong><code>.pkp</code> = gzip over .NET NRBF, embedding a complete Python driver.</strong> Reframed the project.</p></div></div>
+    <div class="finding" data-text="pkp controlscript verdict"><div class="num">02</div><div class="body"><p><code>.pkp</code> → ControlScript verdict. <em>Its reverse-direction "No" is superseded. See finding 10.</em></p></div></div>
+    <div class="finding" data-text="pkg zip driver definition json dll"><div class="num">03</div><div class="body"><p>Crestron <code>.pkg</code> = zip; the driver definition is plain JSON inside the DLL.</p></div></div>
+    <div class="finding" data-text="crestron interop licensing"><div class="num">04</div><div class="body"><p>Crestron interop verdict and the licensing position.</p></div></div>
+    <div class="finding" data-text="samsung cross vendor byte identical firmware bug workaround"><div class="num">05</div><div class="body"><p><strong>Samsung cross-vendor:</strong> byte-identical wire traffic <strong>and the same undocumented firmware-bug workaround</strong> from two vendor teams. (Proof-of-concept for a shared IR.)</p></div></div>
+    <div class="finding" data-text="emitting pkg third-party hardware generalises"><div class="num">06</div><div class="body"><p>Emitting a <code>.pkg</code>; how far the translator generalises to third-party hardware.</p></div></div>
+    <div class="finding" data-text="1beyond cameras sdk v2 entity model cmc i/o contract"><div class="num">07</div><div class="body"><p>1 Beyond cameras are SDK <strong>V2 Entity Model</strong>, not JSON shells. A <code>.cmc</code> is an I/O contract with a dangling pointer.</p></div></div>
+    <div class="finding" data-text="docs implementation corrections"><div class="num">08</div><div class="body"><p>Docs vs implementation. <strong>Carries two corrections. Read its header.</strong></p></div></div>
+    <div class="finding" data-text="visca documentation protocol gaps device gaps"><div class="num">09</div><div class="body"><p>VISCA: documentation closes <strong>protocol</strong> gaps, not <strong>device</strong> gaps.</p></div></div>
+    <div class="finding" data-text="held out result biamp clock audio pairs untuned mismatch mk3 mki"><div class="num">10</div><div class="body"><p><strong>The held-out result.</strong> Rules built on four pairs, run untuned on three unseen. Biamp: 63 of 74 on the wire but 51 dangling references. Clock Audio drops on the wire; one of two pairs set an MK3 package against the only shipped MK I/II module. Resolution: 67 of 81 held-out commands wire-match (82.7%) vs 96.4% in-sample.</p></div></div>
+    <div class="finding" data-text="protocol spec refereed implementations wire oracle false positive"><div class="num">11</div><div class="body"><p>A protocol <strong>spec</strong> refereed what two implementations could not; the wire oracle has its own false-positive rate.</p></div></div>
+    <div class="finding" data-text="gc ingests packages generate index not file catalogue driver library"><div class="num">12</div><div class="body"><p><strong>GC ingests packages we generate.</strong> The gate is an <em>index</em>, not the file. Locates the driver library (size varies by install; see finding 16).</p></div></div>
+    <div class="finding" data-text="crestron device extron processor i20 auto-switching presets cross-vendor"><div class="num">13</div><div class="body"><p><strong>Crestron device → Extron processor.</strong> The i20's auto-switching is reserved preset numbers. Cross-vendor corroboration without a Crestron processor.</p></div></div>
+    <div class="finding" data-text="314 oracle packages wire match 80.8% runtime attributeerror broken score higher inversion"><div class="num">14</div><div class="body"><p><strong>314 third-party oracle packages.</strong> Re-scored and executed: 80.8% wire-match, but <strong>54% of generated modules would raise at runtime</strong>. Running the modules found five translator bug classes no static check had seen.</p></div></div>
+    <div class="finding" data-text="80085 transplanted package catalogued refused selection superseded 16"><div class="num">15</div><div class="body"><p><strong>On hardware: <code>80085</code>.</strong> A transplanted package is catalogued, then refused at selection. <em>Proposed cause superseded by finding 16.</em></p></div></div>
+    <div class="finding" data-text="80085 sha256 mismatch validator pure python exact agreement shipping packages"><div class="num">16</div><div class="body"><p><strong><code>80085</code> is a SHA-256 mismatch.</strong> Extron's validator reimplemented in pure Python; 1,853/1,853 agreement with their own code on shipping packages (with the Guid table). GC no longer needed to check a package.</p></div></div>
+    <div class="finding" data-text="how human writes integrator splice template vintages instinct transplant"><div class="num">17</div><div class="body"><p><strong>How a human writes one.</strong> A working integrator splices Extron's template from two vintages rather than authoring from scratch. The same instinct as our transplant.</p></div></div>
+    <div class="finding" data-text="asset tree command surface valid silently short object graph synthesis extron deserializer negative object id"><div class="num">18</div><div class="body"><p><strong>The asset tree is the command surface</strong>. GC never asks the script what it can do. The i20 package goes 15 → 34 commands via object-graph synthesis, verified through Extron's own deserializer. Carries the negative-object-id trap.</p></div></div>
+    <div class="finding" data-text="three questions crestron pkg controlscript docs only ethernet script never shipped dangling"><div class="num">19</div><div class="body"><p><strong>Three-questions experiments.</strong> Crestron <code>.pkg</code> → ControlScript: 62 commands, 0 opaque. The <code>.pkp</code>'s never-shipped Ethernet script translates with 11/11 shared commands and one wire difference. Docs-only generation covers 22/22 endpoints, though 15 of 33 wrote raw response dicts as status (fixed).</p></div></div>
+    <div class="finding" data-text="automate vx three ways extron gc crestron simpl csp 36 join 48 api undocumented iso record symbol native ipid vx2 decompiled discrepancies"><div class="num">20</div><div class="body"><p><strong>Automate VX, three ways.</strong> Extron GC + ControlScript call one identical set of 33 URIs. Crestron SIMPL wires 36 by join name. Native IP ID is VX2-only; the <code>IV-SAM-VX2</code> symbol has 276 named joins. The richest surface of the three. 40 discrepancies cataloged, 21 live tests.</p></div></div>
+  </div>
+</section>
+
+<footer class="foot">
+  Built from <code>STATUS.md</code> (2026-10-05), <code>ROADMAP.md</code>, and the Q-SYS plugin bridge
+  and DM-MD master-of-record work merged 2026-10-22. Report generated 2026-10-23.
+</footer>
+
+</div>
+
+<script>
+(function() {
+  // --- tabs ---
+  var tabs = document.querySelectorAll('nav.tabs button');
+  var panes = {
+    purpose:   document.getElementById('pane-purpose'),
+    done:      document.getElementById('pane-done'),
+    remaining: document.getElementById('pane-remaining'),
+    research:  document.getElementById('pane-research'),
+    findings:  document.getElementById('pane-findings'),
+  };
+  function selectPane(name) {
+    for (var k in panes) panes[k].hidden = (k !== name);
+    tabs.forEach(function(b) {
+      var sel = b.dataset.pane === name;
+      b.setAttribute('aria-selected', sel ? 'true' : 'false');
+    });
+    // restore scroll to top of pane
+    window.scrollTo({top: 0, behavior: 'instant'});
+    try { if (location.hash !== '#' + name) history.replaceState(null, '', '#' + name); } catch (e) {}
+  }
+  tabs.forEach(function(b) {
+    b.addEventListener('click', function() { selectPane(b.dataset.pane); });
+    b.addEventListener('keydown', function(e) {
+      var order = ['purpose','done','remaining','research','findings'];
+      var i = order.indexOf(b.dataset.pane);
+      if (e.key === 'ArrowRight') { e.preventDefault(); selectPane(order[(i+1) % order.length]); document.getElementById('tab-' + order[(i+1) % order.length]).focus(); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); var p = (i-1+order.length) % order.length; selectPane(order[p]); document.getElementById('tab-' + order[p]).focus(); }
+    });
+  });
+
+  // deep-link via hash
+  try {
+    var h = (location.hash || '').replace('#','');
+    if (panes[h]) selectPane(h);
+  } catch (e) {}
+
+  // --- remaining-items filter ---
+  var statusFilters = document.querySelectorAll('.flt');
+  var remSearch = document.getElementById('remsearch');
+  function applyRemainingFilter() {
+    var active = {};
+    statusFilters.forEach(function(cb) { active[cb.dataset.filter] = cb.checked; });
+    var q = (remSearch.value || '').toLowerCase().trim();
+    document.querySelectorAll('#pane-remaining .row').forEach(function(row) {
+      var status = row.getAttribute('data-status');
+      var text = row.getAttribute('data-text') || '';
+      var passStatus = active[status] !== false;
+      var passQ = !q || text.indexOf(q) !== -1 || (row.textContent || '').toLowerCase().indexOf(q) !== -1;
+      row.hidden = !(passStatus && passQ);
+    });
+  }
+  statusFilters.forEach(function(cb) { cb.addEventListener('change', applyRemainingFilter); });
+  if (remSearch) remSearch.addEventListener('input', applyRemainingFilter);
+
+  // --- findings filter ---
+  var findSearch = document.getElementById('findsearch');
+  if (findSearch) findSearch.addEventListener('input', function() {
+    var q = (findSearch.value || '').toLowerCase().trim();
+    document.querySelectorAll('#findings-grid .finding').forEach(function(f) {
+      var text = f.getAttribute('data-text') || '';
+      var body = (f.textContent || '').toLowerCase();
+      f.hidden = !(!q || text.indexOf(q) !== -1 || body.indexOf(q) !== -1);
+    });
+  });
+})();
+</script>
