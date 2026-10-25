@@ -259,12 +259,47 @@ h2.section + .note {
   border-radius: 2px;
   font-size: 13px;
 }
-.filterbar label {
+/* Each filter is a toggle chip: hide the native checkbox and style the
+   wrapping label as a pill with a clear checked / unchecked state in
+   both themes. The native box had inconsistent rendering across OS
+   theme and shell combinations. */
+.filterbar label.toggle {
   display: inline-flex; align-items: center; gap: 6px;
-  color: var(--fg-2); cursor: pointer;
+  padding: 5px 10px;
+  font: 500 12px/1.2 var(--mono);
+  letter-spacing: 0.02em;
+  color: var(--fg-muted);
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 120ms, color 120ms, border-color 120ms;
 }
-.filterbar input {
-  accent-color: var(--accent);
+.filterbar label.toggle:hover {
+  color: var(--fg);
+  border-color: var(--rule-strong);
+}
+.filterbar label.toggle .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--rule-strong);
+  flex: 0 0 auto;
+}
+.filterbar label.toggle input {
+  position: absolute;
+  opacity: 0; pointer-events: none;
+  width: 0; height: 0;
+}
+.filterbar label.toggle:has(input:checked) {
+  color: var(--fg);
+  background: var(--accent-weak);
+  border-color: var(--accent);
+}
+.filterbar label.toggle:has(input:checked) .dot {
+  background: var(--accent);
+}
+.filterbar label.toggle:focus-within {
+  outline: 2px solid var(--accent); outline-offset: 2px;
 }
 .filterbar .search {
   margin-left: auto;
@@ -412,8 +447,8 @@ footer.foot code { color: var(--fg-2); }
   </p>
   <div class="meta">
     <span><b>Repo</b> rob-paprocki/extron-driver-convert</span>
-    <span><b>Main</b> <code>3210479</code></span>
-    <span><b>Report</b> 2026-10-23</span>
+    <span><b>Main</b> <code>a31d707</code></span>
+    <span><b>Report</b> 2026-10-25</span>
   </div>
 </header>
 
@@ -518,6 +553,33 @@ footer.foot code { color: var(--fg-2); }
         loopback (findings 24, 29). Plus named-join maps for IV-SAM-VX2 (276 joins), DM-NVX-35x
         (286), DM-NVX-DIR-ENT (~6,006), and Crestron Connected displays (344 joins across two
         shapes). IR/Relay stubbed pending bench instruments.
+      </div>
+    </div></div>
+    <div class="row"><div class="main">
+      <div class="title">Project status page shipped to GitHub Pages <span class="chip done">Merged 2026-10-22</span></div>
+      <div class="detail">
+        This document, as <code>docs/status.html</code>. Served on the public repo via GitHub Pages
+        (once enabled). Content drawn from <code>STATUS.md</code>, <code>ROADMAP.md</code>, and the
+        current merged work. Prose passed through the NulightJens humanizer surface + structural
+        passes before publication.
+      </div>
+    </div></div>
+    <div class="row"><div class="main">
+      <div class="title">convert.py CLI + hand-authoring guide <span class="chip done">Merged 2026-10-24</span></div>
+      <div class="detail">
+        <code>tools/convert.py</code>: a single flat-verb front door over the per-format tools
+        (<code>dump</code>, <code>validate</code>, <code>verify</code>, <code>pkp2cs</code>,
+        <code>cs2pkp</code>, <code>pkg2cs</code>, <code>pkp2pkg</code>) plus a
+        <code>directions</code> matrix. Each verb wraps one existing tool and forwards its exit
+        code; no new conversion semantics. Finding 18 safety story (<em>valid is not loadable</em>)
+        in the top-level epilog; <code>verify --load-package</code> invokes
+        <code>Load-Package.ps1</code> under 32-bit PowerShell on Windows, print-only elsewhere.
+        <code>docs/HAND_AUTHORING_PKP.md</code>: 15-section field guide with an i20 worked example
+        end-to-end (dump donor, transplant via <code>cs2pkp</code>, append a command via the
+        <code>CommandGraph</code> library, validate, verify, <code>pkp2cs</code> round-trip and
+        <code>wire_table.py diff</code>). Both built via a design + implementation + adversarial-review
+        workflow; the first guide draft was <em>rejected</em> on review for invented API calls and
+        a wrong Finding 18 cause, rewritten against the actual source.
       </div>
     </div></div>
   </div>
@@ -670,6 +732,7 @@ footer.foot code { color: var(--fg-2); }
         <tr><td><code>gc_catalogue.py</code></td><td>Reads <code>DriverLookup.dat</code> to see what GC catalogued; <code>--against</code> compares to a driver folder.</td><td>14</td></tr>
         <tr><td><code>public_sync.py</code></td><td>Builds the public copy's next commit from the archive. Scrubs, refuses on leaks.</td><td>15</td></tr>
         <tr><td><code>cs_to_qplug.py</code></td><td>Emits Q-SYS plugins from Extron modules. DTP3/DTP/DTP2 CrossPoint families, 27 model variants.</td><td>15</td></tr>
+        <tr><td><code>convert.py</code></td><td>Single flat-verb front door over the per-format tools. 7 verbs + <code>directions</code>; wraps each existing tool, forwards exit codes, no new conversion semantics. Finding 18 safety story in the top-level epilog.</td><td>wraps</td></tr>
         <tr><td><code>gcp_harness/</code> (PowerShell)</td><td>Windows-only. Loads Extron's x86 assemblies and drives Global Configurator via UI Automation.</td><td>manual</td></tr>
       </tbody>
     </table>
@@ -682,10 +745,10 @@ footer.foot code { color: var(--fg-2); }
   <p class="note">From <code>ROADMAP.md</code>. Filter by blocker to see what's limiting each item.</p>
 
   <div class="filterbar" role="group" aria-label="Filter remaining items">
-    <label><input type="checkbox" class="flt" data-filter="block"  checked> Blocked</label>
-    <label><input type="checkbox" class="flt" data-filter="wip"    checked> In progress / can start</label>
-    <label><input type="checkbox" class="flt" data-filter="parked" checked> Parked</label>
-    <label><input type="checkbox" class="flt" data-filter="partial" checked> Partial</label>
+    <label class="toggle"><input type="checkbox" class="flt" data-filter="block"   checked><span class="dot"></span>Blocked</label>
+    <label class="toggle"><input type="checkbox" class="flt" data-filter="wip"     checked><span class="dot"></span>Can start</label>
+    <label class="toggle"><input type="checkbox" class="flt" data-filter="parked"  checked><span class="dot"></span>Parked</label>
+    <label class="toggle"><input type="checkbox" class="flt" data-filter="partial" checked><span class="dot"></span>Partial</label>
     <div class="search"><input type="text" id="remsearch" placeholder="Filter by text…" aria-label="Search remaining"></div>
   </div>
 
@@ -1140,8 +1203,9 @@ footer.foot code { color: var(--fg-2); }
 </section>
 
 <footer class="foot">
-  Built from <code>STATUS.md</code> (2026-10-05), <code>ROADMAP.md</code>, and the Q-SYS plugin bridge
-  and DM-MD master-of-record work merged 2026-10-22. Report generated 2026-10-23.
+  Built from <code>STATUS.md</code> (2026-10-05), <code>ROADMAP.md</code>, and work merged
+  2026-10-22 through 2026-10-24 (Q-SYS plugin bridge, DM-MD master-of-record, GitHub Pages status
+  page, <code>convert.py</code> CLI, hand-authoring guide). Report generated 2026-10-25.
 </footer>
 
 </div>
