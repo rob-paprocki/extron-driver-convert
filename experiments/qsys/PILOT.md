@@ -175,3 +175,78 @@ VideoMute set + query, PresetRecall, plus `w{}*{}ASPR\r\n`, `w{}*{}ITYP\r\n`,
 
 **Direction B (NAVigator) is still deferred** — SPInterface vs plain TCP
 remains unanswered without bench time.
+
+## 2026-10-25: byte-level vendor coverage + runtime fix (R48)
+
+Picked R48 (Q-SYS -> Extron pilot on Clock Audio CDT100) back up to measure
+against the vendor module properly (STATUS methodology: wire-correctness is
+necessary but not sufficient; Finding 14).
+
+### Byte-level vendor coverage
+
+The old scoreboard counted template subsumption against the plugin. The real
+question for R48 is: does the generated module cover the vendor Extron
+module's wire surface? Enumerate every concrete string the vendor module
+can send (canonical templates filled with their `value_maps`); for each one,
+is there a generated template whose shape covers it?
+
+Measured 2026-10-25 against `clau_dsp_CDT100_v1_0_3_0.py`:
+
+| metric | count |
+|---|---:|
+| vendor concrete strings | 55 |
+| covered by generated | 37 (67.3%) |
+| uncovered | 18 |
+
+The 18 uncovered strings are all `LOAD <N>\r` and `SAVE <N>\r` for N=1..9.
+The Q-SYS plugin hardcodes preset 0 (`Psload`/`Pssave` emit `LOAD 0\r` and
+`SAVE 0\r` only; the plugin never exposes a preset number control). Upstream
+limitation of the plugin, not an emitter bug - the plugin itself cannot
+produce those bytes either.
+
+The generated module also exposes 12 commands whose wire bytes don't appear
+in the vendor module (BVERSION, CH32B, GAS, GRGB, GTS, Id, SASIP, SMKMD,
+SRGB, STS, VERSION, CH32B get-form). These are plugin surface Extron's module
+does not cover - a legitimate expansion of command surface, not an error.
+
+Measurement script: scratch, enumerates per `wire_table.py dump` JSON output.
+
+### Runtime fix: AttributeError on qualifier=None
+
+Ran the generated CDT100 through `experiments/exec_harness/drive.py` as the
+Finding 14 methodology recommends. Five commands raised at runtime:
+
+```
+CH32   set 11/11 raised  AttributeError: 'NoneType' object has no attribute 'get'
+CH32B  set 11/11 raised  AttributeError: 'NoneType' object has no attribute 'get'
+PP     set 11/11 raised  AttributeError: 'NoneType' object has no attribute 'get'
+SRGB   set 11/11 raised  AttributeError: 'NoneType' object has no attribute 'get'
+STS    set 11/11 raised  AttributeError: 'NoneType' object has no attribute 'get'
+```
+
+Cause: `qplug_to_cs._emit_set` / `_emit_update` generate multi-slot bodies
+that call `qualifier.get('Slot1', '')`. When a caller passes `qualifier=None`
+(as the harness does, and as the vendor module's `Set(cmd, value)` would
+if the user omits a qualifier), the method dereferences None and raises.
+Classic Finding 14 shape: compiles, resolves every name, scores wire-correct,
+raises at runtime.
+
+Fix in `qplug_to_cs.py`: emit `if qualifier is None: qualifier = {}` as the
+first body line whenever `slot_count > 1`. Both `_emit_set` and `_emit_update`.
+
+Verification after fix:
+
+```
+CDT100 raises: 0
+RDL BTN raises: 24   (all ValueError: invalid literal for int() on adversarial
+                      'On'/'Off' input to numeric commands; input-validation
+                      gap, not a translator bug - exec_harness feeds every
+                      Set the value map keys from the vendor module as well
+                      as adversarial strings)
+```
+
+Regression test added to `test_qplug_to_cs.py`:
+`test_multi_slot_set_methods_do_not_raise_on_qualifier_none` loads the
+generated CDT100 against `exec_harness/extronlib_stub`, stubs the SetHelper
+to a no-op, and invokes every SetXxx method with `qualifier=None`. Asserts
+no AttributeError. 20/20 tests pass.

@@ -325,6 +325,56 @@ def test_rdl_btn_generated_matches_plugin_wire_bytes():
     assert not missing, "RDL BTN missing in plugin: %s" % sorted(missing)
 
 
+def test_multi_slot_set_methods_do_not_raise_on_qualifier_none():
+    """Multi-slot SetXxx bodies call `qualifier.get('Slot1')...` and raise
+    AttributeError if the caller passes qualifier=None. Finding 14 shape:
+    wire-correct, resolves cleanly, static checks pass, raises at runtime.
+    exec_harness caught this on 5 of the generated CDT100 commands on
+    2026-10-25; the emitter now inserts `if qualifier is None: qualifier = {}`
+    at the top of any multi-slot body. Lock the invariant in."""
+    plugin_p = _vendor("cdt100_qplug")
+    if not plugin_p:
+        return "SKIP"
+    gen_src = _emit_from_qplug(plugin_p)
+    # Load the generated module as a namespace, then invoke every SetXxx
+    # method with qualifier=None. The method only needs to not raise
+    # AttributeError BEFORE reaching __SetHelper (which hits a stubbed
+    # extronlib if we had one; here we patch SetHelper to a no-op so the
+    # test isolates the pre-helper qualifier logic).
+    # The generated module imports `extronlib`. Install exec_harness's stub
+    # into sys.modules first so the import resolves without a real extronlib.
+    sys.path.insert(0, os.path.join(ROOT, "experiments", "exec_harness"))
+    import extronlib_stub
+    extronlib_stub.install()
+    try:
+        ns = {}
+        exec(compile(gen_src, "<generated-cdt100>", "exec"),
+             {"__name__": "__generated__"}, ns)
+    finally:
+        extronlib_stub.uninstall()
+    # Replace extronlib-dependent helpers with no-ops.
+    cls = ns["DeviceClass"]
+    cls._DeviceClass__SetHelper = lambda self, cmd, cs, v, q: None
+    cls._DeviceClass__UpdateHelper = lambda self, cmd, cs, v, q: None
+    instance = cls.__new__(cls)
+    offenders = []
+    for name in dir(instance):
+        if not name.startswith("Set") or name in ("Set",):
+            continue
+        try:
+            getattr(instance, name)("probe", None)
+        except AttributeError as e:
+            offenders.append((name, str(e)))
+        except Exception:
+            # Other exceptions (TypeError, ValueError on int()) are allowed:
+            # the regression target is AttributeError from None.get, not every
+            # runtime path.
+            pass
+    assert not offenders, (
+        "Multi-slot Set methods raised AttributeError on qualifier=None:\n  "
+        + "\n  ".join("%s: %s" % o for o in offenders))
+
+
 # ---------------------------------------------------------------------------
 # Runner
 # ---------------------------------------------------------------------------
@@ -353,6 +403,8 @@ TESTS = [
     # Acceptance
     test_cdt100_generated_matches_plugin_wire_bytes,
     test_rdl_btn_generated_matches_plugin_wire_bytes,
+    # Runtime regression
+    test_multi_slot_set_methods_do_not_raise_on_qualifier_none,
 ]
 
 

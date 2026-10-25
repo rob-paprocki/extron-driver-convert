@@ -496,9 +496,13 @@ def _emit_set(cmd: BridgedCommand) -> str:
         "",
     ]
     if slot_count > 1:
-        lines.insert(1, "        # TODO: this command has %d slots; earlier ones are drawn from" % slot_count)
-        lines.insert(2, "        # qualifier['Slot1']..['Slot%d'], last is value. Rename these to the" % (slot_count - 1))
-        lines.insert(3, "        # device's actual parameter names once you know them.")
+        # The body reads qualifier.get('Slot1')..['SlotN']. Caller may pass
+        # qualifier=None; without this guard we raise AttributeError at runtime
+        # (Finding 14: wire-correct but runtime-broken; exec_harness caught it).
+        lines.insert(1, "        if qualifier is None: qualifier = {}")
+        lines.insert(2, "        # TODO: this command has %d slots; earlier ones are drawn from" % slot_count)
+        lines.insert(3, "        # qualifier['Slot1']..['Slot%d'], last is value. Rename these to the" % (slot_count - 1))
+        lines.insert(4, "        # device's actual parameter names once you know them.")
     if len(cmd.set_templates) > 1:
         more = [t.canonical for t in cmd.set_templates[1:]]
         lines.insert(1, "        # Additional templates seen for this command (not emitted): %r" % more)
@@ -518,8 +522,10 @@ def _emit_update(cmd: BridgedCommand) -> str:
         "",
     ]
     if slot_count > 1:
-        lines.insert(1, "        # TODO: this command has %d slots; earlier ones are drawn from" % slot_count)
-        lines.insert(2, "        # qualifier['Slot1']..['Slot%d'], last is value." % (slot_count - 1))
+        # Same qualifier=None guard as _emit_set; the body reads qualifier.get.
+        lines.insert(1, "        if qualifier is None: qualifier = {}")
+        lines.insert(2, "        # TODO: this command has %d slots; earlier ones are drawn from" % slot_count)
+        lines.insert(3, "        # qualifier['Slot1']..['Slot%d'], last is value." % (slot_count - 1))
     if len(cmd.update_templates) > 1:
         more = [t.canonical for t in cmd.update_templates[1:]]
         lines.insert(1, "        # Additional templates seen for this command (not emitted): %r" % more)
