@@ -1,0 +1,484 @@
+<title>Hand-authoring an Extron .pkp</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #faf9f6;
+  --panel: #ffffff;
+  --panel-2: #f3f1ec;
+  --fg: #16181a;
+  --fg-2: #4a4e55;
+  --fg-muted: #7a7f87;
+  --rule: #e2ded5;
+  --rule-strong: #c9c3b5;
+  --accent: #286472;
+  --accent-weak: #d9e5e8;
+  --code-bg: #f3f1ec;
+  --code-border: #e2ded5;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141513;
+    --panel: #1c1d1b;
+    --panel-2: #22231f;
+    --fg: #ebeae6;
+    --fg-2: #c6c3bc;
+    --fg-muted: #8a8a84;
+    --rule: #2e2f2b;
+    --rule-strong: #40413b;
+    --accent: #5fb0c0;
+    --accent-weak: #243236;
+    --code-bg: #0e0f0d;
+    --code-border: #2e2f2b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141513;
+  --panel: #1c1d1b;
+  --panel-2: #22231f;
+  --fg: #ebeae6;
+  --fg-2: #c6c3bc;
+  --fg-muted: #8a8a84;
+  --rule: #2e2f2b;
+  --rule-strong: #40413b;
+  --accent: #5fb0c0;
+  --accent-weak: #243236;
+  --code-bg: #0e0f0d;
+  --code-border: #2e2f2b;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 15px/1.65 var(--sans);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 56px;
+}
+.wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 240px;
+  gap: 40px;
+}
+.main { min-width: 0; }
+
+nav.site {
+  grid-column: 1 / -1;
+  display: flex; flex-wrap: wrap; gap: 4px 2px;
+  margin-bottom: 32px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--rule);
+  font: 500 13px/1 var(--mono);
+}
+nav.site a {
+  color: var(--fg-muted);
+  text-decoration: none;
+  padding: 7px 12px;
+  border-radius: 2px;
+}
+nav.site a:hover { color: var(--fg); background: var(--panel-2); }
+nav.site a[aria-current="page"] { color: var(--accent); background: var(--accent-weak); }
+nav.site .spacer { flex: 1 1 auto; }
+nav.site a.repo { color: var(--fg-muted); letter-spacing: 0.02em; }
+
+header.doc {
+  margin: 0 0 32px;
+}
+header.doc .kicker {
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  margin-bottom: 10px;
+}
+header.doc h1 {
+  margin: 0;
+  font: 600 30px/1.2 var(--sans);
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+article { max-width: 72ch; min-width: 0; }
+article h2 {
+  margin: 36px 0 12px;
+  font: 600 20px/1.3 var(--sans);
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+  scroll-margin-top: 20px;
+}
+article h2:first-child { margin-top: 0; }
+article p { margin: 0 0 14px; color: var(--fg); }
+article p + p { margin-top: 0; }
+article a { color: var(--accent); text-decoration: none; border-bottom: 1px solid currentColor; }
+article a:hover { background: var(--accent-weak); }
+article strong { color: var(--fg); font-weight: 600; }
+article em { color: var(--fg-2); }
+
+article code {
+  font: 400 13.5px/1.45 var(--mono);
+  background: var(--panel-2);
+  padding: 1px 5px;
+  border-radius: 2px;
+  word-break: break-word;
+}
+article pre {
+  margin: 14px 0 20px;
+  padding: 14px 16px;
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: 3px;
+  overflow-x: auto;
+  font: 400 13px/1.55 var(--mono);
+}
+article pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+}
+
+article ul, article ol { padding-left: 24px; margin: 10px 0 18px; }
+article li { margin: 4px 0; }
+article li > code { word-break: normal; }
+
+article hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 32px 0;
+}
+
+article table.plain {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  overflow: hidden;
+  font-size: 14px;
+  margin: 14px 0 20px;
+}
+article table.plain th, article table.plain td {
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+article table.plain tr:last-child td { border-bottom: 0; }
+article table.plain th {
+  font: 500 12px/1 var(--mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  background: var(--panel-2);
+  border-bottom-color: var(--rule-strong);
+}
+
+aside.toc {
+  position: sticky;
+  top: 20px;
+  align-self: start;
+  font-size: 13px;
+  border-left: 1px solid var(--rule);
+  padding-left: 18px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+aside.toc .label {
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  margin-bottom: 12px;
+}
+aside.toc ol { list-style: none; padding: 0; margin: 0; counter-reset: toc; }
+aside.toc li { margin: 7px 0; counter-increment: toc; }
+aside.toc a {
+  color: var(--fg-2);
+  text-decoration: none;
+  display: block;
+  line-height: 1.4;
+}
+aside.toc a::before {
+  content: counter(toc, decimal-leading-zero);
+  color: var(--fg-muted);
+  font: 500 11px var(--mono);
+  margin-right: 8px;
+}
+aside.toc a:hover { color: var(--accent); }
+
+footer.foot {
+  grid-column: 1 / -1;
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  font: 400 12px/1.6 var(--mono);
+  color: var(--fg-muted);
+}
+footer.foot a { color: var(--fg-2); }
+
+@media (max-width: 820px) {
+  .wrap { grid-template-columns: 1fr; }
+  aside.toc {
+    position: static;
+    border-left: 0;
+    border-top: 1px solid var(--rule);
+    padding-left: 0;
+    padding-top: 20px;
+    margin-top: 20px;
+    max-height: none;
+  }
+}
+@media (max-width: 640px) {
+  header.doc h1 { font-size: 24px; }
+}
+</style>
+
+<div class="wrap">
+
+<nav class="site" aria-label="Site">
+  <a href="./">Home</a>
+  <a href="status.html">Status</a>
+  <a href="HAND_AUTHORING_PKP.html" aria-current="page">Guide</a>
+  <span class="spacer"></span>
+  <a href="https://github.com/rob-paprocki/extron-driver-convert" class="repo">github &nearr;</a>
+</nav>
+
+<main class="main">
+  <header class="doc">
+    <div class="kicker">Field guide</div>
+    <h1>Hand-authoring an Extron .pkp</h1>
+  </header>
+  <article>
+<p>A field guide to producing a working Extron <code>.pkp</code> by editing or extending a real donor package, using the tools in <code>tools/</code> and the single front door in <code>tools/convert.py</code>.</p>
+<h2 id="what-this-guide-gives-you-and-what-it-does-not">What this guide gives you, and what it does not</h2>
+<p>Scope: the proven path for hand-authoring a <code>.pkp</code>, which is <strong>donor-transplant</strong> on top of a real Extron package. A ControlScript module becomes the embedded script of a donor whose asset tree you can then extend to add commands. From-scratch synthesis of an NRBF object graph is open work (ROADMAP R28); this guide does not cover it.</p>
+<p>Two gates are referenced throughout:</p>
+<ul>
+<li><code>convert.py validate</code> runs the project&#x27;s Python reimplementation of Extron&#x27;s hash validator (Finding 16). Local check.</li>
+<li><code>convert.py verify --load-package</code> runs Extron&#x27;s own deserializer on Windows (Finding 18 gate). The only acceptance check that is not sharing your model of the format.</li>
+</ul>
+<p>The names are called out early because every section downstream points back to them. Prefer <code>verify</code> over <code>validate</code> for anything you intend to upload to a processor.</p>
+<h2 id="what-a-pkp-actually-is">What a .pkp actually is</h2>
+<p>A <code>.pkp</code> file is a gzip member wrapping a raw [MS-NRBF] (.NET BinaryFormatter) serialization stream. The stream contains a graph of <code>Extron.Configuration.*</code> objects: assets, command collections, string tables, parameter definitions, resource bindings. There is a Python driver inside, serialized as a <code>StreamResourceAsset</code> whose bytes are the script source.</p>
+<p>Global Configurator reads two sidecar files when it catalogues your drivers: <code>DataFile.dat</code> and <code>DriverLookup.dat</code>. Both are raw NRBF and parse with <code>pkp_dump.py</code>. GC&#x27;s catalogue is a derived index; the gate between discovery and selection is parsing those files, not reading the <code>.pkp</code> itself.</p>
+<p><strong>Finding 18 is the controlling claim here: the asset tree is the command surface.</strong> GC never asks the embedded Python what commands it supports. The commands come from the serialized asset graph. A <code>.pkp</code> whose script defines <code>_cmd_SetZoom</code> but whose asset tree has no corresponding command node will not render that command in the editor, and a <code>.pkp</code> whose asset tree lists <code>SetZoom</code> with ranges and enums will render it regardless of whether the script implements it. The script is downstream of the graph.</p>
+<p>This is why editing commands means editing the object graph, not the script.</p>
+<h2 id="why-hand-authoring-from-scratch-is-not-the-move-yet">Why hand-authoring from scratch is not the move yet</h2>
+<p>ROADMAP R28 is the open item for assembling an NRBF object graph from scratch. Pieces of that work are in <code>tools/pkp_build.py</code> and <code>tools/pkp_asset.py</code>, but the measured end-to-end path (through to the 20025/20026 run on an IPCP Pro 360, with a panel driving a PC playing a camera) is donor-transplant. Pick a real package. Change what you need. Validate. Verify.</p>
+<h2 id="the-donor-transplant-method">The donor-transplant method</h2>
+<p>The mental model behind <code>cs2pkp</code> and the <code>pkp_asset</code> library:</p>
+<ol>
+<li>Pick a donor <code>.pkp</code> whose shape matches your target (same processor class, closest device family, Extron-published).</li>
+<li>Replace the embedded script resource with your ControlScript module.</li>
+<li>Optionally append new commands to the asset tree.</li>
+<li>Validate (<code>convert.py validate</code>).</li>
+<li>Verify through Extron&#x27;s deserializer on Windows (<code>convert.py verify --load-package</code>).</li>
+<li>Upload to a processor and bind a transport.</li>
+</ol>
+<p><code>tools/pkp_build.py</code> enforces the safety property that makes the method trustworthy. On open, <code>PackageBuilder.__init__</code> round-trips the donor against its own decompressed bytes. If the trace does not replay byte-for-byte, it raises <code>RoundTripError</code> and refuses every subsequent edit. There is no bypass flag.</p>
+<h2 id="picking-a-donor">Picking a donor</h2>
+<p>The donor picks the device descriptor, the resource bindings, the signature, and the GUID table. A wrong donor produces a <code>.pkp</code> that validates and loads but behaves incorrectly on-device, and no local gate catches it.</p>
+<p>Criteria, in order:</p>
+<ul>
+<li>Same processor class as the target.</li>
+<li>Closest device family (an IV camera donor for an IV camera target).</li>
+<li>Extron-published (so the SHA matches <code>vendor-files.manifest.tsv</code> and the signature chain is known-good).</li>
+<li>SHA-verified: <code>python tools/verify_vendor_files.py --only &lt;path-prefix&gt;</code> prints each file&#x27;s hash status.</li>
+<li>Inspected before edit: <code>python tools/convert.py dump &lt;candidate&gt;</code> prints the NRBF graph as JSON; <code>python tools/pkp_asset.py &lt;candidate&gt;</code> prints the command list directly from the asset tree.</li>
+</ul>
+<p>If a field in the dump is a surprise, resolve it before transplant. The donor&#x27;s shape is the shape your output will have, minus the edits you make.</p>
+<h2 id="the-asset-tree-is-the-command-surface">The asset tree is the command surface</h2>
+<p>A command in the asset graph is a <code>CommandAsset</code> node (plus owned sub-nodes for parameters, enum states, ranges, descriptions, strings). Appending a command means adding a <code>CommandAsset</code> and threading it into every command collection that the parent group holds. The <code>CommandGraph</code> class in <code>tools/pkp_asset.py</code> is the library interface:</p>
+<pre><code class="lang-python">import pkp_build as pb
+import pkp_asset as pa
+
+builder = pb.PackageBuilder(&quot;corpus/&lt;DONOR&gt;.pkp&quot;)   # round-trip gate fires here
+graph = pa.CommandGraph(builder)
+
+print(&quot;existing commands:&quot;, sorted(graph.command_names()))
+
+# clone an existing command and rename it. this is the measured path for
+# adding a new command: clone a donor that already has the shape you need,
+# then adjust its strings via text_map or set_string_member afterwards.
+new_id = graph.clone_command(
+    donor_script_name=&quot;SetZoom&quot;,
+    name=&quot;SetZoomSlow&quot;,
+    script_name=&quot;SetZoomSlow&quot;,
+    description=&quot;Slow zoom in/out&quot;,
+    text_map={&quot;SetZoom&quot;: &quot;SetZoomSlow&quot;},
+)
+
+builder.write(&quot;build/i20-authored.pkp&quot;)</code></pre>
+<p><code>CommandGraph</code> exposes the operations that preserve the invariants the stream needs: <code>clone_asset</code>, <code>clone_command</code>, <code>attach</code>, <code>detach</code>, <code>rename_asset</code>, <code>set_range</code>, <code>set_string_member</code>, <code>set_attributes</code>. Direct NRBF edits sit beneath <code>PackageBuilder</code> and are not recommended for authoring.</p>
+<p>The <code>pkp_asset.py</code> CLI (just <code>python tools/pkp_asset.py &lt;package.pkp&gt;</code>) lists commands and their collections. The real work is library-mode.</p>
+<h2 id="the-negative-object-id-trap">The negative-object-id trap</h2>
+<p>Finding 18 is the most expensive single thing the project paid for, and the trap is specific. <strong>.NET&#x27;s BinaryFormatter writes inline value types with NEGATIVE object ids.</strong> A negative id is not a free identifier; it is a marker the formatter uses for its own value-type bookkeeping. An early <code>pkp_asset</code> allocator mirrored that convention when cloning a subtree, so copies kept their value-type members looking like the original. The resulting stream parsed, round-tripped, validated, and passed every structural test the project could write.</p>
+<p>Then GC refused the package. <code>BinaryFormatter.Deserialize</code> through 32-bit reflection raised:</p>
+<pre><code>SerializationException: An object cannot be registered twice.</code></pre>
+<p>Minting new negative ids collided with the formatter&#x27;s own bookkeeping during deserialization. The fix was to clone the same subtree with positive ids throughout.</p>
+<p><strong>Invariant to enforce when editing by hand:</strong> never allocate new negative object ids. If you clone an asset, the clone&#x27;s ids start strictly past the donor&#x27;s maximum positive id. The current <code>CommandGraph</code> allocator does this; a from-scratch graph writer must not reintroduce the trap. <code>test_pkp_asset.py</code> asserts the invariant directly, because nothing downstream will.</p>
+<h2 id="string-table-and-reference-bookkeeping">String table and reference bookkeeping</h2>
+<p>The NRBF stream deduplicates strings. Most text you see in a dump is a <code>BinaryObjectString</code> record referenced by object id, not an inline string. Editing a label in place by overwriting the text member of one reference leaves the string table out of sync: other references to the same id now point at content that no longer matches, or the referenced record size changes and the stream&#x27;s size fields drift. The parser still accepts the result; the deserializer does not.</p>
+<p>The <code>CommandGraph.set_string_member(asset_id, member, text)</code> call is the supported way to change a label on a cloned asset. It allocates a fresh string record and rewrites just the reference, preserving the donor&#x27;s string table.</p>
+<h2 id="validating-without-global-configurator">Validating without Global Configurator</h2>
+<p><code>convert.py validate</code> runs the project&#x27;s Python reimplementation of Extron&#x27;s package validator. Finding 16 settled this: the Python implementation agrees with Extron&#x27;s own code on all 1,853 shipping packages (with the Guid table) and on all 53 deliberate mutants. GC is not needed to check whether a package will catalogue.</p>
+<pre><code class="lang-bash">python tools/convert.py validate build/i20-authored.pkp</code></pre>
+<p>Successful output is <code>pkp_validate.py</code>&#x27;s per-package status followed by the gate reminder, printed to stderr:</p>
+<pre><code>note: valid != loadable (Finding 18). Run `convert.py verify --load-package` for the full gate.</code></pre>
+<p>An <code>80085</code>-shaped failure (the Finding 15 and 16 case) is a SHA-256 mismatch between a resource&#x27;s declared hash and its actual bytes. <code>pkp_validate.py --verbose</code> prints a line per resource and names the one that drifted. See <code>experiments/validator_differential/</code> for the test corpus and the Guid-table flag.</p>
+<h2 id="verifying-through-extrons-own-code">Verifying through Extron&#x27;s own code</h2>
+<p>The validator shares your model of the format. Finding 18 showed this is not enough. The full gate is Extron&#x27;s own deserializer, which only runs on Windows with the Extron Configuration DLLs installed. <code>convert.py verify --load-package</code> is the one call that clears it.</p>
+<p>Off Windows, or without <code>--load-package</code>:</p>
+<pre><code class="lang-bash">python tools/convert.py verify build/i20-authored.pkp</code></pre>
+<p>prints the exact command for a Windows session to run:</p>
+<pre><code>&amp; &quot;$env:SystemRoot\SysWOW64\WindowsPowerShell\v1.0\powershell.exe&quot; -ExecutionPolicy Bypass -File &quot;experiments/gcp_harness/Load-Package.ps1&quot; &quot;build/i20-authored.pkp&quot;</code></pre>
+<p>Two things in that command matter. First, the host is <strong>32-bit</strong> PowerShell (<code>SysWOW64</code> on a 64-bit OS). Extron&#x27;s Configuration assemblies are x86; the 64-bit host cannot load them. Second, <code>Load-Package.ps1</code> installs an <code>AssemblyResolve</code> handler that maps the stream&#x27;s <code>Extron.Configuration.* 1.1.24.402</code> references onto the installed <code>15.27.0.0</code> DLLs, then calls <code>BinaryFormatter.Deserialize</code>.</p>
+<p><code>LoadFromFile</code> on the same package is <strong>not sufficient</strong>: it catches the exception and returns null, which looks exactly like a non-existent file. <code>BinaryFormatter.Deserialize</code> with the resolver surfaces the real <code>SerializationException</code>.</p>
+<p>A cloud session cannot clear verify. The 32-bit assembly load and an installed Extron GC are both required.</p>
+<h2 id="writing-the-embedded-script-side">Writing the embedded script side</h2>
+<p>The script inside a <code>.pkp</code> is still a ControlScript module. The constraints are the same as for a standalone module:</p>
+<ul>
+<li>No absolute paths in docstrings or string literals. CLAUDE.md pitfall 6 is specific: a path under <code>C:\Users</code> in a non-raw docstring on Windows puts a literal <code>\U</code> into the stream and raises <code>SyntaxError</code>. Emit repo-relative, forward-slashed paths.</li>
+<li>Repo-relative provenance strings. The pattern used by the Crestron translator in <code>experiments/crestron2cs/crestron2cs.py:provenance_path()</code> is a working example, but there is no public helper for script authors to import. The convention is what matters, not the function.</li>
+<li><code>pkp2cs.py</code>&#x27;s output is a safe starting template. The emitter raises rather than degrading; whatever it writes resolves at runtime on the dialect it detected.</li>
+</ul>
+<p>Finding 14 is worth re-reading before you ship: 54% of mechanically translated modules would raise <code>AttributeError</code>, <code>NameError</code>, or hit an argument-count mismatch at runtime. Static checks catch some of it. Running the module in <code>experiments/exec_harness/</code> catches more. A module that lands on a processor is the only check that catches everything.</p>
+<h2 id="worked-example-wrapping-an-i20-controlscript-module-into-a-pkp">Worked example: wrapping an i20 ControlScript module into a .pkp</h2>
+<p>The i20 is the best-measured oracle pair in the repo. Findings 09, 13, and 18 all centre on it. The corpus snapshot carries a round-trippable donor; <code>experiments/skeleton_i20/</code> carries the module. Every command below is the current CLI; adjust the paths to the files you have.</p>
+<p><strong>Step a. Pick and verify a donor.</strong> The <code>corpus/</code> snapshot is where real <code>.pkp</code> donors live:</p>
+<pre><code class="lang-bash">python tools/verify_vendor_files.py --only corpus/</code></pre>
+<p>The report prints a line per listed file with its SHA status. Note the donor&#x27;s path; call it <code>&lt;DONOR&gt;</code> below.</p>
+<p><strong>Step b. Inspect the donor&#x27;s command list.</strong></p>
+<pre><code class="lang-bash">python tools/pkp_asset.py &lt;DONOR&gt;</code></pre>
+<p>prints the commands and their collections directly from the asset tree. <code>convert.py dump</code> is the deeper read:</p>
+<pre><code class="lang-bash">python tools/convert.py dump &lt;DONOR&gt; -o build/donor.json</code></pre>
+<p>Record the embedded script resource KEY from the dump; <code>convert.py cs2pkp</code> needs it. The KEY is the name GC uses to refer to the script resource, not the module filename.</p>
+<p><strong>Step c. Transplant the ControlScript.</strong> Replace the donor&#x27;s embedded script with your i20 ControlScript module:</p>
+<pre><code class="lang-bash">python tools/convert.py cs2pkp &lt;DONOR&gt; \
+    --script &quot;&lt;KEY&gt;=experiments/skeleton_i20/&lt;i20_module&gt;.py&quot; \
+    -o build/i20-authored.pkp</code></pre>
+<p>Behind the scenes this invokes <code>pkp_build.py &lt;DONOR&gt; --replace-script KEY=FILE -o OUT</code>; the output and exit code are <code>pkp_build.py</code>&#x27;s. If the KEY is wrong, the donor&#x27;s original script is left in place and the output passes validate (because the hashes are refreshed) and verify (because the stream is clean), but behaves as the donor&#x27;s device. Confirm the KEY before shipping.</p>
+<p><strong>Step d. Append commands via the <code>pkp_asset</code> library.</strong> The script above transplants the Python side. To extend the command surface, write a short authoring script:</p>
+<pre><code class="lang-python"># scripts/add_i20_commands.py
+import pkp_build as pb
+import pkp_asset as pa
+
+builder = pb.PackageBuilder(&quot;build/i20-authored.pkp&quot;)
+graph = pa.CommandGraph(builder)
+
+# clone an existing command and rename it. the donor_script_name is the
+# script_name of a command already in the graph; graph.command_names()
+# prints the full list.
+graph.clone_command(
+    donor_script_name=&quot;SetZoom&quot;,
+    name=&quot;SetPresetSlow&quot;,
+    script_name=&quot;SetPresetSlow&quot;,
+    description=&quot;Recall a preset at slow speed&quot;,
+    text_map={&quot;SetZoom&quot;: &quot;SetPresetSlow&quot;},
+)
+
+builder.write(&quot;build/i20-authored.pkp&quot;)
+print(&quot;appended commands:&quot;, [c for c, _id in graph.added])</code></pre>
+<p>Run it:</p>
+<pre><code class="lang-bash">python scripts/add_i20_commands.py</code></pre>
+<p>The <code>donor_script_name</code> must already exist in the graph (<code>clone_command</code> raises <code>AssetError</code> otherwise). Fresh ids come from the allocator with the Finding 18 invariant baked in.</p>
+<p><strong>Step e. Validate.</strong></p>
+<pre><code class="lang-bash">python tools/convert.py validate build/i20-authored.pkp</code></pre>
+<p>A clean exit prints the gate reminder on stderr. Treat it as a reminder, not a result.</p>
+<p><strong>Step f. Verify through Extron&#x27;s deserializer.</strong> On Windows with GC installed:</p>
+<pre><code class="lang-bash">python tools/convert.py verify --load-package build/i20-authored.pkp</code></pre>
+<p>Off Windows, run the printed <code>Load-Package.ps1</code> command on a Windows session. A pass means the stream deserializes cleanly; a <code>SerializationException</code> with &quot;An object cannot be registered twice&quot; means a negative-object-id regression (Finding 18). If verify fails and validate passed, the model you edited through is wrong somewhere, and the invariant is the first thing to re-check.</p>
+<p><strong>Step g. Round-trip against the wire table.</strong> <code>convert.py pkp2cs</code> writes the ControlScript back out, and <code>wire_table.py diff</code> compares its wire bytes to the module you started from:</p>
+<pre><code class="lang-bash">python tools/convert.py pkp2cs build/i20-authored.pkp -o build/i20-roundtrip/
+python tools/wire_table.py diff \
+    experiments/skeleton_i20/&lt;i20_module&gt;.py \
+    build/i20-roundtrip/&lt;generated_module&gt;.py</code></pre>
+<p>A clean diff is the acceptance signal for the translator half. The command-surface edits you made will show as added commands in the diff; nothing from the donor should drift.</p>
+<h2 id="loading-onto-a-processor">Loading onto a processor</h2>
+<p>The measured upload path is in <code>experiments/skeleton_i20/PROTOCOL.md</code>. Packages <code>20025</code> and <code>20026</code> were uploaded from Global Configurator Pro to an IPCP Pro 360 and driven from a TLP Pro 725M panel against a PC playing an i20 camera (2026-09-14 to 09-18 run log). Package <code>20028</code> (v1.6) is the current authored version. The upload uses GC Pro&#x27;s normal project workflow; nothing custom was needed on the processor side.</p>
+<p>The one remaining open question is a real camera. Every reply parsed so far came from the documentation. A socket to an actual i20 is the next measurement.</p>
+<h2 id="pitfalls-checklist">Pitfalls checklist</h2>
+<p>Each item is paid for by a finding or methodology note. The guide&#x27;s full discussion is linked.</p>
+<ul>
+<li><strong>A negative claim needs positive evidence.</strong> Finding 08 twice asserted an endpoint was undocumented when it was not. Report a negative as &quot;not found by method X,&quot; never as &quot;does not exist.&quot;</li>
+<li><strong>Acceptance is the wire-string table.</strong> Line overlap between a package and its shipped module ranges 76% to 38% while command tables stay near-identical. Use <code>wire_table.py diff</code>.</li>
+<li><strong>Wire correctness is necessary but not sufficient.</strong> Finding 14 ran generated modules and 54% raised at runtime. Four static checks catch a lot; some bug classes only surface on execution.</li>
+<li><strong>Valid is not loadable.</strong> <code>convert.py validate</code> reads through this project&#x27;s Python model of the format. Finding 18 showed the model can agree with itself and still disagree with Extron&#x27;s deserializer. <code>convert.py verify --load-package</code> is the full gate.</li>
+<li><strong>Unresolvable means opaque, never guessed.</strong> <code>wire_table.py</code> emits counted opaque markers rather than plausible-looking fabrications. Preserve that posture when extending the translator.</li>
+<li><strong>No absolute paths in generated output.</strong> CLAUDE.md pitfall 6 is the specific rule. On Windows a <code>C:\Users</code> path in a non-raw docstring puts a literal <code>\U</code> into the stream and raises <code>SyntaxError</code>.</li>
+</ul>
+<h2 id="converting-instead-of-authoring">Converting instead of authoring</h2>
+<p>For users who want a direction other than <code>cs2pkp</code>:</p>
+<pre><code class="lang-bash">python tools/convert.py directions</code></pre>
+<p>prints the four conversion directions, each with its verification status and the gating finding or ROADMAP item.</p>
+<ul>
+<li><code>pkp2cs</code> is a measured translator. <code>pkp2cs.py</code> reports every unresolvable expression as a counted residual rather than guessing (Finding 14&#x27;s methodology).</li>
+<li><code>pkg2cs</code> dumps the Crestron driver JSON via <code>pkg_dump.py</code>. The finish from that JSON to a ControlScript module is a manual step; the dialect patterns live in <code>pkp2cs.py</code> and the Crestron-specific translator pieces are under <code>experiments/</code>.</li>
+<li><code>pkp2pkg</code> is a resource-swap patch, not a full emit. The Extron object graph and the Crestron driver JSON do not share a schema, so <code>convert.py pkp2pkg</code> refuses to auto-chain them. It dumps the Extron graph for inspection and prints the exact <code>pkg_patch.py</code> command to run once a conforming Crestron driver JSON is produced. The full-emit gate is STATUS.md D2 (the Crestron licence question).</li>
+</ul>
+<h2 id="what-is-still-gated-and-on-what">What is still gated, and on what</h2>
+<p>Full from-scratch synthesis of an NRBF object graph (ROADMAP R28) is open work. The donor-transplant method is what has carried a package end-to-end.</p>
+<p>Real-device acceptance per family is incomplete. The i20 ran against a PC playing the camera; a socket to an actual i20 is the open measurement. Other device families inherit the same status: wire-correct, runtime-resolvable on the harness, unverified on real hardware.</p>
+<p>Open question D2 (the Crestron licence position) is a legal question. Nothing in the tools&#x27; output substitutes for it. The patch-only posture of <code>pkp2pkg</code> holds until D2 closes.</p>
+<p>Catalogue coverage for Crestron drivers is unmeasured. Two data points (Samsung JSON engine, 1 Beyond V2 Entity Model) do not generalise. <code>drivers.crestron.io</code> is login-gated.</p>
+<p>Donor-transplant produces a <code>.pkp</code> that validates and deserializes under Extron&#x27;s own code; device-side correctness still needs a bench run.</p>
+<h2 id="tool-reference">Tool reference</h2>
+<table class="plain">
+<thead><tr><th><code>convert.py</code> verb</th><th>underlying tool(s)</th><th>notes</th></tr></thead>
+<tbody>
+<tr><td><code>directions</code></td><td>this file</td><td>prints the conversion matrix</td></tr>
+<tr><td><code>dump</code></td><td><code>tools/pkp_dump.py</code> / <code>tools/pkg_dump.py</code></td><td>dispatches by extension; <code>-r</code> resolves back-references on <code>.pkp</code></td></tr>
+<tr><td><code>validate</code></td><td><code>tools/pkp_validate.py</code></td><td>Python reimplementation of Extron&#x27;s validator (Finding 16)</td></tr>
+<tr><td><code>verify</code></td><td><code>tools/pkp_validate.py</code> + <code>experiments/gcp_harness/Load-Package.ps1</code></td><td><code>--load-package</code> on Windows invokes the deserializer gate</td></tr>
+<tr><td><code>pkp2cs</code></td><td><code>tools/pkp2cs.py</code></td><td>translator with counted residuals</td></tr>
+<tr><td><code>cs2pkp</code></td><td><code>tools/pkp_build.py</code></td><td>donor-transplant; <code>--script KEY=FILE</code> and <code>--set-string ID=VAL</code></td></tr>
+<tr><td><code>pkg2cs</code></td><td><code>tools/pkg_dump.py</code></td><td>dumps driver JSON; translation finish is manual</td></tr>
+<tr><td><code>pkp2pkg</code></td><td><code>tools/pkp_dump.py</code> + prints <code>pkg_patch.py</code> command</td><td>refuses to auto-chain (schema mismatch)</td></tr>
+</tbody></table>
+<p>For operations the CLI does not cover (library-mode asset edits, wire-table comparison, catalogue inspection), the underlying tools remain the entry point:</p>
+<ul>
+<li><code>python tools/pkp_asset.py &lt;package.pkp&gt;</code> lists commands; the library is <code>CommandGraph</code> on a <code>PackageBuilder</code>.</li>
+<li><code>python tools/wire_table.py dump &lt;driver_py&gt;</code> prints the normalised wire table.</li>
+<li><code>python tools/wire_table.py diff &lt;a.py&gt; &lt;b.py&gt;</code> diffs two wire tables.</li>
+<li><code>python tools/gc_catalogue.py &lt;DriverLookup.dat&gt;</code> reads GC&#x27;s catalogue; <code>--against &lt;folder&gt;</code> compares to a driver folder.</li>
+</ul>
+  </article>
+</main>
+
+<aside class="toc" aria-label="Contents">
+  <div class="label">Contents</div>
+  <ol>
+    <li><a href="#what-this-guide-gives-you-and-what-it-does-not">What this guide gives you, and what it does not</a></li>
+    <li><a href="#what-a-pkp-actually-is">What a .pkp actually is</a></li>
+    <li><a href="#why-hand-authoring-from-scratch-is-not-the-move-yet">Why hand-authoring from scratch is not the move yet</a></li>
+    <li><a href="#the-donor-transplant-method">The donor-transplant method</a></li>
+    <li><a href="#picking-a-donor">Picking a donor</a></li>
+    <li><a href="#the-asset-tree-is-the-command-surface">The asset tree is the command surface</a></li>
+    <li><a href="#the-negative-object-id-trap">The negative-object-id trap</a></li>
+    <li><a href="#string-table-and-reference-bookkeeping">String table and reference bookkeeping</a></li>
+    <li><a href="#validating-without-global-configurator">Validating without Global Configurator</a></li>
+    <li><a href="#verifying-through-extrons-own-code">Verifying through Extron&#x27;s own code</a></li>
+    <li><a href="#writing-the-embedded-script-side">Writing the embedded script side</a></li>
+    <li><a href="#worked-example-wrapping-an-i20-controlscript-module-into-a-pkp">Worked example: wrapping an i20 ControlScript module into a .pkp</a></li>
+    <li><a href="#loading-onto-a-processor">Loading onto a processor</a></li>
+    <li><a href="#pitfalls-checklist">Pitfalls checklist</a></li>
+    <li><a href="#converting-instead-of-authoring">Converting instead of authoring</a></li>
+    <li><a href="#what-is-still-gated-and-on-what">What is still gated, and on what</a></li>
+    <li><a href="#tool-reference">Tool reference</a></li>
+  </ol>
+</aside>
+
+<footer class="foot">
+  Source: <a href="https://github.com/rob-paprocki/extron-driver-convert/blob/main/docs/HAND_AUTHORING_PKP.md"><code>docs/HAND_AUTHORING_PKP.md</code></a>
+  &middot; <a href="./">home</a> &middot; <a href="status.html">status</a>
+</footer>
+
+</div>

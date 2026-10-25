@@ -1,0 +1,300 @@
+<title>Extron Driver Convert</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #faf9f6;
+  --panel: #ffffff;
+  --panel-2: #f3f1ec;
+  --fg: #16181a;
+  --fg-2: #4a4e55;
+  --fg-muted: #7a7f87;
+  --rule: #e2ded5;
+  --rule-strong: #c9c3b5;
+  --accent: #286472;
+  --accent-weak: #d9e5e8;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141513;
+    --panel: #1c1d1b;
+    --panel-2: #22231f;
+    --fg: #ebeae6;
+    --fg-2: #c6c3bc;
+    --fg-muted: #8a8a84;
+    --rule: #2e2f2b;
+    --rule-strong: #40413b;
+    --accent: #5fb0c0;
+    --accent-weak: #243236;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141513;
+  --panel: #1c1d1b;
+  --panel-2: #22231f;
+  --fg: #ebeae6;
+  --fg-2: #c6c3bc;
+  --fg-muted: #8a8a84;
+  --rule: #2e2f2b;
+  --rule-strong: #40413b;
+  --accent: #5fb0c0;
+  --accent-weak: #243236;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 15px/1.6 var(--sans);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 56px;
+}
+.wrap { max-width: 920px; margin: 0 auto; }
+
+nav.site {
+  display: flex; flex-wrap: wrap; gap: 4px 2px;
+  margin-bottom: 32px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--rule);
+  font: 500 13px/1 var(--mono);
+}
+nav.site a {
+  color: var(--fg-muted);
+  text-decoration: none;
+  padding: 7px 12px;
+  border-radius: 2px;
+}
+nav.site a:hover { color: var(--fg); background: var(--panel-2); }
+nav.site a[aria-current="page"] {
+  color: var(--accent); background: var(--accent-weak);
+}
+nav.site .spacer { flex: 1 1 auto; }
+nav.site a.repo {
+  color: var(--fg-muted);
+  letter-spacing: 0.02em;
+}
+
+header.hero {
+  margin: 8px 0 32px;
+}
+header.hero .kicker {
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  margin-bottom: 10px;
+}
+header.hero h1 {
+  margin: 0 0 10px;
+  font: 600 32px/1.15 var(--sans);
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+header.hero p.lede {
+  margin: 0;
+  color: var(--fg-2);
+  font-size: 17px;
+  line-height: 1.55;
+  max-width: 68ch;
+  text-wrap: pretty;
+}
+
+h2.section {
+  margin: 40px 0 14px;
+  font: 600 15px/1 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+a.card {
+  display: block;
+  padding: 18px 20px 20px;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  text-decoration: none;
+  color: var(--fg);
+  transition: border-color 120ms, transform 120ms;
+}
+a.card:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+a.card .title {
+  font: 600 17px/1.3 var(--sans);
+  margin-bottom: 6px;
+  letter-spacing: -0.005em;
+}
+a.card .desc {
+  font-size: 14px;
+  color: var(--fg-2);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+a.card .meta {
+  font: 500 11px/1 var(--mono);
+  color: var(--fg-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+a.card .meta code {
+  color: var(--fg-2);
+  background: var(--panel-2);
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 11px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+a.card.ext .meta::after {
+  content: " \2197";
+  color: var(--accent);
+}
+
+.intro {
+  padding: 16px 20px;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  border-radius: 3px;
+}
+.intro p { margin: 0 0 10px; }
+.intro p:last-child { margin-bottom: 0; }
+.intro code {
+  font: 400 13px var(--mono);
+  background: var(--panel-2);
+  padding: 1px 5px;
+  border-radius: 2px;
+}
+
+footer.foot {
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+  font: 400 12px/1.6 var(--mono);
+  color: var(--fg-muted);
+}
+footer.foot a { color: var(--fg-2); }
+
+@media (max-width: 640px) {
+  header.hero h1 { font-size: 24px; }
+  header.hero p.lede { font-size: 15px; }
+}
+</style>
+
+<div class="wrap">
+
+<nav class="site" aria-label="Site">
+  <a href="./" aria-current="page">Home</a>
+  <a href="status.html">Status</a>
+  <a href="HAND_AUTHORING_PKP.html">Guide</a>
+  <span class="spacer"></span>
+  <a href="https://github.com/rob-paprocki/extron-driver-convert" class="repo">github &nearr;</a>
+</nav>
+
+<header class="hero">
+  <div class="kicker">Research project</div>
+  <h1>Extron Driver Convert</h1>
+  <p class="lede">
+    Research into converting audio-visual device drivers between vendor formats:
+    Extron <code>.pkp</code> (Global Configurator), Extron ControlScript <code>.py</code>,
+    Crestron <code>.pkg</code>, Q-SYS plugins, Biamp Tesira.
+  </p>
+</header>
+
+<div class="intro">
+  <p>
+    Vendors ship different driver formats for the same devices, so the processor you own
+    may not be able to control the device you own. If translation works, one driver can
+    serve any processor. The repo contains working tools, measurements, and a growing
+    corpus of findings on how far that goes in practice.
+  </p>
+  <p>
+    Research artifact, not a product. All tools are standard-library Python 3. Vendor
+    material is not redistributed; the public copy of this repo omits every byte of it.
+  </p>
+</div>
+
+<h2 class="section">Start here</h2>
+<div class="cards">
+  <a class="card" href="status.html">
+    <div class="title">Status</div>
+    <div class="desc">
+      What is done, what is remaining, open research questions, and the 20 numbered
+      findings. Filterable, searchable.
+    </div>
+    <div class="meta">Interactive &middot; refreshed 2026-10-25</div>
+  </a>
+  <a class="card" href="HAND_AUTHORING_PKP.html">
+    <div class="title">Hand-authoring an Extron .pkp</div>
+    <div class="desc">
+      Field guide for producing a working <code>.pkp</code> by donor-transplant.
+      i20 worked example end-to-end, with the <code>convert.py</code> CLI.
+    </div>
+    <div class="meta">Guide &middot; <code>docs/</code></div>
+  </a>
+  <a class="card ext" href="https://github.com/rob-paprocki/extron-driver-convert">
+    <div class="title">Source on GitHub</div>
+    <div class="desc">
+      The repo itself: <code>tools/</code>, <code>experiments/</code>,
+      <code>findings/</code>, <code>STATUS.md</code>, <code>ROADMAP.md</code>.
+    </div>
+    <div class="meta">GitHub</div>
+  </a>
+</div>
+
+<h2 class="section">The four conversion directions</h2>
+<div class="cards">
+  <a class="card" href="status.html#done">
+    <div class="title">Extron .pkp &rarr; ControlScript</div>
+    <div class="desc">
+      Done, measured. Translator with counted residuals; wire-string parity against the
+      shipped module.
+    </div>
+    <div class="meta"><code>convert.py pkp2cs</code></div>
+  </a>
+  <a class="card" href="HAND_AUTHORING_PKP.html">
+    <div class="title">ControlScript &rarr; Extron .pkp</div>
+    <div class="desc">
+      Done via donor-transplant. Format and command surface both proven; the guide walks
+      the i20 end-to-end.
+    </div>
+    <div class="meta"><code>convert.py cs2pkp</code></div>
+  </a>
+  <a class="card" href="status.html#done">
+    <div class="title">Crestron .pkg &rarr; ControlScript</div>
+    <div class="desc">
+      <code>pkg_dump</code> measured. The finish from the driver JSON to a working module
+      is a manual step.
+    </div>
+    <div class="meta"><code>convert.py pkg2cs</code></div>
+  </a>
+  <a class="card" href="status.html#research">
+    <div class="title">Extron &rarr; Crestron .pkg</div>
+    <div class="desc">
+      Patch-only resource swap, mechanically demonstrated. Full emit is gated by the
+      Crestron licence question (STATUS.md D2).
+    </div>
+    <div class="meta"><code>convert.py pkp2pkg</code></div>
+  </a>
+</div>
+
+<footer class="foot">
+  <a href="https://github.com/rob-paprocki/extron-driver-convert">rob-paprocki/extron-driver-convert</a>
+  &middot; served from <code>main /docs</code> via GitHub Pages
+  &middot; <a href="status.html">latest status</a>
+</footer>
+
+</div>
