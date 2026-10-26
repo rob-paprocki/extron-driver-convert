@@ -555,20 +555,44 @@ def _augment_match_pattern(py_pat: str) -> str:
 
 def _emit_match(cmd: BridgedCommand, resp: BridgedResponse) -> str:
     py = _py_identifier(cmd.name)
-    # Use the AUGMENTED pattern's shape to decide whether a capture is present,
-    # not the raw resp.pattern. This way simple prefixes get decoded as if the
-    # emitter had always captured the trailing param.
     augmented = _augment_match_pattern(resp.pattern)
     has_group = "(" in augmented
     lines = [
         "    def __Match%s(self, match, tag):" % py,
     ]
-    if has_group:
-        lines.append("        # match.group(1) is the raw reply parameter string (bytes after the")
-        lines.append("        # command token). The vendor Extron module typically maps this through")
-        lines.append("        # a ValueStateValues dict ('0' -> 'Off', '1' -> 'On'); the Q-SYS plugin")
-        lines.append("        # did that mapping in a Lua if/else chain the reader does not surface.")
-        lines.append("        # Hand-edit this handler to apply the mapping once you have it.")
+    if has_group and resp.value_map and "__concat_prefix__" in resp.value_map:
+        # String-concat lift: Lua branch was `<control>.String = "PREFIX" .. param`.
+        # Emit `value = "PREFIX" + raw`.
+        prefix = resp.value_map["__concat_prefix__"]
+        lines.append("        # String-concat lift from the Lua elseif branch at plugin line %d:" % resp.line)
+        lines.append("        # the plugin assigned `\"%s\" .. param` to a Text control; mirror that here." % prefix)
+        lines.append("        try:")
+        lines.append("            raw = match.group(1).decode().strip()")
+        lines.append("        except (IndexError, UnicodeDecodeError):")
+        lines.append("            raw = ''")
+        lines.append("        value = %r + raw" % prefix)
+    elif has_group and resp.value_map:
+        # Value-map lookup: either from a Lua ternary (`param == X and A or B`)
+        # or from a plain bool-equality (`param == X`, which lifts to
+        # {"X": "True", "__default__": "False"} since the plugin assigned to
+        # a Boolean control).
+        default = resp.value_map.get("__default__", "")
+        pairs = sorted((k, v) for k, v in resp.value_map.items() if k != "__default__")
+        map_literal = "{" + ", ".join("%r: %r" % kv for kv in pairs) + "}"
+        lines.append("        # Value map lifted from the Lua elseif branch at plugin line %d." % resp.line)
+        if pairs:
+            lines.append("        # Pattern: `param == %r` -> %r (else -> %r)." %
+                         (pairs[0][0], pairs[0][1], default))
+        lines.append("        try:")
+        lines.append("            raw = match.group(1).decode().strip()")
+        lines.append("        except (IndexError, UnicodeDecodeError):")
+        lines.append("            raw = ''")
+        lines.append("        value = %s.get(raw, %r)" % (map_literal, default))
+    elif has_group:
+        lines.append("        # match.group(1) is the raw reply parameter string. The Lua branch for")
+        lines.append("        # this command did not use a simple `param == X and A or B` ternary, so")
+        lines.append("        # the reader could not lift a value map. Hand-edit to decode the raw")
+        lines.append("        # bytes into an editorial status label if needed.")
         lines.append("        try:")
         lines.append("            value = match.group(1).decode().strip()")
         lines.append("        except (IndexError, UnicodeDecodeError):")

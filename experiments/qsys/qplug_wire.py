@@ -1055,6 +1055,148 @@ def _plugin_info(prog):
     return info
 
 
+def _as_string_lit(v):
+    if hasattr(v, "kind") and v.kind == "String":
+        return v.value.decode("latin-1")
+    return None
+
+
+def _ternary_value_map(rhs):
+    """Extract {<lit>: <then>, "__default__": <else>} from a Lua ternary
+    of the shape `cond and <THEN> or <ELSE>` where cond is `param == "<LIT>"`."""
+    if not hasattr(rhs, "kind") or rhs.kind != "Binop" or rhs.op != "or":
+        return None
+    and_branch = rhs.left
+    else_val = rhs.right
+    if not (hasattr(and_branch, "kind") and and_branch.kind == "Binop" and and_branch.op == "and"):
+        return None
+    cond = and_branch.left
+    then_val = and_branch.right
+    if not (hasattr(cond, "kind") and cond.kind == "Binop" and cond.op == "=="):
+        return None
+    lit = None
+    for side in (cond.left, cond.right):
+        if hasattr(side, "kind") and side.kind == "Name" and side.name == "param":
+            lit_side = cond.right if side is cond.left else cond.left
+            lit = _as_string_lit(lit_side)
+            if lit is not None:
+                break
+    if lit is None:
+        return None
+    then_s = _as_string_lit(then_val)
+    else_s = _as_string_lit(else_val)
+    if then_s is None or else_s is None:
+        return None
+    return {lit: then_s, "__default__": else_s}
+
+
+def _bool_eq_value_map(rhs):
+    """`param == "LIT"` -> {"LIT": "True", "__default__": "False"}. The
+    plugin assigns this directly to a Boolean control; the status consumer
+    sees string 'True'/'False' from WriteStatus."""
+    if not hasattr(rhs, "kind") or rhs.kind != "Binop" or rhs.op != "==":
+        return None
+    for side in (rhs.left, rhs.right):
+        if hasattr(side, "kind") and side.kind == "Name" and side.name == "param":
+            lit_side = rhs.right if side is rhs.left else rhs.left
+            lit = _as_string_lit(lit_side)
+            if lit is not None:
+                return {lit: "True", "__default__": "False"}
+    return None
+
+
+def _concat_prefix_value_map(rhs):
+    """`"PREFIX" .. param` -> {"__concat_prefix__": "PREFIX"}. The emitter
+    will produce `value = "PREFIX" + raw`."""
+    if not hasattr(rhs, "kind") or rhs.kind != "Binop" or rhs.op != "..":
+        return None
+    # Right side must be `param`
+    if not (hasattr(rhs.right, "kind") and rhs.right.kind == "Name" and rhs.right.name == "param"):
+        return None
+    prefix = _as_string_lit(rhs.left)
+    if prefix is None:
+        return None
+    return {"__concat_prefix__": prefix}
+
+
+def _simple_pattern_value_map(rhs):
+    """Try all supported lift patterns in order. Returns None if none match."""
+    for fn in (_ternary_value_map, _bool_eq_value_map, _concat_prefix_value_map):
+        vm = fn(rhs)
+        if vm is not None:
+            return vm
+    return None
+
+
+def _if_cmd_literals(cond):
+    """Return the list of command literals used in an If-clause condition
+    of the shape `cmd == "X"` or `cmd == "X" or cmd == "Y"`. Returns an
+    empty list if the condition does not match the simple cmd-equality
+    pattern (e.g. compound conditions involving method calls)."""
+    if not hasattr(cond, "kind"):
+        return []
+    if cond.kind == "Binop" and cond.op == "==":
+        lits = []
+        for side in (cond.left, cond.right):
+            if hasattr(side, "kind") and side.kind == "String":
+                lits.append(side.value.decode("latin-1"))
+        # Only accept if the OTHER side is a Name (so we are matching an
+        # identifier against a literal, not comparing two literals).
+        has_name = any(hasattr(s, "kind") and s.kind == "Name"
+                       for s in (cond.left, cond.right))
+        return lits if has_name else []
+    if cond.kind == "Binop" and cond.op == "or":
+        return _if_cmd_literals(cond.left) + _if_cmd_literals(cond.right)
+    return []
+
+
+def _extract_response_value_maps(fi):
+    """Walk a receive function's If chains for `elseif cmd == "LITERAL" then`
+    branches, and in each branch body find ternaries that map `param` values
+    to editorial labels. Returns {cmd_literal: {raw_val: label, "__default__": label}}."""
+    out = {}
+    for n in walk(fi.node.body):
+        if n.kind != "If":
+            continue
+        for cond, body in n.clauses:
+            cmds = _if_cmd_literals(cond)
+            if not cmds:
+                continue
+            # Walk the branch body for Assigns whose RHS matches the ternary.
+            # Collect every candidate across the branch body, then rank:
+            # ternary (editorial labels) > concat (prefix) > bool-eq
+            # (generic True/False fallback). Many branches assign to multiple
+            # controls; GARMC for instance has `ARM.Boolean = param=="1"`
+            # (bool-eq, less informative) followed by
+            # `ARM.Legend = param=="1" and "ON" or "OFF"` (ternary, the
+            # editorial map). Ranking across all assigns picks the stronger
+            # of the two.
+            candidates = []  # list of (rank, vm); lower rank wins
+            for stmt in body:
+                if not hasattr(stmt, "kind") or stmt.kind != "Assign":
+                    continue
+                for rhs in stmt.exprs:
+                    tern = _ternary_value_map(rhs)
+                    if tern:
+                        candidates.append((0, tern))
+                        continue
+                    concat = _concat_prefix_value_map(rhs)
+                    if concat:
+                        candidates.append((1, concat))
+                        continue
+                    boole = _bool_eq_value_map(rhs)
+                    if boole:
+                        candidates.append((2, boole))
+            if not candidates:
+                continue
+            candidates.sort(key=lambda t: t[0])
+            best = candidates[0][1]
+            for c in cmds:
+                if c not in out:
+                    out[c] = best
+    return out
+
+
 def _receive_functions(prog, transports):
     """Functions that handle received data, and everything they call."""
     names = {v.name for v in list(prog.globals.values()) + list(prog.var_of.values()) if id(v) in transports}
@@ -1132,15 +1274,21 @@ def extract(src, filename="<plugin>"):
             sends.append(SendSite(call.line, "http", _dotted(call.func), func.label,
                                   _http_templates(ev, call, func)))
     responses = []
+    value_maps_by_fn = {}  # fi.label -> {cmd_literal: {raw: label, "__default__": label}}
     for fi in _receive_functions(prog, transports):
+        value_maps_by_fn[fi.label] = _extract_response_value_maps(fi)
         ctx = ev.open_ctx(fi, 0)
         for n in walk(fi.node.body):
             pat = None
             if n.kind == "Binop" and n.op in ("==", "~="):
                 for side in (n.left, n.right):
                     if side.kind == "String" and side.value:
-                        responses.append({"equals": side.value.decode("latin-1"), "line": n.line,
-                                          "function": fi.label})
+                        lit = side.value.decode("latin-1")
+                        resp = {"equals": lit, "line": n.line, "function": fi.label}
+                        vm = value_maps_by_fn[fi.label].get(lit)
+                        if vm:
+                            resp["value_map"] = vm
+                        responses.append(resp)
                 continue
             if n.kind == "Method" and n.name in PATTERN_FUNCS and n.args:
                 pat = n.args[0]

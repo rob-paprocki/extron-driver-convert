@@ -310,3 +310,103 @@ Still deferred for a later pass:
 - Mapping multi-field replies like PP's `PP1=X PP2=X PP3=X PP4=X ID=X`
   into a dict/qualifier shape. The vendor module's ValueStateValues
   structure is the target.
+
+## 2026-10-26 (part 2): value-map lift from Lua elseif branches (R48 step 3)
+
+Second pass same day. Step 2 changed every __Match handler from a stub
+`value = 'OK'` to `value = match.group(1).decode()` (raw bytes). The
+device replies now surface at all, but still untransformed - a '1' comes
+through as the string "1" rather than the editorial "On" the vendor
+Extron module writes. The vendor's `ValueStateValues` dict lives in
+Python but the Q-SYS plugin's equivalent lives in a Lua elseif branch
+body. This pass walks those branches and lifts three specific patterns
+into Python-equivalent maps.
+
+### Patterns lifted
+
+| Lua pattern                                | Python equivalent                        |
+|---                                         |---                                       |
+| `param == "LIT" and "A" or "B"` (ternary)  | `{"LIT": "A", "__default__": "B"}` map   |
+| `param == "LIT"` (plain bool-equality)     | `{"LIT": "True", "__default__": "False"}` |
+| `"PREFIX" .. param` (string concat)        | `value = "PREFIX" + raw`                 |
+
+Ranking: ternary > concat > bool-eq, scanned across every Assign in the
+branch body. The ranking matters because many branches assign to
+multiple controls - GARMC's body has
+`ARM.Boolean = param == "1"` (bool-eq, less informative) followed by
+`ARM.Legend = param == "1" and "ON" or "OFF"` (ternary, the editorial
+map). The reader picks the stronger one.
+
+### Measured on CDT100
+
+5 value maps extracted across the 19 elseif branches:
+
+```
+GARMC        {'1': 'ON', '__default__': 'OFF'}
+SARMC        {'1': 'ON', '__default__': 'OFF'}
+ID           {'1': 'True', '__default__': 'False'}
+VERSION      {'__concat_prefix__': 'v'}
+BVERSION     {'__concat_prefix__': 'v'}
+```
+
+Of those, 3 wire through to generated __Match handlers (GARMC, VERSION,
+BVERSION). SARMC's branch body is shared with GARMC (one Lua clause
+with `cmd == "GARMC" or cmd == "SARMC"`) and the plugin's dispatcher
+sends a single AddMatchString, so only one handler exists.
+
+ID's map is extracted but no `__MatchID` handler exists in the generated
+module. Cause: case-normalization. The plugin's command is lowercase
+`Id`, but the Lua reply branch uses uppercase `ID`. The handler-naming
+path uses the normalized command name; the probe path matches on the
+raw literal from the elseif. Noted for a future pass - would lift one
+more handler.
+
+Multi-field replies (CDT100's `PP` with
+`local ch, st = param:match("(%d) (%d)")`) and complex field-wise
+decoding (SCH32, SRGB) stay stubbed. They need `string.match` capture
+translation, which is the next bounded extension if coverage matters
+more than other R48 items.
+
+### Verification
+
+22/22 qplug_to_cs tests pass (added
+`test_response_value_maps_lift_from_lua_elseif_branches` as the
+regression). 14/14 qplug_wire tests pass (no regression). exec_harness
+on the regenerated CDT100 still shows 0 raises.
+
+Example of what the step changes. `__MatchGARMC` before step 2:
+
+```python
+def __MatchGARMC(self, match, tag):
+    value = 'OK'
+    self.WriteStatus('GARMC', value, None)
+```
+
+After step 2 (reply decoding, raw bytes):
+
+```python
+def __MatchGARMC(self, match, tag):
+    # match.group(1) is the raw reply parameter string...
+    try:
+        value = match.group(1).decode().strip()
+    except (IndexError, UnicodeDecodeError):
+        value = ''
+    self.WriteStatus('GARMC', value, None)
+```
+
+After step 3 (value map lifted from Lua):
+
+```python
+def __MatchGARMC(self, match, tag):
+    # Value map lifted from the Lua elseif branch at plugin line 1032.
+    # Pattern: `param == '1'` -> 'ON' (else -> 'OFF').
+    try:
+        raw = match.group(1).decode().strip()
+    except (IndexError, UnicodeDecodeError):
+        raw = ''
+    value = {'1': 'ON'}.get(raw, 'OFF')
+    self.WriteStatus('GARMC', value, None)
+```
+
+A `GARMC 1\r` reply now writes `"ON"` to the status (matching what the
+vendor Extron module does), not `"1"`, not `"OK"`.

@@ -62,6 +62,13 @@ class BridgedResponse:
     handler: str              # the command name the match should feed back into
     line: int = 0             # line in the plugin, for traceability
     source_function: str = "" # the plugin's receive function
+    # Reply value mapping extracted from the Lua elseif branch body.
+    # Shape: {raw_param_string: editorial_label, "__default__": fallback_label}.
+    # Example from CDT100's `elseif cmd=="GARMC" then ARM.Legend = param=="1" and "ON" or "OFF"`:
+    #   {"1": "ON", "__default__": "OFF"}
+    # Empty when the branch body did not match the simple ternary pattern the
+    # reader can lift.
+    value_map: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -249,6 +256,7 @@ def _bridged_response(resp: dict, commands: dict) -> BridgedResponse:
         handler=handler,
         line=resp.get("line", 0),
         source_function=resp.get("function", ""),
+        value_map=dict(resp.get("value_map") or {}),
     )
 
 

@@ -325,6 +325,40 @@ def test_rdl_btn_generated_matches_plugin_wire_bytes():
     assert not missing, "RDL BTN missing in plugin: %s" % sorted(missing)
 
 
+def test_response_value_maps_lift_from_lua_elseif_branches():
+    """The reader walks each `elseif cmd=="X" then` branch and tries to lift a
+    Python-equivalent value map from the body's first-order Lua pattern.
+    Three patterns supported: a ternary (`param=="1" and "ON" or "OFF"`),
+    a plain bool-equality (`param=="1"`, maps to True/False), and a string
+    concat (`"v"..param`). The CDT100 pilot has 5 branches with lifted maps
+    across these three patterns; this test pins that the ternary beats the
+    bool-eq when both appear in the same branch (GARMC has both; the editorial
+    `ON`/`OFF` must win)."""
+    plugin_p = _vendor("cdt100_qplug")
+    if not plugin_p:
+        return "SKIP"
+    from qplug_wire import _extract_response_value_maps
+    from qplug_wire import _receive_functions, _transports, Program
+    from lua_parse import parse as lua_parse
+    with open(plugin_p, "r", encoding="utf-8") as f:
+        src = f.read()
+    tree = lua_parse(src)
+    prog = Program(tree)
+    transports = _transports(prog)
+    all_maps = {}
+    for fi in _receive_functions(prog, transports):
+        all_maps.update(_extract_response_value_maps(fi))
+    # GARMC: ternary wins, editorial ON/OFF labels
+    assert all_maps.get("GARMC", {}).get("1") == "ON", (
+        "GARMC should lift the ternary (ON/OFF), got %r" % all_maps.get("GARMC"))
+    assert all_maps.get("GARMC", {}).get("__default__") == "OFF"
+    # VERSION / BVERSION: concat prefix 'v'
+    assert all_maps.get("VERSION", {}).get("__concat_prefix__") == "v"
+    assert all_maps.get("BVERSION", {}).get("__concat_prefix__") == "v"
+    # Count: at least these 4, probably 5 (SARMC shares GARMC's clause)
+    assert len(all_maps) >= 4, "Expected >=4 lifted maps on CDT100, got %d: %r" % (len(all_maps), all_maps)
+
+
 def test_match_handlers_decode_reply_parameters_not_stub_ok():
     """A simple prefix pattern like 'GARMC' is a command-name probe, not a
     full reply pattern. The emitter augments it with `\\s*(.*?)\\r?\\n?$`
@@ -445,6 +479,7 @@ TESTS = [
     test_rdl_btn_generated_matches_plugin_wire_bytes,
     # Reply decoding
     test_match_handlers_decode_reply_parameters_not_stub_ok,
+    test_response_value_maps_lift_from_lua_elseif_branches,
     # Runtime regression
     test_multi_slot_set_methods_do_not_raise_on_qualifier_none,
 ]
