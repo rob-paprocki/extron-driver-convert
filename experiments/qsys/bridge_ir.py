@@ -235,7 +235,13 @@ def _bridged_response(resp: dict, commands: dict) -> BridgedResponse:
     probe = pat
     if probe.startswith("ACK "):
         probe = probe[4:]
-    # Find the first literal token
+    # Find the first literal token. Match the command by exact name first,
+    # then (fallback 1) by S/G stripping ("GARMC" -> "ARMC"), then
+    # (fallback 2) by case-insensitive match. The case-insensitive fallback
+    # catches the CDT100 pattern where the plugin's command is `Id` but
+    # the Lua elseif branch tests `cmd == "ID"` - the Lua side treats
+    # command names as case-exact literal strings but the plugin's own
+    # command naming is editorial.
     m = re.match(r"[^\s(\\{]+", probe)
     handler = ""
     if m:
@@ -243,12 +249,19 @@ def _bridged_response(resp: dict, commands: dict) -> BridgedResponse:
         if tok in commands:
             handler = tok
         else:
-            # Try S/G-stripped form (plugin reply 'GARMC ...' -> command 'ARMC')
+            # Fallback 1: S/G-stripped form (plugin reply 'GARMC ...' -> 'ARMC').
             for p in ("S", "G"):
                 if tok.startswith(p) and len(tok) > _MIN_PAIR_TAIL + 1:
                     tail = tok[1:]
                     if tail in commands:
                         handler = tail
+                        break
+            # Fallback 2: case-insensitive match against the command names.
+            if not handler:
+                tok_lower = tok.lower()
+                for cmd_name in commands:
+                    if cmd_name.lower() == tok_lower:
+                        handler = cmd_name
                         break
     return BridgedResponse(
         pattern=pat,

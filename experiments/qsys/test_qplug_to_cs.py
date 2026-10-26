@@ -359,6 +359,27 @@ def test_response_value_maps_lift_from_lua_elseif_branches():
     assert len(all_maps) >= 4, "Expected >=4 lifted maps on CDT100, got %d: %r" % (len(all_maps), all_maps)
 
 
+def test_case_insensitive_response_handler_wires_up():
+    """CDT100 has a plugin command `Id` (editorial casing) and a Lua
+    elseif branch `cmd == "ID"` (uppercase literal). The response handler
+    wiring falls back to case-insensitive match so the branch gets a real
+    __MatchId handler in the generated module. Before the fallback,
+    __MatchId was missing entirely and the ID branch's value_map
+    extraction had nowhere to land."""
+    plugin_p = _vendor("cdt100_qplug")
+    if not plugin_p:
+        return "SKIP"
+    gen_src = _emit_from_qplug(plugin_p)
+    assert "def __MatchId" in gen_src, (
+        "Case-insensitive response handler wiring regressed: no __MatchId "
+        "in the generated CDT100 module. The Lua elseif branch for `cmd == "
+        "'ID'` must map to the plugin command `Id`.")
+    # And the value map should have lifted too.
+    assert "{'1': 'True'}" in gen_src or "{'1': 'true'}" in gen_src, (
+        "__MatchId exists but its value map was not lifted; the bool-eq "
+        "extractor should produce {'1': 'True', '__default__': 'False'}.")
+
+
 def test_match_handlers_decode_reply_parameters_not_stub_ok():
     """A simple prefix pattern like 'GARMC' is a command-name probe, not a
     full reply pattern. The emitter augments it with `\\s*(.*?)\\r?\\n?$`
@@ -480,6 +501,7 @@ TESTS = [
     # Reply decoding
     test_match_handlers_decode_reply_parameters_not_stub_ok,
     test_response_value_maps_lift_from_lua_elseif_branches,
+    test_case_insensitive_response_handler_wires_up,
     # Runtime regression
     test_multi_slot_set_methods_do_not_raise_on_qualifier_none,
 ]
