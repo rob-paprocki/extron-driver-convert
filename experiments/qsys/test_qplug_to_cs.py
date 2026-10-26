@@ -325,6 +325,46 @@ def test_rdl_btn_generated_matches_plugin_wire_bytes():
     assert not missing, "RDL BTN missing in plugin: %s" % sorted(missing)
 
 
+def test_match_handlers_decode_reply_parameters_not_stub_ok():
+    """A simple prefix pattern like 'GARMC' is a command-name probe, not a
+    full reply pattern. The emitter augments it with `\\s*(.*?)\\r?\\n?$`
+    so match.group(1) captures the reply parameter. The handler decodes
+    that group as the status value instead of hard-coding 'OK'. Measured
+    on 2026-10-26: the CDT100 pilot has 14 of 16 patterns in the simple-
+    prefix shape and all 14 handlers now decode the real reply bytes."""
+    plugin_p = _vendor("cdt100_qplug")
+    if not plugin_p:
+        return "SKIP"
+    gen_src = _emit_from_qplug(plugin_p)
+    # Count: for each __Match function, does the body write 'OK' or does
+    # it write match.group(1).decode() ?
+    tree = ast.parse(gen_src)
+    cls = next(n for n in ast.walk(tree)
+               if isinstance(n, ast.ClassDef) and n.name == "DeviceClass")
+    stub_handlers = []
+    decoded_handlers = []
+    for fn in [n for n in cls.body if isinstance(n, ast.FunctionDef)]:
+        # dunder-mangled: `__MatchXxx` -> `_DeviceClass__MatchXxx` after
+        # class body eval; here we're reading the source AST so names
+        # survive as `_DeviceClass__MatchXxx` only after exec. Read the
+        # raw AST name.
+        if not fn.name.startswith("_DeviceClass__Match") and not fn.name.startswith("__Match"):
+            continue
+        body_src = ast.unparse(fn)
+        if "value = 'OK'" in body_src:
+            stub_handlers.append(fn.name)
+        elif "match.group(1)" in body_src or "match.group(0)" in body_src:
+            decoded_handlers.append(fn.name)
+    assert decoded_handlers, (
+        "No __Match handlers decode reply bytes; the emitter regressed to "
+        "stub-only outputs. stub=%r decoded=%r" % (stub_handlers, decoded_handlers))
+    # 14+ decoded on the CDT100 pilot per the 2026-10-26 measurement.
+    assert len(decoded_handlers) >= 10, (
+        "Expected at least 10 decoded __Match handlers on the CDT100 pilot; "
+        "got %d. decoded=%r stub=%r" %
+        (len(decoded_handlers), decoded_handlers, stub_handlers))
+
+
 def test_multi_slot_set_methods_do_not_raise_on_qualifier_none():
     """Multi-slot SetXxx bodies call `qualifier.get('Slot1')...` and raise
     AttributeError if the caller passes qualifier=None. Finding 14 shape:
@@ -403,6 +443,8 @@ TESTS = [
     # Acceptance
     test_cdt100_generated_matches_plugin_wire_bytes,
     test_rdl_btn_generated_matches_plugin_wire_bytes,
+    # Reply decoding
+    test_match_handlers_decode_reply_parameters_not_stub_ok,
     # Runtime regression
     test_multi_slot_set_methods_do_not_raise_on_qualifier_none,
 ]

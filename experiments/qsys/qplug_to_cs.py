@@ -478,7 +478,7 @@ def _emit_init(bm: BridgedModule) -> str:
         lines.append("        if self.Unidirectional == 'False':")
         for name, resp in responses:
             py = _py_identifier(name)
-            py_pat = _lua_pattern_to_py(resp.pattern)
+            py_pat = _augment_match_pattern(_lua_pattern_to_py(resp.pattern))
             lines.append("            self.AddMatchString(re.compile(b'%s'), self.__Match%s, None)" %
                          (py_pat.replace("'", "\\'"), py))
     lines.append("")
@@ -532,20 +532,50 @@ def _emit_update(cmd: BridgedCommand) -> str:
     return "\n".join(lines) + "\n"
 
 
+def _is_simple_prefix(py_pat: str) -> bool:
+    """A pattern is a 'simple prefix' if it is a bare word (letters, digits,
+    underscores) with no regex metachars. Simple prefixes come from an elseif
+    chain like `if cmd == "GARMC" then` in the plugin's reply parser; they
+    identify the command but discard the payload. The emitter augments them
+    so the __Match handler can see the reply parameters."""
+    if not py_pat:
+        return False
+    return bool(re.match(r"^[A-Za-z_][A-Za-z0-9_]*$", py_pat))
+
+
+def _augment_match_pattern(py_pat: str) -> str:
+    """Return the Python regex to feed AddMatchString. For a simple prefix,
+    append `\\s*(.*?)\\r?\\n?$` so the match object captures whatever the
+    device sent after the command token. For anything else (already a real
+    regex), leave it alone - the plugin author chose that shape."""
+    if _is_simple_prefix(py_pat):
+        return py_pat + r"\s*(.*?)\r?\n?$"
+    return py_pat
+
+
 def _emit_match(cmd: BridgedCommand, resp: BridgedResponse) -> str:
     py = _py_identifier(cmd.name)
-    has_group = "(" in resp.pattern
+    # Use the AUGMENTED pattern's shape to decide whether a capture is present,
+    # not the raw resp.pattern. This way simple prefixes get decoded as if the
+    # emitter had always captured the trailing param.
+    augmented = _augment_match_pattern(resp.pattern)
+    has_group = "(" in augmented
     lines = [
         "    def __Match%s(self, match, tag):" % py,
     ]
     if has_group:
-        lines.append("        # TODO: decode group -> status value (vendor plugin used a Lua if/else chain)")
+        lines.append("        # match.group(1) is the raw reply parameter string (bytes after the")
+        lines.append("        # command token). The vendor Extron module typically maps this through")
+        lines.append("        # a ValueStateValues dict ('0' -> 'Off', '1' -> 'On'); the Q-SYS plugin")
+        lines.append("        # did that mapping in a Lua if/else chain the reader does not surface.")
+        lines.append("        # Hand-edit this handler to apply the mapping once you have it.")
         lines.append("        try:")
-        lines.append("            value = match.group(1).decode()")
+        lines.append("            value = match.group(1).decode().strip()")
         lines.append("        except (IndexError, UnicodeDecodeError):")
         lines.append("            value = ''")
     else:
-        lines.append("        value = 'OK'")
+        lines.append("        # The AddMatchString regex has no capture group; nothing to decode.")
+        lines.append("        value = match.group(0).decode(errors='replace')")
     lines.append("        self.WriteStatus('%s', value, None)" % py)
     lines.append("")
     return "\n".join(lines) + "\n"

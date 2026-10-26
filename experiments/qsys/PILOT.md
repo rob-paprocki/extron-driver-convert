@@ -250,3 +250,63 @@ Regression test added to `test_qplug_to_cs.py`:
 generated CDT100 against `exec_harness/extronlib_stub`, stubs the SetHelper
 to a no-op, and invokes every SetXxx method with `qualifier=None`. Asserts
 no AttributeError. 20/20 tests pass.
+
+## 2026-10-26: reply decoding step 1 - capture the parameter
+
+Second runtime pass on CDT100. Before this change, every __Match handler
+in a generated module wrote `value = 'OK'` into the status - the handler
+knew a reply had arrived but discarded the payload. For a status consumer
+on the Q-SYS side, every event looked the same regardless of what the
+device actually said.
+
+Cause: the reader (qplug_wire) extracts response patterns from both
+`string.match` sites and literal equality checks. In Clock Audio CDT100's
+Lua reply parser, the per-command branches are an `elseif cmd=="GARMC"`
+chain against a pre-tokenized `cmd`. The reader picks up those command
+literals as response "patterns" (handler keys), so the IR carries just
+the command token - "GARMC", "SMKMD" etc. - not a regex with capture
+groups. The emitter saw no `(` in the pattern and fell through to the
+stub branch.
+
+Fix (bounded, no Lua AST translation):
+
+- Add `_augment_match_pattern(py_pat)` in qplug_to_cs.py. For a simple
+  prefix pattern (bare word, no regex metachars) it appends
+  `\s*(.*?)\r?\n?$`, turning the AddMatchString regex into one that
+  captures whatever the device sent after the command token. For patterns
+  that are already real regexes (something with `(`, `|`, `.`, `%`, ...)
+  the function returns them unchanged.
+- Both the AddMatchString emission and `_emit_match`'s capture-group
+  detection use the augmented form. The handler body now decodes
+  `match.group(1).decode().strip()` as the status value for augmented
+  patterns, falling back to `match.group(0).decode(errors='replace')` for
+  patterns with no capture.
+
+What this does and does not do:
+
+- DOES: status for a `GARMC 1\r` reply is now the string `"1"` rather
+  than hardcoded `"OK"`. A consumer can at least observe which raw value
+  the device returned.
+- DOES NOT: translate the `"1"` into `"On"` the way the vendor Extron
+  module does via its ValueStateValues dict. That mapping lives in the
+  Lua elseif chain's body (e.g. `ARM.Boolean = param=="1"` sets the
+  boolean side of a Q-SYS Control), and extracting it needs a Lua AST
+  walk the reader does not do. The generated handler now carries a block
+  comment pointing a human reviewer at the right spot.
+
+Measured on CDT100 after the fix:
+
+- 14 of 16 AddMatchString patterns augmented (simple prefixes); 2 were
+  already real regexes and left alone
+- Every __Match handler now writes a decoded group instead of 'OK'
+- exec_harness: 0 raises (unchanged from the previous fix)
+- 21/21 tests pass (added
+  `test_match_handlers_decode_reply_parameters_not_stub_ok`)
+
+Still deferred for a later pass:
+
+- Translating the Lua elseif body (the value mapping and the per-Control
+  side-effect) into Python. Full Lua AST walk; est. several days.
+- Mapping multi-field replies like PP's `PP1=X PP2=X PP3=X PP4=X ID=X`
+  into a dict/qualifier shape. The vendor module's ValueStateValues
+  structure is the target.
