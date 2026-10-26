@@ -23,6 +23,7 @@ from cs_to_qplug import (
     DTP3_CP_42,
     DTP3_CP_62,
     DTP3_CP_884,
+    DTP3_FAMILY,
     PluginSpec,
     _lua_str,
     emit,
@@ -249,6 +250,28 @@ def test_emitted_videomute_and_execmode_match_module_bytes_exactly():
     assert ("{}." in ours) and ("{}." in mod)
 
 
+def test_emitted_dtp3_family_declares_amp_controls_and_wires_them():
+    """DTP3 CrossPoint family IPCP A / SA / MA 70 variants have a built-in
+    amplifier. The family plugin declares AmplifierAttenuation and
+    AmplifierMute controls unconditionally (Count=2) so the index space is
+    stable across models; the layout and runtime scope them to HAS_AMP."""
+    src = emit(DTP3_FAMILY)
+    # Control declarations
+    assert 'Name = "AmplifierAttenuation"' in src, "AmplifierAttenuation control missing"
+    assert 'Name = "AmplifierMute"' in src, "AmplifierMute control missing"
+    assert "Count = 2" in src, "Amp controls should declare Count = 2"
+    # Amp tab in page_tabs
+    assert '"Amp"' in src, "'Amp' tab missing from page_tabs"
+    # Layout branch
+    assert 'elseif tab == "Amp" then' in src, "Amp tab layout branch missing"
+    # SIS wire format in EventHandler and handleLine
+    assert 'wG6002' in src, "AmplifierAttenuation set wire format missing"
+    assert 'wM6002' in src, "AmplifierMute set wire format missing"
+    assert "6002(2[67])" in src, "Amp reply match pattern missing"
+    # HAS_AMP gate referenced in the layout
+    assert "if HAS_AMP then" in src, "Amp tab body does not gate on HAS_AMP"
+
+
 # ---------------------------------------------------------------------------
 # Runner
 # ---------------------------------------------------------------------------
@@ -269,6 +292,7 @@ TESTS = [
     test_emitted_variants_all_round_trip,
     test_emitted_tie_forms_are_subsumed_by_the_module_forms,
     test_emitted_videomute_and_execmode_match_module_bytes_exactly,
+    test_emitted_dtp3_family_declares_amp_controls_and_wires_them,
 ]
 
 

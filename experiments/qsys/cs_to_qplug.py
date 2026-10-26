@@ -603,6 +603,21 @@ def _emit_get_controls(spec: PluginSpec) -> str:
         "  table.insert(ctrls, { Name = \"FlexInputMute\",    ControlType = \"Button\", ButtonType = \"Toggle\", PinStyle = \"Both\", UserPin = true, Count = %d })" % I,
         "  table.insert(ctrls, { Name = \"FlexPremixerGain\", ControlType = \"Knob\", ControlUnit = \"Integer\", Min = -180, Max = 240, PinStyle = \"Both\", UserPin = true, Count = %d })" % I,
         "  table.insert(ctrls, { Name = \"FlexPremixerMute\", ControlType = \"Button\", ButtonType = \"Toggle\", PinStyle = \"Both\", UserPin = true, Count = %d })" % I,
+        "",
+        "  -- Built-in amplifier (IPCP A / IPCP SA / IPCP MA 70 variants only) -------------",
+        "  -- The vendor DTP3 884 module exposes two amp outputs (slots 26 and 27 on the",
+        "  -- wire); AmplifierAttenuation is -100..0 dB; AmplifierMute is On/Off.",
+        "  -- Controls are declared unconditionally (Count = 2) so the index space is",
+        "  -- stable across family models; the layout only draws them when HAS_AMP is",
+        "  -- true, and the runtime handlers no-op otherwise.",
+        "  -- SIS wire format (per corpus/.../extr_matrix_DTP3_CrossPoint_884_Series_v1_7_00.py):",
+        "  --   SetAmp Att:  WG6002<slot>*<value*10>AU\\r  (slot in {26,27})",
+        "  --   Set Mute:    WM6002<slot>*<0|1>AU\\r",
+        "  --   Poll:        WG6002<slot>AU\\r  / WM6002<slot>AU\\r",
+        "  --   Reply match: Ds[gG]6002(26|27)\\*([-]?\\d{1,4}|0)\\r\\n (dB*10)",
+        "  --                Ds[mM]6002(26|27)\\*(0|1)\\r\\n",
+        "  table.insert(ctrls, { Name = \"AmplifierAttenuation\", ControlType = \"Knob\", ControlUnit = \"Integer\", Min = -100, Max = 0, PinStyle = \"Both\", UserPin = true, Count = 2 })",
+        "  table.insert(ctrls, { Name = \"AmplifierMute\",        ControlType = \"Button\", ButtonType = \"Toggle\", PinStyle = \"Both\", UserPin = true, Count = 2 })",
     ]
     if spec.serial_insertion:
         lines += [
@@ -634,6 +649,12 @@ def _emit_get_pages(spec: PluginSpec) -> str:
         "\"Scaler Settings\"",
         "\"Ties and Presets\"",
         "\"General Settings\"",
+        # Amp is always listed in the tab bar for a family that CAN have an
+        # amp (DTP3 IPCP A / SA / MA 70 variants); the tab body itself
+        # checks the active model's HAS_AMP and shows a note on amp-less
+        # variants. For a single-model plugin without amp (e.g. a plain
+        # DTP CP 42), the tab still appears but is informative-only.
+        "\"Amp\"",
     ]
     if spec.serial_insertion:
         pages.append("\"RS-232 Insertion\"")
@@ -668,7 +689,7 @@ def _emit_get_control_layout(spec: PluginSpec) -> str:
     #   - free numeric   -> TextBox
     #   - read-only text -> Text + IsReadOnly=true
     lines = [
-        "page_tabs = { \"EDID Minder\", \"Input Config\", \"Output Config\", \"Scaler Settings\", \"Ties and Presets\", \"General Settings\"" +
+        "page_tabs = { \"EDID Minder\", \"Input Config\", \"Output Config\", \"Scaler Settings\", \"Ties and Presets\", \"General Settings\", \"Amp\"" +
         (", \"RS-232 Insertion\"" if spec.serial_insertion else "") + " }",
         "",
         "function GetControlLayout(props)",
@@ -983,6 +1004,31 @@ def _emit_get_control_layout(spec: PluginSpec) -> str:
         "    groupBox(\"Global Audio/Video\", 380, 124, 372, 84)",
         "    label(\"Global Video Mute\", 390, 142, 352, 16, { size = 10, color = Colors.SectionLabel })",
         "    layout[\"GlobalVideoMute\"] = { PrettyName = \"General Settings~Global Video Mute\", Style = \"Button\", Legend = \"Mute All Outputs\", ButtonStyle = \"Toggle\", Color = Colors.MuteRed, OffColor = Colors.OffGrey, UnlinkOffColor = true, Position = { 390, 160 }, Size = { 352, 32 } }",
+        "",
+        "  elseif tab == \"Amp\" then",
+        "    -- Built-in amplifier controls. Only wired on IPCP A / IPCP SA / IPCP MA 70",
+        "    -- variants (HAS_AMP). On other models the tab shows a note.",
+        "    if HAS_AMP then",
+        "      groupBox(\"Built-in Amplifier\", 8, 44, 744, 256)",
+        "      label(\"Output\",       14,  66,  52, 16, { size = 10, hAlign = \"Left\", color = Colors.SectionLabel })",
+        "      label(\"Attenuation (dB)\", 70,  66, 180, 16, { size = 10, color = Colors.SectionLabel })",
+        "      label(\"dB\",           256, 66,  40, 16, { size = 10, color = Colors.SectionLabel })",
+        "      label(\"Mute\",         310, 66, 140, 16, { size = 10, color = Colors.SectionLabel })",
+        "      for idx = 1, 2 do",
+        "        local row = 92 + (idx-1) * 60",
+        "        label(\"Amp \" .. idx, 14, row + 10, 52, 20, { size = 11, hAlign = \"Left\" })",
+        "        layout[\"AmplifierAttenuation \" .. idx] = { PrettyName = \"Amp~Out \" .. idx .. \" Attenuation\", Style = \"Fader\", Position = {  70, row }, Size = { 180, 40 } }",
+        "        layout[\"AmplifierMute \"        .. idx] = { PrettyName = \"Amp~Out \" .. idx .. \" Mute\",        Style = \"Button\", Legend = \"Mute\", ButtonStyle = \"Toggle\", Color = Colors.MuteRed, OffColor = Colors.OffGrey, UnlinkOffColor = true, Position = { 310, row + 6 }, Size = { 140, 28 } }",
+        "      end",
+        "      label(\"Range -100..0 dB (step 0.1); wire format WG6002<slot>*<dB*10>AU. See the\",",
+        "            12, 320, 740, 14, { size = 9, color = Colors.LabelText })",
+        "      label(\"vendor Extron DTP3 884 module in the corpus for the full amp SIS surface.\",",
+        "            12, 336, 740, 14, { size = 9, color = Colors.LabelText })",
+        "    else",
+        "      groupBox(\"Built-in Amplifier\", 8, 44, 744, 100)",
+        "      label(\"This model has no built-in amplifier. The amp surface is present on\", 24, 70, 700, 14, { size = 11, color = Colors.LabelText })",
+        "      label(\"IPCP A / IPCP SA / IPCP MA 70 variants of the DTP3 CrossPoint family.\",  24, 88, 700, 14, { size = 11, color = Colors.LabelText })",
+        "    end",
     ]
     if spec.serial_insertion:
         lines += [
@@ -1333,6 +1379,26 @@ RUNTIME_TEMPLATE = r'''if Controls then
       return
     end
 
+    -- Built-in amplifier: 'Ds[gG]6002(26|27)*<val>' (attenuation, value is
+    -- dB*10) and 'Ds[mM]6002(26|27)*<0|1>' (mute). Slot 26 -> amp output 1,
+    -- 27 -> amp output 2. The vendor DTP3 884 module in corpus/ defines this
+    -- surface; it is present on IPCP A / IPCP SA / IPCP MA 70 variants and
+    -- silent on everything else (so a non-amp model gets no reply here).
+    local ampKind, ampSlot, ampVal = string.match(line, "^Ds([gGmM])6002(2[67])%*(.-)$")
+    if ampKind then
+      local idx = (ampSlot == "26") and 1 or 2
+      if ampKind == "g" or ampKind == "G" then
+        if Controls.AmplifierAttenuation[idx] then
+          Controls.AmplifierAttenuation[idx].Value = (tonumber(ampVal) or 0) / 10
+        end
+      elseif ampKind == "m" or ampKind == "M" then
+        if Controls.AmplifierMute[idx] then
+          Controls.AmplifierMute[idx].Boolean = (tonumber(ampVal) == 1)
+        end
+      end
+      return
+    end
+
     -- Flex I/O audio: 'Ds[gGhHmM]4000<nn>*<val>' and 'Ds[gGhHmM]4010<nn>*<val>'.
     -- First digit after Ds disambiguates: g/G = gain, h/H = gain, m/M = mute.
     -- 4000<nn> family -> input <nn+1>; 4010<nn> family -> premixer.
@@ -1618,6 +1684,27 @@ RUNTIME_TEMPLATE = r'''if Controls then
     end
     Controls.FlexPremixerMute[i].EventHandler = function(ctl)
       send(string.format("wM%d40099*%dAU\r", i, ctl.Boolean and 1 or 0))
+    end
+  end
+
+  -- Built-in amplifier user controls --------------------------------------------
+  -- Only effective on IPCP A / IPCP SA / IPCP MA 70 variants (HAS_AMP). The
+  -- EventHandlers are always registered; on non-amp models the device simply
+  -- doesn't reply to these writes, so they are harmless. amp output 1 -> wire
+  -- slot 26; amp output 2 -> wire slot 27. Attenuation on the wire is dB*10;
+  -- Controls.AmplifierAttenuation[idx].Value is in plain dB (-100..0).
+  do
+    local AMP_SLOTS = { [1] = 26, [2] = 27 }
+    for idx, slot in pairs(AMP_SLOTS) do
+      Controls.AmplifierAttenuation[idx].EventHandler = function(ctl)
+        local db = math.floor(tonumber(ctl.Value or 0))
+        if db < -100 then db = -100 end
+        if db > 0 then db = 0 end
+        send(string.format("wG6002%d*%dAU\r", slot, db * 10))
+      end
+      Controls.AmplifierMute[idx].EventHandler = function(ctl)
+        send(string.format("wM6002%d*%dAU\r", slot, ctl.Boolean and 1 or 0))
+      end
     end
   end
 
