@@ -28,8 +28,33 @@ listing three findings that never existed under those names and marking finding
 17-how-a-human-writes-one.md
 18-adding-a-command.md               the asset tree is the command surface
 19-three-questions.md                crestron2cs, missing_ethernet, docs_only
+20-automate-vx-three-way.md          Extron vs Crestron vs the docs, one device
 ```
+
+The Crestron DM-MD switcher work keeps its own numbered notes, 01 to 29, in
+`experiments/crestron-dm-md-bridge/evidence/`. Where the status page cites
+"findings 24, 28, 29", it means those files, not this folder.
 
 Rule for this repo: a claim without evidence is written as a question, not a
 finding. A negative is written as *"not found by method X"*, never as *"does not
 exist"* — see the standing methodology notes in `STATUS.md`.
+
+## Grading a conversion
+
+Six things decide how far a direction gets:
+
+1. Container: can the format be read at all without Extron's tooling?
+2. Command table: do commands, parameters and qualifiers map 1:1?
+3. Feedback and parse: do match patterns survive translation?
+4. Connection model: serial params, IP ports, IR, relays, addressing.
+5. Logic and events: GC's event layer against ControlScript's user code.
+6. Round-trip loss: what is silently dropped, and does it matter?
+
+## Method
+
+Acceptance is the wire-string table (`tools/wire_table.py`), not file
+similarity. Matching bytes are not enough, since a module can send every byte
+right and still raise at runtime, and `Valid` does not mean loadable. Finding 18
+built a package that passed every local check and that GC would not list,
+because every local check shared one wrong model of the format. Deserialize
+through the vendor's own code before believing an edit.
