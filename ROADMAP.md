@@ -142,6 +142,12 @@ Scoped 2026-10-01 in `experiments/qsys/SCOPE.md`; the owner decided its four que
 | R50 | **Resolve values a plugin builds in a loop:** execute a helper's body in order, unrolling loops whose bounds are known, so `qplug_wire` reads Samsung MDC's `0xAA` frames (header, data bytes, checksum) instead of counting them opaque. | The Samsung pair, and every binary-protocol plugin built the same way, is unmeasured until then. | A flow-sensitive evaluator for one function body (locals in order, `for`/`while` unrolled to a bound, both arms of an unknown `if`), used where a value is accumulated (`v = v .. x`); test it on the Samsung `Send` shape first. | `experiments/qsys/RESULTS.md` §4 | M |
 | R49 | **QRC: drive a Q-SYS Core from an Extron (or Crestron) processor** over QSC's JSON-RPC protocol (TCP 1710). Extron's own Core module speaks the older ECP. | The owner wants it (D-Q4); a different job from converting device drivers, and well documented. | Read QSC's QRC command reference; list what Extron's ECP module exposes and map each to QRC. | SCOPE.md §0, §6 | M |
 
+### 2H. Repo layout
+
+| ID | What | Why it matters | First concrete step | Evidence | Effort |
+|---|---|---|---|---|---|
+| R51 | **Two file moves, planned 2026-11-02, not yet made:** `experiments/cip-ipid-survey/*.tsv` into `joins/`, and `tools/out/verdicts/` into `evidence/verdicts/`. The second must change `public_sync.py`'s `EXCLUDE` entry in the same commit, or the raw run records are published. The root documents and the manifest stay where they are; `notes/layout-plan.md` says why. | A visitor opening those folders on GitHub meets data and an output-looking folder before the documents that explain them. | Follow `notes/layout-plan.md`, one move per commit, then its checks. | `notes/layout-plan.md` | S |
+
 ---
 
 ## 3. Needs a decision or credentials from the user
