@@ -1,0 +1,11 @@
+# Runtime dependencies for Driver Studio (gui/driver_studio.py and the EXE
+# build under packaging/). Scoped to this directory only -- the rest of the
+# repo (tools/, experiments/, tests) stays standard-library-only. See
+# gui/README.md and the CLAUDE.md "GUI dependencies" section for rationale.
+#
+# Pinned so the EXE build is reproducible. Bump versions deliberately.
+customtkinter==6.0.0
+Pillow==13.0.0
+
+# Build-only (not imported at runtime, but needed to produce the EXE):
+pyinstaller==6.22.3

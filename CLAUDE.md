@@ -23,6 +23,16 @@ workstation needs in order to run the machine-bound parts.
 no `requirements.txt`, no compiled dependency. A cloud session is a first-class
 place to work on the code.
 
+Scope: this rule applies to `tools/`, `experiments/`, `findings/`, `notes/` and
+every test file. **The one exception is `gui/`,** which holds the Driver Studio
+desktop app (`gui/driver_studio.py`). The GUI needs a modern-looking widget set
+that tkinter alone doesn't give, so it has its own `gui/requirements.txt`
+pinning `customtkinter` and `Pillow` (both MIT, pure Python); the EXE build in
+`packaging/` is build-time only (`pyinstaller`), not imported at run time. No
+other directory may add runtime dependencies without the owner's explicit word.
+A cloud session can still work on everything else in the repo; the GUI simply
+is not exercised from one without a `pip install -r gui/requirements.txt`.
+
 **But the vendor material is not in the repository** (since 2026-09-24): the
 samples, `corpus/`, harvested vendor pages, GC catalogue data and every package
 built from a vendor one are untracked, listed in `vendor-files.manifest.tsv`. A
@@ -90,7 +100,8 @@ does not unblock them either:
   cloud container, but credentials are the gate, not the network.
 - ~~**Only 4 oracle pairs.**~~ Closed by finding 14, which scored 352 pairs
   across 314 packages. Selection, not acquisition, is the problem now.
-- **Crestron's licence position.** A lawyer's question.
+- **Crestron's licence position.** Cleared to proceed by the owner on 2026-09-29;
+  recorded as the owner's decision, not a legal finding.
 
 ### Network, from a cloud container
 

@@ -13,7 +13,7 @@ do lives in `ROADMAP.md`; the machine it runs on is described in `ENVIRONMENT.md
 | Crestron `.pkg` → Extron ControlScript? | **Yes — built and measured** against Extron's own driver for the same device. |
 | Crestron device driven by an Extron processor? | **The `.pkp` runs on a processor; no real camera yet.** `20025` and `20026` built and uploaded from GC Pro to an IPCP Pro 360 and were controlled from a TLP Pro 725M against a PC playing the camera, with feedback following it both ways (`experiments/skeleton_i20/PROTOCOL.md`). `20028` (v1.6, parity with Crestron's own driver; 2026-09-23) is the current package, verified through Extron's loader but not yet uploaded. The drop-in ControlScript module has not run on a processor. Same wire table from both emitters (finding 13). |
 | A Crestron DM-MD switcher driven by an Extron processor? | **Designed, not built; its console is now observed, read-only** (`experiments/dm_md/`). Designed 2026-09-24 for a DM-MD32X32-CPU3, which is gone; retargeted 2026-10-05 to the owner's bench DM-MD8X8-CPU3-RPS (control engine v1.8001.5769.27432, PUF 3.04.16). Read-only console sessions and a TCP connect check on 2026-10-04/05 (graded BENCH in the design) found the route commands on CPU3 firmware, with input 0 breaking a route per the unit's own usage text; the console reached over SSH on TCP 22 (of the ports probed, 23 and 41795 refuse), with authentication forced; and the unrouted route dump. No route has been sent, so the output number is BENCH but not proven: the console numbers this 8x8's outputs 33–40 (32+N), and the route usage calls the output argument an Output Card Slot Id. For this firmware that contradicts the 16+N (17–24) that DESIGN §2.2 gave until 2026-10-05, from a 2011 forum post. One owner-approved route on a spare output (DESIGN's H-DM1, ROADMAP H9) confirms it. Driver code waits on the owner's approval (R44). |
-| Extron → Crestron `.pkg`? | **Mechanically demonstrated** (resource-patched a real DLL). Gated by Crestron's dealer/partner licence, not by code. |
+| Extron → Crestron `.pkg`? | **Mechanically demonstrated** (resource-patched a real DLL). The licence question was cleared by the owner on 2026-09-29; what remains is a processor or VC-4 to actually test loading (H8), and the schema-translation design for a full emitter (R35). |
 | Generate a driver from API docs alone? | **Mostly.** 29 of the 32 endpoints a real driver calls have their own documentation page (~91%), re-measured from saved files on 2026-09-23 (`experiments/docs_only/REMEASURE.md`); the earlier ~84% predated finding 08's correction. The other 3 are the ISO-record family: `ISORecordStatus` appears only inside another page's example, and `StartISORecord`/`StopISORecord` appear nowhere. The danger is silent incompleteness, not missing methods. |
 | Is a shared intermediate representation justified? | **Yes.** Two vendors independently encode the same device to the same bytes, including its undocumented bug workarounds. |
 | A Biamp Tesira controlling an Extron device? | **On paper, yes, with Tesira's own blocks** (`experiments/tesira_in1804/MAP.md`, 2026-10-01). A Network Command String block sends an IN1804's SIS strings over TCP and, from Tesira 3.15, matches its replies for feedback; the strings come from Extron's own module. Not run on either device (ROADMAP H11). |
@@ -113,12 +113,16 @@ not a mechanical rewrite, so they are reported as residuals rather than guessed.
 1. **Does an outsider-built `.pkg` load on a processor?** Independent developers ship drivers
    built from the public NuGet DevKit, so the compile path is demonstrated; the resource-swap
    shortcut is not. **Crestron Toolbox is obtainable** (see `ENVIRONMENT.md`), so
-   the tool is no longer the gate — a processor or VC-4 instance is, plus the
-   licence question below. *No amount of research substitutes for this.*
-2. **Crestron's licence** restricts its tools to "Developing software for Crestron Devices",
-   bars reverse engineering, and requires a Dealer/AIP/Partner agreement. Extron requires a
-   free account with no field-of-use limit. A lawyer's question, cheaper to ask before building
-   an emitter than after.
+   the tool is no longer the gate — a processor or VC-4 instance is. *No amount of research
+   substitutes for this.*
+2. **Crestron's licence position — cleared by the owner, 2026-09-29.** The owner marked the
+   licence question "cleared to proceed" for the interop/decompilation work the project needs.
+   Recorded as the owner's decision, not a legal finding. The practical gate on an actual
+   `.pkg` emitter is now the schema-translation design (the Extron object graph and the
+   Crestron driver JSON do not share a layout), not legal: R35 and H8 are now buildable
+   tasks. The owner's 2026-09-24 decision on decompiling Crestron's distributed SIMPL#
+   libraries for interoperability already closed the narrower reverse-engineering question
+   (`experiments/crestron_decompile/`, REPORT.md §10.6).
 3. **Catalogue coverage.** How much of Crestron's library is the extractable JSON-engine form
    versus V2 Entity Model versus V1 RAD? Two data points so far: Samsung = LegacyWrappers JSON
    engine, 1 Beyond = V2 with a **bounded, named** IL residue. `drivers.crestron.io` is

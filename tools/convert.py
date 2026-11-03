@@ -54,7 +54,7 @@ DIRECTIONS = [
     ("pkp2pkg",
      "Extron .pkp  ->  Crestron .pkg (resource-swap patch only)",
      "patch-only; schema mismatch between formats is a manual step",
-     "STATUS.md D2 - Crestron licence question; Finding 04"),
+     "Finding 04. Licence question D2 was cleared by the owner 2026-09-29; the remaining gate on a full emitter is the schema-translation design (R35), not legal."),
 ]
 
 
@@ -249,11 +249,14 @@ def cmd_pkp2pkg(args):
     the user a broken .pkg with a confusing error from the wrong layer).
     Dumps the Extron graph for inspection and prints the pkg_patch.py
     command the user would run once they have a conforming Crestron
-    driver JSON. Gate: STATUS.md D2."""
-    print("convert.py pkp2pkg: resource-swap only. Full Extron -> Crestron")
-    print("emit is gated by the Crestron licence question (STATUS.md D2).")
-    print("The Extron object graph and the Crestron driver JSON do not share")
-    print("a schema, so this verb will not auto-chain pkp_dump into pkg_patch.")
+    driver JSON. The licence question D2 was cleared by the owner on
+    2026-09-29; what remains gating a full emitter is the schema-
+    translation design (R35), not legal."""
+    print("convert.py pkp2pkg: resource-swap only. The Extron object graph")
+    print("and the Crestron driver JSON do not share a schema, so this verb")
+    print("will not auto-chain pkp_dump into pkg_patch -- that would hand")
+    print("you a broken .pkg. (A full Extron -> Crestron emitter is R35;")
+    print("the licence question D2 was cleared 2026-09-29 by the owner.)")
     print("")
     if args.output:
         os.makedirs(os.path.dirname(os.path.abspath(args.output)) or ".",
@@ -383,8 +386,9 @@ def build_parser():
                     "the exact pkg_patch.py command to run once a conforming "
                     "Crestron driver JSON is produced. Does NOT chain the raw "
                     "Extron graph into pkg_patch.py - the schemas differ and "
-                    "doing so would produce a broken artifact. STATUS.md D2 is "
-                    "the licence gate behind a full emit.",
+                    "doing so would produce a broken artifact. ROADMAP R35 is "
+                    "the schema-translation design gate behind a full emit; "
+                    "the licence question D2 was cleared by the owner 2026-09-29.",
     )
     s.add_argument("input", help="source Extron .pkp (its graph is dumped to JSON)")
     s.add_argument("--donor", required=True,

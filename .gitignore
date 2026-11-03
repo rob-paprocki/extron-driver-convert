@@ -35,6 +35,13 @@ private/
 # does not always remove it (one was committed under skeleton_i20/out/).
 .ptmp*/
 
+# PyInstaller build artifacts for Driver Studio. The spec file at
+# packaging/driver_studio.spec is tracked; the output is a release artifact
+# attached to a GitHub Release, not committed into history.
+packaging/build/
+packaging/dist/
+*.spec.pyc
+
 # ---------------------------------------------------------------------------
 # Vendor material: used on disk, never published (untracked 2026-09-24).
 # vendor-files.manifest.tsv lists every such file with its SHA-256, and

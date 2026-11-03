@@ -450,7 +450,8 @@ class SubprocessRunner:
 
     def run(self, argv: List[str],
             on_line: Callable[[str], None],
-            on_done: Callable[[int], None]) -> None:
+            on_done: Callable[[int], None],
+            *, cwd: Optional[str] = None) -> None:
         if self.running():
             raise RuntimeError("another subprocess is already running")
         self.on_line = on_line
@@ -468,7 +469,7 @@ class SubprocessRunner:
         try:
             self.proc = subprocess.Popen(
                 argv,
-                cwd=str(REPO_ROOT),
+                cwd=cwd or str(REPO_ROOT),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 stdin=subprocess.DEVNULL,
