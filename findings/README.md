@@ -53,8 +53,8 @@ Six things decide how far a direction gets:
 ## Method
 
 Acceptance is the wire-string table (`tools/wire_table.py`), not file
-similarity. Wire correctness is necessary but not sufficient: a module can send
-every byte right and still raise at runtime. `Valid` does not mean loadable
-either. Finding 18 built a package that passed every local check and that GC
-would not list, because every local check shared one wrong model of the format.
-Deserialize through the vendor's own code before believing an edit.
+similarity. Matching bytes are not enough, since a module can send every byte
+right and still raise at runtime, and `Valid` does not mean loadable. Finding 18
+built a package that passed every local check and that GC would not list,
+because every local check shared one wrong model of the format. Deserialize
+through the vendor's own code before believing an edit.

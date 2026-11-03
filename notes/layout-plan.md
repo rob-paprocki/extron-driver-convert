@@ -79,8 +79,7 @@ files inside them. The tests that walk `samples/` tolerate a missing folder,
 and `tools/verify_vendor_files.py` names any missing path for someone placing
 their own copies. Steps: `git rm` every `samples/**/.gitkeep`; in `.gitignore`,
 update the comment about them and remove the `.gitkeep` exception; reword
-`samples/README.md` to say only the README is tracked. A cosmetic gain, so it
-is optional.
+`samples/README.md` to say only the README is tracked. The gain is cosmetic.
 
 ## Stays, and why
 
@@ -93,7 +92,7 @@ is optional.
 | `samples/`, `corpus/` | The manifest pins every vendor file under them, and findings 14, 16 and 17 depend on those exact paths. |
 | the `scratch/` folders in `experiments/` | Each is documented in its parent README. The UI Automation chain in `gcp_harness/scratch/` is due to be folded into one script (ROADMAP), and `oracle_pairs/scratch/` has code that computes the repo root from its depth. |
 
-## Before you start
+## Who this affects
 
 - Any other machine with unpushed work on these paths will see rename
   conflicts on its next pull.

@@ -3,7 +3,7 @@
 Standard-library Python 3.11 or later, so there is nothing to install. Run
 everything from the repo root.
 
-## Start here
+## The converter
 
 | file | what it is |
 |---|---|

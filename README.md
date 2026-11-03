@@ -27,7 +27,7 @@ here, which is why the folders under `samples/` and `corpus/` hold no files.
 | Crestron `.pkg` to ControlScript? | **Works** for Crestron's JSON-engine drivers, measured against Extron's own driver for the same device (findings 03 to 05, 13, 19). `convert.py` stops at the JSON; the module step is in `experiments/crestron2cs/`. |
 | Extron to Crestron `.pkg`? | **Patch only.** Swapping the driver inside a real package works mechanically; going further needs Crestron's dealer licence (findings 04, 06). |
 | A Crestron camera on an Extron processor? | **Runs against a stand-in.** Earlier builds of the 1 Beyond IV-CAM-I20 `.pkp` uploaded to an IPCP Pro 360 and were driven from a touch panel, with a PC playing the camera. The current 45-command build passes Extron's loader. No real camera yet, and the ControlScript form has not run on a processor. |
-| A Crestron DM-MD switcher on an Extron processor? | **Routing and serial pass-through work on the chassis.** A DM-MD8X8-CPU3-RPS takes both over one socket from a Python stand-in for the control system. A `.pkp` that sends the same bytes is built but has not run on an Extron processor. IR and relay are stubbed. See [`experiments/crestron-dm-md-bridge/`](experiments/crestron-dm-md-bridge/), whose numbered notes 24, 28 and 29 are what the status page calls findings 24, 28 and 29. |
+| A Crestron DM-MD switcher on an Extron processor? | **Routing and serial pass-through work on the chassis.** A DM-MD8X8-CPU3-RPS takes both over one socket from a Python stand-in for the control system. A `.pkp` that sends the same bytes is built but has not run on an Extron processor. IR and relay are stubbed. See [`experiments/crestron-dm-md-bridge/`](experiments/crestron-dm-md-bridge/); its notes 24, 28 and 29 are the status page's findings 24, 28 and 29. |
 | Q-SYS to and from Extron? | **Both directions built.** Q-SYS plugins translate to ControlScript (two pilots, exact on the wire), and Extron CrossPoint switchers get Q-SYS plugins (`experiments/qsys/`). |
 
 GC is Extron Global Configurator. The [status page](https://rob-paprocki.github.io/extron-driver-convert/status.html)
@@ -46,7 +46,7 @@ has the full answers and what is left to do.
 | `samples/`, `corpus/` | placeholder folders with no files in them; vendor drivers sit here on the owner's machine | no |
 | `notes/` | early desk research, sample provenance, and the plan for which files to move (`layout-plan.md`) | no |
 
-And the files at the top:
+The files at the top level:
 
 | file | what it is |
 |---|---|

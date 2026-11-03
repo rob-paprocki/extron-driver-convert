@@ -7,7 +7,7 @@ The chassis speaks Crestron's CIP peer protocol on TCP 41794, and it dials out
 to its control system rather than waiting to be polled. Answer that call as
 the control system and routing and endpoint serial ride one socket.
 
-## Where it stands
+## Results on the chassis
 
 On the chassis, with a Python master (`cip_master_server_v2.py`) on a PC in
 the control system's place:

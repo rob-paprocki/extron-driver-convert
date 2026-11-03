@@ -24,13 +24,13 @@ exchange join values wrapped in nested slot containers: digital, analog,
 serial. Everything the device does and everything you tell it to do rides that
 one socket.
 
-We proved the protocol on real hardware, using a Python master
-(`crestron-dm-md-bridge/cip_master_server_v2.py`) on a PC in the Extron
-processor's place. The chassis connects to it, and routing works byte-for-byte:
-send the right analog leaf to the right output-card slot and the matrix switches. We
-confirmed it over SSH against the chassis — `DUMPDMROUTEINFO 33` reports the
-route change the instant our write lands. `dm_md_master_v0_0_1.pkp` sends the
-same bytes, but loading it on an Extron processor is still a Phase 4 step
+We proved the protocol on real hardware. A Python master on a PC
+(`crestron-dm-md-bridge/cip_master_server_v2.py`) took the Extron processor's
+place; the chassis connects to it, and routing works byte-for-byte: send the
+right analog leaf to the right output-card slot and the matrix switches. We confirmed
+it over SSH against the chassis, where `DUMPDMROUTEINFO 33` reports the route
+change the instant our write lands. `dm_md_master_v0_0_1.pkp` sends the same bytes, but
+loading it on an Extron processor is still a Phase 4 step
 (`crestron-dm-md-bridge/evidence/29-slot-architecture-resolved.md`).
 
 ComPort passthrough works too, and we know it works because of a jumper. With
@@ -125,7 +125,7 @@ would be slower and, for the obfuscated ones, often blocked outright.
 - `experiments/cip-ipid-survey/` — the join maps for VX2, NVX, the Director,
   and Crestron Connected displays, with a README that lays out the shared
   architecture.
-- `dm_md_master_v0_0_1.pkp` — the driver. Its routing and ComPort bytes match
+- `dm_md_master_v0_0_1.pkp` is the driver. Its routing and ComPort bytes match
   what was proven on the chassis; it has not yet been loaded on an Extron
   processor. IR and relay stubbed and marked.
 
