@@ -308,6 +308,58 @@ class PackageBuilder(object):
         self._edits.append("string %d: %r -> %r" % (object_id, before, new_value))
         return before
 
+    def replace_enum_value(self, object_id, new_value):
+        """Swap the inline Int32 of a boxed enum record at `object_id`.
+
+        A boxed value-type enum serializes as a class record (ClassWithId,
+        or one of the ClassWith*Members* records the first time its type
+        appears in the stream) immediately followed by one Primitive
+        carrying its 4-byte Int32 value. This method mutates that Primitive
+        in place -- same byte position, same oid, only the value changes.
+
+        Mirror of replace_string's shape. Lower-level than CommandGraph's
+        set_enum_member (which takes asset_id + member name) -- useful
+        when you already know the enum record's oid.
+
+        R28 Phase 4 established the mechanism: Extron's BinaryFormatter
+        binds a command's property accessors to its field values by stream
+        position, so in-place mutation surfaces through Load-Package while
+        appending a new record at a new position does not.
+        """
+        hits = 0
+        class_slot = None
+        value_slot = None
+        trace = self.trace
+        for i, ev in enumerate(trace):
+            if ev.get("object_id") != object_id:
+                continue
+            if ev.get("kind") not in ("ClassWithId", "ClassWithMembers",
+                                     "ClassWithMembersAndTypes",
+                                     "SystemClassWithMembers",
+                                     "SystemClassWithMembersAndTypes"):
+                continue
+            if i + 1 >= len(trace):
+                continue
+            nxt = trace[i + 1]
+            if nxt.get("kind") != "Primitive":
+                continue
+            class_slot = i
+            value_slot = i + 1
+            hits += 1
+        if hits == 0:
+            raise TransplantError(
+                "no boxed enum record with object_id=%r "
+                "(must be a class record followed by a Primitive)"
+                % (object_id,))
+        if hits > 1:
+            raise TransplantError(
+                "multiple boxed enum records with object_id=%r (unexpected)"
+                % (object_id,))
+        before = trace[value_slot]["value"]
+        trace[value_slot]["value"] = int(new_value)
+        self._edits.append("enum %d: %r -> %r" % (object_id, before, int(new_value)))
+        return before
+
     # -- output ------------------------------------------------------------
 
     def raw_bytes(self):

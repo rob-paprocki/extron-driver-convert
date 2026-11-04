@@ -45,8 +45,8 @@ DIRECTIONS = [
      "pkp2cs.py; wire-table parity measured in experiments/"),
     ("cs2pkp",
      "ControlScript (.py)  ->  Extron .pkp",
-     "DONE via donor transplant; from-scratch synthesis partial",
-     "Finding 12 / Finding 18; ROADMAP R28 for from-scratch graph"),
+     "DONE via donor transplant (scripts + strings)",
+     "Finding 12 / Finding 18. For authored new-command fields see the `author` verb below (R28 Phase 5, 2026-11-04)."),
     ("pkg2cs",
      "Crestron .pkg  ->  Extron ControlScript (.py)",
      "pkg_dump measured; .pkg -> ControlScript emit is a manual step",
@@ -55,6 +55,10 @@ DIRECTIONS = [
      "Extron .pkp  ->  Crestron .pkg (resource-swap patch only)",
      "patch-only; schema mismatch between formats is a manual step",
      "Finding 04. Licence question D2 was cleared by the owner 2026-09-29; the remaining gate on a full emitter is the schema-translation design (R35), not legal."),
+    ("author",
+     "API doc / spec  ->  Extron .pkp (in-place command authoring)",
+     "DONE 2026-11-04 via R27 clone + position-stable byte mutation",
+     "R28 Phase 5 passes Load-Package.ps1 -Commands four-accessor gate. See experiments/graph_synthesis/RESULTS.md 'R28 Phase 5'."),
 ]
 
 
@@ -243,6 +247,126 @@ def cmd_pkg2cs(args):
     return 0
 
 
+def cmd_author(args):
+    """Author one donor command's four property-bearing fields in place.
+
+    R28 Phase 5: the donor must round-trip byte-for-byte (same safety as
+    cs2pkp -- RoundTripError raises at open before any edit). Then
+    CommandGraph.author_fresh_command() mutates the _name and
+    _scriptName strings at their original oids (position-stable, no
+    record relocation) and the _attributes / _exCmdId Primitives on
+    every per-model variant of the targeted command. The result loads
+    through Extron's own BinaryFormatter with every property accessor
+    returning the authored value, not the C# class defaults -- see
+    experiments/graph_synthesis/RESULTS.md 'R28 Phase 5' for the full
+    gate output.
+    """
+    # Parse the attributes value: accept 0x22, 34, or a name expression
+    # like "RuntimeVisible|LiveStatus" (attributes is an IntFlag).
+    sys.path.insert(0, HERE)
+    from extron_enums import DriverAttributeEnum, ExtronCommandIdEnum
+
+    try:
+        if args.attributes.startswith("0x") or args.attributes.startswith("0X"):
+            attributes = int(args.attributes, 16)
+        elif args.attributes.isdigit() or (args.attributes.startswith("-")
+                                           and args.attributes[1:].isdigit()):
+            attributes = int(args.attributes)
+        else:
+            # Name expression: "RuntimeVisible|LiveStatus" etc.
+            value = 0
+            for tok in args.attributes.split("|"):
+                tok = tok.strip()
+                if not tok:
+                    continue
+                if not hasattr(DriverAttributeEnum, tok):
+                    print("convert.py author: unknown attribute %r "
+                          "(try one of %s)" % (
+                              tok, [m.name for m in DriverAttributeEnum]),
+                          file=sys.stderr)
+                    return 2
+                value |= int(getattr(DriverAttributeEnum, tok))
+            attributes = value
+    except ValueError as exc:
+        print("convert.py author: --attributes parse failed: %s" % exc,
+              file=sys.stderr)
+        return 2
+
+    if args.ex_cmd_id is None:
+        ex_cmd_id = int(ExtronCommandIdEnum.General)
+    else:
+        try:
+            if args.ex_cmd_id.isdigit():
+                ex_cmd_id = int(args.ex_cmd_id)
+            elif hasattr(ExtronCommandIdEnum, args.ex_cmd_id):
+                ex_cmd_id = int(getattr(ExtronCommandIdEnum, args.ex_cmd_id))
+            else:
+                print("convert.py author: unknown --ex-cmd-id %r (try %s)"
+                      % (args.ex_cmd_id,
+                         [m.name for m in ExtronCommandIdEnum]),
+                      file=sys.stderr)
+                return 2
+        except ValueError:
+            print("convert.py author: --ex-cmd-id must be int or name",
+                  file=sys.stderr)
+            return 2
+
+    from pkp_build import PackageBuilder, RoundTripError
+    from pkp_asset import CommandGraph, AssetError
+
+    if not os.path.isfile(args.donor):
+        print("convert.py author: donor not found: %s" % args.donor,
+              file=sys.stderr)
+        return 2
+    try:
+        builder = PackageBuilder(args.donor)
+    except RoundTripError as exc:
+        print("convert.py author: donor does not round-trip "
+              "(pkp_build refuses to emit from an unverified donor): %s"
+              % exc, file=sys.stderr)
+        return 2
+
+    cg = CommandGraph(builder)
+    cmds = cg.commands()
+    if args.target not in cmds:
+        sample = sorted(cmds)[:12]
+        more = "" if len(cmds) <= 12 else " (%d more)" % (len(cmds) - 12)
+        print("convert.py author: target script_name %r not in donor. "
+              "Known: %s%s" % (args.target, sample, more),
+              file=sys.stderr)
+        return 2
+    command_id = cmds[args.target]
+
+    try:
+        result = cg.author_fresh_command(
+            command_id,
+            name=args.name,
+            script_name=args.script_name,
+            attributes=attributes,
+            ex_cmd_id=ex_cmd_id,
+            allow_shared=True,
+        )
+    except AssetError as exc:
+        print("convert.py author: %s" % exc, file=sys.stderr)
+        return 2
+
+    out_dir = os.path.dirname(os.path.abspath(args.output))
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
+    builder.write(args.output)
+
+    print("Authored target=%r name=%r script_name=%r "
+          "attrs=0x%x exCmdId=%d across %d variant(s)." % (
+              args.target, args.name, args.script_name,
+              attributes, ex_cmd_id, len(result["sibling_ids"])))
+    if result["enum_misses"]:
+        print("  warning: %d enum mutations missed; run `convert.py "
+              "verify --load-package %s` to confirm Extron sees the "
+              "authored values." % (len(result["enum_misses"]), args.output))
+    print("Wrote %s" % _rel(args.output))
+    return 0
+
+
 def cmd_pkp2pkg(args):
     """Patch-only Extron -> Crestron: refuses to chain the raw Extron
     object graph into pkg_patch.py (different schemas - that would hand
@@ -378,6 +502,35 @@ def build_parser():
     s.add_argument("input")
     s.add_argument("-o", "--output", help="output directory for the extracted driver JSON")
     s.set_defaults(func=cmd_pkg2cs)
+
+    s = sub.add_parser(
+        "author",
+        help="author a donor command's fields in place (R28 Phase 5)",
+        description="Rewrite a single donor command's display name, "
+                    "self.Commands script key, DriverAttributeEnum "
+                    "bitfield and ExtronCommandIdEnum value in place. "
+                    "The donor must round-trip byte-for-byte or the "
+                    "edit is refused. The result deserialises through "
+                    "Extron's own BinaryFormatter with every property "
+                    "accessor returning the authored value (Phase 5 "
+                    "gate). Target by donor script_name -- discover "
+                    "names with `convert.py dump <donor>`.",
+    )
+    s.add_argument("donor", help="a real .pkp whose round-trip is verified")
+    s.add_argument("--target", required=True,
+                   help="donor script_name to rewrite (e.g. Power)")
+    s.add_argument("--name", required=True,
+                   help="authored display name (what GC shows)")
+    s.add_argument("--script-name", required=True,
+                   help="authored self.Commands key")
+    s.add_argument("--attributes", required=True,
+                   help="DriverAttributeEnum bitfield: 0x22, 34, or "
+                        "'RuntimeVisible|LiveStatus'")
+    s.add_argument("--ex-cmd-id", default=None,
+                   help="ExtronCommandIdEnum value: int or name "
+                        "(General|Power|Input|LampHour). Default General.")
+    s.add_argument("-o", "--output", required=True)
+    s.set_defaults(func=cmd_author)
 
     s = sub.add_parser(
         "pkp2pkg",

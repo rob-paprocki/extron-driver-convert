@@ -505,9 +505,18 @@ DIRECTIONS: List[tuple] = [
     # (source, target, status, note)
     (".pkp", ".py (ControlScript)", "DONE",
      "pkp2cs. Wire-table parity measured; see STATUS.md."),
-    (".py (ControlScript)", ".pkp", "Donor-only",
-     "cs2pkp transplants into a round-trip-verified donor. "
-     "From-scratch synthesis: ROADMAP R28 (partly done)."),
+    (".py (ControlScript)", ".pkp", "DONE",
+     "cs2pkp transplants scripts and strings into a round-trip-verified "
+     "donor; `convert.py author` rewrites a donor command's display name, "
+     "script key, attributes and command-id in place (R28 Phase 5, "
+     "2026-11-04). Gate: Load-Package.ps1 -Commands returns authored "
+     "values, not class defaults."),
+    ("API doc / spec", ".pkp", "DONE (in-place authoring)",
+     "`convert.py author` composes R27 cross-clone with position-stable "
+     "byte mutation so authored _name / _scriptName / _attributes / "
+     "_exCmdId bind through Extron's ISerializable accessors. The donor "
+     "is the structural host; a wholly-fresh NRBF emitter (no donor) "
+     "is tracked as ROADMAP R28b -- not required for this user story."),
     (".pkg (Crestron)", ".py (ControlScript)", "Partial",
      "pkg2cs dumps JSON; the finish from JSON to a module is manual."),
     (".pkp", ".pkg (Crestron)", "Patch-only",

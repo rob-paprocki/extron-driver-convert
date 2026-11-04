@@ -361,3 +361,372 @@ py -3.11 -u experiments/graph_synthesis/test_cross_clone.py
 Load-Package.ps1 -Path experiments/graph_synthesis/out/1bynd_19_r27_cross_clone.pkp -Deserialize -Commands -Protocol
 Load-Package.ps1 -Path experiments/graph_synthesis/out/1bynd_19_r28_stripped_root.pkp -Deserialize -Commands -Protocol
 ```
+
+## R28 Phase 2 and Phase 3 (2026-11-04)
+
+Phase 2 added a from-scratch authoring API to `tools/pkp_asset.py`:
+
+- `CommandGraph.strip_to_minimum_root(root_id=1)` — detach the three
+  non-load-bearing root-level typed containers (`RevisionHistoryAsset`,
+  `IParamAsset`, `IResourceAsset`), leaving the three containers
+  `probe_minimal_root.py` measured as required.
+- `CommandGraph.keep_only_command(command_id)` — detach every
+  `DriverCommandAsset` except the given one from every command-holding
+  collection in the graph (pool and per-model lists).
+- `CommandGraph.author_command_values(command_id, name, script_name,
+  attributes, ex_cmd_id, description)` — rewrite the visible fields of
+  an existing command asset using the `tools/extron_enums.py` vocabulary
+  decoded in Phase 1. Combined with the two above, the output .pkp
+  carries exactly one command whose fields are authored by us.
+- `CommandGraph.set_ex_cmd_id(command_id, value)` — sibling of
+  `set_attributes`, handles the `_exCmdId` field whose member name
+  differs by .pkp vintage (`CommandAssetBase+_exCmdId` on shipping
+  donors; bare `_exCmdId` on finding-18's assembled packages).
+
+`experiments/graph_synthesis/build_one_command.py` chains them and
+writes `out/one_command.pkp`. Regression suite:
+`experiments/graph_synthesis/test_from_scratch.py` (12 tests, all pass).
+
+### Phase 3 — the Extron deserialiser gate
+
+Target: `out/one_command.pkp` through `Load-Package.ps1 -Deserialize
+-Commands` under 32-bit PowerShell. Two layers of outcome, and the gap
+between them is the open finding this phase surfaces.
+
+**Structural layer — PASS.**
+
+```
+LoadFromFile : DriverFileAsset  name=<donor's>
+Deserialize  : OK (Extron.Configuration.Drivers.DriverFileAsset)
+DriverCommands: 1
+exit 0
+```
+
+`LoadFromFile` returns a non-null `DriverFileAsset`, `Deserialize`
+succeeds without throwing, and exactly one command appears in the
+deserialised command collection. This is the Finding 18 gate — same
+layer R27's cross-clone passes. Our edits do not produce a stream the
+BinaryFormatter rejects.
+
+**Property-accessor layer — PARTIAL.** The deserialised command's
+`ScriptMethodName`, `Name`, and `Attributes` property accessors return
+the **C# class defaults** rather than the authored values:
+
+| Property | Authored (our bytes) | `Load-Package` reads |
+|---|---|---|
+| `ScriptMethodName` | `"TestCommand"` | `""` |
+| `Name` | `"Test Command"` | `"Value"` |
+| `Attributes` | `0x22` (34, `RuntimeVisible \| LiveStatus`) | `15` (`0x0F`) |
+
+`CommandAssetBase` in `Extron.Configuration.Core.decompiled.cs:48714`
+backs these properties directly on the fields we rewrote (`_scriptName`,
+`_name`, `_attributes`), so a direct byte read ought to populate them.
+The symptom was reproduced across variants:
+
+- `one_command.pkp` from the 20024 (finding-18 built) donor — above.
+- `keep_one_untouched.pkp`: strip-to-minimum-root + keep-one WITHOUT
+  rewriting the kept command's values. Same 20024 donor; kept Power
+  command untouched. `Load-Package` reads `"", "Value", 15` plus the
+  command's correct parameter list `On | Off | Internal Power Circuit
+  Error`.
+- `strip_revhist_only.pkp`: strip only `RevisionHistoryAsset` (keep the
+  `IParamAsset` and `IResourceAsset` pools intact) + keep-one of Power.
+  Same symptom.
+- The same probe repeated on a shipping Panasonic donor
+  (`pana_10_17060`): `DriverCommands: 0` in the pool and one command
+  in one model list — different numbers, same class-default readout.
+
+Byte-level side-by-side (`probe_power_diff.py`) of the kept Power
+command's trace spans between the unmodified 20024 donor and
+`strip_revhist_only.pkp` shows **every member slot, every reference,
+every value, and the DriverCommandAsset class metadata record's member
+order is byte-identical**. Yet the unmodified donor's Power reads
+`attrs=3, name="Power", ScriptMethodName="Power"` from the same
+property accessors, and the edited file's Power reads `"", "Value",
+15` from them.
+
+**What this points at, and what remains.** The on-wire fields are
+correct; the property accessors still return defaults. That mismatch
+rules out the obvious culprits (bad values, wrong member order,
+missing fields) and leaves the less obvious ones:
+
+- A perturbation in the stream order of class-definition records the
+  deserialiser uses to resolve inline negative-id enum class
+  references. `set_attributes`/`set_ex_cmd_id` rewrite the Primitive
+  value AFTER the inline `ClassWithId` without altering the class
+  reference itself, but `detach()` reshuffles backing-array elements
+  and shifts spans past the edit, which could move an unrelated
+  class-definition record's first-instance byte position.
+- A `BinaryLibrary` version-resolution step that silently falls back
+  to class defaults when it cannot find a matching library (the same
+  class of failure finding 18 §6 saw, which also loaded cleanly but
+  populated nothing).
+- An interaction between `_resourceHashDict`'s referenced hash objects
+  and the detached child arrays that leaves the deserialiser's
+  `ISerializationStatus` mechanism rejecting the command's field set.
+
+None of these are decided here. What is decided:
+
+- Phase 1's enum vocabulary is correct — the bit values round-trip
+  through our parser and `pkp_validate` reports `Valid 0`.
+- The Phase 2 authoring API writes the authored values correctly at
+  the byte level. The `test_from_scratch.py` suite pins that
+  contract.
+- The strip + keep-one pattern deserialises successfully but does NOT
+  yet produce a command whose property accessors reflect the author's
+  intent. Closing R28 at the property level needs the diagnosis above
+  resolved; the byte-level ground is now firm.
+
+### Byte-count comparison
+
+| Package | bytes |
+|---|---|
+| 20024 donor (finding-18 built) | 234,347 |
+| `one_command.pkp` (from 20024, authored) | 234,359 |
+| `keep_one_untouched.pkp` (from 20024, no rewrite) | 234,342 |
+| `strip_revhist_only.pkp` (RevisionHistoryAsset only) | 234,344 |
+| `strip_all_three.pkp` (full strip) | 234,342 |
+
+The edited variants are within 20 bytes of the donor — the 15 detaches
+and the authored string writes make essentially no size change, as
+expected (NRBF is logical-id, not byte-offset, keyed).
+
+### Reproducing Phase 2 and 3
+
+```
+py -3.11 -u experiments/graph_synthesis/build_one_command.py
+py -3.11 -u experiments/graph_synthesis/test_from_scratch.py
+
+# Then, from 32-bit PowerShell:
+Load-Package.ps1 -Path experiments/graph_synthesis/out/one_command.pkp \
+    -Deserialize -Commands
+```
+
+Donor candidates and fallback scan live in `build_one_command._pick_donor()`.
+
+## R28 Phase 3b — property-accessor diagnosis (2026-11-04)
+
+Diagnostic probes added: `probe_class_defs.py` (NRBF class/library tables
+diff) and `probe_refs.py` (BFS over $refs from the target command).
+
+### Hypotheses tested
+
+| # | Hypothesis | Verdict |
+|---|---|---|
+| 1 | Class-definition record order shifted (`MetadataId` rebinding) | **Ruled out**: `probe_class_defs.py` shows 57 class defs, identical oid -> (name, library) map in donor and `keep_one_untouched.pkp`. Zero shifts. |
+| 2 | `MemberReference` back-references dangle after strip | **Ruled out**: `probe_refs.py` walks BFS depth-3 from Power (oid=91). 51 ids reachable in both files; zero dangling, zero class mismatches on common ids. |
+| 3 | `BinaryLibrary` record ordering changed the assembly resolution map | **Ruled out**: 5 libraries, identical `(lib_id -> name)` map in both. |
+
+### What the probes DID find
+
+The semantic difference is that the root asset list (`List<IAsset>` at
+oid=20) shrank from 7 populated slots to 3, and the Commands backing list
+(`List<IDriverCommandAsset>` at oid=75) from 34 populated slots to 1.
+`_size` and `_version` are updated consistently with each `detach`; the
+backing `BinaryArray` keeps its capacity and the vacated entries are
+null-filled — exactly the invariant `.NET`'s `List<T>` expects
+(`_items.Length >= _size`, trailing slots null).
+
+Byte-level, the first difference lands inside the `List<IAsset>._size`
+primitive at offset 4804: donor writes `7, 7` for `_size, _version`;
+stripped writes `3, 11` (7 - 4 removed, 7 + 4 Removes).
+
+### What this points at
+
+`AssetBase` (`Extron.Configuration.Core.decompiled.cs:18105`) implements
+`ISerializable` end to end. Its deserialization constructor
+(18844) is:
+
+```csharp
+foreach (FieldInfo item in GetSerializableMembers(...).Keys.Distinct()) {
+    try { obj = info.GetValue(item.Name, item.FieldType); }
+    catch (Exception e) {
+        if (!ShouldCatchSerializationException(e)) throw;
+        obj = Reflection.GetDefaultValue(item.FieldType);
+        // ... OnSerializationException may retry with a different key.
+    }
+}
+```
+
+`item.Name` is the **bare field name** (`_name`, `_scriptName`,
+`_attributes`). The NRBF stream encodes the member names with
+type-qualified prefixes (`AssetBase+_name`,
+`CommandAssetBase+_scriptName`, …) because the hierarchy contains
+colliding `_name` / `_internalChildCollection` / `_internalName` fields
+across `AssetBase`, `AssetBase<T>`, `CommandAssetBase`, and
+`DriverCommandAsset`. `BinaryFormatter` must bridge those two
+conventions somewhere in the ISerializable dispatch path, and the
+default `OnSerializationException` in `AssetBase` returns
+`SerializationExceptionMethodStruct.Empty`, meaning any name-mismatch
+fallback goes straight to the field's default:
+
+- `string _name` → `null` → the `Name` property's `??` fallback shows
+  `"Value"`.
+- `int _attributes` → `0` → masked / combined with constructor init to
+  `15` (0x0F) via the WPF `DependencyProperty` default or an
+  `AssetBase` field initializer.
+- `string _scriptName` → `null` → the `ScriptMethodName` property
+  returns `""`.
+
+That symptom pattern — `Name="Value"`, `ScriptMethodName=""`,
+`Attributes=15` — is the AssetBase ctor's default-fallback path for
+EVERY field, in order.
+
+The reason the donor's Power reads correctly is that **something in
+`BinaryFormatter` resolves qualified stream names (`AssetBase+_name`) to
+bare FieldInfo names (`_name`) in a way that depends on stream state
+beyond the target record**. The strip+keep-one operation perturbs that
+state (specifically the order and population counts of parent
+collections) without touching the Power record itself.
+
+### Why the fix is not localised to `pkp_asset.py`
+
+A localised fix would be "rewrite `detach` to keep `_size` at its
+original value" — but that produces an inconsistent `List<T>` whose
+`.Count` disagrees with the backing array's populated length, which GC
+would then render with ghost commands on empty slots. The right fix
+operates at a higher level than detach:
+
+**Proposal: `build_from_scratch()` authors a FRESH root, not a stripped
+donor.** Instead of loading a donor, stripping, and compacting pools, the
+from-scratch path emits a new NRBF stream whose root `DriverFileAsset`
+has fresh ObservableCollections with exactly the authored commands /
+protocols / models. No pool ever "shrank"; every collection is written
+at its target size from the first byte. Finding 18's cross-clone
+(R27) already proves that fresh object ids plus cloned subtrees
+deserialise cleanly through Extron's property accessors — the
+authoring API just needs to not go through detach.
+
+This reverses the Phase 2 approach: `pkp_asset`'s detach path remains
+correct for the donor-edit / command-add use case (R27's command
+cloning works), but it is the wrong primitive for from-scratch
+synthesis. Phase 4 should be reshaped accordingly.
+
+### Deliverables (uncommitted)
+
+- `experiments/graph_synthesis/probe_class_defs.py`
+- `experiments/graph_synthesis/probe_refs.py`
+- This section appended to `RESULTS.md`.
+
+No modification to `tools/pkp_asset.py`, `tools/pkp_build.py`, or
+`tools/nrbf_graph.py`. Phase 3b is a research pass — the fix needs a
+design decision (recommend "fresh root author" per above) before
+Phase 4 proceeds.
+
+## R28 Phase 4 POC — fresh-root authoring vs. in-place mutation (2026-11-04)
+
+Phase 3b proposed authoring a fresh NRBF root as the fix. Writing a full
+fresh-root emitter is a substantial engineering effort; before that, the
+POC ran TWO measurements to sharpen the diagnosis.
+
+### Measurement 1 — `author_command_values` on an unmodified donor
+
+`experiments/graph_synthesis/build_fresh_root.py` loads `pana_19_5702`
+(unmodified) and calls `CommandGraph.author_command_values()` on the
+donor's own `AutoTracking` command (oid 2502): rewrite `_name`,
+`_scriptName`, `_attributes` to authored values. No `detach`, no
+`strip_to_minimum_root`, no `keep_only_command` — the only change is
+the four field values on one existing command.
+
+Gates:
+
+- `pkp_validate` → `Valid 0` ✓
+- `Load-Package.ps1 -Deserialize` → `OK`, `DriverCommands: 25`
+- `Load-Package.ps1 -Commands` on the AutoTracking row:
+
+```
+AutoTracking             Auto Tracking              attrs=51  Value[On/Off]
+```
+
+**Authored values did not bind.** Extron prints the donor's originals.
+Our Python parser reads the authored values at oid 2502 correctly
+(`_name → ref 25136 → "POC Authored Display Name"`,
+`_scriptName → ref 25137 → "POCAuthoredScriptName"`,
+`_attributes → ClassWithId(value__=34)`), confirming the bytes are
+written. `author_command_values` adds NEW `BinaryObjectString` /
+`ClassWithId` records at fresh positive oids and repoints the command's
+`MemberReference`s at them. Extron's `ISerializable info.GetValue`
+bridging does not pick up the new records — the symptom from Phase 3b
+reproduces WITHOUT any `detach`.
+
+### Measurement 2 — in-place byte mutation at the original oid
+
+`experiments/graph_synthesis/build_inplace_string.py` uses
+`pkp_build.PackageBuilder.replace_string(object_id, new_value)` to
+mutate the EXISTING `BinaryObjectString` record's bytes in place at
+its original oid. Two strings touched: oid 294 (one of three donor
+strings equal to "Auto Tracking") and oid 296 ("AutoTracking"). Both
+were shared across 8 `MemberReference`s in the donor — in-place
+mutation changes every reference.
+
+Gates:
+
+- `pkp_validate` → `Valid 0` ✓
+- `Load-Package.ps1 -Deserialize` → `OK`, `DriverCommands: 25`
+- `Load-Package.ps1 -Commands` on the touched row:
+
+```
+POCAuthoredScriptName    Auto Tracking              attrs=51  Value[On/Off]
+```
+
+**`ScriptMethodName` bound to the authored value** ("POCAuthoredScriptName").
+No defaults — every field returns a real value. `Name` stayed
+"Auto Tracking" because oid 294 was NOT the string oid 2502's `_name`
+references (that's a different oid among the three "Auto Tracking"
+strings; a probe would pick the right one).
+
+**The semantic question is answered.** In-place byte mutation of an
+existing `BinaryObjectString` record at its original oid produces
+values that Extron's property accessors bind to. `author_command_values`
+does not, because it creates new records elsewhere in the stream.
+
+### Diagnosis, refined
+
+Extron's `ISerializable info.GetValue(bare_name, ...)` bridging
+through `BinaryFormatter` matches qualified stream names (e.g.
+`AssetBase+_name`) to the deserializing class's bare field names
+(`_name`) **by stream position within the ClassWithMembersAndTypes /
+ClassWithId layout**, not by `MemberReference` chase. Repointing a
+`MemberReference` at a new string record emits the new bytes but
+leaves the old record at its original position; the bridge still
+reads the old position.
+
+In-place byte mutation preserves position and succeeds.
+
+### Phase 4 scope, restated
+
+The pragmatic R28 authoring pattern is **not** "fresh root from
+nothing". It is:
+
+1. R27 cross-clone to add a command subtree with fresh positive oids
+   (proven in `RESULTS.md` R27: `Load-Package -Commands` returned the
+   cloned Power's authored values intact, because the cloned command
+   has its OWN strings at its OWN positions).
+2. **In-place byte mutation** on the cloned string / enum records to
+   re-author values on the clone. `pkp_build.replace_string` already
+   implements this for strings; an analogous `replace_enum_value` for
+   the inline `ClassWithId` enums (`_attributes`, `_exCmdId`,
+   `_protocolSubType`, `_compatibility`) is a small follow-on.
+
+The `author_command_values` / `set_string_member` / `set_attributes`
+path remains correct for Python-side graph inspection but is NOT the
+right primitive for building a .pkp that round-trips through Extron's
+accessors. Mark those paths "Python-view-only" in `pkp_asset.py` or
+reroute them through `replace_string` for shared strings.
+
+### Deliverables (uncommitted)
+
+- `experiments/graph_synthesis/build_fresh_root.py` (measurement 1)
+- `experiments/graph_synthesis/build_inplace_string.py` (measurement 2)
+- This section appended to `RESULTS.md`.
+
+Donor copy (vendor material, untracked):
+- `corpus/extron-driver3/pana_19_5702_v1_4_5.pkp` — copied from the
+  docs-agnostic worktree's untracked corpus for this POC;
+  `vendor-files.manifest.tsv` already lists it.
+
+No modification to `tools/pkp_asset.py`, `tools/pkp_build.py`, or
+`tools/nrbf_graph.py`. The Phase 4 fix is localised: add an in-place
+enum mutator analogous to `replace_string` and reroute the asset-level
+authoring API to use the in-place primitives instead of creating new
+records.

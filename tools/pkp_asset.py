@@ -59,6 +59,7 @@ for _p in (_HERE, os.path.join(_ROOT, "experiments", "nrbf_writeback")):
 import pkp_dump as pd            # noqa: E402
 import pkp_build as pb           # noqa: E402
 import nrbf_graph as ng          # noqa: E402
+import extron_enums as ee        # noqa: E402  R28: decoded enum vocabularies
 
 
 COMMAND_CLASS = "Extron.Configuration.Drivers.DriverCommandAsset"
@@ -67,6 +68,21 @@ CHILD_COLLECTION = "_internalChildCollection"
 ITEMS_MEMBER = "Collection`1+items"
 
 NAME_MEMBERS = ("AssetBase+_name", "AssetBase+_defaultName")
+
+# Root _internalChildCollection carries six typed pooled containers. Only
+# three are load-bearing for LoadFromFile/Deserialize to produce the command
+# surface - measured by probe_minimal_root.py (RESULTS.md R28). The others
+# can be detached without GC refusing the package.
+LOAD_BEARING_ROOT_CHILD_TYPES = (
+    "IDriverCommandAsset",
+    "IProtocolAsset",
+    "IDriverModelAsset",
+)
+DROPPABLE_ROOT_CHILD_HINTS = (
+    "RevisionHistoryAsset",
+    "IParamAsset",     # commands own their own params; the pooled container is unused
+    "IResourceAsset",  # resource assets live via _resourceHashDict, not this pool
+)
 
 
 class AssetError(Exception):
@@ -345,8 +361,160 @@ class CommandGraph(object):
         self._reparse()
 
     def set_attributes(self, command_id, value):
-        """Rewrite a command's DriverAttributeEnum bitfield."""
-        self.set_enum_member(command_id, "CommandAssetBase+_attributes", value)
+        """Rewrite a command's DriverAttributeEnum bitfield.
+
+        Accepts an int, or an `extron_enums.DriverAttributeEnum` value
+        (R28: the enum vocabulary module tools/extron_enums.py).
+        """
+        self.set_enum_member(command_id, "CommandAssetBase+_attributes",
+                             int(value))
+
+    def set_ex_cmd_id(self, command_id, value):
+        """Rewrite a command's legacy `_exCmdId` field.
+
+        R28 finding: the property (`ICommandAsset.ExtronCommandId`) is
+        `[Obsolete]` but the backing field is serialised in every shipped
+        .pkp, so an authored graph must write it. Accepts an int or an
+        `extron_enums.ExtronCommandIdEnum` value; `General` (0) is safe
+        for every new command that is not legacy power/input/lamp-hour.
+
+        Different .pkp vintages name the member either `_exCmdId` (bare)
+        or `CommandAssetBase+_exCmdId` (nested-class-qualified). Try both.
+        """
+        slots = self.walker.member_slots(command_id)
+        for member in ("CommandAssetBase+_exCmdId", "_exCmdId"):
+            if member in slots:
+                self.set_enum_member(command_id, member, int(value))
+                return
+        raise AssetError(
+            "asset %d has no _exCmdId member (slots: %s)"
+            % (command_id, sorted(slots)))
+
+    # -- R28: minimal-root authoring --------------------------------------
+
+    def _command_parents(self):
+        """[(name, parent_asset_id)] for every AssetBase`1[[IDriverCommandAsset]].
+
+        The pooled top-level container AND each DriverModelAsset's own
+        command container all share this shape. Returns both so a caller
+        can detach a command from every collection that lists it.
+        """
+        out = []
+        for oid, v in self.objects.items():
+            c = _cls(v)
+            if not c or "IDriverCommandAsset" not in c:
+                continue
+            if not c.startswith("Extron.Configuration.Core.Assets.AssetBase"):
+                continue
+            out.append(
+                (pb.deref(self.objects,
+                          v["members"].get("AssetBase+_name")), oid))
+        return sorted(out, key=lambda t: t[1])
+
+    def strip_to_minimum_root(self, root_id=1):
+        """Detach every root child that is NOT load-bearing.
+
+        Keeps only the three containers measured as load-bearing in
+        probe_minimal_root.py (IDriverCommandAsset, IProtocolAsset,
+        IDriverModelAsset). Returns the list of detached child ids.
+
+        Not truly from-scratch -- the root `DriverFileAsset` and the three
+        remaining containers still come from the donor's byte stream. R28's
+        remaining structural authoring (class metadata, wrapper chains,
+        library records) is documented in experiments/graph_synthesis/
+        RESULTS.md as a larger task.
+        """
+        before = self.children(root_id)
+        dropped = []
+        for oid in before:
+            c = _cls(self.objects[oid]) or self.objects[oid].get("$type") or ""
+            if any(h in c for h in DROPPABLE_ROOT_CHILD_HINTS):
+                self.detach(root_id, oid)
+                dropped.append(oid)
+        return dropped
+
+    def keep_only_command(self, command_id):
+        """Detach every DriverCommandAsset except `command_id` from every
+        AssetBase`1[[IDriverCommandAsset]] container in the graph.
+
+        Removes the command from the pooled top-level container AND from
+        every per-model command list. The commands' own byte spans stay in
+        the graph (nothing GC reads references them any more); the output
+        package therefore has exactly one authored command on the wire.
+        """
+        detached = 0
+        for _name, parent_id in self._command_parents():
+            # self.children() depends on the current trace; re-read before
+            # each detach because detach() invalidates spans past the edit.
+            for child_id in list(self.children(parent_id)):
+                v = self.objects.get(child_id)
+                if _cls(v) == COMMAND_CLASS and child_id != command_id:
+                    self.detach(parent_id, child_id)
+                    detached += 1
+        return detached
+
+    def author_command_values(self, command_id, name, script_name,
+                              attributes, ex_cmd_id=None, description=None):
+        """Rewrite the visible fields of an existing command asset using
+        the R28 enum vocabulary.
+
+        Combined with `keep_only_command` and `strip_to_minimum_root`,
+        this is enough to ship a .pkp with ONE command whose on-wire
+        values -- display name, script name, attribute bitfield,
+        legacy ExtronCommandId -- are authored fresh by us. The command's
+        structural scaffolding (class metadata, parameter collection
+        wrappers) is still donor-provided; see RESULTS.md R28 for the
+        remaining structural work.
+
+        `attributes` accepts `extron_enums.DriverAttributeEnum`,
+        a combined IntFlag bitwise-OR, or a plain int. `ex_cmd_id` accepts
+        `extron_enums.ExtronCommandIdEnum` or an int; default
+        `ExtronCommandIdEnum.General` (0) is correct for every new,
+        non-legacy command.
+        """
+        # Rename on every name slot this command holds.
+        self.rename_asset(command_id, name)
+        # script_name is the key GC uses to look up self.Commands[...] --
+        # the seam the asset header documents. Repoint it to its own
+        # fresh string so the clone-era shared-string trap does not apply.
+        try:
+            self.set_string_member(command_id,
+                                   "CommandAssetBase+_scriptName",
+                                   script_name)
+        except AssetError:
+            # Already inline (its own string); rewrite in place.
+            slots = self.walker.member_slots(command_id)
+            ev = self.b.trace[slots["CommandAssetBase+_scriptName"]]
+            if ev["kind"] == "BinaryObjectString":
+                ev["value"] = script_name
+                self._reparse()
+            else:
+                raise
+        if description is not None:
+            try:
+                self.set_string_member(command_id,
+                                       "CommandAssetBase+_description",
+                                       description)
+            except AssetError:
+                slots = self.walker.member_slots(command_id)
+                ev = self.b.trace[slots["CommandAssetBase+_description"]]
+                if ev["kind"] == "BinaryObjectString":
+                    ev["value"] = description
+                    self._reparse()
+                else:
+                    raise
+
+        self.set_attributes(command_id, int(attributes))
+        self.set_ex_cmd_id(
+            command_id,
+            int(ex_cmd_id) if ex_cmd_id is not None
+            else int(ee.ExtronCommandIdEnum.General))
+        self.b.edits.append(
+            "author-command id=%d name=%r script_name=%r attrs=0x%x "
+            "exCmdId=%d" % (
+                command_id, name, script_name, int(attributes),
+                int(ex_cmd_id) if ex_cmd_id is not None
+                else int(ee.ExtronCommandIdEnum.General)))
 
     def _enum_slot(self, asset_id, member):
         """Index of the Primitive carrying an inline enum member's bits.
@@ -369,6 +537,174 @@ class CommandGraph(object):
             raise AssetError("%s of asset %d is not followed by a value"
                              % (member, asset_id))
         return i + 1
+
+    # -- R28 Phase 5: in-place authoring that binds through Extron ---------
+
+    def _string_oid_for_member(self, asset_id, member, allow_shared=False):
+        """Resolve `asset_id.member` to the oid of its underlying string.
+
+        R28 Phase 4 established that Extron's BinaryFormatter binds a
+        command's property accessors by stream position, not by chasing
+        MemberReferences to appended records. In-place mutation at the
+        original string oid preserves position and binds. Repointing the
+        MemberReference at a newly-appended string record leaves the
+        original record at its original position and Extron reads the
+        unchanged original value.
+
+        Returns the oid of a BinaryObjectString intended for in-place
+        mutation. By default refuses if the string is referenced from
+        outside the asset's own span (a different command using the same
+        string would get accidentally renamed). Pass `allow_shared=True`
+        to intentionally rewrite a string shared across model variants of
+        the same logical command -- common in multi-model packages like
+        the Panasonic PTZ family.
+        """
+        slots = self.walker.member_slots(asset_id)
+        if member not in slots:
+            raise AssetError(
+                "asset %d has no member %r (slots: %s)"
+                % (asset_id, member, sorted(slots)))
+        i = slots[member]
+        ev = self.b.trace[i]
+        if ev["kind"] == "BinaryObjectString":
+            sid = ev["object_id"]
+        elif ev["kind"] == "MemberReference":
+            sid = ev["idref"]
+        else:
+            raise AssetError(
+                "member %r of asset %d is %s, not a string"
+                % (member, asset_id, ev["kind"]))
+        if allow_shared:
+            return sid
+        # Safety: refuse if the string is referenced outside the asset's
+        # span. Mutating a shared string would rename every asset that
+        # points at it (empty descriptions are the classic shared case).
+        start, end = self.walker.spans[asset_id]
+        total = sum(1 for e in self.b.trace
+                    if e["kind"] == "MemberReference" and e.get("idref") == sid)
+        inside = sum(1 for j in range(start, end)
+                     if self.b.trace[j]["kind"] == "MemberReference"
+                     and self.b.trace[j].get("idref") == sid)
+        if ev["kind"] == "BinaryObjectString":
+            # The slot IS the definition; it was not read as a reference so
+            # it does not contribute to `total`.
+            total += 1
+            inside += 1
+        if total != inside:
+            raise AssetError(
+                "member %r of asset %d resolves to string #%d which is "
+                "shared across the package (referenced %d times, %d from "
+                "inside this asset) -- cannot mutate in place without "
+                "renaming other assets. Pass allow_shared=True if the "
+                "string is intentionally shared across model variants of "
+                "this command and you want to rename it everywhere."
+                % (member, asset_id, sid, total, inside))
+        return sid
+
+    def _sibling_commands(self, command_id):
+        """Return every DriverCommandAsset whose _scriptName resolves to the
+        same string oid as `command_id`'s _scriptName.
+
+        Why: Phase 5 probe_locate_power_attrs.py discovered that Extron's
+        `DriverFileAsset.DriverCommands` property returns model-variant
+        commands, not the pool-side commands the Python side iterates.
+        Multi-model packages like Panasonic PTZ carry one pool command and
+        N per-model variants of it (eight here), each with its own
+        _attributes / _exCmdId Primitive. The pool and variants share
+        _name and _scriptName via standalone BinaryObjectString records,
+        so string mutation at a single oid propagates to every variant;
+        enums do not share and need per-variant mutation.
+
+        Returns the list of command oids that logically represent the
+        same command (pool + variants). The input command's oid is always
+        first.
+        """
+        script_sid = self._string_oid_for_member(
+            command_id, "CommandAssetBase+_scriptName", allow_shared=True)
+        hits = [command_id]
+        for oid, v in self.objects.items():
+            if oid == command_id:
+                continue
+            if _cls(v) != COMMAND_CLASS:
+                continue
+            m = v.get("members", {})
+            if pb.ref_id(m.get("CommandAssetBase+_scriptName")) == script_sid:
+                hits.append(oid)
+        return hits
+
+    def author_fresh_command(self, command_id, name, script_name,
+                             attributes, ex_cmd_id=None, allow_shared=False):
+        """Author a donor command's four property-bearing fields IN PLACE.
+
+        R28 Phase 5. Composes:
+          * replace_string at the original oid of _name   (position-stable;
+            affects every variant that shares this string)
+          * replace_string at the original oid of _scriptName  (same)
+          * set_enum_member on _attributes for EVERY variant of this command
+          * set_enum_member on _exCmdId for EVERY variant of this command
+
+        Why per-variant for enums: multi-model packages carry one pool
+        command and N per-model-variant copies, each with its own inline
+        _attributes / _exCmdId Primitive. Extron's `DriverCommands`
+        property returns the variants, not the pool, so an authored enum
+        value on the pool side alone is invisible to Load-Package.ps1
+        -Commands. Strings are shared via standalone records so one
+        mutation covers every variant.
+
+        Every mutation happens at the position it was read from, which is
+        what Extron's position-based ISerializable binder requires. No
+        records are appended; no MemberReferences are repointed; no
+        container _size fields are shrunk.
+
+        `attributes` accepts `extron_enums.DriverAttributeEnum`, a combined
+        IntFlag bitwise-OR, or a plain int. `ex_cmd_id` accepts
+        `extron_enums.ExtronCommandIdEnum` or an int; default
+        `ExtronCommandIdEnum.General` (0) is correct for every new,
+        non-legacy command.
+
+        Returns a dict with the oids / member names actually mutated.
+        """
+        name_sid = self._string_oid_for_member(
+            command_id, "AssetBase+_name", allow_shared=allow_shared)
+        self.b.replace_string(name_sid, name)
+        script_sid = self._string_oid_for_member(
+            command_id, "CommandAssetBase+_scriptName",
+            allow_shared=allow_shared)
+        if script_sid != name_sid:
+            self.b.replace_string(script_sid, script_name)
+        # else: same string backs both fields; we already mutated it.
+
+        effective_ex_cmd_id = (int(ex_cmd_id) if ex_cmd_id is not None
+                               else int(ee.ExtronCommandIdEnum.General))
+
+        sibling_ids = self._sibling_commands(command_id)
+        enum_misses = []
+        for sid in sibling_ids:
+            try:
+                self.set_attributes(sid, int(attributes))
+            except AssetError as exc:
+                enum_misses.append(("_attributes", sid, str(exc)))
+            try:
+                self.set_ex_cmd_id(sid, effective_ex_cmd_id)
+            except AssetError as exc:
+                enum_misses.append(("_exCmdId", sid, str(exc)))
+
+        self.b.edits.append(
+            "author-fresh-command pool_id=%d name=%r (oid #%d) "
+            "script_name=%r (oid #%d) attrs=0x%x exCmdId=%d "
+            "variants=%d enum_misses=%d" % (
+                command_id, name, name_sid, script_name, script_sid,
+                int(attributes), effective_ex_cmd_id,
+                len(sibling_ids), len(enum_misses)))
+        return {
+            "command_id": command_id,
+            "sibling_ids": sibling_ids,
+            "name_oid": name_sid,
+            "script_name_oid": script_sid,
+            "attributes": int(attributes),
+            "ex_cmd_id": effective_ex_cmd_id,
+            "enum_misses": enum_misses,
+        }
 
     def enum_member(self, asset_id, member):
         """Read an inline enum member, e.g. ParamAssetBase+_conditionTypes."""
