@@ -1,6 +1,10 @@
 # Status
 
 **Last updated: 2026-10-05** (the DM-MD switcher; everything else as of 2026-10-02).
+Work since then, including the Q-SYS converters, `tools/convert.py` and the
+DM-MD bridge in `experiments/crestron-dm-md-bridge/` (which supersedes the DM-MD
+row below for routing), is on the
+[status page](https://rob-paprocki.github.io/extron-driver-convert/status.html).
 Read this first. Everything below is measured unless marked otherwise. **What is left to
 do lives in `ROADMAP.md`; the machine it runs on is described in `ENVIRONMENT.md`.**
 

@@ -24,15 +24,18 @@ exchange join values wrapped in nested slot containers: digital, analog,
 serial. Everything the device does and everything you tell it to do rides that
 one socket.
 
-We proved it on real hardware. `dm_md_master_v0_0_1.pkp` runs on an Extron box,
-the chassis connects to it, and routing works byte-for-byte: send the right
-analog leaf to the right output-card slot and the matrix switches. We confirmed
-it over SSH against the chassis — `DUMPDMROUTEINFO 33` reports the route change
-the instant our write lands.
+We proved the protocol on real hardware. A Python master on a PC
+(`crestron-dm-md-bridge/cip_master_server_v2.py`) took the Extron processor's
+place; the chassis connects to it, and routing works byte-for-byte: send the
+right analog leaf to the right output-card slot and the matrix switches. We confirmed
+it over SSH against the chassis, where `DUMPDMROUTEINFO 33` reports the route
+change the instant our write lands. `dm_md_master_v0_0_1.pkp` sends the same bytes, but
+loading it on an Extron processor is still a Phase 4 step
+(`crestron-dm-md-bridge/evidence/29-slot-architecture-resolved.md`).
 
 ComPort passthrough works too, and we know it works because of a jumper. With
 RS-232 TX wired to RX on the RMC on output 1, a string we send comes straight
-back as a serial feedback event. The bytes left the processor, crossed the DM
+back as a serial feedback event. The bytes left the master, crossed the DM
 link, drove the physical pin, looped through the jumper, and came back.
 
 ## What is proven versus what is stubbed
@@ -122,8 +125,9 @@ would be slower and, for the obfuscated ones, often blocked outright.
 - `experiments/cip-ipid-survey/` — the join maps for VX2, NVX, the Director,
   and Crestron Connected displays, with a README that lays out the shared
   architecture.
-- `dm_md_master_v0_0_1.pkp` — the shipping driver. Routing and ComPort proven;
-  IR and relay stubbed and marked.
+- `dm_md_master_v0_0_1.pkp` is the driver. Its routing and ComPort bytes match
+  what was proven on the chassis; it has not yet been loaded on an Extron
+  processor. IR and relay stubbed and marked.
 
 ## What a next step looks like
 
