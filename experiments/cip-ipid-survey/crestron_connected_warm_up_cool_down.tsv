@@ -1,0 +1,5 @@
+list	type	direction	join	name
+1	Digital	output	1	Warming_Up_Fb
+1	Digital	output	2	Cooling_Down_Fb
+2	Analog	output	1	Warming_Up_Progress_Fb
+2	Analog	output	2	Cooling_Down_Progress_Fb

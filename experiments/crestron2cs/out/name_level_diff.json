@@ -1,0 +1,151 @@
+{
+  "gen_stats": {
+    "commands_found": 62,
+    "commands_with_set_method": 62,
+    "commands_with_update_method": 7,
+    "set_templates_resolved": 62,
+    "update_templates_resolved": 7,
+    "match_strings_total": 0,
+    "match_strings_mapped": 0,
+    "match_strings_unmapped": 0,
+    "opaque_markers": 0
+  },
+  "ext_stats": {
+    "commands_found": 11,
+    "commands_with_set_method": 11,
+    "commands_with_update_method": 5,
+    "set_templates_resolved": 10,
+    "update_templates_resolved": 5,
+    "match_strings_total": 0,
+    "match_strings_mapped": 0,
+    "match_strings_unmapped": 0,
+    "opaque_markers": 0
+  },
+  "diff": {
+    "only_in_a": [
+      "AmbientOff",
+      "AmbientOn",
+      "AnalogAirAntenna",
+      "AnalogCableAntenna",
+      "Artwork",
+      "Back",
+      "Blue",
+      "Channel",
+      "ChannelDown",
+      "ChannelUp",
+      "DigitalAirAntenna",
+      "DigitalCableAntenna",
+      "DisplayRotatorControlLandscape",
+      "DisplayRotatorControlPortrait",
+      "Down",
+      "Exit",
+      "FirstScreenApp",
+      "ForwardScan",
+      "GetAccessToken",
+      "GetMultiViewModes",
+      "Green",
+      "Home",
+      "Keypress0",
+      "Keypress1",
+      "Keypress2",
+      "Keypress3",
+      "Keypress4",
+      "Keypress5",
+      "Keypress6",
+      "Keypress7",
+      "Keypress8",
+      "Keypress9",
+      "KeypressDash",
+      "KeypressEnter",
+      "Left",
+      "MediaService",
+      "Menu",
+      "MultiViewMode1",
+      "MultiViewMode2",
+      "MultiViewMode3",
+      "Mute",
+      "Pause",
+      "PictureModeDynamic",
+      "PictureModeFilmmaker",
+      "PictureModeMovie",
+      "PictureModeStandard",
+      "Play",
+      "Red",
+      "Return",
+      "ReverseScan",
+      "Right",
+      "Select",
+      "SoundModeAmplify",
+      "SoundModeStandard",
+      "Stop",
+      "TvInput",
+      "TvPlus",
+      "Up",
+      "VideoInput",
+      "Yellow"
+    ],
+    "only_in_b": [
+      "AspectRatio",
+      "AudioMute",
+      "ChannelStep",
+      "Input",
+      "Keypad",
+      "MenuNavigation",
+      "MultiviewCommand",
+      "MultiviewString",
+      "RefreshToken"
+    ],
+    "shared": [
+      "Power",
+      "Volume"
+    ],
+    "differences": {
+      "Power": {
+        "set_templates": {
+          "a": [
+            "url={'method': powerControl, 'params': {'AccessToken': {}, 'power': {}}, 'id': {}, 'jsonrpc': 2.0}"
+          ],
+          "b": [
+            "url={'jsonrpc': 2.0, 'method': powerControl, 'params': {'AccessToken': {}, 'power': {}}, 'id': 1}"
+          ]
+        },
+        "update_templates": {
+          "a": [
+            "url={'jsonrpc': 2.0, 'method': powerControl, 'id': {}, 'params': {'AccessToken': {}}}"
+          ],
+          "b": [
+            "url={'jsonrpc': 2.0, 'method': powerControl, 'params': {'AccessToken': {}}, 'id': 1}"
+          ]
+        },
+        "value_map": {
+          "a": {
+            "true": "powerOn",
+            "false": "powerOff"
+          },
+          "b": {
+            "On": "powerOn",
+            "Off": "powerOff"
+          }
+        }
+      },
+      "Volume": {
+        "set_templates": {
+          "a": [
+            "url={'method': directVolumeControl, 'params': {'AccessToken': {}, 'volume': {}}, 'id': {}, 'jsonrpc': 2.0}"
+          ],
+          "b": [
+            "url={'jsonrpc': 2.0, 'method': directVolumeControl, 'params': {'AccessToken': {}, 'volume': {}}, 'id': 1}"
+          ]
+        },
+        "update_templates": {
+          "a": [
+            "url={'jsonrpc': 2.0, 'method': getTVStates, 'id': {}, 'params': {'AccessToken': {}}}"
+          ],
+          "b": [
+            "url={'jsonrpc': 2.0, 'method': directVolumeControl, 'params': {'AccessToken': {}}, 'id': 1}"
+          ]
+        }
+      }
+    }
+  }
+}

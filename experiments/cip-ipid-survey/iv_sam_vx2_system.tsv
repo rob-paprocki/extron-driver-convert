@@ -1,0 +1,5 @@
+list	type	direction	join	name
+1	Digital	input	1	Reboot
+2	Analog	output	2	Health_Status_F
+2	Analog	output	11	Total_Storage
+2	Analog	output	12	Available_Storage

@@ -1,0 +1,2 @@
+# make_project.py assembles deployable projects here; the sources are tracked.
+build/

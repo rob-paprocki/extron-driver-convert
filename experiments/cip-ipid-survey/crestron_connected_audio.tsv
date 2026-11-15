@@ -1,0 +1,10 @@
+list	type	direction	join	name
+1	Digital	input	1	Volume_Up
+1	Digital	input	2	Volume_Down
+1	Digital	input	3	Mute_On
+1	Digital	input	4	Mute_Off
+1	Digital	input	5	Mute_Toggle
+1	Digital	output	3	Mute_On_Fb
+1	Digital	output	4	Mute_Off_Fb
+2	Analog	input	1	Volume
+2	Analog	output	1	Volume_Fb

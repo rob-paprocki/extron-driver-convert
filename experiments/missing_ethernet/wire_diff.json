@@ -1,0 +1,33 @@
+{
+  "only_in_a": [],
+  "only_in_b": [
+    "ConnectionStatus"
+  ],
+  "shared": [
+    "AspectRatio",
+    "AudioMute",
+    "ChannelStep",
+    "Input",
+    "Keypad",
+    "MenuNavigation",
+    "MultiviewCommand",
+    "MultiviewString",
+    "Power",
+    "RefreshToken",
+    "Volume"
+  ],
+  "differences": {
+    "MultiviewCommand": {
+      "set_template_slot_sources": {
+        "a": [
+          "OPAQUE:Status[context]",
+          "self.AccessToken"
+        ],
+        "b": [
+          "OPAQUE:self._emulated_status.get",
+          "self.AccessToken"
+        ]
+      }
+    }
+  }
+}

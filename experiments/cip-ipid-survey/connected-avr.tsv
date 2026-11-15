@@ -1,0 +1,14 @@
+list	type	direction	join	name
+1	Digital	input	6	GetPowerConsumption
+1	Digital	output	1	SystemIsOn
+1	Digital	output	2	SystemIsOff
+1	Digital	output	3	SupportsZones
+1	Digital	output	4	SupportsTuners
+1	Digital	output	5	SupportsMediaPlayers
+1	Digital	output	6	SupportsRealTimePowerConsumption
+2	Analog	output	1	RealTimePowerConsumption
+2	Analog	output	2	NumberOfAudioZones
+2	Analog	output	3	NumberOfTuners
+2	Analog	output	4	NumberOfMediaPlayers
+3	Serial	output	1	DeviceType
+3	Serial	output	2	DeviceName

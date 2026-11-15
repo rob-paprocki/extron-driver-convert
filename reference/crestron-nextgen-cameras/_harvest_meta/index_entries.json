@@ -1,0 +1,360 @@
+{
+  "entries": [
+    [
+      "IV-CAM Series",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/Home.htm",
+      "pages/Topics/Home.md"
+    ],
+    [
+      "Install Camera Manager Software",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/1%20Beyond%20Camera%20Manager%20System%20Installation.htm",
+      "pages/Topics/NextGenCameras/Configuration/1 Beyond Camera Manager System Installation.md"
+    ],
+    [
+      "Accessing Camera Feeds",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Access-Camera-Feeds.htm",
+      "pages/Topics/NextGenCameras/Configuration/Access-Camera-Feeds.md"
+    ],
+    [
+      "Add Cameras",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Add-Cameras.htm",
+      "pages/Topics/NextGenCameras/Configuration/Add-Cameras.md"
+    ],
+    [
+      "Advanced Camera Settings",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Advanced-Settings.htm",
+      "pages/Topics/NextGenCameras/Configuration/Advanced-Settings.md"
+    ],
+    [
+      "Blocking Zones",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Blocking-Zones.htm",
+      "pages/Topics/NextGenCameras/Configuration/Blocking-Zones.md"
+    ],
+    [
+      "Camera Controls",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Camera-Controls.htm",
+      "pages/Topics/NextGenCameras/Configuration/Camera-Controls.md"
+    ],
+    [
+      "Change the Camera Mode",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Change-the-Camera-Mode.htm",
+      "pages/Topics/NextGenCameras/Configuration/Change-the-Camera-Mode.md"
+    ],
+    [
+      "Configuration",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Configuration.htm",
+      "pages/Topics/NextGenCameras/Configuration/Configuration.md"
+    ],
+    [
+      "Custom Intelligent Switching Configuration",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Custom-Intelligent-Switching-Config.htm",
+      "pages/Topics/NextGenCameras/Configuration/Custom-Intelligent-Switching-Config.md"
+    ],
+    [
+      "Device Configuration",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Device-Configuration.htm",
+      "pages/Topics/NextGenCameras/Configuration/Device-Configuration.md"
+    ],
+    [
+      "Group\u00a0Framing Settings",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Group-Framing-Settings.htm",
+      "pages/Topics/NextGenCameras/Configuration/Group-Framing-Settings.md"
+    ],
+    [
+      "Initial Setup",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Initial-Setup.htm",
+      "pages/Topics/NextGenCameras/Configuration/Initial-Setup.md"
+    ],
+    [
+      "Tracking Menu",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Intelligent-Settings.htm",
+      "pages/Topics/NextGenCameras/Configuration/Intelligent-Settings.md"
+    ],
+    [
+      "Connection Requirements",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Intelligent-Switching-Connection-Requirements.htm",
+      "pages/Topics/NextGenCameras/Configuration/Intelligent-Switching-Connection-Requirements.md"
+    ],
+    [
+      "Intelligent Switching Design",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Intelligent-Switching-Design.htm",
+      "pages/Topics/NextGenCameras/Configuration/Intelligent-Switching-Design.md"
+    ],
+    [
+      "Intelligent Switching Output",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Intelligent-Switching-Output.htm",
+      "pages/Topics/NextGenCameras/Configuration/Intelligent-Switching-Output.md"
+    ],
+    [
+      "Intelligent Switching",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Multi-Camera-Switching-Config.htm",
+      "pages/Topics/NextGenCameras/Configuration/Multi-Camera-Switching-Config.md"
+    ],
+    [
+      "On-Screen Display (OSD)",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/On-Screen-Display(OSD)-Menu.htm",
+      "pages/Topics/NextGenCameras/Configuration/On-Screen-Display(OSD)-Menu.md"
+    ],
+    [
+      "Perform a Factory Restore",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Perform-a-Factory-Restore.htm",
+      "pages/Topics/NextGenCameras/Configuration/Perform-a-Factory-Restore.md"
+    ],
+    [
+      "Presenter Tracking Settings",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Presenter-Tracking-Settings.htm",
+      "pages/Topics/NextGenCameras/Configuration/Presenter-Tracking-Settings.md"
+    ],
+    [
+      "Preset Zones",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Preset-Zones.htm",
+      "pages/Topics/NextGenCameras/Configuration/Preset-Zones.md"
+    ],
+    [
+      "PTZ Alignment",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/PTZ-Alignment.htm",
+      "pages/Topics/NextGenCameras/Configuration/PTZ-Alignment.md"
+    ],
+    [
+      "Reserved Presets",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Reserved-Presets.htm",
+      "pages/Topics/NextGenCameras/Configuration/Reserved-Presets.md"
+    ],
+    [
+      "Topics/NextGenCameras/Configuration/Set-a-Static-IP-Address.htm",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Set-a-Static-IP-Address.htm",
+      "pages/Topics/NextGenCameras/Configuration/Set-a-Static-IP-Address.md"
+    ],
+    [
+      "Set the Tracking Shots",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Set-the-Tracking-Shots.htm",
+      "pages/Topics/NextGenCameras/Configuration/Set-the-Tracking-Shots.md"
+    ],
+    [
+      "Set the Tracking Zone",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Set-the-Tracking-Zone.htm",
+      "pages/Topics/NextGenCameras/Configuration/Set-the-Tracking-Zone.md"
+    ],
+    [
+      "Speaker Tracking Settings",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Speaker-Tracking-Settings.htm",
+      "pages/Topics/NextGenCameras/Configuration/Speaker-Tracking-Settings.md"
+    ],
+    [
+      "Topics/NextGenCameras/Configuration/Tracking-Profiles.htm",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Tracking-Profiles.htm",
+      "pages/Topics/NextGenCameras/Configuration/Tracking-Profiles.md"
+    ],
+    [
+      "Topics/NextGenCameras/Configuration/Tracking-Settings.htm",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Tracking-Settings.htm",
+      "pages/Topics/NextGenCameras/Configuration/Tracking-Settings.md"
+    ],
+    [
+      "Update Firmware",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Update-Firmware.htm",
+      "pages/Topics/NextGenCameras/Configuration/Update-Firmware.md"
+    ],
+    [
+      "VISCA Commands",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/VISCA-Commands.htm",
+      "pages/Topics/NextGenCameras/Configuration/VISCA-Commands.md"
+    ],
+    [
+      "VISCA\u00a0Intelligent Switching Commands",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/VISCA-Intelligent-Switching-Commands.htm",
+      "pages/Topics/NextGenCameras/Configuration/VISCA-Intelligent-Switching-Commands.md"
+    ],
+    [
+      "VISCA\u00a0Lightbar Commands",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/VISCA-Lightbar-Commands.htm",
+      "pages/Topics/NextGenCameras/Configuration/VISCA-Lightbar-Commands.md"
+    ],
+    [
+      "Visual Cue Intelligent Switching Configuration",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Configuration/Visual-Cue-Intelligent-Switching-Config.htm",
+      "pages/Topics/NextGenCameras/Configuration/Visual-Cue-Intelligent-Switching-Config.md"
+    ],
+    [
+      "In The Box",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Installation/Cameras-In-The-Box.htm",
+      "pages/Topics/NextGenCameras/Installation/Cameras-In-The-Box.md"
+    ],
+    [
+      "Connect the Camera",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Installation/Connect-the-Camera.htm",
+      "pages/Topics/NextGenCameras/Installation/Connect-the-Camera.md"
+    ],
+    [
+      "Connect the IV-CAM-I12D-B Camera",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Installation/Connect-the-IV-CAM-I12D-B-Camera.htm",
+      "pages/Topics/NextGenCameras/Installation/Connect-the-IV-CAM-I12D-B-Camera.md"
+    ],
+    [
+      "Install the Mounting Hardware",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Installation/Install-the-Mounting-Hardware.htm",
+      "pages/Topics/NextGenCameras/Installation/Install-the-Mounting-Hardware.md"
+    ],
+    [
+      "IV-CAM-I12D-B Installation",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Installation/IV-CAM-I12D-B-Mounting.htm",
+      "pages/Topics/NextGenCameras/Installation/IV-CAM-I12D-B-Mounting.md"
+    ],
+    [
+      "IV-CAMA-UMB Installation",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Installation/IV-CAMA-UMB-Installation.htm",
+      "pages/Topics/NextGenCameras/Installation/IV-CAMA-UMB-Installation.md"
+    ],
+    [
+      "IVA-CMT-BRKTJ-1B Installation",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Installation/IVA-CMT-BRKTJ-1B-Installation.htm",
+      "pages/Topics/NextGenCameras/Installation/IVA-CMT-BRKTJ-1B-Installation.md"
+    ],
+    [
+      "IVA-WMT-BRKT-1B Installation",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Installation/IVA-WMT-BRKT-1B-Installation.htm",
+      "pages/Topics/NextGenCameras/Installation/IVA-WMT-BRKT-1B-Installation.md"
+    ],
+    [
+      "Mounting Requirements",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Installation/Mounting-Requirements.htm",
+      "pages/Topics/NextGenCameras/Installation/Mounting-Requirements.md"
+    ],
+    [
+      "Installation",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Installation/NextGenCamera-Installation.htm",
+      "pages/Topics/NextGenCameras/Installation/NextGenCamera-Installation.md"
+    ],
+    [
+      "IV-CAMA-REMOTE Features",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Overview/Accessory-Features/IV-CAMA-REMOTE-Features.htm",
+      "pages/Topics/NextGenCameras/Overview/Accessory-Features/IV-CAMA-REMOTE-Features.md"
+    ],
+    [
+      "IV-CAMA-UMB Features",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Overview/Accessory-Features/IV-CAMA-UMB-Features.htm",
+      "pages/Topics/NextGenCameras/Overview/Accessory-Features/IV-CAMA-UMB-Features.md"
+    ],
+    [
+      "IVA-WMT-BRKT-1B Features",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Overview/Accessory-Features/IVA-WMT-BRKT-1B-Features.htm",
+      "pages/Topics/NextGenCameras/Overview/Accessory-Features/IVA-WMT-BRKT-1B-Features.md"
+    ],
+    [
+      "PW-1225DU Features",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Overview/Accessory-Features/PW-1225DU-Features.htm",
+      "pages/Topics/NextGenCameras/Overview/Accessory-Features/PW-1225DU-Features.md"
+    ],
+    [
+      "Features",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Overview/Features.htm",
+      "pages/Topics/NextGenCameras/Overview/Features.md"
+    ],
+    [
+      "IV-CAM-I12-GV-B Features",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Overview/IV-CAM-I12-GV-B%20Features.htm",
+      "pages/Topics/NextGenCameras/Overview/IV-CAM-I12-GV-B Features.md"
+    ],
+    [
+      "IV-CAM-I12 Features",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Overview/IV-CAM-I12%20Features.htm",
+      "pages/Topics/NextGenCameras/Overview/IV-CAM-I12 Features.md"
+    ],
+    [
+      "IV-CAM-I12D-B Features",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Overview/IV-CAM-i12D-SpecText.htm",
+      "pages/Topics/NextGenCameras/Overview/IV-CAM-i12D-SpecText.md"
+    ],
+    [
+      "IV-CAM-I20-GV-B Features",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Overview/IV-CAM-I20-GV-B%20Features.htm",
+      "pages/Topics/NextGenCameras/Overview/IV-CAM-I20-GV-B Features.md"
+    ],
+    [
+      "IV-CAM-I20 Features",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Overview/IV-CAM-I20%20Features.htm",
+      "pages/Topics/NextGenCameras/Overview/IV-CAM-I20 Features.md"
+    ],
+    [
+      "IV-CAM-P12 Features",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Overview/IV-CAM-P12%20Features.htm",
+      "pages/Topics/NextGenCameras/Overview/IV-CAM-P12 Features.md"
+    ],
+    [
+      "IV-CAM-P20-GV-B Features",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Overview/IV-CAM-P20-GV-B%20Features.htm",
+      "pages/Topics/NextGenCameras/Overview/IV-CAM-P20-GV-B Features.md"
+    ],
+    [
+      "IV-CAM-P20 Features",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Overview/IV-CAM-P20%20Features.htm",
+      "pages/Topics/NextGenCameras/Overview/IV-CAM-P20 Features.md"
+    ],
+    [
+      "IV-CAMA-REMOTE Specifications",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Specifications/Accessory-Specs/IV-CAMA-REMOTE-Specs.htm",
+      "pages/Topics/NextGenCameras/Specifications/Accessory-Specs/IV-CAMA-REMOTE-Specs.md"
+    ],
+    [
+      "IV-CAMA-UMB Specifications",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Specifications/Accessory-Specs/IV-CAMA-UMB-Specs.htm",
+      "pages/Topics/NextGenCameras/Specifications/Accessory-Specs/IV-CAMA-UMB-Specs.md"
+    ],
+    [
+      "IVA-CMT-BRKTJ-1B Specifications",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Specifications/Accessory-Specs/IVA-CMT-BRKTJ-1B-Specs.htm",
+      "pages/Topics/NextGenCameras/Specifications/Accessory-Specs/IVA-CMT-BRKTJ-1B-Specs.md"
+    ],
+    [
+      "IVA-WMT-BRKT-1B Specifications",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Specifications/Accessory-Specs/IVA-WMT-BRKT-1B-Specs.htm",
+      "pages/Topics/NextGenCameras/Specifications/Accessory-Specs/IVA-WMT-BRKT-1B-Specs.md"
+    ],
+    [
+      "PW-1225DU Specifications",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Specifications/Accessory-Specs/PW-1225DU-Specs.htm",
+      "pages/Topics/NextGenCameras/Specifications/Accessory-Specs/PW-1225DU-Specs.md"
+    ],
+    [
+      "Camera Specifications",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Specifications/Camera-Specifications.htm",
+      "pages/Topics/NextGenCameras/Specifications/Camera-Specifications.md"
+    ],
+    [
+      "IV-CAM-I12 Specifications",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Specifications/I12Specs.htm",
+      "pages/Topics/NextGenCameras/Specifications/I12Specs.md"
+    ],
+    [
+      "IV-CAM-I20 Specifications",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Specifications/I20Specs.htm",
+      "pages/Topics/NextGenCameras/Specifications/I20Specs.md"
+    ],
+    [
+      "IV-CAM-P12 Specifications",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Specifications/P12Specs.htm",
+      "pages/Topics/NextGenCameras/Specifications/P12Specs.md"
+    ],
+    [
+      "IV-CAM-P20 Specifications",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Specifications/P20Specs.htm",
+      "pages/Topics/NextGenCameras/Specifications/P20Specs.md"
+    ],
+    [
+      "Specifications",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/NextGenCameras/Specifications/Specifications.htm",
+      "pages/Topics/NextGenCameras/Specifications/Specifications.md"
+    ],
+    [
+      "Resources",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/Resources/Resources.htm",
+      "pages/Topics/Resources/Resources.md"
+    ],
+    [
+      "Trademarks",
+      "https://docs.crestron.com/en-us/9440/Content/Topics/Trademarks/Trademarks.htm",
+      "pages/Topics/Trademarks/Trademarks.md"
+    ]
+  ],
+  "failed": []
+}

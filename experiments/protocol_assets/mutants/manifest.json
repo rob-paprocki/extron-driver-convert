@@ -1,0 +1,61 @@
+{
+  "donor": "samples/1 Beyond Cameras/PTZ-IP12_IP20/pkp/1bynd_19_4743_v1_0_1.pkp",
+  "response_asset_search": {
+    "samples/1 Beyond Cameras/AutoTracker3/pkp/1bynd_19_4741_v1_0_1.pkp": [],
+    "samples/1 Beyond Cameras/PTZ-IP12_IP20/pkp/1bynd_19_4743_v1_0_1.pkp": [],
+    "samples/Automate VX/pkp/1bynd_42_4279_v1_0_11.pkp": [],
+    "samples/ClockAudio/pkp/clau_25_1777_v1_3_0.pkp": [],
+    "samples/ClockAudio/pkp/clau_25_5940_v1_1_1.pkp": [],
+    "samples/DSC_12G-HD/pkp/extr_17_17677_v1_0_0.pkp": [],
+    "samples/DTP3 CP 42/pkp/extr_15_17578_v1_3_0.pkp": [],
+    "samples/Samsung QNxxLS03DAFXZA/pkp/smsg_10_6738_v1_0_0.pkp": [],
+    "samples/Tesira/pkp/biam_25_150_v1_20_0.pkp": []
+  },
+  "mutants": [
+    {
+      "name": "a_port",
+      "description": "EthernetProtocolAsset._port: 5500 -> 5678 (object id 106, model PTZ-IP12)",
+      "object_id": 106,
+      "model_name": "PTZ-IP12",
+      "before": 5500,
+      "after": 5678,
+      "byte_len_before": 321697,
+      "byte_len_after": 321697,
+      "bytes_changed": 2,
+      "edits": [
+        "inline-int object=106 member=_port: 5500 -> 5678"
+      ],
+      "output": "experiments/protocol_assets/mutants/a_port.pkp"
+    },
+    {
+      "name": "b_compatibility",
+      "description": "EthernetProtocolAsset._compatibility: 16 (Ethernet_Telnet) -> 32 (Ethernet_UDP) (object id 106, model PTZ-IP12)",
+      "object_id": 106,
+      "model_name": "PTZ-IP12",
+      "before": 16,
+      "after": 32,
+      "byte_len_before": 321697,
+      "byte_len_after": 321697,
+      "bytes_changed": 1,
+      "edits": [
+        "enum-ref object=106 member=_compatibility (enum obj=-328): 16 -> 32"
+      ],
+      "output": "experiments/protocol_assets/mutants/b_compatibility.pkp"
+    },
+    {
+      "name": "c_tag",
+      "description": "EnumStateAsset._tag (object id 826, string object id 1213): '3' -> '3X' (also AssetBase+_name/_defaultName on the same asset, since they share this string object)",
+      "object_id": 826,
+      "model_name": null,
+      "before": "3",
+      "after": "3X",
+      "byte_len_before": 321697,
+      "byte_len_after": 321698,
+      "bytes_changed": null,
+      "edits": [
+        "string 1213: '3' -> '3X'"
+      ],
+      "output": "experiments/protocol_assets/mutants/c_tag.pkp"
+    }
+  ]
+}

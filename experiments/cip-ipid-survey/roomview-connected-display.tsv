@@ -1,0 +1,184 @@
+list	type	direction	join	name
+1	Digital	input	5	Power_On
+1	Digital	input	6	Power_Off
+1	Digital	input	80	[~BeginGroup~]Source Select
+1	Digital	input	81	Source_Select_1
+1	Digital	input	82	Source_Select_2
+1	Digital	input	83	Source_Select_3
+1	Digital	input	84	Source_Select_4
+1	Digital	input	85	Source_Select_5
+1	Digital	input	86	Source_Select_6
+1	Digital	input	87	Source_Select_7
+1	Digital	input	88	Source_Select_8
+1	Digital	input	89	Source_Select_9
+1	Digital	input	90	Source_Select_10
+1	Digital	input	91	Source_Select_11
+1	Digital	input	92	Source_Select_12
+1	Digital	input	93	Source_Select_13
+1	Digital	input	94	Source_Select_14
+1	Digital	input	95	Source_Select_15
+1	Digital	input	96	[~EndGroup~]Source Select
+1	Digital	input	115	[~BeginGroup~]Picture Control
+1	Digital	input	116	Image_Mute_On
+1	Digital	input	117	Image_Mute_Off
+1	Digital	input	120	Color_Plus
+1	Digital	input	121	Color_Minus
+1	Digital	input	122	Brightness_Plus
+1	Digital	input	123	Brightness_Minus
+1	Digital	input	124	Contrast_Plus
+1	Digital	input	125	Contrast_Minus
+1	Digital	input	126	Sharpness_Plus
+1	Digital	input	127	Sharpness_Minus
+1	Digital	input	128	[~EndGroup~]Picture Control
+1	Digital	input	129	Volume_Up
+1	Digital	input	130	Volume_Down
+1	Digital	input	131	Mute_On
+1	Digital	input	132	Mute_Off
+1	Digital	input	133	Mute_Toggle
+1	Digital	input	224	[~BeginGroup~]IP Info
+1	Digital	input	227	[~EndGroup~]IP Info
+1	Digital	input	228	[~BeginGroup~]UI Password
+1	Digital	input	229	User_Password_Enable
+1	Digital	input	230	User_Password_Disable
+1	Digital	input	233	Admin_Password_Enable
+1	Digital	input	234	Admin_Password_Disable
+1	Digital	input	235	[~EndGroup~]UI Password
+1	Digital	output	5	Power_On_Fb
+1	Digital	output	6	Power_Off_Fb
+1	Digital	output	22	Emergency_Message_Supported_Fb
+1	Digital	output	80	[~BeginGroup~]Source Select
+1	Digital	output	81	Source_Select_1_Fb
+1	Digital	output	82	Source_Select_2_Fb
+1	Digital	output	83	Source_Select_3_Fb
+1	Digital	output	84	Source_Select_4_Fb
+1	Digital	output	85	Source_Select_5_Fb
+1	Digital	output	86	Source_Select_6_Fb
+1	Digital	output	87	Source_Select_7_Fb
+1	Digital	output	88	Source_Select_8_Fb
+1	Digital	output	89	Source_Select_9_Fb
+1	Digital	output	90	Source_Select_10_Fb
+1	Digital	output	91	Source_Select_11_Fb
+1	Digital	output	92	Source_Select_12_Fb
+1	Digital	output	93	Source_Select_13_Fb
+1	Digital	output	94	Source_Select_14_Fb
+1	Digital	output	95	Source_Select_15_Fb
+1	Digital	output	96	[~EndGroup~]Source Select
+1	Digital	output	115	[~BeginGroup~]Picture Control
+1	Digital	output	116	Image_Mute_On_Fb
+1	Digital	output	117	Image_Mute_Off_Fb
+1	Digital	output	120	Color_Plus_Fb
+1	Digital	output	121	Color_Minus_Fb
+1	Digital	output	122	Brightness_Plus_Fb
+1	Digital	output	123	Brightness_Minus_Fb
+1	Digital	output	124	Contrast_Plus_Fb
+1	Digital	output	125	Contrast_Minus_Fb
+1	Digital	output	126	Sharpness_Plus_Fb
+1	Digital	output	127	Sharpness_Minus_Fb
+1	Digital	output	128	[~EndGroup~]Picture Control
+1	Digital	output	129	Volume_Up_Fb
+1	Digital	output	130	Volume_Down_Fb
+1	Digital	output	131	Mute_On_Fb
+1	Digital	output	132	Mute_Off_Fb
+1	Digital	output	174	Warming_Up_Fb
+1	Digital	output	175	Cooling_Down_Fb
+1	Digital	output	224	[~BeginGroup~]IP Info
+1	Digital	output	225	DHCP_Enable_Fb
+1	Digital	output	226	DHCP_Disable_Fb
+1	Digital	output	227	[~EndGroup~]IP Info
+1	Digital	output	228	[~BeginGroup~]UI Password
+1	Digital	output	229	User_Password_Enable_Fb
+1	Digital	output	230	User_Password_Disable_Fb
+1	Digital	output	233	Admin_Password_Enable_Fb
+1	Digital	output	234	Admin_Password_Disable_Fb
+1	Digital	output	235	[~EndGroup~]UI Password
+2	Analog	input	22	Emergency_Alert_Code
+2	Analog	input	31	[~BeginGroup~]Picture Control
+2	Analog	input	32	Color_Level
+2	Analog	input	33	Brightness_Level
+2	Analog	input	34	Contrast_Level
+2	Analog	input	35	Sharpness_Level
+2	Analog	input	36	[~EndGroup~]Picture Control
+2	Analog	input	44	Volume
+2	Analog	output	2	Lamp_Hours_Fb
+2	Analog	output	22	Emergency_Alert_Code_Received
+2	Analog	output	31	[~BeginGroup~]Picture Control
+2	Analog	output	32	Color_Level_Fb
+2	Analog	output	33	Brightness_Level_Fb
+2	Analog	output	34	Contrast_Level_Fb
+2	Analog	output	35	Sharpness_Level_Fb
+2	Analog	output	36	[~EndGroup~]Picture Control
+2	Analog	output	42	Warming_Up_Progress
+2	Analog	output	43	Cooling_Down_Progress
+2	Analog	output	44	Volume_Fb
+2	Analog	output	53	Temperature
+3	Serial	input	1	Help_Message
+3	Serial	input	22	Emergency_Message
+3	Serial	input	50	[~BeginGroup~]IP Info
+3	Serial	input	56	[~EndGroup~]IP Info
+3	Serial	input	62	Projector_Name
+3	Serial	input	63	Assigned_To_Name
+3	Serial	input	64	Location
+3	Serial	input	65	Projector_Position
+3	Serial	input	69	Room_Name
+3	Serial	input	73	[~BeginGroup~]UI Password
+3	Serial	input	74	User_New_Password
+3	Serial	input	75	Admin_New_Password
+3	Serial	input	76	[~EndGroup~]UI Password
+3	Serial	input	84	[~BeginGroup~]Source Names
+3	Serial	input	85	Source_1_Name_Text
+3	Serial	input	86	Source_2_Name_Text
+3	Serial	input	87	Source_3_Name_Text
+3	Serial	input	88	Source_4_Name_Text
+3	Serial	input	89	Source_5_Name_Text
+3	Serial	input	90	Source_6_Name_Text
+3	Serial	input	91	Source_7_Name_Text
+3	Serial	input	92	Source_8_Name_Text
+3	Serial	input	93	Source_9_Name_Text
+3	Serial	input	94	Source_10_Name_Text
+3	Serial	input	95	Source_11_Name_Text
+3	Serial	input	96	Source_12_Name_Text
+3	Serial	input	97	Source_13_Name_Text
+3	Serial	input	98	Source_14_Name_Text
+3	Serial	input	99	Source_15_Name_Text
+3	Serial	input	100	[~EndGroup~]Source Names
+3	Serial	output	1	Help_Message_Received
+3	Serial	output	11	Status_Message_Fb
+3	Serial	output	12	Power_Status_Fb
+3	Serial	output	14	Lamp_Hours_Text_Fb
+3	Serial	output	20	Current_Source
+3	Serial	output	22	Emergency_Message_Received
+3	Serial	output	40	Device_ID_String_Fb
+3	Serial	output	50	[~BeginGroup~]IP Info
+3	Serial	output	51	IP_Address_Fb
+3	Serial	output	52	Subnet_Mask_Fb
+3	Serial	output	53	Default_Gateway_Fb
+3	Serial	output	54	DNS_Server_Fb
+3	Serial	output	55	MAC_Address_Fb
+3	Serial	output	56	[~EndGroup~]IP Info
+3	Serial	output	62	Projector_Name_Fb
+3	Serial	output	63	Assigned_To_Name_Fb
+3	Serial	output	64	Location_Fb
+3	Serial	output	65	Projector_Position_Fb
+3	Serial	output	66	Resolution
+3	Serial	output	67	Preset Mode
+3	Serial	output	68	Firmware Version
+3	Serial	output	69	Room_Name_Fb
+3	Serial	output	73	[~BeginGroup~]UI Password
+3	Serial	output	76	[~EndGroup~]UI Password
+3	Serial	output	84	[~BeginGroup~]Source Names
+3	Serial	output	85	Source_1_Name_Text_Fb
+3	Serial	output	86	Source_2_Name_Text_Fb
+3	Serial	output	87	Source_3_Name_Text_Fb
+3	Serial	output	88	Source_4_Name_Text_Fb
+3	Serial	output	89	Source_5_Name_Text_Fb
+3	Serial	output	90	Source_6_Name_Text_Fb
+3	Serial	output	91	Source_7_Name_Text_Fb
+3	Serial	output	92	Source_8_Name_Text_Fb
+3	Serial	output	93	Source_9_Name_Text_Fb
+3	Serial	output	94	Source_10_Name_Text_Fb
+3	Serial	output	95	Source_11_Name_Text_Fb
+3	Serial	output	96	Source_12_Name_Text_Fb
+3	Serial	output	97	Source_13_Name_Text_Fb
+3	Serial	output	98	Source_14_Name_Text_Fb
+3	Serial	output	99	Source_15_Name_Text_Fb
+3	Serial	output	100	[~EndGroup~]Source Names

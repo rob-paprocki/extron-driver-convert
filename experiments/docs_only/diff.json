@@ -1,0 +1,100 @@
+{
+  "only_in_a": [
+    "AutoSwitchStatus",
+    "CallCameraPreset",
+    "CameraStatus",
+    "ChangeLayout",
+    "CopyFiles",
+    "CopyStatus",
+    "ForceChangeRoomConfig",
+    "GetActiveTalkers",
+    "GetAllStatus",
+    "GetCameras",
+    "GetLayouts",
+    "GetRoomConfigs",
+    "GetScenarios",
+    "GoHome",
+    "GoToScenario",
+    "ISORecordStatus",
+    "ImportCameraPresets",
+    "LayoutStatus",
+    "Macro",
+    "ManualSwitchCamera",
+    "RecordingSpaceAvail",
+    "Restart",
+    "RoomConfigStatus",
+    "SaveCameraPreset",
+    "ScenarioStatus",
+    "ShotStatus"
+  ],
+  "only_in_b": [
+    "AutoSwitch",
+    "CameraPresetRecall",
+    "CameraPresetSave",
+    "ForceRoomConfiguration",
+    "HomeShotPreset",
+    "ISORecording",
+    "Layout",
+    "RoomConfiguration",
+    "Scenario",
+    "SwitchCamera",
+    "Wake"
+  ],
+  "shared": [
+    "ConnectionStatus",
+    "Output",
+    "PanTilt",
+    "Record",
+    "Sleep",
+    "Stream",
+    "Zoom"
+  ],
+  "differences": {
+    "PanTilt": {
+      "set_templates": {
+        "a": [
+          "url=api/StartPT body={'cam': {}, 'ptDir': {}}",
+          "url=api/StopPT body={'cam': {}}"
+        ],
+        "b": [
+          "url={} body={}"
+        ]
+      }
+    },
+    "Record": {
+      "value_map": {
+        "a": {
+          "On": "api/StartRecord",
+          "Off": "api/StopRecord"
+        },
+        "b": {
+          "Start": "api/StartRecord",
+          "Stop": "api/StopRecord"
+        }
+      }
+    },
+    "Stream": {
+      "value_map": {
+        "a": {
+          "On": "api/StartStream",
+          "Off": "api/StopStream"
+        },
+        "b": {
+          "Start": "api/StartStream",
+          "Stop": "api/StopStream"
+        }
+      }
+    },
+    "Zoom": {
+      "set_templates": {
+        "a": [
+          "url=api/StartZ body={'cam': {}, 'zDir': {}}",
+          "url=api/StopZ body={'cam': {}}"
+        ],
+        "b": [
+          "url={} body={}"
+        ]
+      }
+    }
+  }
+}

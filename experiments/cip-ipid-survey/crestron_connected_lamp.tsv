@@ -1,0 +1,12 @@
+list	type	direction	join	name
+2	Analog	output	1	Lamp_Count_Fb
+2	Analog	output	6	Lamp1_Hours_Fb
+2	Analog	output	7	Lamp2_Hours_Fb
+2	Analog	output	8	Lamp3_Hours_Fb
+2	Analog	output	9	Lamp4_Hours_Fb
+2	Analog	output	10	Lamp5_Hours_Fb
+3	Serial	output	1	Lamp1_Hours_Text_Fb
+3	Serial	output	2	Lamp2_Hours_Text_Fb
+3	Serial	output	3	Lamp3_Hours_Text_Fb
+3	Serial	output	4	Lamp4_Hours_Text_Fb
+3	Serial	output	5	Lamp5_Hours_Text_Fb

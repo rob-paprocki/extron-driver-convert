@@ -1,0 +1,1524 @@
+time	peer	dir	hex	kind	name	detail
+2026-09-18T01:05:39.830	processor:33714	open				
+2026-09-18T01:05:45.592	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:05:45.592	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:05:48.633	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:05:48.634	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:05:48.650	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:05:48.650	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:05:48.663	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:05:48.663	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:05:48.676	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:05:48.678	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:05:48.691	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:05:48.691	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:05:48.703	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:05:48.704	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:05:48.716	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:05:48.716	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:05:48.730	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:05:48.730	processor:33714	tx	90 50 00 00 00 00 FF	reply		
+2026-09-18T01:05:48.742	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:05:48.742	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:05:48.755	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:05:48.755	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:05:48.766	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:05:48.767	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:05:51.750	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:05:51.751	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:05:51.768	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:05:51.768	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:05:51.778	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:05:51.779	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:05:51.788	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:05:51.789	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:05:51.799	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:05:51.799	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:05:51.812	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:05:51.813	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:05:51.823	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:05:51.825	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:05:51.834	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:05:51.834	processor:33714	tx	90 50 00 00 00 00 FF	reply		
+2026-09-18T01:05:51.843	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:05:51.845	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:05:51.854	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:05:51.855	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:05:51.863	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:05:51.865	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:05:54.841	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:05:54.841	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:05:54.856	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:05:54.857	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:05:54.868	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:05:54.868	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:05:54.882	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:05:54.882	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:05:54.893	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:05:54.893	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:05:54.903	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:05:54.903	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:05:54.930	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:05:54.930	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:05:54.940	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:05:54.940	processor:33714	tx	90 50 00 00 00 00 FF	reply		
+2026-09-18T01:05:54.949	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:05:54.949	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:05:54.959	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:05:54.959	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:05:54.970	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:05:54.970	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:05:57.952	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:05:57.952	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:05:57.968	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:05:57.968	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:05:57.978	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:05:57.978	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:05:57.990	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:05:57.990	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:05:58.000	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:05:58.000	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:05:58.009	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:05:58.009	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:05:58.020	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:05:58.021	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:05:58.030	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:05:58.030	processor:33714	tx	90 50 00 00 00 00 FF	reply		
+2026-09-18T01:05:58.040	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:05:58.041	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:05:58.050	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:05:58.051	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:05:58.060	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:05:58.061	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:06:01.047	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:06:01.047	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:01.062	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:06:01.062	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:01.072	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:06:01.072	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:01.082	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:06:01.083	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:01.093	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:06:01.093	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:01.104	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:06:01.104	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:01.115	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:06:01.115	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:01.125	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:06:01.125	processor:33714	tx	90 50 00 00 00 00 FF	reply		
+2026-09-18T01:06:01.135	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:01.136	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:01.145	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:01.146	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:01.156	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:06:01.157	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:06:04.131	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:06:04.131	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:04.147	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:06:04.147	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:04.157	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:06:04.158	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:04.169	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:06:04.169	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:04.185	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:06:04.186	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:04.214	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:06:04.214	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:04.240	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:06:04.240	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:04.266	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:06:04.266	processor:33714	tx	90 50 00 00 00 00 FF	reply		
+2026-09-18T01:06:04.285	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:04.285	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:04.300	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:04.300	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:04.311	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:06:04.311	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:06:07.268	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:06:07.269	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:07.281	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:06:07.281	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:07.292	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:06:07.292	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:07.301	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:06:07.301	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:07.311	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:06:07.312	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:07.321	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:06:07.321	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:07.331	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:06:07.332	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:07.341	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:06:07.341	processor:33714	tx	90 50 00 00 00 00 FF	reply		
+2026-09-18T01:06:07.353	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:07.353	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:07.364	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:07.364	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:07.373	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:06:07.373	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:06:10.443	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:06:10.443	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:10.502	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:06:10.502	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:10.546	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:06:10.546	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:10.589	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:06:10.589	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:10.638	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:06:10.638	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:10.696	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:06:10.696	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:10.744	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:06:10.744	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:10.881	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:06:10.881	processor:33714	tx	90 50 00 00 00 00 FF	reply		
+2026-09-18T01:06:10.962	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:10.962	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:11.002	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:11.002	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:11.024	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:06:11.025	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:06:13.489	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:06:13.489	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:13.507	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:06:13.507	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:13.517	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:06:13.518	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:13.530	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:06:13.530	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:13.546	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:06:13.546	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:13.556	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:06:13.557	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:13.565	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:06:13.566	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:13.576	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:06:13.576	processor:33714	tx	90 50 00 00 00 00 FF	reply		
+2026-09-18T01:06:13.586	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:13.587	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:13.597	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:13.597	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:13.607	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:06:13.607	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:06:16.909	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:06:16.910	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:16.961	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:06:16.961	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:16.998	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:06:16.998	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:17.012	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:06:17.012	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:17.022	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:06:17.023	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:17.034	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:06:17.034	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:17.045	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:06:17.045	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:17.055	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:06:17.055	processor:33714	tx	90 50 00 00 00 00 FF	reply		
+2026-09-18T01:06:17.065	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:17.065	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:17.074	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:17.075	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:17.084	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:06:17.084	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:06:20.031	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:06:20.031	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:20.067	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:06:20.067	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:20.083	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:06:20.083	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:20.109	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:06:20.109	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:20.121	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:06:20.121	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:20.131	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:06:20.131	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:20.142	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:06:20.142	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:20.152	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:06:20.153	processor:33714	tx	90 50 00 00 00 00 FF	reply		
+2026-09-18T01:06:20.161	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:20.161	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:20.172	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:20.172	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:20.181	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:06:20.181	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:06:23.146	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:06:23.146	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:23.162	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:06:23.162	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:23.171	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:06:23.172	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:23.181	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:06:23.181	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:23.191	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:06:23.191	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:23.201	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:06:23.201	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:23.212	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:06:23.213	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:23.221	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:06:23.223	processor:33714	tx	90 50 00 00 00 00 FF	reply		
+2026-09-18T01:06:23.232	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:23.232	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:23.243	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:23.244	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:23.253	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:06:23.253	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:06:26.241	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:06:26.241	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:26.258	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:06:26.258	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:26.262	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:06:26.262	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:26.279	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:06:26.279	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:26.284	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:06:26.284	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:26.296	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:06:26.296	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:26.309	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:06:26.309	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:26.318	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:06:26.320	processor:33714	tx	90 50 00 00 00 00 FF	reply		
+2026-09-18T01:06:26.332	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:26.332	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:26.343	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:26.343	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:26.347	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:06:26.347	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:06:29.327	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:06:29.327	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:29.342	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:06:29.342	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:29.352	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:06:29.352	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:29.365	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:06:29.365	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:29.376	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:06:29.376	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:29.386	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:06:29.386	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:29.395	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:06:29.396	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:29.408	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:06:29.408	processor:33714	tx	90 50 00 00 00 00 FF	reply		
+2026-09-18T01:06:29.418	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:29.418	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:29.428	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:29.429	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:29.437	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:06:29.437	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:06:32.416	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:06:32.417	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:32.432	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:06:32.433	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:32.444	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:06:32.444	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:32.453	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:06:32.453	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:32.463	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:06:32.463	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:32.473	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:06:32.473	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:32.483	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:06:32.484	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:32.495	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:06:32.495	processor:33714	tx	90 50 00 00 00 00 FF	reply		
+2026-09-18T01:06:32.504	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:32.504	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:32.513	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:32.513	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:32.522	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:06:32.522	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:06:35.496	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:06:35.496	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:35.513	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:06:35.513	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:35.522	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:06:35.522	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:35.532	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:06:35.532	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:35.543	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:06:35.543	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:35.553	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:06:35.553	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:35.562	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:06:35.562	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:35.572	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:06:35.572	processor:33714	tx	90 50 00 00 00 00 FF	reply		
+2026-09-18T01:06:35.581	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:35.581	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:35.592	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:35.592	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:35.601	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:06:35.602	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:06:38.607	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:06:38.607	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:38.650	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:06:38.650	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:38.665	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:06:38.666	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:38.688	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:06:38.688	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:38.706	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:06:38.706	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:38.721	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:06:38.721	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:38.739	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:06:38.739	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:38.770	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:06:38.770	processor:33714	tx	90 50 00 00 00 00 FF	reply		
+2026-09-18T01:06:38.799	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:38.799	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:38.820	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:38.821	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:38.851	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:06:38.851	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:06:41.879	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:06:41.879	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:41.904	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:06:41.905	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:41.939	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:06:41.939	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:41.967	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:06:41.967	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:41.987	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:06:41.987	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:42.020	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:06:42.020	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:42.038	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:06:42.038	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:42.055	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:06:42.055	processor:33714	tx	90 50 00 00 00 00 FF	reply		
+2026-09-18T01:06:42.085	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:42.085	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:42.112	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:42.112	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:42.136	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:06:42.137	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:06:44.992	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:06:44.992	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:45.015	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:06:45.015	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:45.029	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:06:45.029	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:45.042	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:06:45.043	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:45.065	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:06:45.066	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:45.087	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:06:45.087	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:45.106	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:06:45.106	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:45.120	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:06:45.120	processor:33714	tx	90 50 00 00 00 00 FF	reply		
+2026-09-18T01:06:45.137	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:45.137	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:45.154	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:45.155	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:45.171	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:06:45.171	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:06:48.091	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:06:48.092	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:48.111	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:06:48.112	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:48.122	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:06:48.122	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:48.132	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:06:48.132	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:48.144	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:06:48.145	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:48.159	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:06:48.160	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:48.170	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:06:48.172	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:48.181	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:06:48.181	processor:33714	tx	90 50 00 00 00 00 FF	reply		
+2026-09-18T01:06:48.191	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:48.191	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:48.200	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:48.200	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:48.213	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:06:48.213	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:06:51.161	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:06:51.161	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:51.177	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:06:51.177	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:51.187	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:06:51.188	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:51.197	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:06:51.198	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:51.207	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:06:51.207	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:51.217	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:06:51.218	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:51.230	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:06:51.230	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:51.250	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:06:51.250	processor:33714	tx	90 50 00 00 00 00 FF	reply		
+2026-09-18T01:06:51.283	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:51.283	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:51.307	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:51.307	processor:33714	tx	90 50 00 00 00 00 00 00 00 00 FF	reply		
+2026-09-18T01:06:51.327	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:06:51.327	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:06:54.306	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:06:54.306	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:54.323	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:06:54.323	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:54.332	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:06:54.332	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:54.342	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:06:54.343	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:54.352	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:06:54.352	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:54.363	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:06:54.363	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:54.375	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:06:54.375	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:54.389	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:06:54.389	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:06:54.413	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:54.414	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:06:54.438	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:54.440	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:06:54.460	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:06:54.462	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:06:57.517	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:06:57.518	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:57.533	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:06:57.534	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:57.544	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:06:57.544	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:57.554	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:06:57.556	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:06:57.565	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:06:57.566	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:06:57.575	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:06:57.576	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:57.585	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:06:57.586	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:06:57.599	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:06:57.600	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:06:57.611	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:57.611	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:06:57.620	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:06:57.620	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:06:57.629	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:06:57.630	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:07:00.590	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:07:00.590	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:00.607	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:07:00.608	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:00.619	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:07:00.619	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:00.629	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:07:00.629	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:00.639	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:07:00.639	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:00.649	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:07:00.649	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:00.659	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:07:00.659	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:00.668	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:07:00.669	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:07:00.678	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:00.678	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:00.689	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:00.689	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:00.700	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:07:00.700	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:07:03.668	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:07:03.668	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:03.684	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:07:03.684	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:03.693	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:07:03.693	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:03.703	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:07:03.703	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:03.714	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:07:03.715	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:03.724	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:07:03.725	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:03.734	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:07:03.734	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:03.745	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:07:03.745	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:07:03.755	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:03.755	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:03.765	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:03.765	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:03.775	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:07:03.775	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:07:06.750	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:07:06.750	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:06.766	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:07:06.766	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:06.775	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:07:06.775	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:06.785	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:07:06.786	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:06.795	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:07:06.795	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:06.805	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:07:06.805	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:06.815	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:07:06.815	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:06.826	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:07:06.826	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:07:06.835	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:06.836	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:06.846	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:06.846	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:06.855	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:07:06.856	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:07:09.883	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:07:09.883	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:09.899	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:07:09.899	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:09.909	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:07:09.909	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:09.918	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:07:09.919	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:09.929	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:07:09.929	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:09.940	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:07:09.940	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:09.949	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:07:09.949	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:09.959	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:07:09.959	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:07:09.969	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:09.970	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:09.980	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:09.980	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:09.991	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:07:09.992	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:07:12.984	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:07:12.984	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:13.000	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:07:13.000	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:13.009	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:07:13.009	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:13.019	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:07:13.019	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:13.029	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:07:13.029	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:13.039	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:07:13.039	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:13.050	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:07:13.050	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:13.058	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:07:13.059	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:07:13.070	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:13.070	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:13.080	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:13.080	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:13.089	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:07:13.090	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:07:16.085	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:07:16.085	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:16.114	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:07:16.114	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:16.123	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:07:16.125	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:16.134	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:07:16.134	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:16.144	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:07:16.144	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:16.154	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:07:16.154	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:16.165	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:07:16.165	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:16.176	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:07:16.176	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:07:16.186	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:16.186	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:16.196	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:16.196	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:16.206	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:07:16.207	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:07:19.175	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:07:19.175	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:19.191	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:07:19.191	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:19.223	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:07:19.223	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:19.234	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:07:19.234	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:19.244	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:07:19.244	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:19.262	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:07:19.263	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:19.295	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:07:19.295	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:19.341	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:07:19.341	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:07:19.358	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:19.358	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:19.386	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:19.386	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:19.402	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:07:19.402	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:07:22.323	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:07:22.323	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:22.339	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:07:22.340	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:22.350	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:07:22.350	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:22.361	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:07:22.361	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:22.373	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:07:22.374	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:22.383	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:07:22.383	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:22.394	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:07:22.394	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:22.406	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:07:22.407	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:07:22.417	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:22.417	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:22.427	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:22.428	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:22.436	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:07:22.437	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:07:25.474	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:07:25.474	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:25.488	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:07:25.489	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:25.500	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:07:25.501	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:25.512	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:07:25.513	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:25.521	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:07:25.521	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:25.541	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:07:25.541	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:25.553	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:07:25.553	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:25.582	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:07:25.583	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:07:25.594	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:25.594	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:25.605	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:25.605	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:25.614	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:07:25.614	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:07:28.575	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:07:28.575	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:28.592	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:07:28.592	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:28.598	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:07:28.598	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:28.614	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:07:28.614	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:28.625	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:07:28.625	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:28.628	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:07:28.628	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:28.643	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:07:28.645	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:28.646	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:07:28.646	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:07:28.663	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:28.663	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:28.676	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:28.676	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:28.681	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:07:28.681	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:07:31.647	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:07:31.647	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:31.662	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:07:31.662	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:31.673	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:07:31.673	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:31.678	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:07:31.678	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:31.694	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:07:31.694	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:31.703	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:07:31.704	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:31.712	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:07:31.712	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:31.724	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:07:31.724	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:07:31.729	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:31.729	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:31.747	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:31.747	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:31.751	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:07:31.751	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:07:34.734	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:07:34.734	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:34.752	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:07:34.752	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:34.754	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:07:34.763	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:34.771	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:07:34.771	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:34.784	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:07:34.784	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:34.788	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:07:34.788	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:34.803	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:07:34.803	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:34.811	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:07:34.811	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:07:34.822	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:34.822	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:34.828	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:34.828	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:34.843	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:07:34.843	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:07:37.804	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:07:37.804	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:37.820	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:07:37.820	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:37.835	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:07:37.837	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:37.847	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:07:37.847	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:37.851	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:07:37.851	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:37.868	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:07:37.869	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:37.875	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:07:37.879	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:37.881	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:07:37.881	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:07:37.898	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:37.900	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:37.900	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:37.900	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:37.917	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:07:37.917	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:07:40.945	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:07:40.953	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:40.971	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:07:40.971	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:40.979	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:07:40.979	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:40.988	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:07:40.991	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:40.991	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:07:40.991	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:41.008	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:07:41.008	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:41.020	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:07:41.021	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:41.025	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:07:41.025	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:07:41.039	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:41.039	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:41.048	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:41.051	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:41.059	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:07:41.059	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:07:44.050	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:07:44.050	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:44.066	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:07:44.066	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:44.090	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:07:44.090	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:44.132	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:07:44.132	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:44.149	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:07:44.152	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:44.164	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:07:44.164	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:44.198	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:07:44.198	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:44.210	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:07:44.215	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:07:44.225	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:44.227	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:44.236	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:44.236	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:44.245	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:07:44.245	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:07:47.168	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:07:47.168	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:47.187	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:07:47.187	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:47.199	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:07:47.200	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:47.202	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:07:47.202	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:47.220	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:07:47.221	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:47.230	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:07:47.231	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:47.240	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:07:47.241	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:47.251	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:07:47.251	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:07:47.261	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:47.261	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:47.272	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:47.272	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:47.282	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:07:47.282	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:07:50.262	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:07:50.262	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:50.276	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:07:50.276	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:50.285	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:07:50.286	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:50.295	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:07:50.295	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:50.306	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:07:50.306	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:50.317	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:07:50.317	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:50.328	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:07:50.328	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:50.339	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:07:50.339	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:07:50.351	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:50.351	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:50.364	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:50.364	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:50.374	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:07:50.376	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:07:53.324	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:07:53.324	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:53.341	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:07:53.341	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:53.354	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:07:53.354	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:53.358	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:07:53.367	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:53.375	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:07:53.375	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:53.386	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:07:53.387	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:53.398	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:07:53.399	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:53.408	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:07:53.408	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:07:53.421	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:53.421	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:53.427	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:53.427	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:53.445	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:07:53.445	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:07:56.587	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:07:56.587	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:56.622	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:07:56.622	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:56.652	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:07:56.652	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:56.688	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:07:56.688	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:56.704	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:07:56.704	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:56.710	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:07:56.710	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:56.724	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:07:56.724	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:56.737	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:07:56.738	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:07:56.746	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:56.747	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:56.756	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:56.756	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:56.758	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:07:56.758	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:07:59.691	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:07:59.691	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:59.704	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:07:59.704	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:59.721	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:07:59.721	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:59.727	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:07:59.733	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:07:59.738	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:07:59.738	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:59.754	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:07:59.754	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:07:59.759	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:07:59.759	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:07:59.772	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:07:59.772	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:07:59.781	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:59.781	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:59.795	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:07:59.795	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:07:59.807	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:07:59.807	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:08:02.766	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:08:02.766	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:02.784	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:08:02.784	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:02.791	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:08:02.791	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:02.806	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:08:02.806	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:02.816	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:08:02.816	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:02.825	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:08:02.825	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:08:02.834	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:08:02.834	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:02.846	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:08:02.847	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:08:02.856	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:02.858	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:02.868	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:02.868	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:02.879	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:08:02.879	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:08:05.846	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:08:05.846	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:05.864	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:08:05.864	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:05.877	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:08:05.877	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:05.887	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:08:05.887	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:05.895	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:08:05.895	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:05.905	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:08:05.905	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:08:05.917	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:08:05.919	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:05.922	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:08:05.922	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:08:05.939	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:05.939	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:05.949	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:05.949	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:05.956	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:08:05.956	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:08:08.966	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:08:08.966	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:08.983	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:08:08.983	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:08.995	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:08:08.995	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:09.009	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:08:09.009	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:09.017	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:08:09.017	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:09.028	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:08:09.028	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:08:09.039	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:08:09.039	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:09.044	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:08:09.044	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:08:09.060	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:09.060	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:09.068	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:09.068	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:09.077	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:08:09.077	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:08:12.069	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:08:12.069	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:12.085	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:08:12.085	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:12.093	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:08:12.093	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:12.104	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:08:12.104	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:12.115	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:08:12.117	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:12.127	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:08:12.127	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:08:12.137	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:08:12.137	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:12.148	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:08:12.148	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:08:12.162	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:12.162	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:12.173	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:12.173	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:12.179	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:08:12.179	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:08:15.151	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:08:15.152	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:15.167	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:08:15.169	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:15.186	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:08:15.186	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:15.212	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:08:15.212	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:15.241	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:08:15.241	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:15.258	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:08:15.258	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:08:15.284	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:08:15.284	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:15.306	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:08:15.307	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:08:15.318	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:15.318	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:15.323	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:15.323	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:15.337	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:08:15.338	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:08:18.371	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:08:18.371	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:18.384	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:08:18.384	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:18.400	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:08:18.400	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:18.410	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:08:18.410	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:18.419	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:08:18.419	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:18.419	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:08:18.419	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:08:18.441	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:08:18.441	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:18.461	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:08:18.461	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:08:18.496	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:18.496	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:18.518	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:18.518	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:18.537	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:08:18.537	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:08:21.487	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:08:21.487	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:21.504	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:08:21.504	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:21.514	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:08:21.514	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:21.528	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:08:21.528	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:21.531	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:08:21.538	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:21.546	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:08:21.546	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:08:21.555	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:08:21.555	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:21.564	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:08:21.564	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:08:21.578	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:21.579	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:21.594	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:21.595	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:21.616	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:08:21.617	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:08:24.636	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:08:24.636	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:24.653	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:08:24.654	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:24.658	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:08:24.665	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:24.676	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:08:24.676	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:24.683	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:08:24.683	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:24.693	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:08:24.693	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:08:24.704	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:08:24.705	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:24.712	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:08:24.712	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:08:24.724	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:24.724	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:24.734	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:24.734	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:24.743	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:08:24.743	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:08:27.731	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:08:27.731	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:27.748	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:08:27.748	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:27.756	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:08:27.756	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:27.767	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:08:27.767	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:27.772	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:08:27.772	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:27.789	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:08:27.789	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:08:27.801	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:08:27.801	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:27.806	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:08:27.806	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:08:27.819	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:27.819	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:27.829	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:27.829	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:27.840	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:08:27.840	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:08:30.810	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:08:30.815	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:30.829	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:08:30.829	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:30.841	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:08:30.841	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:30.849	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:08:30.849	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:30.856	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:08:30.856	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:30.872	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:08:30.874	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:08:30.883	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:08:30.883	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:30.886	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:08:30.886	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:08:30.903	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:30.906	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:30.906	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:30.906	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:30.925	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:08:30.925	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:08:33.898	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:08:33.898	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:33.915	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:08:33.915	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:33.927	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:08:33.929	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:33.932	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:08:33.932	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:33.949	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:08:33.949	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:33.961	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:08:33.961	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:08:33.966	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:08:33.971	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:33.979	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:08:33.979	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:08:33.992	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:33.992	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:34.000	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:34.000	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:34.013	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:08:34.013	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:08:36.974	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:08:36.974	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:36.990	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:08:36.990	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:37.000	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:08:37.000	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:37.014	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:08:37.014	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:37.022	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:08:37.022	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:37.033	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:08:37.035	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:08:37.040	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:08:37.040	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:37.053	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:08:37.053	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:08:37.053	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:37.053	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:37.069	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:37.069	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:37.086	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:08:37.086	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:08:40.101	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:08:40.101	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:40.118	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:08:40.120	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:40.130	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:08:40.130	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:40.135	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:08:40.135	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:40.149	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:08:40.149	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:40.169	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:08:40.174	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:08:40.186	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:08:40.186	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:40.192	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:08:40.192	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:08:40.207	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:40.208	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:40.212	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:40.212	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:40.230	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:08:40.231	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:08:43.211	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:08:43.211	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:43.243	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:08:43.244	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:43.259	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:08:43.259	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:43.264	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:08:43.264	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:43.279	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:08:43.279	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:43.287	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:08:43.287	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:08:43.296	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:08:43.296	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:43.309	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:08:43.310	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:08:43.318	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:43.318	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:43.326	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:43.326	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:43.330	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:08:43.330	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:08:46.318	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:08:46.320	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:46.333	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:08:46.333	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:46.342	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:08:46.342	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:46.348	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:08:46.348	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:46.364	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:08:46.365	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:46.381	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:08:46.381	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:08:46.401	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:08:46.402	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:46.416	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:08:46.416	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:08:46.454	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:46.454	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:46.483	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:46.483	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:46.500	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:08:46.500	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:08:49.423	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:08:49.423	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:49.443	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:08:49.443	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:49.458	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:08:49.458	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:49.470	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:08:49.470	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:49.476	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:08:49.476	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:49.491	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:08:49.491	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:08:49.499	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:08:49.499	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:49.510	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:08:49.510	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:08:49.521	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:49.521	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:49.531	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:49.531	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:49.542	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:08:49.542	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:08:52.502	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:08:52.503	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:52.518	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:08:52.519	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:52.527	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:08:52.527	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:52.539	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:08:52.539	processor:33714	tx	90 50 00 FF	reply		
+2026-09-18T01:08:52.549	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:08:52.549	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:52.557	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:08:52.557	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:08:52.565	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:08:52.565	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:08:52.575	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:08:52.581	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:08:52.591	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:52.591	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:52.600	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:08:52.600	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:08:52.608	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:08:52.608	processor:33714	tx	90 50 01 04 FF	reply		
+2026-09-18T01:08:53.378	processor:33714	rx	81 01 04 39 03 FF	command	AutoExposure	Manual
+2026-09-18T01:08:53.379	processor:33714	tx	90 41 FF	reply		
+2026-09-18T01:08:53.379	processor:33714	tx	90 51 FF	reply		
+2026-09-18T01:08:54.439	processor:33714	rx	81 01 04 35 01 FF	command	WhiteBalance	Indoor
+2026-09-18T01:08:54.440	processor:33714	tx	90 41 FF	reply		
+2026-09-18T01:08:54.440	processor:33714	tx	90 51 FF	reply		
+2026-09-18T01:08:55.510	processor:33714	rx	81 01 04 38 03 FF	command	AutoFocus	Off
+2026-09-18T01:08:55.510	processor:33714	tx	90 41 FF	reply		
+2026-09-18T01:08:55.510	processor:33714	tx	90 51 FF	reply		
+2026-09-18T01:08:56.582	processor:33714	rx	81 01 04 33 02 FF	command	Backlight	On
+2026-09-18T01:08:56.583	processor:33714	tx	90 41 FF	reply		
+2026-09-18T01:08:56.583	processor:33714	tx	90 51 FF	reply		
+2026-09-18T01:08:57.660	processor:33714	rx	81 C2 01 08 03 FF	command	CameraOutput	3
+2026-09-18T01:08:57.661	processor:33714	tx	90 41 FF	reply		
+2026-09-18T01:08:57.661	processor:33714	tx	90 51 FF	reply		
+2026-09-18T01:08:58.726	processor:33714	rx	81 01 04 3F 02 51 FF	command	Preset	Recall 81 = TrackingFraming Stop
+2026-09-18T01:08:58.726	processor:33714	tx	90 41 FF	reply		
+2026-09-18T01:08:58.726	processor:33714	tx	90 51 FF	reply		
+2026-09-18T01:08:59.802	processor:33714	rx	81 01 04 62 03 FF	command	FreezeFrame	Off
+2026-09-18T01:08:59.802	processor:33714	tx	90 41 FF	reply		
+2026-09-18T01:08:59.802	processor:33714	tx	90 51 FF	reply		
+2026-09-18T01:09:00.872	processor:33714	rx	81 C2 01 08 01 FF	command	CameraOutput	1
+2026-09-18T01:09:00.873	processor:33714	tx	90 41 FF	reply		
+2026-09-18T01:09:00.873	processor:33714	tx	90 51 FF	reply		
+2026-09-18T01:09:03.891	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:09:03.893	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:09:03.893	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:09:03.893	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:03.936	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:09:03.936	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:03.969	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:09:03.969	processor:33714	tx	90 50 01 FF	reply		
+2026-09-18T01:09:03.998	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:09:03.999	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:04.036	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:09:04.038	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:09:04.069	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:09:04.069	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:04.086	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:09:04.094	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:09:04.130	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:09:04.131	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:09:04.155	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:09:04.155	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:09:04.171	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:09:04.171	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:09:05.156	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:09:05.157	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:09:05.171	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:09:05.171	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:05.184	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:09:05.184	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:05.187	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:09:05.187	processor:33714	tx	90 50 01 FF	reply		
+2026-09-18T01:09:05.204	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:09:05.204	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:05.204	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:09:05.204	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:09:05.204	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:09:05.204	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:05.238	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:09:05.238	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:09:05.248	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:09:05.248	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:09:05.257	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:09:05.259	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:09:05.269	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:09:05.269	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:09:08.241	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:09:08.241	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:09:08.259	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:09:08.259	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:08.271	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:09:08.271	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:08.280	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:09:08.280	processor:33714	tx	90 50 01 FF	reply		
+2026-09-18T01:09:08.289	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:09:08.289	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:08.300	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:09:08.300	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:09:08.311	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:09:08.311	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:08.317	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:09:08.317	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:09:08.330	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:09:08.330	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:09:08.333	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:09:08.333	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:09:08.351	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:09:08.351	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:09:11.369	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:09:11.369	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:09:11.386	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:09:11.386	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:11.397	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:09:11.398	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:11.407	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:09:11.408	processor:33714	tx	90 50 01 FF	reply		
+2026-09-18T01:09:11.419	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:09:11.420	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:11.421	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:09:11.432	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:09:11.439	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:09:11.439	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:11.452	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:09:11.452	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:09:11.454	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:09:11.454	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:09:11.471	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:09:11.471	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:09:11.481	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:09:11.481	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:09:14.455	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:09:14.456	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:09:14.472	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:09:14.472	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:14.479	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:09:14.479	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:14.492	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:09:14.492	processor:33714	tx	90 50 01 FF	reply		
+2026-09-18T01:09:14.503	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:09:14.503	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:14.515	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:09:14.515	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:09:14.524	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:09:14.524	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:14.533	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:09:14.539	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:09:14.550	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:09:14.550	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:09:14.555	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:09:14.562	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:09:14.572	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:09:14.574	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:09:17.533	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:09:17.539	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:09:17.581	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:09:17.581	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:17.599	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:09:17.599	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:17.627	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:09:17.627	processor:33714	tx	90 50 01 FF	reply		
+2026-09-18T01:09:17.648	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:09:17.648	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:17.660	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:09:17.660	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:09:17.668	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:09:17.668	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:17.681	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:09:17.681	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:09:17.693	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:09:17.693	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:09:17.703	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:09:17.703	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:09:17.712	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:09:17.712	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:09:20.654	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:09:20.654	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:09:20.673	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:09:20.674	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:20.685	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:09:20.685	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:20.696	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:09:20.696	processor:33714	tx	90 50 01 FF	reply		
+2026-09-18T01:09:20.707	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:09:20.707	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:20.713	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:09:20.713	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:09:20.722	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:09:20.722	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:20.736	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:09:20.736	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:09:20.746	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:09:20.746	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:09:20.756	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:09:20.758	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:09:20.767	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:09:20.767	processor:33714	tx	90 50 01 01 FF	reply		
+2026-09-18T01:09:23.798	processor:33714	rx	81 09 04 00 FF	inquiry	Power	
+2026-09-18T01:09:23.798	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:09:23.811	processor:33714	rx	81 09 08 01 FF	inquiry	TrackingFraming	
+2026-09-18T01:09:23.811	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:23.824	processor:33714	rx	81 09 04 39 FF	inquiry	AutoExposure	
+2026-09-18T01:09:23.824	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:23.829	processor:33714	rx	81 09 04 35 FF	inquiry	WhiteBalance	
+2026-09-18T01:09:23.829	processor:33714	tx	90 50 01 FF	reply		
+2026-09-18T01:09:23.845	processor:33714	rx	81 09 04 38 FF	inquiry	AutoFocus	
+2026-09-18T01:09:23.847	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:23.858	processor:33714	rx	81 09 04 33 FF	inquiry	Backlight	
+2026-09-18T01:09:23.859	processor:33714	tx	90 50 02 FF	reply		
+2026-09-18T01:09:23.868	processor:33714	rx	81 09 04 62 FF	inquiry	FreezeFrame	
+2026-09-18T01:09:23.868	processor:33714	tx	90 50 03 FF	reply		
+2026-09-18T01:09:23.877	processor:33714	rx	81 09 04 47 FF	inquiry	ZoomPosition	
+2026-09-18T01:09:23.877	processor:33714	tx	90 50 01 0F 04 00 FF	reply		
+2026-09-18T01:09:23.881	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:09:23.881	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:09:23.897	processor:33714	rx	81 09 06 12 FF	inquiry	PanTiltPosition	
+2026-09-18T01:09:23.897	processor:33714	tx	90 50 00 03 0E 08 0F 0E 00 0C FF	reply		
+2026-09-18T01:09:23.909	processor:33714	rx	81 C2 09 08 FF	inquiry	CameraOutput	
+2026-09-18T01:09:23.909	processor:33714	tx	90 50 01 01 FF	reply		

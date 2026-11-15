@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Tests (each file runs on its own; suites skip what needs vendor material)
+        run: |
+          fail=0
+          for t in tools/test_*.py; do
+            case "$t" in tools/test_convert_gui.py) continue;; esac
+            echo "::group::$t"
+            (cd tools && PYTHONUTF8=1 python "$(basename "$t")") || fail=1
+            echo "::endgroup::"
+          done
+          exit $fail
+      - name: Personal-value check (emails, IPs, MACs, paths, credentials)
+        run: python3 tools/check_repo.py
+
+  changelog:
+    # Flag visible changes that have no changelog line.
+    if: endsWith(github.repository, '-private')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Changelog check
+        run: python3 scripts/release/changelog_check.py

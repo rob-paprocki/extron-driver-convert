@@ -1,0 +1,8 @@
+list	type	direction	join	name
+1	Digital	output	1	DHCP_Enable_Fb
+1	Digital	output	2	DHCP_Disable_Fb
+3	Serial	output	1	IP_Address_Fb
+3	Serial	output	2	Subnet_Mask_Fb
+3	Serial	output	3	Default_Gateway_Fb
+3	Serial	output	4	DNS_Server_Fb
+3	Serial	output	5	MAC_Address_Fb
